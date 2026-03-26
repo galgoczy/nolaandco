@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  price       Int
+  category    String   // "parna" | "poszter"
+  style       String
+  dimensions  String
+  material    String?
+  image       String
+  features    String[]
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems OrderItem[]
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
+  status          String   @default("pending") // pending, processing, shipped, delivered, cancelled
+  total           Int
+  shippingCost    Int      @default(0)
+  stripeSessionId String?
+  stripePaymentId String?
+
+  // Customer info
+  customerEmail   String
+  customerPhone   String
+  customerFirstName String
+  customerLastName  String
+
+  // Shipping address
+  shippingZip     String
+  shippingCity    String
+  shippingAddress String
+  shippingNote    String?
+
+  items     OrderItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([customerEmail])
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Int
+
+  // Custom data stored as JSON
+  babyName    String?
+  birthDate   String?
+  birthWeight String?
+  birthLength String?
+  birthTime   String?
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}

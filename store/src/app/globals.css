@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-warm-beige: #FDFBF7;
+  --color-warm-beige-dark: #F5F0E8;
+  --color-terracotta: #C4A591;
+  --color-terracotta-light: #D4B9A8;
+  --color-terracotta-dark: #A88B77;
+  --color-accent-red: #D55850;
+  --color-carbon: #333333;
+  --color-carbon-light: #4A4A4A;
+  --font-sans: "Montserrat", system-ui, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #FDFBF7;
+  color: #333333;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: #C4A591;
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F0E8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C4A591;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A88B77;
+}
+
+/* Smooth page transitions */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+main {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Parallax base styles */
+.parallax-container {
+  perspective: 1px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.parallax-layer {
+  transform-style: preserve-3d;
+}
