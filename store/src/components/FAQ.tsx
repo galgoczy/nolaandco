@@ -1,111 +1,99 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 
 const faqs = [
   {
-    question: "Mennyi idő alatt készül el a párna?",
+    question: "MIKOR KAPOM MEG A RENDELÉSEMET?",
     answer:
-      "Minden párnát kézzel készítünk, ezért a szokásos elkészítési idő 5-7 munkanap. Sürgős megrendelés esetén kérd az expressz elkészítést, amely 2-3 munkanap.",
+      "Mivel minden Nola termék egyedileg, az általad megadott születési adatok alapján készül, a gyártási időnk 5-8 munkanap. Amint a termék elkészült, azonnal átadjuk a futárnak, amiről e-mailben értesítünk.",
+    stars: 5,
   },
   {
-    question: "Mosható a párna?",
+    question: "MILYEN ANYAGOKBÓL KÉSZÜL?",
     answer:
-      "Igen! A NOLA&CO párnák 30°C-on, kímélő programmal mosógépben moshatók. Szárítógépbe ne tedd, természetes szárítást javaslunk. A hímzés tartós és mosásálló.",
+      "Kizárólag OEKO-TEX® Standard 100 tanúsított pamut huzatot és cérnát használunk. A töltet hipoallergén, csomósodásmentes és formatartó, ami számtalan mosás után is puha marad.",
+    stars: 5,
   },
   {
-    question: "Milyen anyagból készül?",
+    question: "HOGYAN KELL MOSNI?",
     answer:
-      "Kizárólag Oeko-Tex Standard 100 tanúsított, 100% pamut anyagot használunk. A töltőanyag hipoallergén poliészter, ami bababiztos és tartja a formáját.",
-  },
-  {
-    question: "Módosíthatom a megrendelést?",
-    answer:
-      "A rendelés leadásától számított 24 órán belül módosíthatod az adatokat. Keress minket e-mailben vagy Instagramon, és segítünk a változtatásban.",
-  },
-  {
-    question: "Van lehetőség csomagolásra ajándékba?",
-    answer:
-      "A Prémium párnáink díszdobozban érkeznek. Az alap párnákhoz is kérhetsz ajándékcsomagolást +990 Ft-ért, ami tartalmaz egy szép dobozot és üdvözlőkártyát.",
-  },
-  {
-    question: "Hogyan történik a szállítás?",
-    answer:
-      "GLS futárszolgálattal szállítunk egész Magyarországon. A szállítási idő 1-2 munkanap az elkészülést követően. 15 000 Ft felett ingyenes a szállítás!",
-  },
-  {
-    question: "Vissza lehet küldeni?",
-    answer:
-      "Egyedi termékeink miatt visszaküldési jogot alapvetően nem tudunk biztosítani, de ha minőségi problémát tapasztalsz, természetesen cseréljük vagy visszatérítjük.",
+      "Mosógépben, kímélő programon, 30°C-on mosható az egész párna. Utána levegőn érdemes szárítani. A hímzés tartós és mosásálló – a formáját és szépségét megőrzi.",
+    stars: 5,
   },
 ];
 
 export default function FAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
   return (
-    <section id="gyik" className="py-24 lg:py-32 bg-warm-beige">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="gyik" className="py-20 lg:py-28 bg-[#F5F0E8]">
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-4"
         >
-          <span className="text-xs tracking-[0.3em] uppercase text-terracotta font-light">
-            Kérdéseid vannak?
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl text-carbon mt-3">
-            Gyakori kérdések
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-[44px] text-terracotta/60 leading-tight">
+            GYAKRAN ISMÉTELT
+            <br />
+            KÉRDÉSEK
           </h2>
-          <div className="mt-6 w-16 h-[1px] bg-terracotta mx-auto" />
         </motion.div>
 
-        <div className="space-y-3">
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-center text-carbon-light/60 font-light text-sm max-w-3xl mx-auto mb-16"
+        >
+          Ha felmerül benned bármilyen kérdés, kérlek olvasd át a gyakran
+          ismételt kérdéseket, ahol rigyekeztünk minél több kérdést megválaszolni.
+          <br />
+          Ha mégsem találtad meg azt, amit kerestél, bátran írj nekünk:{" "}
+          <a
+            href="mailto:hello@nolaandco.hu"
+            className="text-terracotta hover:text-terracotta-dark transition-colors"
+          >
+            hello@nolaandco.hu
+          </a>
+        </motion.p>
+
+        {/* FAQ cards in a row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
           {faqs.map((faq, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-20px" }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
+              viewport={{ once: true, margin: "-30px" }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              whileHover={{ y: -4 }}
+              className="bg-warm-beige rounded-2xl p-7 lg:p-8 border border-terracotta/5 transition-shadow duration-300 hover:shadow-lg hover:shadow-terracotta/5"
             >
-              <button
-                onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full flex items-center justify-between p-5 bg-warm-beige-dark rounded-2xl hover:bg-terracotta/5 transition-all duration-300 group"
-              >
-                <span className="text-left text-sm font-medium text-carbon group-hover:text-terracotta transition-colors">
-                  {faq.question}
-                </span>
-                <motion.div
-                  animate={{ rotate: openIndex === i ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex-shrink-0 ml-4"
-                >
-                  <ChevronDown
-                    size={18}
-                    className="text-carbon-light group-hover:text-terracotta transition-colors"
+              {/* Question */}
+              <h3 className="text-sm font-medium tracking-wide text-carbon mb-4">
+                {faq.question}
+              </h3>
+
+              {/* Stars */}
+              <div className="flex gap-1 mb-5">
+                {Array.from({ length: faq.stars }).map((_, j) => (
+                  <Star
+                    key={j}
+                    size={16}
+                    className="text-terracotta/30 fill-terracotta/30"
                   />
-                </motion.div>
-              </button>
-              <AnimatePresence>
-                {openIndex === i && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-5 py-4 text-sm text-carbon-light font-light leading-relaxed">
-                      {faq.answer}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                ))}
+              </div>
+
+              {/* Answer */}
+              <p className="text-sm text-carbon-light font-light leading-relaxed">
+                {faq.answer}
+              </p>
             </motion.div>
           ))}
         </div>

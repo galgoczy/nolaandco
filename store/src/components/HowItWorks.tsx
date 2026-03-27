@@ -2,32 +2,31 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import Image from "next/image";
 
 const steps = [
   {
     number: "01",
-    title: "Válaszd ki a stílust",
-    description:
-      "Böngészd végig az Angyalbaba és Korababa stílusainkat. Válaszd ki, melyik illik leginkább a kisbabádhoz.",
-    icon: "/icons/Egyedi.png",
-    color: "from-terracotta/20 to-terracotta/5",
+    title: "Válaszd ki a formát – ORIGIN vagy NOVA",
+    details: [
+      "ORIGIN: a magzati állapotot idéző, oldalt fekvő pozíció",
+      "NOVA: lendületesebb, dinamikusabb, hason fekvő pozíció",
+    ],
   },
   {
     number: "02",
-    title: "Add meg az adatokat",
-    description:
-      "Töltsd ki a születési adatokat: név, dátum, súly, hossz. Ezek kerülnek a párnára gyönyörű hímzéssel.",
-    icon: "/icons/Kézzel készült.png",
-    color: "from-accent-red/15 to-accent-red/5",
+    title: "Dönts a stílusról – CORE, LINEA vagy ATELIER",
+    details: [
+      "CORE: skandináv minimalizmus",
+      "LINEA: megszakítás nélküli vonalvezetés",
+      "ATELIER: kézműves részletgazdagság",
+    ],
   },
   {
     number: "03",
-    title: "Mi elkészítjük neked",
-    description:
-      "Kézzel készítjük el a párnádat prémium anyagokból. 5-7 munkanapon belül szállítjuk, díszdobozban.",
-    icon: "/icons/Szállítás.png",
-    color: "from-terracotta/15 to-terracotta/5",
+    title: "Add meg a születési adatokat – NÉV, DÁTUM, SÚLY, HOSSZ",
+    details: [
+      "Ezt követően mi 5-8 nap alatt elkészítjük a párnát és postázzuk számodra",
+    ],
   },
 ];
 
@@ -37,96 +36,80 @@ export default function HowItWorks() {
     target: sectionRef,
     offset: ["start end", "end start"],
   });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
 
   return (
     <section
-      id="hogyan-keszul"
+      id="stilusok"
       ref={sectionRef}
-      className="relative py-24 lg:py-32 overflow-hidden"
+      className="relative py-20 lg:py-28 overflow-hidden"
     >
-      {/* Terracotta parallax background */}
+      {/* Terracotta background with parallax */}
       <motion.div
         style={{ y: bgY }}
         className="absolute inset-0 bg-terracotta -z-10"
       />
 
-      {/* Decorative shapes */}
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
-        className="absolute top-20 -left-20 w-60 h-60 rounded-full border border-white/10"
-      />
-      <motion.div
-        animate={{ rotate: -360 }}
-        transition={{ repeat: Infinity, duration: 35, ease: "linear" }}
-        className="absolute bottom-20 -right-20 w-80 h-80 rounded-full border border-dashed border-white/5"
-      />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-[1100px] mx-auto px-6 lg:px-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-20"
+          className="text-center mb-6"
         >
-          <span className="text-xs tracking-[0.3em] uppercase text-white/60 font-light">
-            Egyszerű folyamat
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl text-white mt-3">
-            Három egyszerű lépés
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-[44px] text-white leading-tight">
+            HÁROM EGYSZERŰ LÉPÉS A
             <br />
-            <span className="text-warm-beige-dark">a NOLA-párnáig</span>
+            NOLA-PÁRNÁIG
           </h2>
-          <div className="mt-6 w-16 h-[1px] bg-white/30 mx-auto" />
         </motion.div>
 
-        {/* Steps */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-center text-white/70 font-light text-sm max-w-2xl mx-auto mb-16"
+        >
+          Párnáinkat két különböző formában és három grafikai stílusban tudod
+          megrendelni, hogy mindenki megtalálja azt, ami hozzá a legközelebb áll
+        </motion.p>
+
+        {/* Steps - 3 columns */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
           {steps.map((step, i) => (
             <motion.div
               key={step.number}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: i * 0.2 }}
-              className="group"
+              transition={{ duration: 0.5, delay: i * 0.15 }}
+              className="flex flex-col"
             >
-              <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 lg:p-10 border border-white/10 hover:bg-white/15 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
-                {/* Step number */}
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="relative inline-flex items-center justify-center w-16 h-16 mb-6"
-                >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${step.color} rounded-2xl rotate-6 group-hover:rotate-12 transition-transform duration-300`} />
-                  <div className="relative bg-white rounded-2xl w-full h-full flex items-center justify-center shadow-lg">
-                    <Image
-                      src={step.icon}
-                      alt={step.title}
-                      width={28}
-                      height={28}
-                    />
-                  </div>
-                </motion.div>
-
-                {/* Number indicator */}
-                <div className="absolute top-6 right-8 font-display text-6xl font-bold text-white/5 group-hover:text-white/10 transition-colors">
+              {/* Number badge - rounded square like design */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="w-[72px] h-[72px] bg-[#F5F0E8]/90 rounded-2xl flex items-center justify-center mb-6 shadow-sm"
+              >
+                <span className="text-2xl font-light text-carbon-light">
                   {step.number}
-                </div>
+                </span>
+              </motion.div>
 
-                <h3 className="text-xl font-display font-medium text-white mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-sm text-white/70 font-light leading-relaxed">
-                  {step.description}
-                </p>
+              {/* Title */}
+              <h3 className="text-lg font-display text-white mb-3 leading-snug">
+                {step.title}
+              </h3>
 
-                {/* Connector line (desktop only) */}
-                {i < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-6 w-12 border-t border-dashed border-white/20" />
-                )}
+              {/* Details */}
+              <div className="space-y-1.5">
+                {step.details.map((detail, j) => (
+                  <p key={j} className="text-sm text-white/60 font-light leading-relaxed">
+                    {detail}
+                  </p>
+                ))}
               </div>
             </motion.div>
           ))}
@@ -134,24 +117,17 @@ export default function HowItWorks() {
 
         {/* CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
           className="text-center mt-16"
         >
           <a
             href="#parnak"
-            className="inline-flex items-center px-8 py-4 bg-white text-terracotta text-sm font-medium tracking-wider rounded-full hover:bg-warm-beige hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+            className="inline-block px-10 py-3.5 bg-[#c8d8e4]/80 text-carbon text-sm font-medium tracking-wider rounded-full hover:bg-[#c8d8e4] transition-all duration-300 hover:shadow-lg italic"
           >
-            KEZDJÜK EL
-            <motion.span
-              className="ml-2"
-              animate={{ x: [0, 4, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-            >
-              →
-            </motion.span>
+            Kezdd el a tervezést!
           </a>
         </motion.div>
       </div>

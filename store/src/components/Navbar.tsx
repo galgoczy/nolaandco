@@ -4,15 +4,15 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Menu, X, Search, User } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 
 const navLinks = [
   { href: "/#hero", label: "FŐOLDAL" },
   { href: "/#parnak", label: "PÁRNÁK" },
-  { href: "/#hogyan-keszul", label: "HOGYAN KÉSZÜL" },
-  { href: "/#poszterek", label: "POSZTEREK" },
-  { href: "/akciok", label: "AKCIÓK" },
+  { href: "/#stilusok", label: "STÍLUSOK" },
+  { href: "/#poszterek", label: "POSZTER" },
+  { href: "/#ajandekkartya", label: "AJÁNDÉKKÁRTYA" },
 ];
 
 export default function Navbar() {
@@ -35,92 +35,89 @@ export default function Navbar() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-warm-beige/95 backdrop-blur-md shadow-sm"
-            : "bg-transparent"
+            ? "bg-[#F5F0E8]/95 backdrop-blur-md shadow-[0_1px_0_rgba(196,165,145,0.1)]"
+            : "bg-[#F5F0E8]"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="lg:hidden p-2 text-carbon hover:text-terracotta transition-colors"
-              aria-label="Menü"
-            >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
+          <div className="flex items-center justify-between h-[70px]">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+            <Link href="/" className="flex items-center">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Image
                   src="/logo.svg"
                   alt="NOLA&CO"
-                  width={140}
-                  height={40}
-                  className="h-8 lg:h-10 w-auto"
+                  width={160}
+                  height={45}
+                  className="h-9 w-auto"
                   priority
                 />
               </motion.div>
             </Link>
 
-            {/* Desktop nav */}
-            <nav className="hidden lg:flex items-center gap-8">
+            {/* Desktop nav - centered */}
+            <nav className="hidden lg:flex items-center gap-10">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="relative text-sm font-light tracking-widest text-carbon-light hover:text-terracotta transition-colors duration-300 group"
+                  className="relative text-[13px] font-extralight tracking-[0.2em] text-terracotta/80 hover:text-terracotta transition-colors duration-300"
                 >
                   {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-terracotta transition-all duration-300 group-hover:w-full" />
                 </Link>
               ))}
             </nav>
 
-            {/* Actions */}
-            <div className="flex items-center gap-3">
+            {/* Right icons */}
+            <div className="flex items-center gap-5">
+              {/* Search */}
               <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="p-2 text-carbon-light hover:text-terracotta transition-colors hidden sm:block"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="text-terracotta/60 hover:text-terracotta transition-colors"
                 aria-label="Keresés"
               >
-                <Search size={20} />
+                <Image src="/icons/Keresés.png" alt="Keresés" width={22} height={22} className="opacity-50 hover:opacity-80 transition-opacity" />
               </motion.button>
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <Link
-                  href="/admin"
-                  className="p-2 text-carbon-light hover:text-terracotta transition-colors hidden sm:block"
-                  aria-label="Fiók"
-                >
-                  <User size={20} />
+
+              {/* Profile */}
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link href="/admin" className="text-terracotta/60 hover:text-terracotta transition-colors">
+                  <Image src="/icons/Profil.png" alt="Profil" width={22} height={22} className="opacity-50 hover:opacity-80 transition-opacity" />
                 </Link>
               </motion.div>
+
+              {/* Cart */}
               <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={toggleCart}
-                className="relative p-2 text-carbon-light hover:text-terracotta transition-colors"
+                className="relative text-terracotta/60 hover:text-terracotta transition-colors"
                 aria-label="Kosár"
               >
-                <ShoppingBag size={20} />
+                <Image src="/icons/Kosár.png" alt="Kosár" width={22} height={22} className="opacity-50 hover:opacity-80 transition-opacity" />
                 <AnimatePresence>
                   {itemCount > 0 && (
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
-                      className="absolute -top-1 -right-1 bg-accent-red text-white text-[10px] font-semibold rounded-full w-5 h-5 flex items-center justify-center"
+                      className="absolute -top-2 -right-2 bg-terracotta text-white text-[9px] font-medium rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       {itemCount}
                     </motion.span>
                   )}
                 </AnimatePresence>
               </motion.button>
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="lg:hidden p-1 text-terracotta/60 hover:text-terracotta transition-colors"
+                aria-label="Menü"
+              >
+                {menuOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
             </div>
           </div>
         </div>
@@ -130,24 +127,24 @@ export default function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            initial={{ opacity: 0, x: "-100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "-100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-40 bg-warm-beige lg:hidden"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-[70px] left-0 right-0 z-40 bg-[#F5F0E8] border-t border-terracotta/10 lg:hidden"
           >
-            <div className="flex flex-col items-center justify-center h-full gap-8">
+            <div className="flex flex-col items-center py-8 gap-6">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.href}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
+                  transition={{ delay: i * 0.05 }}
                 >
                   <Link
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
-                    className="text-2xl font-light tracking-widest text-carbon hover:text-terracotta transition-colors"
+                    className="text-sm font-extralight tracking-[0.2em] text-terracotta/80 hover:text-terracotta transition-colors"
                   >
                     {link.label}
                   </Link>
