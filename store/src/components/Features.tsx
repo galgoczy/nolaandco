@@ -1,92 +1,157 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
-
-const features = [
-  {
-    icon: "/icons/Oeko.png",
-    title: "Oeko-Tex tanúsított",
-    description: "Minden anyagunk bababiztos, a legmagasabb európai szabványoknak megfelelő",
-  },
-  {
-    icon: "/icons/Kézzel készült.png",
-    title: "Kézzel készült",
-    description: "Minden darab egyedileg, szeretettel és odafigyeléssel készül",
-  },
-  {
-    icon: "/icons/Mosás.png",
-    title: "Mosható",
-    description: "30°C-on mosógépben mosható, formáját megtartja mosás után is",
-  },
-  {
-    icon: "/icons/Eco.png",
-    title: "Környezettudatos",
-    description: "Fenntartható anyagok, minimális csomagolás, zöld szállítás",
-  },
-  {
-    icon: "/icons/Biztonság.png",
-    title: "Biztonságos",
-    description: "CE jelölés, gyermekeknek biztonságos, allergénmentes anyagok",
-  },
-  {
-    icon: "/icons/Örök.png",
-    title: "Örök emlék",
-    description: "Időtálló minőség, ami generációkon át megőrzi az emlékeket",
-  },
-];
 
 export default function Features() {
   return (
-    <section className="py-24 lg:py-32 bg-warm-beige">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <span className="text-xs tracking-[0.3em] uppercase text-terracotta font-light">
-            Miért minket
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl text-carbon mt-3">
-            Prémium minőség, egyedi kivitelezés
-          </h2>
-          <div className="mt-6 w-16 h-[1px] bg-terracotta mx-auto" />
-        </motion.div>
+    <section
+      id="hogyan-keszul"
+      className="bg-[#c4a591] px-8 py-32 overflow-hidden"
+    >
+      <div className="mx-auto max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+          {/* Left side - Images */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="lg:col-span-5 relative"
+          >
+            {/* Main image placeholder */}
+            <div className="relative aspect-[4/5] rounded-3xl shadow-2xl overflow-hidden bg-[#d4c4b0]">
+              <div
+                className="absolute inset-0 opacity-30"
+                style={{
+                  backgroundImage:
+                    "repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,0.08) 8px, rgba(255,255,255,0.08) 9px)",
+                }}
+              />
+            </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
-          {features.map((feature, i) => (
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 30 }}
+            {/* Small overlapping image */}
+            <div className="absolute -bottom-6 -right-6 w-48 h-48 rounded-3xl border-8 border-[#c4a591] shadow-xl bg-[#b8a090] overflow-hidden z-10">
+              <div
+                className="absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage:
+                    "repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(255,255,255,0.1) 6px, rgba(255,255,255,0.1) 7px)",
+                }}
+              />
+            </div>
+          </motion.div>
+
+          {/* Right side - Text content */}
+          <div className="lg:col-span-7">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              whileHover={{ y: -5 }}
-              className="group text-center p-6 rounded-2xl hover:bg-warm-beige-dark transition-all duration-300"
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="font-sans font-extrabold text-[12px] tracking-[3.6px] uppercase text-[#fdfbf7]"
             >
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                className="w-14 h-14 mx-auto mb-4 bg-terracotta/10 rounded-2xl flex items-center justify-center group-hover:bg-terracotta/20 transition-colors"
-              >
-                <Image
-                  src={feature.icon}
-                  alt={feature.title}
-                  width={28}
-                  height={28}
-                  className="group-hover:scale-110 transition-transform duration-300"
-                />
-              </motion.div>
-              <h3 className="font-medium text-sm text-carbon mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-xs text-carbon-light font-light leading-relaxed">
-                {feature.description}
-              </p>
+              Crafting Excellence
+            </motion.span>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="font-heading font-light text-[48px] tracking-[4.8px] uppercase text-[#fdfbf7] mt-4"
+            >
+              HOGYAN KÉSZÜL?
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="font-sans font-light text-[20px] text-[rgba(253,251,247,0.9)] leading-[32.5px] mt-4 max-w-xl"
+            >
+              Every piece in the Nola &amp; Co collection is a testament to
+              mindful creation. We believe that what touches your baby&apos;s
+              skin should be as pure as their first breath.
+            </motion.p>
+
+            {/* Feature items */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="grid grid-cols-2 gap-8 mt-12"
+            >
+              {/* Item 1 - OEKO-TEX Certified */}
+              <div>
+                <div className="mb-3">
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 32 32"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      stroke="#fdfbf7"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="M10 16.5L14 20.5L22 12.5"
+                      stroke="#fdfbf7"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <p className="font-bold text-[14px] tracking-[0.7px] uppercase text-[#fdfbf7]">
+                  OEKO-TEX Certified
+                </p>
+                <p className="text-[14px] text-[rgba(253,251,247,0.8)] mt-1">
+                  Standard 100 materials.
+                </p>
+              </div>
+
+              {/* Item 2 - Hypoallergenic */}
+              <div>
+                <div className="mb-3">
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 32 32"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16 4C16 4 6 12 6 19C6 24.5228 10.4772 28 16 28C21.5228 28 26 24.5228 26 19C26 12 16 4 16 4Z"
+                      stroke="#fdfbf7"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M12 20C12 20 14 22 16 22C18 22 20 20 20 20"
+                      stroke="#fdfbf7"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <p className="font-bold text-[14px] tracking-[0.7px] uppercase text-[#fdfbf7]">
+                  Hypoallergenic
+                </p>
+                <p className="text-[14px] text-[rgba(253,251,247,0.8)] mt-1">
+                  For sensitive newborn skin.
+                </p>
+              </div>
             </motion.div>
-          ))}
+          </div>
         </div>
       </div>
     </section>

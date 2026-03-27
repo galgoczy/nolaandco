@@ -4,162 +4,151 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
+const quickLinks = [
+  { href: "/", label: "Főoldal" },
+  { href: "/#rolunk", label: "Rólunk" },
+  { href: "/termek/origin-core", label: "Origin" },
+  { href: "/termek/nova-core", label: "Nova" },
+  { href: "/#poszterek", label: "Poszter" },
+  { href: "/#ajandekkartya", label: "Ajándékkártya" },
+];
+
+const infoLinks = [
+  { href: "/#gyik", label: "GYIK" },
+  { href: "#", label: "Szállítás és fizetés" },
+  { href: "#", label: "Elállás és visszaküldés" },
+  { href: "#", label: "Kapcsolat" },
+  { href: "#", label: "ÁSZF" },
+  { href: "#", label: "Adatkezelési tájékoztató" },
+];
+
+const socialLinks = [
+  { href: "#", label: "Facebook" },
+  { href: "https://instagram.com/nolaandco", label: "Instagram" },
+  { href: "mailto:hello@nolaandco.hu", label: "E-mail" },
+  { href: "#", label: "Kollaboráció" },
+];
+
 export default function Footer() {
   return (
-    <footer className="bg-carbon text-white/70">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          {/* Brand */}
-          <div className="md:col-span-1">
+    <footer className="bg-[#fdfbf7] pt-20 pb-8 px-8">
+      <div className="max-w-[1280px] mx-auto">
+        {/* Top section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8">
+          {/* Logo + newsletter heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="lg:col-span-5"
+          >
             <Image
               src="/logo.svg"
               alt="NOLA&CO"
-              width={120}
-              height={35}
-              className="brightness-200 mb-4"
+              width={150}
+              height={42}
+              className="h-10 w-auto mb-8"
             />
-            <p className="text-sm font-light leading-relaxed">
-              Egyedi babapárnák és poszterek, szeretettel és odafigyeléssel
-              készítve minden kisbabának.
-            </p>
-            <div className="flex gap-3 mt-4">
-              <motion.a
-                href="https://instagram.com/nolaandco"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center hover:bg-terracotta transition-colors"
-              >
-                <Image
-                  src="/icons/Insta 2.png"
-                  alt="Instagram"
-                  width={16}
-                  height={16}
-                  className="brightness-200"
-                />
-              </motion.a>
-              <motion.a
-                href="mailto:hello@nolaandco.hu"
-                whileHover={{ scale: 1.1 }}
-                className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center hover:bg-terracotta transition-colors"
-              >
-                <Image
-                  src="/icons/Levél 2.png"
-                  alt="Email"
-                  width={16}
-                  height={16}
-                  className="brightness-200"
-                />
-              </motion.a>
-            </div>
-          </div>
-
-          {/* Links */}
-          <div>
-            <h4 className="text-white text-sm font-medium tracking-wider uppercase mb-4">
-              Termékek
+            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333]">
+              HÍRLEVÉL
             </h4>
-            <ul className="space-y-2">
-              {[
-                { href: "/#parnak", label: "Babapárnák" },
-                { href: "/#poszterek", label: "Poszterek" },
-                { href: "/akciok", label: "Akciók" },
-              ].map((link) => (
-                <li key={link.href}>
+          </motion.div>
+
+          {/* Quick links */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="lg:col-span-2"
+          >
+            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333] mb-6">
+              GYORS LINKEK
+            </h4>
+            <ul className="space-y-0">
+              {quickLinks.map((link) => (
+                <li key={link.label} className="leading-[36px]">
                   <Link
                     href={link.href}
-                    className="text-sm font-light hover:text-terracotta transition-colors"
+                    className="font-sans text-[14px] text-[#4a4a4a] hover:text-[#333] transition-colors"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          <div>
-            <h4 className="text-white text-sm font-medium tracking-wider uppercase mb-4">
-              Információ
+          {/* Information */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="lg:col-span-3"
+          >
+            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333] mb-6">
+              INFORMÁCIÓK
             </h4>
-            <ul className="space-y-2">
-              {[
-                { href: "/#hogyan-keszul", label: "Hogyan készül" },
-                { href: "/#gyik", label: "GYIK" },
-                { href: "/hirlevel", label: "Hírlevél" },
-              ].map((link) => (
-                <li key={link.href}>
+            <ul className="space-y-0">
+              {infoLinks.map((link) => (
+                <li key={link.label} className="leading-[36px]">
                   <Link
                     href={link.href}
-                    className="text-sm font-light hover:text-terracotta transition-colors"
+                    className="font-sans text-[14px] text-[#4a4a4a] hover:text-[#333] transition-colors"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          <div>
-            <h4 className="text-white text-sm font-medium tracking-wider uppercase mb-4">
-              Vásárlás
+          {/* Social / connect */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="lg:col-span-2"
+          >
+            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333] mb-6">
+              KAPCSOLÓDJUNK
             </h4>
-            <ul className="space-y-2">
-              {[
-                { href: "/kosar", label: "Kosár" },
-                { href: "/penztar", label: "Pénztár" },
-              ].map((link) => (
-                <li key={link.href}>
-                  <Link
+            <ul className="space-y-0">
+              {socialLinks.map((link) => (
+                <li key={link.label} className="leading-[36px]">
+                  <motion.a
                     href={link.href}
-                    className="text-sm font-light hover:text-terracotta transition-colors"
+                    target={link.href.startsWith("http") ? "_blank" : undefined}
+                    rel={
+                      link.href.startsWith("http")
+                        ? "noopener noreferrer"
+                        : undefined
+                    }
+                    className="font-sans text-[14px] text-[#4a4a4a] hover:text-[#333] transition-colors"
+                    whileHover={{ x: 2 }}
                   >
                     {link.label}
-                  </Link>
+                  </motion.a>
                 </li>
               ))}
             </ul>
-
-            <div className="mt-6 flex items-center gap-3">
-              <Image
-                src="/icons/Fizetés.png"
-                alt="Fizetés"
-                width={20}
-                height={20}
-                className="brightness-200 opacity-50"
-              />
-              <Image
-                src="/icons/Biztonság.png"
-                alt="Biztonság"
-                width={20}
-                height={20}
-                className="brightness-200 opacity-50"
-              />
-              <Image
-                src="/icons/Szállítás.png"
-                alt="Szállítás"
-                width={20}
-                height={20}
-                className="brightness-200 opacity-50"
-              />
-            </div>
-          </div>
+          </motion.div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/40">
-            © {new Date().getFullYear()} NOLA&CO. Minden jog fenntartva.
+        {/* Bottom bar */}
+        <div className="border-t border-[#e5e5e5] mt-8 pt-8 text-center">
+          <p className="text-[14px] text-[#4a4a4a]">
+            &copy; 2026 Nola &amp; Co &#x2502;{" "}
+            <a
+              href="mailto:hello@nolaandco.hu"
+              className="hover:text-[#333] transition-colors"
+            >
+              hello@nolaandco.hu
+            </a>
           </p>
-          <div className="flex gap-6 text-xs text-white/40">
-            <Link href="#" className="hover:text-white/60 transition-colors">
-              Adatvédelem
-            </Link>
-            <Link href="#" className="hover:text-white/60 transition-colors">
-              ÁSZF
-            </Link>
-            <Link href="#" className="hover:text-white/60 transition-colors">
-              Süti beállítások
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

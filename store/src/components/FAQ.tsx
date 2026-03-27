@@ -1,111 +1,115 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 
-const faqs = [
+const faqCards = [
   {
-    question: "Mennyi idő alatt készül el a párna?",
+    question: "MIKOR KAPOM MEG A RENDELÉSEMET?",
     answer:
-      "Minden párnát kézzel készítünk, ezért a szokásos elkészítési idő 5-7 munkanap. Sürgős megrendelés esetén kérd az expressz elkészítést, amely 2-3 munkanap.",
+      "Mivel minden Nola termék egyedileg, az általad megadott születési adatok alapján készül, a gyártási időnk 5-8 munkanap. Amint a termék elkészült, azonnal átadjuk a futárnak, amiről e-mailben értesítünk.",
+    stars: 5,
+    author: null,
+    date: null,
   },
   {
-    question: "Mosható a párna?",
+    question: "TÖKÉLETES AJÁNDÉK",
     answer:
-      "Igen! A NOLA&CO párnák 30°C-on, kímélő programmal mosógépben moshatók. Szárítógépbe ne tedd, természetes szárítást javaslunk. A hímzés tartós és mosásálló.",
+      "Keresztelőre rendeltük és hatalmas sikere volt! A minőség csodálatos, a hímzés gyönyörű és a díszdoboz is nagyon elegáns. Mindenképpen ajánlom mindenkinek, aki egyedi és különleges ajándékot keres.",
+    stars: 5,
+    author: "Katalin M.",
+    date: "2026.01.15.",
   },
   {
-    question: "Milyen anyagból készül?",
+    question: "GYÖNYÖRŰ KIVITELEZÉS",
     answer:
-      "Kizárólag Oeko-Tex Standard 100 tanúsított, 100% pamut anyagot használunk. A töltőanyag hipoallergén poliészter, ami bababiztos és tartja a formáját.",
-  },
-  {
-    question: "Módosíthatom a megrendelést?",
-    answer:
-      "A rendelés leadásától számított 24 órán belül módosíthatod az adatokat. Keress minket e-mailben vagy Instagramon, és segítünk a változtatásban.",
-  },
-  {
-    question: "Van lehetőség csomagolásra ajándékba?",
-    answer:
-      "A Prémium párnáink díszdobozban érkeznek. Az alap párnákhoz is kérhetsz ajándékcsomagolást +990 Ft-ért, ami tartalmaz egy szép dobozot és üdvözlőkártyát.",
-  },
-  {
-    question: "Hogyan történik a szállítás?",
-    answer:
-      "GLS futárszolgálattal szállítunk egész Magyarországon. A szállítási idő 1-2 munkanap az elkészülést követően. 15 000 Ft felett ingyenes a szállítás!",
-  },
-  {
-    question: "Vissza lehet küldeni?",
-    answer:
-      "Egyedi termékeink miatt visszaküldési jogot alapvetően nem tudunk biztosítani, de ha minőségi problémát tapasztalsz, természetesen cseréljük vagy visszatérítjük.",
+      "Már a második párnát rendeltem és ugyanolyan elégedett vagyok, mint az elsővel. Az anyag puha, a hímzés precíz, és a szállítás is gyors volt. Köszönjük a csodás munkát!",
+    stars: 5,
+    author: "Réka B.",
+    date: "2026.02.08.",
   },
 ];
 
 export default function FAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
   return (
-    <section id="gyik" className="py-24 lg:py-32 bg-warm-beige">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
+    <section id="gyik" className="bg-[#fdfbf7] py-24">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
+        {/* Title */}
+        <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="font-heading font-light text-[48px] tracking-[4.8px] text-center text-[#333] uppercase"
         >
-          <span className="text-xs tracking-[0.3em] uppercase text-terracotta font-light">
-            Kérdéseid vannak?
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl text-carbon mt-3">
-            Gyakori kérdések
-          </h2>
-          <div className="mt-6 w-16 h-[1px] bg-terracotta mx-auto" />
-        </motion.div>
+          GYAKRAN ISMÉTELT KÉRDÉSEK
+        </motion.h2>
 
-        <div className="space-y-3">
-          {faqs.map((faq, i) => (
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="font-sans text-center text-[#4a4a4a] max-w-2xl mx-auto mt-4 leading-relaxed"
+        >
+          Ha felmerül benned bármilyen kérdés, kérlek olvasd át a gyakran
+          ismételt kérdéseket, ahol igyekeztünk minél több kérdést megválaszolni.
+          Ha mégsem találtad meg azt, amit kerestél, bátran írj nekünk:{" "}
+          <a
+            href="mailto:hello@nolaandco.hu"
+            className="text-[#a93832] hover:underline transition-colors"
+          >
+            hello@nolaandco.hu
+          </a>
+        </motion.p>
+
+        {/* FAQ cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+          {faqCards.map((card, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-20px" }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
+              viewport={{ once: true, margin: "-30px" }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              whileHover={{ y: -4 }}
+              className="bg-white rounded-2xl p-10 min-h-[287px] flex flex-col"
             >
-              <button
-                onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full flex items-center justify-between p-5 bg-warm-beige-dark rounded-2xl hover:bg-terracotta/5 transition-all duration-300 group"
-              >
-                <span className="text-left text-sm font-medium text-carbon group-hover:text-terracotta transition-colors">
-                  {faq.question}
-                </span>
-                <motion.div
-                  animate={{ rotate: openIndex === i ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex-shrink-0 ml-4"
-                >
-                  <ChevronDown
-                    size={18}
-                    className="text-carbon-light group-hover:text-terracotta transition-colors"
+              {/* Question title */}
+              <h3 className="font-sans font-bold text-[14px] uppercase tracking-wider text-[#333]">
+                {card.question}
+              </h3>
+
+              {/* Star rating */}
+              <div className="flex gap-1 mt-3">
+                {Array.from({ length: card.stars }).map((_, j) => (
+                  <Star
+                    key={j}
+                    size={16}
+                    className="text-[#f5c518] fill-[#f5c518]"
                   />
-                </motion.div>
-              </button>
-              <AnimatePresence>
-                {openIndex === i && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-5 py-4 text-sm text-carbon-light font-light leading-relaxed">
-                      {faq.answer}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                ))}
+              </div>
+
+              {/* Answer text */}
+              <p className="font-sans text-[14px] text-[#4a4a4a] leading-relaxed mt-4 flex-1">
+                {card.answer}
+              </p>
+
+              {/* Author / date footer for testimonial cards */}
+              {card.author && (
+                <>
+                  <div className="border-t border-[#e5e5e5] mt-6 pt-4 flex items-center justify-between">
+                    <span className="font-sans text-[13px] font-bold text-[#333]">
+                      {card.author}
+                    </span>
+                    <span className="font-sans text-[13px] text-[#4a4a4a]">
+                      {card.date}
+                    </span>
+                  </div>
+                </>
+              )}
             </motion.div>
           ))}
         </div>

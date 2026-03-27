@@ -1,72 +1,75 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import ProductCard from "./ProductCard";
-import { getProductsByCategory } from "@/lib/products";
+import { motion } from "framer-motion";
+import Link from "next/link";
+
+const posters = [
+  {
+    label: "ORIGIN DESIGN",
+    href: "/termek/origin-poszter",
+  },
+  {
+    label: "NOVA DESIGN",
+    href: "/termek/nova-poszter",
+  },
+];
 
 export default function PosterSection() {
-  const posters = getProductsByCategory("poszter");
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "8%"]);
-
   return (
-    <section id="poszterek" ref={ref} className="relative py-24 lg:py-32 overflow-hidden">
-      <motion.div
-        style={{ y: bgY }}
-        className="absolute inset-0 bg-warm-beige-dark -z-10"
-      />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
+    <section id="poszterek" className="bg-[#f5f4ef] py-24">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
+        {/* Label */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5 }}
+          className="font-sans font-extrabold text-[12px] tracking-[3.6px] uppercase text-[#a93832] text-center"
         >
-          <span className="text-xs tracking-[0.3em] uppercase text-terracotta font-light">
-            Babaszoba dekoráció
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl text-carbon mt-3">
-            Poszterek
-          </h2>
-          <p className="mt-4 text-carbon-light font-light max-w-2xl mx-auto">
-            Gyönyörű nyomatok a kisbabád születési adataival. Prémium papírra
-            nyomtatva, keretbe illeszthető méretben.
-          </p>
-          <div className="mt-6 w-16 h-[1px] bg-terracotta mx-auto" />
-        </motion.div>
+          Artistic Remembrance
+        </motion.p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 max-w-3xl mx-auto">
-          {posters.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
+        {/* Title */}
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="font-heading font-light text-[48px] tracking-[4.8px] uppercase text-[#333] text-center mt-2"
+        >
+          POSZTEREK
+        </motion.h2>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 max-w-[1232px] mx-auto">
+          {posters.map((poster, i) => (
+            <motion.div
+              key={poster.label}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.15 }}
+            >
+              <Link href={poster.href} className="group block">
+                {/* Poster card */}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.4 }}
+                  className="rounded-3xl shadow-lg aspect-[592/379] overflow-hidden bg-[#e8ddd4] flex items-center justify-center"
+                >
+                  <span className="text-[#999] text-sm tracking-wider uppercase font-sans">
+                    {poster.label} Poster
+                  </span>
+                </motion.div>
+
+                {/* Label below */}
+                <p className="font-sans font-bold text-[14px] tracking-[2.8px] uppercase text-[#333] text-center mt-6">
+                  {poster.label}
+                </p>
+              </Link>
+            </motion.div>
           ))}
         </div>
-
-        {/* Feature highlights */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-16 flex flex-wrap justify-center gap-6 lg:gap-12"
-        >
-          {[
-            { label: "Prémium nyomtatás", sub: "250g matt papír" },
-            { label: "A3 méret", sub: "30×42 cm" },
-            { label: "Keretbe illeszthető", sub: "Standard keret" },
-          ].map((feature) => (
-            <div key={feature.label} className="text-center">
-              <p className="text-sm font-medium text-carbon">{feature.label}</p>
-              <p className="text-xs text-carbon-light mt-0.5">{feature.sub}</p>
-            </div>
-          ))}
-        </motion.div>
       </div>
     </section>
   );

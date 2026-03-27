@@ -1,57 +1,27 @@
-"use client";
-
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
 import ProductCard from "./ProductCard";
 import { getProductsByCategory } from "@/lib/products";
 
 export default function ProductGrid() {
-  const ref = useRef(null);
   const pillows = getProductsByCategory("parna");
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
 
   return (
-    <section
-      id="parnak"
-      ref={ref}
-      className="relative py-24 lg:py-32 overflow-hidden"
-    >
-      {/* Parallax background */}
-      <motion.div
-        style={{ y: bgY }}
-        className="absolute inset-0 bg-warm-beige-dark -z-10"
-      />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <span className="text-xs tracking-[0.3em] uppercase text-terracotta font-light">
-            Kézzel készített
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl text-carbon mt-3">
-            Babapárnáink
-          </h2>
-          <p className="mt-4 text-carbon-light font-light max-w-2xl mx-auto">
-            Minden párna egyedi – a Te kisbabád nevével, születési dátumával és
-            adataival készül, gyönyörű stílizált rajzokkal díszítve.
+    <section id="parnak" className="bg-[#fbf9f5] py-24">
+      <div className="max-w-[1280px] mx-auto px-8">
+        {/* Header */}
+        <div className="text-center">
+          <p className="font-display italic text-[24px] text-[#4a4a4a] leading-8">
+            The Shape of Your Memories
           </p>
-          <div className="mt-6 w-16 h-[1px] bg-terracotta mx-auto" />
-        </motion.div>
+          <h2 className="font-heading font-light text-[60px] tracking-[6px] uppercase text-[#333] pb-4">
+            EMLÉKEID FORMÁBA ÖNTVE
+          </h2>
+          <div className="w-12 h-[2px] bg-[#725948] mx-auto" />
+        </div>
 
-        {/* 3x2 Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {pillows.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-12 mt-20">
+          {pillows.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </div>
