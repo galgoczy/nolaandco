@@ -1,50 +1,50 @@
-"use client";
-
-import { motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import { ProductVariant } from "@/lib/products";
 
 interface ProductCardProps {
   product: ProductVariant;
-  index: number;
 }
 
-export default function ProductCard({ product, index }: ProductCardProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-    >
-      <Link href={`/termek/${product.slug}`} className="group block">
-        <div className="relative overflow-hidden">
-          {/* Image container - beige/tan background like design */}
-          <div className="relative aspect-[3/4] bg-[#e8e0d6] rounded-xl overflow-hidden">
-            <motion.div
-              whileHover={{ scale: 1.03 }}
-              transition={{ duration: 0.5 }}
-              className="relative w-full h-full flex items-center justify-center p-10"
-            >
-              <Image
-                src={product.image}
-                alt={product.name}
-                width={300}
-                height={400}
-                className="object-contain drop-shadow-lg transition-transform duration-700 group-hover:scale-105"
-              />
-            </motion.div>
-          </div>
+function getBadge(product: ProductVariant): {
+  label: string;
+  colorClass: string;
+} | null {
+  if (product.style === "core") {
+    return { label: "Core Series", colorClass: "text-[#725948]" };
+  }
+  if (product.style === "atelier") {
+    return { label: "Limited Edition", colorClass: "text-[#a93832]" };
+  }
+  return null;
+}
 
-          {/* Name below image - simple, centered */}
-          <div className="mt-4 text-center">
-            <h3 className="text-sm tracking-[0.15em] text-carbon-light font-light">
-              {product.name}
-            </h3>
-          </div>
-        </div>
-      </Link>
-    </motion.div>
+export default function ProductCard({ product }: ProductCardProps) {
+  const badge = getBadge(product);
+
+  return (
+    <Link
+      href={`/termek/${product.slug}`}
+      className="group block bg-[#f5f4ef] border border-[rgba(177,179,171,0.15)] rounded-3xl overflow-hidden"
+    >
+      {/* Image placeholder */}
+      <div className="relative aspect-square bg-[#e8ddd4] flex items-center justify-center">
+        <span className="font-sans text-sm text-[#725948]/60 text-center px-4">
+          {product.name}
+        </span>
+
+        {badge && (
+          <span
+            className={`absolute top-4 right-4 backdrop-blur-[10px] bg-[rgba(253,251,247,0.95)] rounded-lg px-3 py-1 text-[10px] tracking-[1px] uppercase font-bold ${badge.colorClass}`}
+          >
+            {badge.label}
+          </span>
+        )}
+      </div>
+
+      {/* Product name */}
+      <p className="font-sans font-medium text-[18px] text-[#333] text-center mt-6 pb-6">
+        {product.name}
+      </p>
+    </Link>
   );
 }

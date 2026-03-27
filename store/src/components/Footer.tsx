@@ -31,11 +31,18 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#F5F0E8] border-t border-terracotta/5">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-10 py-14 lg:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
-          {/* Logo + newsletter label */}
-          <div className="lg:col-span-1">
+    <footer className="bg-[#fdfbf7] pt-20 pb-8 px-8">
+      <div className="max-w-[1280px] mx-auto">
+        {/* Top section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8">
+          {/* Logo + newsletter heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="lg:col-span-5"
+          >
             <Image
               src="/logo.svg"
               alt="NOLA&CO"
@@ -43,60 +50,75 @@ export default function Footer() {
               height={42}
               className="h-10 w-auto mb-8"
             />
-            <p className="text-xs tracking-[0.2em] text-terracotta/60 font-medium italic">
+            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333]">
               HÍRLEVÉL
-            </p>
-          </div>
-
-          {/* Spacer on large screens */}
-          <div className="hidden lg:block" />
+            </h4>
+          </motion.div>
 
           {/* Quick links */}
-          <div>
-            <h4 className="text-xs tracking-[0.15em] text-terracotta/80 font-medium mb-5">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="lg:col-span-2"
+          >
+            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333] mb-6">
               GYORS LINKEK
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-0">
               {quickLinks.map((link) => (
-                <li key={link.label}>
+                <li key={link.label} className="leading-[36px]">
                   <Link
                     href={link.href}
-                    className="text-sm font-light text-carbon-light/60 hover:text-terracotta transition-colors"
+                    className="font-sans text-[14px] text-[#4a4a4a] hover:text-[#333] transition-colors"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          {/* Info */}
-          <div>
-            <h4 className="text-xs tracking-[0.15em] text-terracotta/80 font-medium mb-5">
+          {/* Information */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="lg:col-span-3"
+          >
+            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333] mb-6">
               INFORMÁCIÓK
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-0">
               {infoLinks.map((link) => (
-                <li key={link.label}>
+                <li key={link.label} className="leading-[36px]">
                   <Link
                     href={link.href}
-                    className="text-sm font-light text-carbon-light/60 hover:text-terracotta transition-colors"
+                    className="font-sans text-[14px] text-[#4a4a4a] hover:text-[#333] transition-colors"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          {/* Social */}
-          <div>
-            <h4 className="text-xs tracking-[0.15em] text-terracotta/80 font-medium mb-5">
+          {/* Social / connect */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="lg:col-span-2"
+          >
+            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333] mb-6">
               KAPCSOLÓDJUNK
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-0">
               {socialLinks.map((link) => (
-                <li key={link.label}>
+                <li key={link.label} className="leading-[36px]">
                   <motion.a
                     href={link.href}
                     target={link.href.startsWith("http") ? "_blank" : undefined}
@@ -105,7 +127,7 @@ export default function Footer() {
                         ? "noopener noreferrer"
                         : undefined
                     }
-                    className="text-sm font-light text-carbon-light/60 hover:text-terracotta transition-colors"
+                    className="font-sans text-[14px] text-[#4a4a4a] hover:text-[#333] transition-colors"
                     whileHover={{ x: 2 }}
                   >
                     {link.label}
@@ -113,16 +135,16 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-14 pt-6 border-t border-terracotta/10 text-center">
-          <p className="text-xs text-carbon-light/40 font-light">
-            © 2026 Nola & Co │{" "}
+        <div className="border-t border-[#e5e5e5] mt-8 pt-8 text-center">
+          <p className="text-[14px] text-[#4a4a4a]">
+            &copy; 2026 Nola &amp; Co &#x2502;{" "}
             <a
               href="mailto:hello@nolaandco.hu"
-              className="hover:text-terracotta transition-colors"
+              className="hover:text-[#333] transition-colors"
             >
               hello@nolaandco.hu
             </a>

@@ -1,137 +1,158 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import Image from "next/image";
+import { motion } from "framer-motion";
 
 export default function Features() {
-  const sectionRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
-
   return (
     <section
       id="hogyan-keszul"
-      ref={sectionRef}
-      className="relative py-20 lg:py-28 overflow-hidden"
+      className="bg-[#c4a591] px-8 py-32 overflow-hidden"
     >
-      {/* Terracotta background */}
-      <motion.div
-        style={{ y: bgY }}
-        className="absolute inset-0 bg-terracotta -z-10"
-      />
-
-      <div className="max-w-[1100px] mx-auto px-6 lg:px-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8"
-        >
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-[44px] text-white">
-            HOGYAN KÉSZÜL?
-          </h2>
-        </motion.div>
-
-        {/* Description */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-center text-white/80 font-light text-sm max-w-2xl mx-auto mb-16 space-y-1"
-        >
-          <p>
-            Minden Nola párna a legnagyobb gondossággal készül, hogy a baba első
-            emlékei biztonságban legyenek.
-          </p>
-          <p>• OEKO-TEX® minősítésű alapanyagok (huzat és cérna),</p>
-          <p>
-            • Hipoallergén, csomósodásmentes, formatartó töltet, ami számtalan
-            mosás után is puha marad.
-          </p>
-          <p>
-            • Könnyen kezelhető: Mosógépben, kímélő programon mosható az egész
-            párna. Utána levegőn érdemes szárítani.
-          </p>
-        </motion.div>
-
-        {/* Three tilted photos - artistic arrangement */}
-        <div className="relative h-[350px] sm:h-[400px] lg:h-[450px] max-w-3xl mx-auto mb-14">
-          {/* Left photo - tilted left */}
+      <div className="mx-auto max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+          {/* Left side - Images */}
           <motion.div
-            initial={{ opacity: 0, rotate: -15, y: 40 }}
-            whileInView={{ opacity: 1, rotate: -8, y: 0 }}
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            whileHover={{ rotate: -3, scale: 1.05, zIndex: 10 }}
-            className="absolute left-0 top-4 w-[200px] sm:w-[240px] lg:w-[280px] aspect-[3/4] bg-[#e8e0d6] rounded-xl overflow-hidden shadow-xl z-[1]"
+            transition={{ duration: 0.7 }}
+            className="lg:col-span-5 relative"
           >
-            <Image
-              src="/icons/Angyalbaba.png"
-              alt="Origin párna"
-              fill
-              className="object-contain p-6"
-            />
-          </motion.div>
+            {/* Main image placeholder */}
+            <div className="relative aspect-[4/5] rounded-3xl shadow-2xl overflow-hidden bg-[#d4c4b0]">
+              <div
+                className="absolute inset-0 opacity-30"
+                style={{
+                  backgroundImage:
+                    "repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,0.08) 8px, rgba(255,255,255,0.08) 9px)",
+                }}
+              />
+            </div>
 
-          {/* Center photo - straight */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            whileHover={{ scale: 1.05, zIndex: 10 }}
-            className="absolute left-1/2 -translate-x-1/2 top-0 w-[220px] sm:w-[260px] lg:w-[300px] aspect-[3/4] bg-[#d4c4b0] rounded-xl overflow-hidden shadow-xl z-[2]"
-          >
-            <div className="relative w-full h-full flex items-center justify-center">
-              <Image
-                src="/icons/Korababa.png"
-                alt="Készítés közben"
-                fill
-                className="object-contain p-8"
+            {/* Small overlapping image */}
+            <div className="absolute -bottom-6 -right-6 w-48 h-48 rounded-3xl border-8 border-[#c4a591] shadow-xl bg-[#b8a090] overflow-hidden z-10">
+              <div
+                className="absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage:
+                    "repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(255,255,255,0.1) 6px, rgba(255,255,255,0.1) 7px)",
+                }}
               />
             </div>
           </motion.div>
 
-          {/* Right photo - tilted right */}
-          <motion.div
-            initial={{ opacity: 0, rotate: 15, y: 40 }}
-            whileInView={{ opacity: 1, rotate: 8, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            whileHover={{ rotate: 3, scale: 1.05, zIndex: 10 }}
-            className="absolute right-0 top-4 w-[200px] sm:w-[240px] lg:w-[280px] aspect-[3/4] bg-[#e8e0d6] rounded-xl overflow-hidden shadow-xl z-[1]"
-          >
-            <Image
-              src="/icons/Korababa 2.png"
-              alt="Nova párna"
-              fill
-              className="object-contain p-6"
-            />
-          </motion.div>
-        </div>
+          {/* Right side - Text content */}
+          <div className="lg:col-span-7">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="font-sans font-extrabold text-[12px] tracking-[3.6px] uppercase text-[#fdfbf7]"
+            >
+              Crafting Excellence
+            </motion.span>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="text-center"
-        >
-          <a
-            href="#parnak"
-            className="inline-block px-10 py-3 border border-white/40 text-white text-sm tracking-[0.15em] rounded-full hover:bg-white/10 transition-all duration-300"
-          >
-            FEDEZD FEL A PÁRNÁKAT!
-          </a>
-        </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="font-heading font-light text-[48px] tracking-[4.8px] uppercase text-[#fdfbf7] mt-4"
+            >
+              HOGYAN KÉSZÜL?
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="font-sans font-light text-[20px] text-[rgba(253,251,247,0.9)] leading-[32.5px] mt-4 max-w-xl"
+            >
+              Every piece in the Nola &amp; Co collection is a testament to
+              mindful creation. We believe that what touches your baby&apos;s
+              skin should be as pure as their first breath.
+            </motion.p>
+
+            {/* Feature items */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="grid grid-cols-2 gap-8 mt-12"
+            >
+              {/* Item 1 - OEKO-TEX Certified */}
+              <div>
+                <div className="mb-3">
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 32 32"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      stroke="#fdfbf7"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="M10 16.5L14 20.5L22 12.5"
+                      stroke="#fdfbf7"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <p className="font-bold text-[14px] tracking-[0.7px] uppercase text-[#fdfbf7]">
+                  OEKO-TEX Certified
+                </p>
+                <p className="text-[14px] text-[rgba(253,251,247,0.8)] mt-1">
+                  Standard 100 materials.
+                </p>
+              </div>
+
+              {/* Item 2 - Hypoallergenic */}
+              <div>
+                <div className="mb-3">
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 32 32"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16 4C16 4 6 12 6 19C6 24.5228 10.4772 28 16 28C21.5228 28 26 24.5228 26 19C26 12 16 4 16 4Z"
+                      stroke="#fdfbf7"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M12 20C12 20 14 22 16 22C18 22 20 20 20 20"
+                      stroke="#fdfbf7"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <p className="font-bold text-[14px] tracking-[0.7px] uppercase text-[#fdfbf7]">
+                  Hypoallergenic
+                </p>
+                <p className="text-[14px] text-[rgba(253,251,247,0.8)] mt-1">
+                  For sensitive newborn skin.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
