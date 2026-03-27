@@ -16,7 +16,7 @@ const posters = [
 
 export default function PosterSection() {
   return (
-    <section id="poszterek" className="bg-[#f5f4ef] py-24">
+    <section id="poszterek" className="bg-surface-container-low py-24">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-10">
         {/* Label */}
         <motion.p
@@ -24,7 +24,7 @@ export default function PosterSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="font-sans font-extrabold text-[12px] tracking-[3.6px] uppercase text-[#a93832] text-center"
+          className="font-sans font-extrabold text-[12px] tracking-[3.6px] uppercase text-[#4f6168] text-center"
         >
           Artistic Remembrance
         </motion.p>

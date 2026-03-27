@@ -74,10 +74,10 @@ export default function FAQ() {
               viewport={{ once: true, margin: "-30px" }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
               whileHover={{ y: -4 }}
-              className="bg-white rounded-2xl p-10 min-h-[287px] flex flex-col"
+              className="bg-warm-beige-dark/30 rounded-2xl p-10 min-h-[287px] flex flex-col"
             >
               {/* Question title */}
-              <h3 className="font-sans font-bold text-[14px] uppercase tracking-wider text-[#333]">
+              <h3 className="font-sans font-bold text-sm uppercase tracking-widest text-[#B48D76]">
                 {card.question}
               </h3>
 
@@ -87,7 +87,7 @@ export default function FAQ() {
                   <Star
                     key={j}
                     size={16}
-                    className="text-[#f5c518] fill-[#f5c518]"
+                    className="text-hero-btn/60 fill-hero-btn/60"
                   />
                 ))}
               </div>

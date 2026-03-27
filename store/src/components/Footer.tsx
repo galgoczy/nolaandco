@@ -31,28 +31,30 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#fdfbf7] pt-20 pb-8 px-8">
+    <footer className="bg-footer-bg w-full pt-20 pb-10 px-8">
       <div className="max-w-[1280px] mx-auto">
         {/* Top section */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20">
           {/* Logo + newsletter heading */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="lg:col-span-5"
+            className="md:col-span-6 flex flex-col justify-between"
           >
-            <Image
-              src="/logo.svg"
-              alt="NOLA&CO"
-              width={150}
-              height={42}
-              className="h-10 w-auto mb-8"
-            />
-            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333]">
+            <div className="h-5 md:h-7 mb-20 opacity-80 scale-75 origin-left">
+              <Image
+                src="/logo.svg"
+                alt="NOLA&CO"
+                width={150}
+                height={42}
+                className="h-full w-auto object-contain"
+              />
+            </div>
+            <h5 className="text-xl font-heading tracking-widest text-footer-text">
               HÍRLEVÉL
-            </h4>
+            </h5>
           </motion.div>
 
           {/* Quick links */}
@@ -61,17 +63,17 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="lg:col-span-2"
+            className="md:col-span-2"
           >
-            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333] mb-6">
+            <h5 className="text-[0.75rem] font-semibold tracking-[0.15em] text-footer-text mb-8">
               GYORS LINKEK
-            </h4>
-            <ul className="space-y-0">
+            </h5>
+            <ul className="space-y-4">
               {quickLinks.map((link) => (
-                <li key={link.label} className="leading-[36px]">
+                <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="font-sans text-[14px] text-[#4a4a4a] hover:text-[#333] transition-colors"
+                    className="font-sans text-sm text-footer-text hover:text-accent-red transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -86,17 +88,17 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:col-span-3"
+            className="md:col-span-2"
           >
-            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333] mb-6">
+            <h5 className="text-[0.75rem] font-semibold tracking-[0.15em] text-footer-text mb-8">
               INFORMÁCIÓK
-            </h4>
-            <ul className="space-y-0">
+            </h5>
+            <ul className="space-y-4">
               {infoLinks.map((link) => (
-                <li key={link.label} className="leading-[36px]">
+                <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="font-sans text-[14px] text-[#4a4a4a] hover:text-[#333] transition-colors"
+                    className="font-sans text-sm text-footer-text hover:text-accent-red transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -111,14 +113,14 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="lg:col-span-2"
+            className="md:col-span-2"
           >
-            <h4 className="font-sans font-bold text-[14px] tracking-wider uppercase text-[#333] mb-6">
+            <h5 className="text-[0.75rem] font-semibold tracking-[0.15em] text-footer-text mb-8">
               KAPCSOLÓDJUNK
-            </h4>
-            <ul className="space-y-0">
+            </h5>
+            <ul className="space-y-4">
               {socialLinks.map((link) => (
-                <li key={link.label} className="leading-[36px]">
+                <li key={link.label}>
                   <motion.a
                     href={link.href}
                     target={link.href.startsWith("http") ? "_blank" : undefined}
@@ -127,7 +129,7 @@ export default function Footer() {
                         ? "noopener noreferrer"
                         : undefined
                     }
-                    className="font-sans text-[14px] text-[#4a4a4a] hover:text-[#333] transition-colors"
+                    className="font-sans text-sm text-footer-text hover:text-accent-red transition-colors"
                     whileHover={{ x: 2 }}
                   >
                     {link.label}
@@ -139,12 +141,12 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-[#e5e5e5] mt-8 pt-8 text-center">
-          <p className="text-[14px] text-[#4a4a4a]">
-            &copy; 2026 Nola &amp; Co &#x2502;{" "}
+        <div className="pt-8 border-t border-footer-text/10 text-center">
+          <p className="text-footer-text text-sm font-light tracking-wide">
+            &copy; 2024 Nola &amp; Co. Nordic Serenity. |{" "}
             <a
               href="mailto:hello@nolaandco.hu"
-              className="hover:text-[#333] transition-colors"
+              className="hover:text-accent-red transition-colors"
             >
               hello@nolaandco.hu
             </a>
