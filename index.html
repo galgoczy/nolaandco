@@ -19,6 +19,176 @@
         .footer-text { color: #B48D76; }
         .footer-heading { color: #B48D76; letter-spacing: 0.15em; font-weight: 600; font-size: 0.75rem; }
         .montserrat-light-caps { font-family: 'Montserrat', sans-serif; font-weight: 300; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* ---- Micro-animations ---- */
+
+        /* Scroll-triggered reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered children */
+        .stagger-children .reveal { transition-delay: calc(var(--i, 0) * 120ms); }
+
+        /* Nav slide-down */
+        @keyframes navSlideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        nav { animation: navSlideDown 0.6s ease-out both; }
+
+        /* Hero Ken Burns zoom */
+        @keyframes kenBurns {
+            0% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+        .hero-img { animation: kenBurns 8s ease-out both; }
+
+        /* Hero CTA fade-in from left */
+        @keyframes heroCtaIn {
+            from { opacity: 0; transform: translateX(-40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .hero-cta { animation: heroCtaIn 1s 0.4s ease-out both; }
+
+        /* Floating pillow animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .float-anim { animation: float 4s ease-in-out infinite; }
+
+        /* Section divider grow */
+        @keyframes dividerGrow {
+            from { width: 0; }
+            to { width: 3rem; }
+        }
+        .divider-anim.visible { animation: dividerGrow 0.8s 0.3s ease-out both; }
+
+        /* Product card hover lift */
+        .card-hover {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(27, 28, 28, 0.06);
+        }
+
+        /* Button micro-interactions */
+        .btn-anim {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+        .btn-anim:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 32px rgba(88, 66, 50, 0.15);
+        }
+        .btn-anim:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Nav icon bounce */
+        .icon-hover { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .icon-hover:hover { transform: translateY(-2px) scale(1.15); }
+
+        /* Nav link underline slide */
+        .nav-link { position: relative; }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #A93832;
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .nav-link:hover::after { width: 100%; }
+
+        /* Badge shimmer */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .badge-shimmer {
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+            background-size: 200% 100%;
+        }
+        .group:hover .badge-shimmer { animation: shimmer 1.5s ease-in-out; }
+
+        /* Poster tilt on hover */
+        .poster-tilt {
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+        }
+        .poster-tilt:hover {
+            transform: perspective(800px) rotateY(-3deg) scale(1.02);
+            box-shadow: 0 24px 48px rgba(27, 28, 28, 0.1);
+        }
+
+        /* FAQ card hover */
+        .faq-hover {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, background-color 0.4s ease;
+        }
+        .faq-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px rgba(27, 28, 28, 0.05);
+            background-color: rgba(245, 240, 232, 0.5);
+        }
+
+        /* Crafting section image reveal */
+        .img-reveal {
+            opacity: 0;
+            transform: scale(0.95) translateX(-20px);
+            transition: opacity 1s ease-out, transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .img-reveal.visible {
+            opacity: 1;
+            transform: scale(1) translateX(0);
+        }
+
+        /* Small image pop-in */
+        .img-pop {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.6s 0.4s ease-out, transform 0.6s 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .img-pop.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Footer link hover */
+        .footer-link {
+            transition: color 0.3s ease, transform 0.3s ease;
+            display: inline-block;
+        }
+        .footer-link:hover { transform: translateX(4px); }
+
+        /* Breathing glow for featured section */
+        @keyframes breathe {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(213, 232, 240, 0); }
+            50% { box-shadow: 0 0 60px 20px rgba(213, 232, 240, 0.15); }
+        }
+        .breathe-glow { animation: breathe 4s ease-in-out infinite; }
+
+        /* Stars twinkle */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        .star-twinkle span:nth-child(1) { animation: twinkle 2s 0s ease-in-out infinite; }
+        .star-twinkle span:nth-child(2) { animation: twinkle 2s 0.2s ease-in-out infinite; }
+        .star-twinkle span:nth-child(3) { animation: twinkle 2s 0.4s ease-in-out infinite; }
+        .star-twinkle span:nth-child(4) { animation: twinkle 2s 0.6s ease-in-out infinite; }
+        .star-twinkle span:nth-child(5) { animation: twinkle 2s 0.8s ease-in-out infinite; }
+
+        /* Smooth scroll offset for fixed nav */
+        html { scroll-padding-top: 100px; }
     </style>
 </head>
 <body class="bg-surface font-body text-carbon antialiased overflow-x-hidden">
@@ -26,20 +196,20 @@
 <nav class="sticky top-0 w-full z-50 bg-[#FDFBF7] transition-colors duration-300">
 <div class="flex flex-col md:flex-row justify-between items-center w-full px-8 py-6 max-w-[1440px] mx-auto">
 <div class="flex-1 hidden md:flex gap-6 items-center font-manrope text-sm tracking-wide uppercase font-medium">
-<a class="text-[#A93832] font-semibold hover:text-[#A93832] transition-colors duration-200" href="#">FŐOLDAL</a>
-<a class="text-[#725948]/70 hover:text-[#A93832] transition-colors duration-200" href="#">PÁRNÁK</a>
-<a class="text-[#725948]/70 hover:text-[#A93832] transition-colors duration-200" href="#">STÍLUSOK</a>
-<a class="text-[#725948]/70 hover:text-[#A93832] transition-colors duration-200" href="#">POSZTER</a>
-<a class="text-[#725948]/70 hover:text-[#A93832] transition-colors duration-200" href="#">AJÁNDÉKKÁRTYA</a>
+<a class="nav-link text-[#A93832] font-semibold hover:text-[#A93832] transition-colors duration-200" href="#">FŐOLDAL</a>
+<a class="nav-link text-[#725948]/70 hover:text-[#A93832] transition-colors duration-200" href="#">PÁRNÁK</a>
+<a class="nav-link text-[#725948]/70 hover:text-[#A93832] transition-colors duration-200" href="#">STÍLUSOK</a>
+<a class="nav-link text-[#725948]/70 hover:text-[#A93832] transition-colors duration-200" href="#">POSZTER</a>
+<a class="nav-link text-[#725948]/70 hover:text-[#A93832] transition-colors duration-200" href="#">AJÁNDÉKKÁRTYA</a>
 </div>
 <div class="flex-shrink-0 scale-90">
 <img alt="Nola &amp; Co Logo" class="h-5 md:h-6.5 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ug8ffE_eR8eVdNWKITxd2h6nB3nBGBL1-UcM_88Uus-ClT7qTkx5vwDXU9UifhD60wclriPe9mBqbsAD5taI-a1bWU8LssdcF9qgy68fAXgSN9cl42e_iLosGQGgTBApsn8zqPSPxvThT8DRBzC_z_wNnt7GUlQlX0S5N8KOwbnejbN5SYNUgeHTJbZK5WurkdprxLn6rS7Z-m-CUJNJDFWoOvTOPU4yLef3Hurdmw9dRQnT-ROy4IEdvHAkyQplFKZtrO7OZnGpGg"/>
 </div>
 <div class="flex-1 flex justify-end items-center gap-6">
-<span class="material-symbols-outlined text-[#725948] cursor-pointer hover:text-[#A93832] transition-colors" data-icon="search">search</span>
-<span class="material-symbols-outlined text-[#725948] cursor-pointer hover:text-[#A93832] transition-colors" data-icon="person">person</span>
-<div class="relative cursor-pointer transition-transform active:opacity-70">
-<span class="material-symbols-outlined text-[#725948] hover:text-[#A93832] transition-colors" data-icon="shopping_cart">shopping_cart</span>
+<span class="material-symbols-outlined text-[#725948] cursor-pointer hover:text-[#A93832] icon-hover" data-icon="search">search</span>
+<span class="material-symbols-outlined text-[#725948] cursor-pointer hover:text-[#A93832] icon-hover" data-icon="person">person</span>
+<div class="relative cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined text-[#725948] hover:text-[#A93832] icon-hover" data-icon="shopping_cart">shopping_cart</span>
 </div>
 </div>
 </div>
@@ -47,9 +217,9 @@
 <!-- Hero Section -->
 <section class="relative w-full overflow-hidden leading-[0]">
 <div class="w-full relative">
-<img alt="Nola &amp; Co Hero" class="w-full h-auto object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0uiDFuFP9mZPg7MhXFwG8TUj2f-bB00VBZaa48fjp37F9ntV2ULkQDgCxCaO7wWU_SeG8ZOA90k5177SJjwvZPwD8dy5Sr5SDsHvR-7EEuh5cp1_2zRuKIQb5zwQt55Jn53KV-0vSELp5eB8G3ySpwpnkhi7wJmyWMceDPmYa_Qh5YFjLpEV6HKBE6_IiNadZjizNajSXRXQtJBq9NBaCtjOhqBoNiNl1gyzrPRlzCH9yJ-oievYupcdzKAMK_m4xLGEbJ7vCAgCuZA"/>
+<img alt="Nola &amp; Co Hero" class="hero-img w-full h-auto object-cover" src="hero-image.png"/>
 <div class="absolute inset-0 flex pointer-events-none items-center justify-start px-8 md:px-32">
-<a class="pointer-events-auto px-14 py-5 rounded-full text-lg font-bold tracking-wide hover:opacity-90 transition-all shadow-xl bg-brand-blue text-carbon" href="#collection">
+<a class="hero-cta pointer-events-auto px-14 py-5 rounded-full text-lg font-bold tracking-wide btn-anim shadow-xl bg-brand-blue text-carbon" href="#collection">
                     Explore the Collection
                 </a>
 </div>
@@ -59,17 +229,17 @@
 <section class="py-24 bg-surface" id="collection">
 <div class="max-w-7xl mx-auto px-8">
 <div class="text-center mb-20">
-<h3 class="text-xl md:text-2xl font-headline italic text-carbon-light mb-2">The Shape of Your Memories</h3>
-<h2 class="text-4xl md:text-6xl montserrat-light-caps text-carbon mb-6 leading-tight">EMLÉKEID FORMÁBA ÖNTVE</h2>
-<div class="w-12 h-0.5 bg-primary mx-auto"></div>
+<h3 class="reveal text-xl md:text-2xl font-headline italic text-carbon-light mb-2">The Shape of Your Memories</h3>
+<h2 class="reveal text-4xl md:text-6xl montserrat-light-caps text-carbon mb-6 leading-tight">EMLÉKEID FORMÁBA ÖNTVE</h2>
+<div class="divider-anim reveal w-12 h-0.5 bg-primary mx-auto"></div>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 stagger-children">
 <!-- Product 1 -->
-<div class="group cursor-pointer">
+<div class="group cursor-pointer reveal card-hover">
 <div class="relative aspect-square rounded-2xl overflow-hidden bg-surface-container-low mb-6 ghost-border">
 <img alt="Origin Core" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2yvzu5n2moq4z076Wn4Np-pr9XyFh9rw2k9xQJtHQiwLUOk0vwDOBIMikI3mTYlJJi0L4Z14IXrg4zmTzWlLbDEANncvVefXz9CC-lWy0POgNT042RkQCbVL1HOPzdKiir-FlRlQsVvNs0m0_4qg-a_G7vUnhWTHoNDf5VqzfZEvXrbU4okpSnYpRcFOpSYI0D6cTynb8QRuHNelzqcLAmsRfKKWZhqfgCSPhxgGqMc1uzdUGtWpgxA-aiz3LxgzWkOHLANEcS6mj"/>
 <div class="absolute top-4 right-4">
-<span class="px-3 py-1 rounded-lg glass-nav text-[10px] font-bold uppercase tracking-widest text-primary shadow-sm">Core Series</span>
+<span class="badge-shimmer px-3 py-1 rounded-lg glass-nav text-[10px] font-bold uppercase tracking-widest text-primary shadow-sm">Core Series</span>
 </div>
 </div>
 <div class="text-center">
@@ -77,7 +247,7 @@
 </div>
 </div>
 <!-- Product 2 -->
-<div class="group cursor-pointer">
+<div class="group cursor-pointer reveal card-hover">
 <div class="relative aspect-square rounded-2xl overflow-hidden bg-surface-container-low mb-6 ghost-border">
 <img alt="Origin Linea" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuR-LSHcgsYGZQJzm-l7C5HiegBTKDoOO2fML-zX-uz_UnYJ1IfRqaEo0IoVI_36-CnLpEKh-YsmZFuACz5tV0OEB7qWO31kf7nJmzgdyDxOf1lu8rjxyZnmMiE-jeeYxrhyvnzNQNmIWKyaON_xpE2sw8l0ZhiFfsJvX9-05y3ucOBIkmqhJRzVJ5XMVxUo3rhMlD7Ke5WxYJOCZbL_RjAS6K99ZtsTXGiN3RqlBAIrpSAYZgDOIklETEXmP0IKwKXbzOpmsmEZuH"/>
 </div>
@@ -86,11 +256,11 @@
 </div>
 </div>
 <!-- Product 3 -->
-<div class="group cursor-pointer">
+<div class="group cursor-pointer reveal card-hover">
 <div class="relative aspect-square rounded-2xl overflow-hidden bg-surface-container-low mb-6 ghost-border">
 <img alt="Origin Atelier" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkPDSBdeyEZ0Pk-eW4x8rgqIeyiZ-oe0_PUTTF3Iuem2gn6sNcWxhgUFsT_1eD1tGuRjiC7WBkk_fT4EZywJWZBz65JdzKvTDl4TtJR5Jd5qliDAEfX5eOHhyQz_MS4M95g1jkjfw7_B4aCWnyVOXIKEEEl_vQtbS7j9p737YeIXzRRxFSn6hjgu29bpuM32ktAxWcy5VxTXOwFi51v3NlbFDRfD1uUgZnK5tpO6yYTB5MKodRUPClSt6KZyKOI9nOw7lO6LOh8WC3"/>
 <div class="absolute top-4 right-4">
-<span class="px-3 py-1 rounded-lg glass-nav text-[10px] font-bold uppercase tracking-widest text-secondary shadow-sm">Limited Edition</span>
+<span class="badge-shimmer px-3 py-1 rounded-lg glass-nav text-[10px] font-bold uppercase tracking-widest text-secondary shadow-sm">Limited Edition</span>
 </div>
 </div>
 <div class="text-center">
@@ -98,7 +268,7 @@
 </div>
 </div>
 <!-- Product 4 -->
-<div class="group cursor-pointer">
+<div class="group cursor-pointer reveal card-hover">
 <div class="relative aspect-square rounded-2xl overflow-hidden bg-surface-container-low mb-6 ghost-border">
 <img alt="NOVA Core" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXUo1C6ndsJcCKkd6wDXS6gvtDvzwdO_aVmx96a89TZzZ5Ccolo00MT532w7xolP5QTzt5B2MOwMwQL1MOmbhNu2_9YvDvc4gMn_UBZyWbo9m0yU3SUaNquBihHiluTGd4JvCPa3kketi9vnYQdcxjyZ3aImGtIjL9km5QqirRI_wScH8imTi1WN7P_fjeWqlLlyWn0p8jJMjy8FXjavN1xu4sxS4_BatF8Bw8CRp8wGwHSROXEBU9rTFRPH8VsHLSbO_-_uFFp2Cl"/>
 </div>
@@ -107,7 +277,7 @@
 </div>
 </div>
 <!-- Product 5 -->
-<div class="group cursor-pointer">
+<div class="group cursor-pointer reveal card-hover">
 <div class="relative aspect-square rounded-2xl overflow-hidden bg-surface-container-low mb-6 ghost-border">
 <img alt="NOVA Linea" class="text-center w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOALZqmeI3oEHb-GndbOIR8GnlZ6nM6jHexXZnrQiz8ZW2n2VPJj9tz1NmhfBjvuwUMlEmImDyVDCv-blSEDEAJW8BsVvfmYakkMl7bnTF92nm0RgqNc-xZLMeDAxUKU8U70rmRNTJKgk5DvkDXw1jJk_m4ZSaD5r8spgZfhNWyq1FZ5OMBgyf_wr_275g6fzVmnfmFXr55MobpuGNsQhBW-ev0XTcdlkW-6lEBvH4uqX-VdAtdXbwJpNhIPG63ovvIY4rXP4pyIwi"/>
 </div>
@@ -116,7 +286,7 @@
 </div>
 </div>
 <!-- Product 6 -->
-<div class="group cursor-pointer">
+<div class="group cursor-pointer reveal card-hover">
 <div class="relative aspect-square rounded-2xl overflow-hidden bg-surface-container-low mb-6 ghost-border">
 <img alt="NOVA Atelier" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPQDyg9uQ2047r_o1jxbuWZ0oBBhOC1T9ptsuZw7JU-fpS2TxTbBTeM5N1tIip7SnfreQUyJVEdA5noDbyeufmU5tsjlYojPQYhcC5MEKgITpAf8-GhB24HHlZrlKBw2HZvYI4bVDwOXjq25O7COJDOZdzpaHxoWzYWJPMKsHePJ8BsdqutoLdJ1d_fP_EfpVZvqL8xhM2ZNgXenIz7e33Nv_viL80UigxiYlMSmlFTb1fqttta3Gkfitn1JeEuQqCobopW91rT5TL"/>
 </div>
@@ -133,19 +303,19 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
 <div class="lg:col-span-5 order-2 lg:order-1">
 <div class="relative">
-<div class="aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
+<div class="img-reveal aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
 <img alt="Linen fabric" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDX16NBVxrK1zL3KlA4O7BZSdZq-F6wpixhxb5_Cs4egvz4lbBVwPj37MP_VPYe9MW3O5Twb2Q2EjHMpcxKbYeUqD8lSjNE6vhFjmKwjgyKoS9tk-mf5tn5fD_y5b2wNEXZKrmDJOoSLSBaNawidOqcA7ZZj3jpfYPYLCDk4yv7xzoqLZgV3VksLmg_TpXsD80Gm3hUogtqWONxlxmmKSoBla3q8dIYXy_65EXkClobdQ5PtlAY2dFAOdz_xyHJgtpmNGBzMnKggPT4"/>
 </div>
-<div class="absolute -bottom-8 -right-8 w-48 h-48 rounded-2xl overflow-hidden shadow-xl border-8 border-[#C4A591] hidden md:block">
+<div class="img-pop absolute -bottom-8 -right-8 w-48 h-48 rounded-2xl overflow-hidden shadow-xl border-8 border-[#C4A591] hidden md:block">
 <img alt="Artisanal hands" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChXwBrpap9w8WX3xWx-zksNs3sCE7CHCNPWlOaVm7TK94yqykM-iiQI0eNomvWeRa0YLtCr0MO1aNffikjzvUHXHvC7wA2F_ThuYmISVraf1HAzoEI4lPKNWD7SldK8xoWcvn-zBCSQVqkTt354tByFmN7u_HBRU3ldm3O5azMW-hsoVWVTu0BwVZbTH-1mqux8bLluVAsUjHseDbdUEQ7iSTanqD7e3QpXdeG5nou0QjwnzJyNbEBus9lIH4fLPmDcVuuFEjPUIu_"/>
 </div>
 </div>
 </div>
 <div class="lg:col-span-7 order-1 lg:order-2">
-<h2 class="text-xs font-extrabold tracking-[0.3em] uppercase text-[#FDFBF7] mb-4">Crafting Excellence</h2>
-<h3 class="text-4xl md:text-5xl montserrat-light-caps text-[#FDFBF7] mb-8 leading-tight">HOGYAN KÉSZÜL?</h3>
+<h2 class="reveal text-xs font-extrabold tracking-[0.3em] uppercase text-[#FDFBF7] mb-4">Crafting Excellence</h2>
+<h3 class="reveal text-4xl md:text-5xl montserrat-light-caps text-[#FDFBF7] mb-8 leading-tight">HOGYAN KÉSZÜL?</h3>
 <div class="space-y-12">
-<p class="text-xl text-[#FDFBF7]/90 font-light leading-relaxed">
+<p class="reveal text-xl text-[#FDFBF7]/90 font-light leading-relaxed">
                             Every piece in the Nola &amp; Co collection is a testament to mindful creation. We believe that what touches your baby's skin should be as pure as their first breath.
                         </p>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -172,15 +342,15 @@
 <!-- Posters Section -->
 <section class="py-24 bg-surface-container-low">
 <div class="max-w-7xl mx-auto px-8 text-center">
-<h3 class="text-xs font-extrabold tracking-[0.3em] uppercase text-secondary mb-4">Artistic Remembrance</h3>
-<h2 class="text-4xl md:text-5xl montserrat-light-caps text-carbon mb-12">POSZTEREK</h2>
+<h3 class="reveal text-xs font-extrabold tracking-[0.3em] uppercase text-secondary mb-4">Artistic Remembrance</h3>
+<h2 class="reveal text-4xl md:text-5xl montserrat-light-caps text-carbon mb-12">POSZTEREK</h2>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-<div class="space-y-6">
-<img alt="Origin series poster" class="w-full h-auto rounded-2xl shadow-lg" src="https://lh3.googleusercontent.com/aida/ADBb0ui62JZ0Modhgr3Rvx-jrVd46l4W7gUJ258WQkWOTM4cKzKV72sNEfeXkXRt7EZ7GImFDGyWJg9oqJT_gGSz63j57KkUuGIT40JlvXXvUObDNaxDj3lMYnVH3_DnlQ9qet4L_ve4sdqsXCdoqk6C23W1HZzpOEbgYiD926S8nTuJje32rCSesS6pt9nHpg01cTZgKu7eGgr2nxzaRSzviFLebgtUA8qa-EX3PWr2-B4hT3M2SlqQYdJ-y6gDMsjfykL36qCF1kD87yI"/>
+<div class="reveal space-y-6">
+<img alt="Origin series poster" class="poster-tilt w-full h-auto rounded-2xl shadow-lg" src="https://lh3.googleusercontent.com/aida/ADBb0ui62JZ0Modhgr3Rvx-jrVd46l4W7gUJ258WQkWOTM4cKzKV72sNEfeXkXRt7EZ7GImFDGyWJg9oqJT_gGSz63j57KkUuGIT40JlvXXvUObDNaxDj3lMYnVH3_DnlQ9qet4L_ve4sdqsXCdoqk6C23W1HZzpOEbgYiD926S8nTuJje32rCSesS6pt9nHpg01cTZgKu7eGgr2nxzaRSzviFLebgtUA8qa-EX3PWr2-B4hT3M2SlqQYdJ-y6gDMsjfykL36qCF1kD87yI"/>
 <p class="ethereal-title text-sm font-bold tracking-[0.2em]">ORIGIN DESIGN</p>
 </div>
-<div class="space-y-6">
-<img alt="Nova series poster" class="w-full h-auto rounded-2xl shadow-lg" src="https://lh3.googleusercontent.com/aida/ADBb0ugsLiH96-uflIwjbRHSWCyTE7zJcSzbKeL5o1wbi9ojx0zWTJTqmaqV3Ar_OawOC5-5OCIDxmTa6dKPKZkoRCGPgj5cjU3Br68uHZ9gGRp7DJLWxuCGUzA1BE2Wc90sVgQoqMwOVdmjxJsUO62-ALhBH3BXFHS1HBVEi-D4O-3p0QKhunCVN46MNfuB8pZu72QmZo-XhXgDK6VZP1p3LcDqOI9S90Jf7OJzjRGillh_mI6GehYQLQv7G87TqH7-GFz0vfMW-RcCKk0"/>
+<div class="reveal space-y-6">
+<img alt="Nova series poster" class="poster-tilt w-full h-auto rounded-2xl shadow-lg" src="https://lh3.googleusercontent.com/aida/ADBb0ugsLiH96-uflIwjbRHSWCyTE7zJcSzbKeL5o1wbi9ojx0zWTJTqmaqV3Ar_OawOC5-5OCIDxmTa6dKPKZkoRCGPgj5cjU3Br68uHZ9gGRp7DJLWxuCGUzA1BE2Wc90sVgQoqMwOVdmjxJsUO62-ALhBH3BXFHS1HBVEi-D4O-3p0QKhunCVN46MNfuB8pZu72QmZo-XhXgDK6VZP1p3LcDqOI9S90Jf7OJzjRGillh_mI6GehYQLQv7G87TqH7-GFz0vfMW-RcCKk0"/>
 <p class="ethereal-title text-sm font-bold tracking-[0.2em]">NOVA DESIGN</p>
 </div>
 </div>
@@ -190,16 +360,16 @@
 <section class="py-24 bg-surface">
 <div class="max-w-7xl mx-auto px-8">
 <div class="text-center mb-16">
-<h2 class="text-4xl md:text-5xl montserrat-light-caps text-carbon mb-6 leading-tight">GYAKRAN ISMÉTELT KÉRDÉSEK</h2>
-<p class="text-carbon-light max-w-2xl mx-auto font-light leading-relaxed">
+<h2 class="reveal text-4xl md:text-5xl montserrat-light-caps text-carbon mb-6 leading-tight">GYAKRAN ISMÉTELT KÉRDÉSEK</h2>
+<p class="reveal text-carbon-light max-w-2xl mx-auto font-light leading-relaxed">
                     Ha felmerül benned bármilyen kérdés, kérlek olvasd át a gyakran ismételt kérdéseket, ahol igyekeztünk minél több kérdést megválaszolni. Ha mégsem találtad meg azt, amit kerestél, bátran írj nekünk: hello@nolaandco.hu
                 </p>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 stagger-children">
 <!-- FAQ Item 1 -->
-<div class="bg-warm-beige/30 p-10 rounded-2xl">
+<div class="reveal faq-hover bg-warm-beige/30 p-10 rounded-2xl" style="--i:0">
 <h4 class="text-sm font-bold uppercase tracking-widest mb-4 footer-text">MIKOR KAPOM MEG A RENDELÉSEMET?</h4>
-<div class="flex gap-1 mb-6 text-brand-blue/60">
+<div class="star-twinkle flex gap-1 mb-6 text-brand-blue/60">
 <span class="material-symbols-outlined text-xs fill-current" data-icon="star">star</span>
 <span class="material-symbols-outlined text-xs fill-current" data-icon="star">star</span>
 <span class="material-symbols-outlined text-xs fill-current" data-icon="star">star</span>
@@ -211,9 +381,9 @@
                     </p>
 </div>
 <!-- FAQ Item 2 -->
-<div class="bg-warm-beige/30 p-10 rounded-2xl">
+<div class="reveal faq-hover bg-warm-beige/30 p-10 rounded-2xl" style="--i:1">
 <h4 class="text-sm font-bold uppercase tracking-widest mb-4 footer-text">MILYEN ANYAGBÓL KÉSZÜLNEK A PÁRNÁK?</h4>
-<div class="flex gap-1 mb-6 text-brand-blue/60">
+<div class="star-twinkle flex gap-1 mb-6 text-brand-blue/60">
 <span class="material-symbols-outlined text-xs fill-current" data-icon="star">star</span>
 <span class="material-symbols-outlined text-xs fill-current" data-icon="star">star</span>
 <span class="material-symbols-outlined text-xs fill-current" data-icon="star">star</span>
@@ -225,9 +395,9 @@
                     </p>
 </div>
 <!-- FAQ Item 3 -->
-<div class="bg-warm-beige/30 p-10 rounded-2xl">
+<div class="reveal faq-hover bg-warm-beige/30 p-10 rounded-2xl" style="--i:2">
 <h4 class="text-sm font-bold uppercase tracking-widest mb-4 footer-text">LEHET-E MOSNI A TERMÉKET?</h4>
-<div class="flex gap-1 mb-6 text-brand-blue/60">
+<div class="star-twinkle flex gap-1 mb-6 text-brand-blue/60">
 <span class="material-symbols-outlined text-xs fill-current" data-icon="star">star</span>
 <span class="material-symbols-outlined text-xs fill-current" data-icon="star">star</span>
 <span class="material-symbols-outlined text-xs fill-current" data-icon="star">star</span>
@@ -246,16 +416,16 @@
 <div class="max-w-7xl mx-auto px-8">
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 <div class="relative order-2 lg:order-1">
-<div class="bg-brand-blue/20 rounded-[3rem] p-12 lg:p-24 relative overflow-hidden">
-<img alt="Nola &amp; Co Signature Pillow" class="w-full h-auto object-contain relative z-10" src="https://lh3.googleusercontent.com/aida/ADBb0uhDk5QjpY9yJ-d8GhhGRtlbgme7FJ6HcDCT_pwpZ83tMDJAAHRotaz3n_-Ba15nOoA6onzDKTZp7KKKaczSmYfxuXu0ZRF7J2UOnprb8mEfQl2CDOHKJhgxq4SOuVNvzbUueIbzdbTm2k5tHGCt413AEKlOK9KrdZzboWxwTkT1uJM8XJJ4gOe2mUZmpG-PU6IyxcExo0X0EeCEYHG8Wm6VLkJaONR5nYPF0tx8eSmjmFcz8_hrEgEdU8NRU9aGhN-BAWw-Jd1rC4k"/>
+<div class="breathe-glow bg-brand-blue/20 rounded-[3rem] p-12 lg:p-24 relative overflow-hidden">
+<img alt="Nola &amp; Co Signature Pillow" class="float-anim w-full h-auto object-contain relative z-10" src="https://lh3.googleusercontent.com/aida/ADBb0uhDk5QjpY9yJ-d8GhhGRtlbgme7FJ6HcDCT_pwpZ83tMDJAAHRotaz3n_-Ba15nOoA6onzDKTZp7KKKaczSmYfxuXu0ZRF7J2UOnprb8mEfQl2CDOHKJhgxq4SOuVNvzbUueIbzdbTm2k5tHGCt413AEKlOK9KrdZzboWxwTkT1uJM8XJJ4gOe2mUZmpG-PU6IyxcExo0X0EeCEYHG8Wm6VLkJaONR5nYPF0tx8eSmjmFcz8_hrEgEdU8NRU9aGhN-BAWw-Jd1rC4k"/>
 </div>
 </div>
 <div class="order-1 lg:order-2 space-y-8">
-<h3 class="text-5xl md:text-6xl font-headline text-carbon leading-tight uppercase tracking-tight">GET YOUR NOLA CORE TODAY</h3>
-<p class="text-carbon-light text-lg font-light leading-relaxed">Experience heritage-quality craftsmanship.</p>
+<h3 class="reveal text-5xl md:text-6xl font-headline text-carbon leading-tight uppercase tracking-tight">GET YOUR NOLA CORE TODAY</h3>
+<p class="reveal text-carbon-light text-lg font-light leading-relaxed">Experience heritage-quality craftsmanship.</p>
 <div class="pt-4">
 <p class="text-4xl font-light text-carbon mb-8">$129.00</p>
-<a class="bg-brand-blue text-carbon px-16 py-5 rounded-full text-lg font-bold tracking-wide hover:opacity-90 transition-all shadow-xl inline-block" href="#">Buy Now</a>
+<a class="bg-brand-blue text-carbon px-16 py-5 rounded-full text-lg font-bold tracking-wide btn-anim shadow-xl inline-block" href="#">Buy Now</a>
 </div>
 </div>
 </div>
@@ -278,32 +448,32 @@
 <div class="md:col-span-2">
 <h5 class="footer-heading mb-8">GYORS LINKEK</h5>
 <ul class="space-y-4 font-manrope text-sm footer-text">
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Főoldal</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Rólunk</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Origin</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Nova</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Poszter</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Ajándékkártya</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Főoldal</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Rólunk</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Origin</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Nova</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Poszter</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Ajándékkártya</a></li>
 </ul>
 </div>
 <div class="md:col-span-2">
 <h5 class="footer-heading mb-8">INFORMÁCIÓK</h5>
 <ul class="space-y-4 font-manrope text-sm footer-text">
-<li><a class="hover:text-[#A93832] transition-colors" href="#">GYIK</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Szállítás és fizetés</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Elállás és visszaküldés</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Kapcsolat</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">ÁSZF</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Adatkezelési tájékoztató</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">GYIK</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Szállítás és fizetés</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Elállás és visszaküldés</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Kapcsolat</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">ÁSZF</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Adatkezelési tájékoztató</a></li>
 </ul>
 </div>
 <div class="md:col-span-2">
 <h5 class="footer-heading mb-8">KAPCSOLÓDJUNK</h5>
 <ul class="space-y-4 font-manrope text-sm footer-text">
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Facebook</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Instagram</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">E-mail</a></li>
-<li><a class="hover:text-[#A93832] transition-colors" href="#">Kollaboráció</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Facebook</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Instagram</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">E-mail</a></li>
+<li><a class="footer-link hover:text-[#A93832] transition-colors" href="#">Kollaboráció</a></li>
 </ul>
 </div>
 </div>
@@ -315,4 +485,42 @@
 </div>
 </div>
 </footer>
+<script>
+// Intersection Observer for scroll-triggered animations
+document.addEventListener('DOMContentLoaded', () => {
+    // Assign stagger indices to children
+    document.querySelectorAll('.stagger-children').forEach(parent => {
+        parent.querySelectorAll('.reveal').forEach((child, i) => {
+            child.style.setProperty('--i', i);
+        });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -40px 0px'
+    });
+
+    document.querySelectorAll('.reveal, .img-reveal, .img-pop, .divider-anim').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Parallax-lite on scroll for hero
+    const hero = document.querySelector('.hero-img');
+    if (hero) {
+        window.addEventListener('scroll', () => {
+            const scroll = window.scrollY;
+            if (scroll < window.innerHeight) {
+                hero.style.transform = `scale(${1 + scroll * 0.0002}) translateY(${scroll * 0.15}px)`;
+            }
+        }, { passive: true });
+    }
+});
+</script>
 </body></html>
