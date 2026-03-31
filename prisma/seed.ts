@@ -100,6 +100,42 @@ const products = [
     imageUrl: '/images/products/nova-poszter.jpg',
     badge: null,
   },
+  {
+    name: 'NOLA Ajándékkártya 8 900 Ft',
+    slug: 'nola-ajandekkartya-8900',
+    description:
+      'Digitális ajándékkártya 8 900 Ft értékben. Tökéletes ajándék várandós vagy friss szülő ismerősöknek – a megajándékozott szabadon választhat a Nola & Co. termékpalettájáról, amikor már ismeri a baba születési adatait.',
+    price: 8900,
+    category: 'giftcard',
+    series: 'nola',
+    variant: 'core',
+    imageUrl: '/images/products/nola-ajandekkartya.jpg',
+    badge: null,
+  },
+  {
+    name: 'NOLA Ajándékkártya 22 900 Ft',
+    slug: 'nola-ajandekkartya-22900',
+    description:
+      'Digitális ajándékkártya 22 900 Ft értékben. Kreatív és személyes ajándék, amellyel a megajándékozott maga választhatja ki a tökéletes Nola terméket a baba születési adataival.',
+    price: 22900,
+    category: 'giftcard',
+    series: 'nola',
+    variant: 'core',
+    imageUrl: '/images/products/nola-ajandekkartya.jpg',
+    badge: null,
+  },
+  {
+    name: 'NOLA Ajándékkártya 29 900 Ft',
+    slug: 'nola-ajandekkartya-29900',
+    description:
+      'Digitális ajándékkártya 29 900 Ft értékben. Prémium ajándék, amellyel bármely Nola & Co. terméket megvásárolhatja a megajándékozott, amikor már pontosan tudja a baba születési adatait.',
+    price: 29900,
+    category: 'giftcard',
+    series: 'nola',
+    variant: 'core',
+    imageUrl: '/images/products/nola-ajandekkartya.jpg',
+    badge: null,
+  },
 ];
 
 async function main() {

@@ -116,7 +116,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: #A93832;
+  background: #C4A591;
   transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .nav-link:hover::after { width: 100%; }

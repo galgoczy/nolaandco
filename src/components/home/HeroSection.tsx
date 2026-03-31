@@ -20,7 +20,7 @@ export default function HeroSection() {
             href="/termekek"
             className="hero-cta pointer-events-auto bg-brand-blue text-carbon rounded-full px-14 py-5 text-lg font-bold tracking-wide btn-anim shadow-xl"
           >
-            Fedezd fel a kollekciót
+            Fedezd fel a kollekciókat!
           </Link>
         </div>
       </div>
