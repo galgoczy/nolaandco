@@ -10,7 +10,7 @@ const navLinks = [
   { label: 'NEKTEK', href: '/nektek' },
   { label: 'PÁRNA', href: '/termekek?category=pillow' },
   { label: 'POSZTER', href: '/termekek?category=poster' },
-  { label: 'AJÁNDÉKKÁRTYA', href: '/termekek?category=giftcard' },
+  { label: 'AJÁNDÉKKÁRTYA', href: '/termekek/nola-ajandekkartya' },
 ];
 
 export default function Navbar() {

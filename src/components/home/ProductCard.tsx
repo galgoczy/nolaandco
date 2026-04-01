@@ -35,7 +35,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
       <div className="text-center">
         <h4 className="text-lg font-medium text-carbon">{product.name}</h4>
-        <p className="text-sm text-carbon-light mt-1">{formatPrice(product.price)}</p>
+        <p className="text-sm text-carbon-light mt-1">
+          {product.category === 'giftcard'
+            ? `${formatPrice(product.price)}-tól`
+            : formatPrice(product.price)}
+        </p>
       </div>
     </Link>
   );

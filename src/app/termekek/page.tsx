@@ -10,9 +10,10 @@ interface Props {
 }
 
 const tabs = [
-  { label: 'Osszes', href: '/termekek', value: undefined },
-  { label: 'Parnak', href: '/termekek?category=pillow', value: 'pillow' },
+  { label: 'Összes', href: '/termekek', value: undefined },
+  { label: 'Párnák', href: '/termekek?category=pillow', value: 'pillow' },
   { label: 'Poszterek', href: '/termekek?category=poster', value: 'poster' },
+  { label: 'Ajándékkártya', href: '/termekek?category=giftcard', value: 'giftcard' },
 ] as const;
 
 export default async function TermekekPage({ searchParams }: Props) {

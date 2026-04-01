@@ -21,6 +21,7 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound();
   }
 
+  const isGiftCard = product.category === 'giftcard';
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
 
   return (
@@ -48,7 +49,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
           {/* Right: Product Details */}
           <div className="flex flex-col justify-center space-y-6">
-            {product.series && (
+            {!isGiftCard && product.series && (
               <span className="inline-block self-start px-3 py-1 rounded-full bg-surface-container text-xs font-medium uppercase tracking-wider text-carbon-light">
                 {product.series} series
               </span>
@@ -58,22 +59,24 @@ export default async function ProductDetailPage({ params }: Props) {
               {product.name}
             </h1>
 
-            <div className="flex items-center gap-3">
-              {product.onSale && product.salePrice ? (
-                <>
-                  <span className="text-2xl font-bold text-primary">
-                    {formatPrice(product.salePrice)}
-                  </span>
-                  <span className="text-lg text-carbon-light line-through">
+            {!isGiftCard && (
+              <div className="flex items-center gap-3">
+                {product.onSale && product.salePrice ? (
+                  <>
+                    <span className="text-2xl font-bold text-primary">
+                      {formatPrice(product.salePrice)}
+                    </span>
+                    <span className="text-lg text-carbon-light line-through">
+                      {formatPrice(product.price)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-2xl font-bold text-carbon">
                     {formatPrice(product.price)}
                   </span>
-                </>
-              ) : (
-                <span className="text-2xl font-bold text-carbon">
-                  {formatPrice(product.price)}
-                </span>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             <p className="text-carbon-light leading-relaxed">
               {product.description}
@@ -87,6 +90,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   slug: product.slug,
                   price: effectivePrice,
                   imageUrl: product.imageUrl,
+                  category: product.category,
                 }}
               />
             </div>
