@@ -59,7 +59,7 @@ export default async function TermekekPage({ searchParams }: Props) {
         <div className="text-center mb-16">
           <RevealOnScroll>
             <h1 className="text-4xl md:text-6xl montserrat-light-caps text-carbon mb-6 leading-tight">
-              TERMÉKEINK
+              TERMÉKEK
             </h1>
           </RevealOnScroll>
           <RevealOnScroll>

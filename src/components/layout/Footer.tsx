@@ -28,26 +28,9 @@ export default function Footer() {
   return (
     <footer className="bg-[#F5F4EF] w-full pt-20 pb-10 px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20">
-          {/* Left: Logo + Newsletter heading */}
-          <div className="md:col-span-6 space-y-6">
-            <div>
-              <Image
-                src="/images/logo-wide.svg"
-                alt="Nola & Co."
-                width={160}
-                height={20}
-              />
-            </div>
-            <div>
-              <h5 className="text-[#B48D76] tracking-widest font-headline font-semibold text-xl">
-                HÍRLEVÉL
-              </h5>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-20">
           {/* GYORS LINKEK */}
-          <div className="md:col-span-2">
+          <div>
             <h5 className="text-[#B48D76] tracking-[0.15em] font-semibold text-xs mb-8">
               GYORS LINKEK
             </h5>
@@ -66,7 +49,7 @@ export default function Footer() {
           </div>
 
           {/* INFORMACIOK */}
-          <div className="md:col-span-2">
+          <div>
             <h5 className="text-[#B48D76] tracking-[0.15em] font-semibold text-xs mb-8">
               INFORMÁCIÓK
             </h5>
@@ -85,7 +68,7 @@ export default function Footer() {
           </div>
 
           {/* KAPCSOLODJUNK */}
-          <div className="md:col-span-2">
+          <div>
             <h5 className="text-[#B48D76] tracking-[0.15em] font-semibold text-xs mb-8">
               KAPCSOLÓDJUNK
             </h5>
