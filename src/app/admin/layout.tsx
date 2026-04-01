@@ -2,7 +2,9 @@ import { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import Link from 'next/link';
+import { getServerSession } from 'next-auth';
 import { getAdminSession } from '@/lib/auth';
+import { authOptions } from '@/lib/auth-options';
 
 const navItems = [
   { label: 'Vezérlőpult', href: '/admin' },
@@ -17,11 +19,15 @@ export default async function AdminLayout({
 }) {
   const headerList = await headers();
   const pathname = headerList.get('x-next-pathname') ?? '';
-  const session = await getAdminSession();
+
+  // Check both custom token auth and NextAuth Google session
+  const tokenSession = await getAdminSession();
+  const nextAuthSession = await getServerSession(authOptions);
+  const isAuthenticated = !!tokenSession || !!nextAuthSession?.user?.email;
 
   const isLoginPage = pathname === '/admin/bejelentkezes';
 
-  if (!session && !isLoginPage) {
+  if (!isAuthenticated && !isLoginPage) {
     redirect('/admin/bejelentkezes');
   }
 

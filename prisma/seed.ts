@@ -115,6 +115,13 @@ const products = [
 ];
 
 async function main() {
+  // Clean up old gift card variants that were replaced by a single product
+  const oldGiftCardSlugs = ['nola-ajandekkartya-8900', 'nola-ajandekkartya-22900', 'nola-ajandekkartya-29900'];
+  for (const slug of oldGiftCardSlugs) {
+    await prisma.product.deleteMany({ where: { slug } });
+  }
+  console.log('Cleaned up old gift card variants.');
+
   console.log('Seeding products...');
 
   for (const product of products) {
@@ -126,20 +133,23 @@ async function main() {
     console.log(`  Upserted: ${product.name}`);
   }
 
-  console.log('Seeding admin user...');
+  console.log('Seeding admin users...');
 
-  const adminEmail = 'admin@nolaandco.hu';
-  const adminPasswordHash = hashPassword('admin123');
+  const adminUsers = [
+    { email: 'admin@nolaandco.hu', password: 'admin123' },
+    { email: 'galgoczy.krisztina@gmail.com', password: 'google-auth-only' },
+    { email: 'galgoczy.gergely@gmail.com', password: 'google-auth-only' },
+  ];
 
-  await prisma.adminUser.upsert({
-    where: { email: adminEmail },
-    update: { passwordHash: adminPasswordHash },
-    create: {
-      email: adminEmail,
-      passwordHash: adminPasswordHash,
-    },
-  });
-  console.log(`  Upserted admin: ${adminEmail}`);
+  for (const admin of adminUsers) {
+    const passwordHash = hashPassword(admin.password);
+    await prisma.adminUser.upsert({
+      where: { email: admin.email },
+      update: { passwordHash },
+      create: { email: admin.email, passwordHash },
+    });
+    console.log(`  Upserted admin: ${admin.email}`);
+  }
 
   console.log('Seeding complete!');
 }
