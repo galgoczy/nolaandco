@@ -3,12 +3,8 @@ export function cn(...classes: (string | undefined | false | null)[]) {
 }
 
 export function formatPrice(amount: number): string {
-  return new Intl.NumberFormat('hu-HU', {
-    style: 'currency',
-    currency: 'HUF',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+  const formatted = amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `${formatted} Ft`;
 }
 
 export function generateOrderNumber(): string {

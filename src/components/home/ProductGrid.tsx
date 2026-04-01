@@ -10,12 +10,12 @@ export default async function ProductGrid() {
       <div className="max-w-7xl mx-auto px-8">
         <div className="text-center mb-20">
           <RevealOnScroll>
-            <h2 className="text-5xl md:text-7xl montserrat-light-caps text-carbon mb-4 leading-tight tracking-[0.15em]">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl text-carbon mb-4 leading-tight tracking-[0.25em] uppercase whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>
               THE SHAPE OF YOUR MEMORIES
             </h2>
           </RevealOnScroll>
           <RevealOnScroll>
-            <h3 className="text-lg md:text-xl font-headline italic text-carbon-light mb-6">
+            <h3 className="text-lg md:text-xl font-headline text-carbon-light mb-6">
               Emlékeid formába öntve
             </h3>
           </RevealOnScroll>

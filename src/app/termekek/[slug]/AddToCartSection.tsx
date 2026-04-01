@@ -9,9 +9,9 @@ import { formatPrice } from '@/lib/utils';
 import type { BirthData } from '@/lib/validators';
 
 const giftCardVariants = [
-  { label: 'Poszter', price: 8900, description: 'Egy darab születési poszter' },
+  { label: 'Poszter', price: 5900, description: 'Egy darab születési poszter' },
   { label: 'Párna', price: 22900, description: 'Egy darab születési párna' },
-  { label: 'Párna + Poszter', price: 29900, description: 'Párna és poszter csomag' },
+  { label: 'Párna + Poszter', price: 27900, description: 'Párna és poszter csomag' },
 ];
 
 interface Props {

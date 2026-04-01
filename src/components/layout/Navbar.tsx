@@ -6,6 +6,7 @@ import { useCartStore } from '@/store/cart';
 
 const navLinks = [
   { label: 'FŐOLDAL', href: '/' },
+  { label: 'RÓLUNK', href: '/rolunk' },
   { label: 'NEKTEK', href: '/nektek' },
   { label: 'PÁRNA', href: '/termekek?category=pillow' },
   { label: 'POSZTER', href: '/termekek?category=poster' },
