@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
+const thinText = { fontFamily: "'Montserrat', sans-serif", fontWeight: 200 } as const;
+
 export default function AboutSection() {
   return (
     <section className="py-24 md:py-32 bg-surface">
@@ -14,15 +16,15 @@ export default function AboutSection() {
               </h2>
             </RevealOnScroll>
             <RevealOnScroll>
-              <p className="text-carbon-light leading-loose mb-4" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
-                A <strong className="font-semibold">Nola &amp; Co.</strong> születését nem egyetlen pillanat, hanem a vágy inspirálta: alkotni
+              <p className="text-carbon-light leading-relaxed mb-4 text-[15px]" style={thinText}>
+                A <strong className="font-medium">Nola &amp; Co.</strong> születését nem egyetlen pillanat, hanem a vágy inspirálta: alkotni
                 valamit, amely a leginkább képes megőrizni és visszaadni azt az érzést, amit egy
                 újszülött kisbaba karunkban tartása jelent.
               </p>
             </RevealOnScroll>
             <RevealOnScroll>
-              <p className="text-carbon-light leading-loose mb-8" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
-                Termékeinkben számomra a <strong className="font-semibold">szülői gondoskodás</strong> és a <strong className="font-semibold">design</strong> találkozik: minden párnát és
+              <p className="text-carbon-light leading-relaxed mb-8 text-[15px]" style={thinText}>
+                Termékeinkben számomra a <strong className="font-medium">szülői gondoskodás</strong> és a <strong className="font-medium">design</strong> találkozik: minden párnát és
                 posztert egyedi jellemzők alapján, gondos tervezéssel készítünk el, hogy a
                 végeredmény ne csak egy tárgy legyen, hanem egy darabka a családotok történetéből.
               </p>
@@ -35,7 +37,6 @@ export default function AboutSection() {
                 Ismerj meg minket
               </Link>
             </RevealOnScroll>
-            {/* Placeholder image */}
             <RevealOnScroll>
               <div className="mt-10 aspect-[4/3] rounded-2xl bg-surface-container flex items-center justify-center">
                 <span className="text-carbon-light/40 text-sm font-body">Kép helye (varrógép, varrás)</span>
@@ -51,29 +52,29 @@ export default function AboutSection() {
               </h2>
             </RevealOnScroll>
             <RevealOnScroll>
-              <p className="text-carbon-light leading-loose mb-6" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
+              <p className="text-carbon-light leading-relaxed mb-6 text-[15px]" style={thinText}>
                 A Nola párnákat azoknak a családoknak álmodtuk meg, akik szeretnék megőrizni a
                 legelső napok csodáját.
               </p>
             </RevealOnScroll>
             <RevealOnScroll>
-              <ul className="space-y-3 mb-6">
-                <li className="text-carbon-light leading-loose flex items-start gap-2" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
-                  <span className="text-[#C4A591] mt-1">•</span>
-                  A <strong className="font-semibold">várandósoknak</strong> és <strong className="font-semibold">szülőknek</strong>, hogy az első ölelés emléke ne halványuljon.
+              <ul className="space-y-2 mb-6 text-[15px]">
+                <li className="text-carbon-light leading-relaxed" style={thinText}>
+                  <span className="text-[#C4A591] mr-2">·</span>
+                  A <strong className="font-medium">várandósoknak</strong> és <strong className="font-medium">szülőknek</strong>, hogy az első ölelés emléke ne halványuljon.
                 </li>
-                <li className="text-carbon-light leading-loose flex items-start gap-2" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
-                  <span className="text-[#C4A591] mt-1">•</span>
-                  Az <strong className="font-semibold">örökbefogadóknak</strong>, akik számára az első találkozás váratott magára.
+                <li className="text-carbon-light leading-relaxed" style={thinText}>
+                  <span className="text-[#C4A591] mr-2">·</span>
+                  Az <strong className="font-medium">örökbefogadóknak</strong>, akik számára az első találkozás váratott magára.
                 </li>
-                <li className="text-carbon-light leading-loose flex items-start gap-2" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
-                  <span className="text-[#C4A591] mt-1">•</span>
-                  A <strong className="font-semibold">korababák szüleinek</strong>, hogy büszkén emlékezzenek vissza az útra, amit bejártak.
+                <li className="text-carbon-light leading-relaxed" style={thinText}>
+                  <span className="text-[#C4A591] mr-2">·</span>
+                  A <strong className="font-medium">korababák szüleinek</strong>, hogy büszkén emlékezzenek vissza az útra, amit bejártak.
                 </li>
               </ul>
             </RevealOnScroll>
             <RevealOnScroll>
-              <p className="text-carbon-light leading-loose mb-8 italic" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
+              <p className="text-carbon-light leading-relaxed mb-8 italic text-[15px]" style={thinText}>
                 Ezen kívül szeretnénk segíteni az angyalbaba-szülőknek, hogy szeretetben őrizhessék
                 meg azt az emléket, ami örökre a szívükbe égett.
               </p>
@@ -86,7 +87,6 @@ export default function AboutSection() {
                 Megnézem a párnákat
               </Link>
             </RevealOnScroll>
-            {/* Placeholder image */}
             <RevealOnScroll>
               <div className="mt-10 aspect-[4/3] rounded-2xl bg-surface-container flex items-center justify-center">
                 <span className="text-carbon-light/40 text-sm font-body">Kép helye (szülők a párnával)</span>
