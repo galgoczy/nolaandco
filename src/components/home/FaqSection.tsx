@@ -1,9 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
+import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
-const faqItems = [
+function FaqLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link href={href} className="text-[#C4A591] underline underline-offset-2 hover:text-[#4A4A4A] transition-colors">
+      {children}
+    </Link>
+  );
+}
+
+interface FaqItem {
+  question: string;
+  answer: ReactNode;
+}
+
+const faqItems: FaqItem[] = [
   {
     question: 'Hogyan adhatom meg a baba születési adatait?',
     answer:
@@ -16,8 +30,9 @@ const faqItems = [
   },
   {
     question: 'Módosíthatom a születési adatokat a rendelés után?',
-    answer:
-      'Kérjük, a megrendelés véglegesítése előtt ellenőrizd az adatokat! Mivel a gyártás a rendelés leadása után nem sokkal elindul, módosításra csak az első 12 órában van lehetőség a rendeles@nolaandco.hu címen.',
+    answer: (
+      <>Kérjük, a megrendelés véglegesítése előtt ellenőrizd az adatokat! Mivel a gyártás a rendelés leadása után nem sokkal elindul, módosításra csak az első 12 órában van lehetőség a <a href="mailto:rendeles@nolaandco.hu" className="text-[#C4A591] underline underline-offset-2 hover:text-[#4A4A4A] transition-colors">rendeles@nolaandco.hu</a> címen.</>
+    ),
   },
   {
     question: 'Az 1:1 méretarány mit jelent?',
@@ -61,8 +76,9 @@ const faqItems = [
   },
   {
     question: 'Tudok ajándékba venni párnát vagy posztert, ha még nem született meg a baba?',
-    answer:
-      'Persze! Erre a célra hoztuk létre a Digitális Ajándékkártyát, ami egy kreatív és különleges ajándék. Így a megajándékozott akkor rendelheti meg a neki tetsző terméket, amikor már pontosan tudja a baba születési adatait.',
+    answer: (
+      <>Persze! Erre a célra hoztuk létre a <FaqLink href="/termekek/nola-ajandekkartya">Digitális Ajándékkártyát</FaqLink>, ami egy kreatív és különleges ajándék. Így a megajándékozott akkor rendelheti meg a neki tetsző terméket, amikor már pontosan tudja a baba születési adatait.</>
+    ),
   },
   {
     question: 'Küldhetek-e üzenetet a rendelésem mellé?',
@@ -76,8 +92,9 @@ const faqItems = [
   },
   {
     question: 'Hova szállítotok?',
-    answer:
-      'Jelenleg Magyarországon belül szállítunk, de dolgozunk a nemzetközi bővítésen. Iratkozz fel a hírlevelünkre, és értesítünk, ha elindult a külföldi szállítás!',
+    answer: (
+      <>Jelenleg Magyarországon belül szállítunk, de dolgozunk a nemzetközi bővítésen. Iratkozz fel a <FaqLink href="/hirlevel">hírlevelünkre</FaqLink>, és értesítünk, ha elindult a külföldi szállítás!</>
+    ),
   },
 ];
 
@@ -133,9 +150,9 @@ export default function FaqSection() {
                     className="accordion-body overflow-hidden transition-all duration-300 ease-in-out"
                     style={{ maxHeight: isOpen ? '500px' : '0px', opacity: isOpen ? 1 : 0 }}
                   >
-                    <p className="text-[#4A4A4A] text-sm font-light leading-relaxed pb-5">
+                    <div className="text-[#4A4A4A] text-sm font-light leading-relaxed pb-5">
                       {item.answer}
-                    </p>
+                    </div>
                   </div>
                 </div>
               </RevealOnScroll>

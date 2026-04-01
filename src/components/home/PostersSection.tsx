@@ -7,12 +7,12 @@ export default function PostersSection() {
     <section className="py-24 bg-surface-container-low">
       <div className="max-w-7xl mx-auto px-8 text-center">
         <RevealOnScroll>
-          <h3 className="text-xs font-extrabold tracking-[0.3em] uppercase text-secondary mb-4">
-            Artistic Remembrance
+          <h3 className="text-xs tracking-[0.3em] uppercase text-secondary mb-2" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
+            ART PRINTS
           </h3>
         </RevealOnScroll>
         <RevealOnScroll>
-          <h2 className="text-4xl md:text-5xl montserrat-light-caps text-carbon mb-12">
+          <h2 className="text-3xl md:text-4xl text-carbon mb-12 tracking-[0.15em] uppercase" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>
             POSZTEREK
           </h2>
         </RevealOnScroll>
