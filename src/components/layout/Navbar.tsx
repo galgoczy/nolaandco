@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useCartStore } from '@/store/cart';
 
 const navLinks = [
@@ -45,13 +44,11 @@ export default function Navbar() {
           {/* Left: Logo */}
           <div className="flex-1 flex items-center">
             <Link href="/">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/images/logo-wide.svg"
                 alt="Nola & Co."
-                width={600}
-                height={75}
-                priority
-                className="h-10 md:h-12 w-auto"
+                className="h-10 md:h-14 w-auto"
               />
             </Link>
           </div>
