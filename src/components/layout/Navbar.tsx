@@ -41,17 +41,17 @@ export default function Navbar() {
       )}
 
       <nav className="nav-animate sticky top-0 z-50 bg-nav-beige glass-nav">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 h-16 md:h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 h-12 md:h-14 flex items-center justify-between">
           {/* Left: Logo */}
           <div className="flex-1 flex items-center">
             <Link href="/">
               <Image
-                src="/images/logo-wide.png"
+                src="/images/logo-wide.svg"
                 alt="Nola & Co."
                 width={200}
                 height={25}
                 priority
-                className="h-6 md:h-8 w-auto"
+                className="h-5 md:h-6 w-auto"
               />
             </Link>
           </div>

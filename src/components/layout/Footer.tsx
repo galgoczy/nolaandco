@@ -33,7 +33,7 @@ export default function Footer() {
           <div className="md:col-span-6 space-y-6">
             <div>
               <Image
-                src="/images/logo-wide.png"
+                src="/images/logo-wide.svg"
                 alt="Nola & Co."
                 width={160}
                 height={20}
@@ -108,7 +108,7 @@ export default function Footer() {
         {/* Bottom Logo + Copyright */}
         <div className="pt-8 border-t border-[#B48D76]/10 flex flex-col items-center gap-4">
           <Image
-            src="/images/logo-wide.png"
+            src="/images/logo-wide.svg"
             alt="Nola & Co."
             width={120}
             height={15}
