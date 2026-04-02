@@ -59,8 +59,8 @@ export default function ScrollVideoHero() {
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/scrollytelling/hero.mp4" type="video/mp4" />
-          <source src="/scrollytelling/hero.webm" type="video/webm" />
+          <source src="/scrollytelling/hero2.mp4" type="video/mp4" />
+          <source src="/scrollytelling/hero2.webm" type="video/webm" />
         </video>
 
         {/* CTA overlay */}
