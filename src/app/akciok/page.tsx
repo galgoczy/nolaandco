@@ -11,7 +11,7 @@ export default async function AkciokPage() {
   const now = new Date();
 
   const [promotions, saleProducts] = await Promise.all([
-    prisma.promotion.findMany({
+    prisma.coupon.findMany({
       where: {
         active: true,
         startsAt: { lte: now },
@@ -68,31 +68,26 @@ export default async function AkciokPage() {
                     <RevealOnScroll key={promo.id} delay={i * 120}>
                       <div className="bg-warm-beige rounded-lg p-8 ghost-border card-hover">
                         <h3 className="font-headline font-semibold text-xl text-carbon mb-3">
-                          {promo.title}
+                          {promo.description || promo.code}
                         </h3>
-                        <p className="text-carbon-light font-body mb-4">
-                          {promo.description}
-                        </p>
 
                         <div className="flex flex-wrap items-center gap-4">
-                          {promo.discountPct && (
+                          {promo.discountType === 'percent' && (
                             <span className="bg-brand-red text-on-primary px-4 py-1.5 rounded-full text-sm font-bold">
-                              -{promo.discountPct}%
+                              -{promo.discountValue}%
                             </span>
                           )}
-                          {promo.discountAmt && (
+                          {promo.discountType === 'fixed' && (
                             <span className="bg-brand-red text-on-primary px-4 py-1.5 rounded-full text-sm font-bold">
-                              -{formatPrice(promo.discountAmt)}
+                              -{formatPrice(promo.discountValue)}
                             </span>
                           )}
-                          {promo.code && (
-                            <span className="bg-surface-container px-4 py-1.5 rounded-full text-sm font-body text-carbon">
-                              Kód:{' '}
-                              <strong className="font-bold tracking-wider">
-                                {promo.code}
-                              </strong>
-                            </span>
-                          )}
+                          <span className="bg-surface-container px-4 py-1.5 rounded-full text-sm font-body text-carbon">
+                            Kód:{' '}
+                            <strong className="font-bold tracking-wider">
+                              {promo.code}
+                            </strong>
+                          </span>
                         </div>
                       </div>
                     </RevealOnScroll>

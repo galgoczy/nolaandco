@@ -10,6 +10,8 @@ const navItems = [
   { label: 'Rendelések', href: '/admin/rendelesek' },
   { label: 'Termékek', href: '/admin/termekek' },
   { label: 'Kategóriák', href: '/admin/kategoriak' },
+  { label: 'Kuponok', href: '/admin/kuponok' },
+  { label: 'Szalagcím', href: '/admin/szalagcim' },
 ];
 
 export default async function AdminProtectedLayout({

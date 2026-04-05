@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCartStore } from '@/store/cart';
 import AccountMenu from './AccountMenu';
@@ -17,25 +17,52 @@ const navLinks = [
   { label: 'AJÁNDÉKKÁRTYA', href: '/termekek/nola-ajandekkartya' },
 ];
 
+type BannerData = {
+  text: string;
+  textColor: string;
+  bgColor: string;
+  href: string | null;
+};
+
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [banner, setBanner] = useState<BannerData | null>(null);
   const [showBanner, setShowBanner] = useState(true);
   const count = useCartStore((s) => s.count());
 
-  // Toggle this to enable/disable the discount banner
-  const bannerEnabled = false;
-  const bannerText = '🎉 -15% kedvezmény az első rendelésedből! Kód: NOLA15';
+  useEffect(() => {
+    fetch('/api/admin/banner')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.banner) setBanner(data.banner);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <>
-      {/* Discount banner */}
-      {bannerEnabled && showBanner && (
-        <div className="bg-primary text-on-primary text-center text-sm font-medium py-2 px-4 relative z-[60]">
-          <span>{bannerText}</span>
+      {/* Dynamic banner from admin */}
+      {banner && showBanner && (
+        <div
+          className="text-center text-sm font-medium py-2 px-8 relative z-[60]"
+          style={{
+            backgroundColor: banner.bgColor,
+            color: banner.textColor,
+            minHeight: '38px',
+          }}
+        >
+          {banner.href ? (
+            <Link href={banner.href} className="hover:underline">
+              {banner.text}
+            </Link>
+          ) : (
+            <span>{banner.text}</span>
+          )}
           <button
             onClick={() => setShowBanner(false)}
             className="absolute right-4 top-1/2 -translate-y-1/2 hover:opacity-70 transition-opacity"
             aria-label="Bezárás"
+            style={{ color: banner.textColor }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
