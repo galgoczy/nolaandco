@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import ImageUpload from './ImageUpload';
 
 export type ProductFormValues = {
   name: string;
@@ -250,28 +251,51 @@ export default function ProductForm({
       {/* Images */}
       <section className="bg-surface-container-lowest rounded-2xl p-6">
         <h2 className="text-lg font-headline font-bold mb-4">Képek</h2>
-        <p className="text-xs text-on-surface/60 mb-4">
-          A képeket a <code>public/images/products/</code> mappába másold, majd az URL-jüket add meg (pl. <code>/images/products/origin-core.jpg</code>).
-        </p>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-6">
           <div>
-            <label className={labelCls}>Fő kép URL *</label>
-            <input
-              type="text"
-              className={inputCls}
-              value={values.imageUrl}
-              onChange={(e) => update('imageUrl', e.target.value)}
-              required
-              placeholder="/images/products/..."
-            />
-            {values.imageUrl && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={values.imageUrl}
-                alt=""
-                className="mt-2 w-24 h-24 rounded-lg object-cover bg-gray-100"
-              />
-            )}
+            <label className={labelCls}>Fő kép *</label>
+            <div className="flex items-start gap-4">
+              {values.imageUrl ? (
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={values.imageUrl}
+                    alt=""
+                    className="w-32 h-32 rounded-lg object-cover bg-gray-100 border border-outline-variant"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => update('imageUrl', '')}
+                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center hover:bg-red-600"
+                    aria-label="Eltávolítás"
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <div className="w-32 h-32 rounded-lg bg-surface-container border border-dashed border-outline-variant flex items-center justify-center text-xs text-on-surface/40 text-center px-2">
+                  Nincs fő kép
+                </div>
+              )}
+              <div className="flex-1 flex flex-col gap-2">
+                <ImageUpload
+                  label="Fő kép feltöltése"
+                  onUploaded={(url) => update('imageUrl', url)}
+                />
+                <details className="text-xs">
+                  <summary className="cursor-pointer text-on-surface/60 hover:text-on-surface">
+                    ...vagy URL megadása
+                  </summary>
+                  <input
+                    type="text"
+                    className={`${inputCls} mt-2`}
+                    value={values.imageUrl}
+                    onChange={(e) => update('imageUrl', e.target.value)}
+                    placeholder="https://... vagy /images/products/..."
+                  />
+                </details>
+              </div>
+            </div>
           </div>
 
           <div>
@@ -284,7 +308,7 @@ export default function ProductForm({
                     <img
                       src={img}
                       alt=""
-                      className="w-20 h-20 rounded-lg object-cover bg-gray-100"
+                      className="w-24 h-24 rounded-lg object-cover bg-gray-100 border border-outline-variant"
                     />
                     <button
                       type="button"
@@ -298,21 +322,32 @@ export default function ProductForm({
                 ))}
               </ul>
             )}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                className={inputCls}
-                value={newImage}
-                onChange={(e) => setNewImage(e.target.value)}
-                placeholder="/images/products/..."
+            <div className="flex flex-col gap-2">
+              <ImageUpload
+                label="További kép feltöltése"
+                onUploaded={(url) => update('images', [...values.images, url])}
               />
-              <button
-                type="button"
-                onClick={addImage}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-surface-container hover:bg-surface-container-high"
-              >
-                Hozzáad
-              </button>
+              <details className="text-xs">
+                <summary className="cursor-pointer text-on-surface/60 hover:text-on-surface">
+                  ...vagy URL hozzáadása
+                </summary>
+                <div className="flex gap-2 mt-2">
+                  <input
+                    type="text"
+                    className={inputCls}
+                    value={newImage}
+                    onChange={(e) => setNewImage(e.target.value)}
+                    placeholder="https://... vagy /images/products/..."
+                  />
+                  <button
+                    type="button"
+                    onClick={addImage}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-surface-container hover:bg-surface-container-high whitespace-nowrap"
+                  >
+                    Hozzáad
+                  </button>
+                </div>
+              </details>
             </div>
           </div>
         </div>
