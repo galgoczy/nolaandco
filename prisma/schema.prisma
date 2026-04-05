@@ -17,6 +17,7 @@ model Product {
   series      String   // "origin" | "nova"
   variant     String   // "core" | "linea" | "atelier"
   imageUrl    String
+  images      String[] @default([])
   badge       String?  // "Core Series" | "Limited Edition" | null
   active      Boolean  @default(true)
   onSale      Boolean  @default(false)
