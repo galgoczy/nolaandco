@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import AddToCartSection from './AddToCartSection';
+import ProductGallery from './ProductGallery';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -28,24 +29,13 @@ export default async function ProductDetailPage({ params }: Props) {
     <section className="py-24 bg-surface min-h-screen">
       <div className="max-w-7xl mx-auto px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Left: Product Image */}
-          <div className="relative aspect-square rounded-2xl overflow-hidden bg-surface-container-low ghost-border">
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-            />
-            {product.badge && (
-              <div className="absolute top-4 right-4">
-                <span className="badge-shimmer px-3 py-1 rounded-lg glass-nav text-[10px] font-bold uppercase tracking-widest text-primary shadow-sm">
-                  {product.badge}
-                </span>
-              </div>
-            )}
-          </div>
+          {/* Left: Product Images */}
+          <ProductGallery
+            mainImage={product.imageUrl}
+            images={product.images ?? []}
+            alt={product.name}
+            badge={product.badge}
+          />
 
           {/* Right: Product Details */}
           <div className="flex flex-col justify-center space-y-6">
