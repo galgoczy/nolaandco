@@ -11,8 +11,13 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = await prisma.product.findUnique({ where: { id } });
+  const [product, dbCats] = await Promise.all([
+    prisma.product.findUnique({ where: { id } }),
+    prisma.category.findMany({ orderBy: { sortOrder: 'asc' } }),
+  ]);
   if (!product) notFound();
+
+  const categories = dbCats.map((c) => ({ value: c.slug, label: c.name }));
 
   return (
     <div>
@@ -29,6 +34,7 @@ export default async function EditProductPage({
       </div>
       <ProductForm
         productId={product.id}
+        categories={categories}
         initial={{
           name: product.name,
           slug: product.slug,

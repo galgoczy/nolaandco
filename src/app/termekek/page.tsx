@@ -9,19 +9,6 @@ interface Props {
   searchParams: Promise<{ category?: string }>;
 }
 
-const tabs = [
-  { label: 'Összes', href: '/termekek', value: undefined },
-  { label: 'Párnák', href: '/termekek?category=pillow', value: 'pillow' },
-  { label: 'Poszterek', href: '/termekek?category=poster', value: 'poster' },
-  { label: 'Ajándékkártya', href: '/termekek?category=giftcard', value: 'giftcard' },
-] as const;
-
-const categoryHeaders: Record<string, { en: string; hu: string }> = {
-  pillow: { en: 'KEEPSAKES', hu: 'Párnák' },
-  poster: { en: 'ART PRINTS', hu: 'Poszterek' },
-  giftcard: { en: 'GIFT CARDS', hu: 'Ajándékkártya' },
-};
-
 function CategoryHeader({ en, hu }: { en: string; hu: string }) {
   return (
     <RevealOnScroll>
@@ -40,6 +27,9 @@ function CategoryHeader({ en, hu }: { en: string; hu: string }) {
 export default async function TermekekPage({ searchParams }: Props) {
   const { category } = await searchParams;
 
+  // Read categories from DB (sorted by admin-defined order)
+  const allCategories = await prisma.category.findMany({ orderBy: { sortOrder: 'asc' } });
+
   const products = await prisma.product.findMany({
     where: {
       active: true,
@@ -49,9 +39,9 @@ export default async function TermekekPage({ searchParams }: Props) {
   });
 
   const showAll = !category;
-  const pillows = showAll ? products.filter(p => p.category === 'pillow') : [];
-  const posters = showAll ? products.filter(p => p.category === 'poster') : [];
-  const giftcards = showAll ? products.filter(p => p.category === 'giftcard') : [];
+  const selectedCat = category
+    ? allCategories.find((c) => c.slug === category)
+    : null;
 
   return (
     <section className="py-24 bg-surface min-h-screen">
@@ -68,19 +58,29 @@ export default async function TermekekPage({ searchParams }: Props) {
 
           <RevealOnScroll>
             <div className="flex items-center justify-center gap-4 flex-wrap">
-              {tabs.map((tab) => {
-                const isActive = category === tab.value;
+              <Link
+                href="/termekek"
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                  !category
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'bg-surface-container text-carbon-light hover:bg-surface-container-low'
+                }`}
+              >
+                Összes
+              </Link>
+              {allCategories.map((cat) => {
+                const isActive = category === cat.slug;
                 return (
                   <Link
-                    key={tab.label}
-                    href={tab.href}
+                    key={cat.slug}
+                    href={`/termekek?category=${cat.slug}`}
                     className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                       isActive
                         ? 'bg-primary text-on-primary shadow-sm'
                         : 'bg-surface-container text-carbon-light hover:bg-surface-container-low'
                     }`}
                   >
-                    {tab.label}
+                    {cat.name}
                   </Link>
                 );
               })}
@@ -96,52 +96,33 @@ export default async function TermekekPage({ searchParams }: Props) {
           </RevealOnScroll>
         ) : showAll ? (
           <>
-            {/* Párnák */}
-            {pillows.length > 0 && (
-              <div className="mb-20">
-                <CategoryHeader en="KEEPSAKES" hu="Párnák" />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 stagger-children">
-                  {pillows.map((product, i) => (
-                    <RevealOnScroll key={product.id} delay={i * 120}>
-                      <ProductCard product={product} />
-                    </RevealOnScroll>
-                  ))}
+            {allCategories.map((cat) => {
+              const catProducts = products.filter((p) => p.category === cat.slug);
+              if (catProducts.length === 0) return null;
+              return (
+                <div key={cat.slug} className="mb-20 last:mb-0">
+                  <CategoryHeader
+                    en={cat.nameEn ?? cat.slug.toUpperCase()}
+                    hu={cat.name}
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 stagger-children">
+                    {catProducts.map((product, i) => (
+                      <RevealOnScroll key={product.id} delay={i * 120}>
+                        <ProductCard product={product} />
+                      </RevealOnScroll>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Poszterek */}
-            {posters.length > 0 && (
-              <div className="mb-20">
-                <CategoryHeader en="ART PRINTS" hu="Poszterek" />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 stagger-children">
-                  {posters.map((product, i) => (
-                    <RevealOnScroll key={product.id} delay={i * 120}>
-                      <ProductCard product={product} />
-                    </RevealOnScroll>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Ajándékkártya */}
-            {giftcards.length > 0 && (
-              <div>
-                <CategoryHeader en="GIFT CARDS" hu="Ajándékkártya" />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 stagger-children">
-                  {giftcards.map((product, i) => (
-                    <RevealOnScroll key={product.id} delay={i * 120}>
-                      <ProductCard product={product} />
-                    </RevealOnScroll>
-                  ))}
-                </div>
-              </div>
-            )}
+              );
+            })}
           </>
         ) : (
           <>
-            {category && categoryHeaders[category] && (
-              <CategoryHeader en={categoryHeaders[category].en} hu={categoryHeaders[category].hu} />
+            {selectedCat && (
+              <CategoryHeader
+                en={selectedCat.nameEn ?? selectedCat.slug.toUpperCase()}
+                hu={selectedCat.name}
+              />
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 stagger-children">
               {products.map((product, i) => (

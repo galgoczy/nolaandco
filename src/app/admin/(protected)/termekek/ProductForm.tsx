@@ -36,18 +36,14 @@ export const emptyProduct: ProductFormValues = {
   salePrice: '',
 };
 
-const CATEGORIES = [
-  { value: 'pillow', label: 'Párna' },
-  { value: 'poster', label: 'Poszter' },
-  { value: 'giftcard', label: 'Ajándékkártya' },
-];
-
 export default function ProductForm({
   initial,
   productId,
+  categories,
 }: {
   initial: ProductFormValues;
   productId?: string;
+  categories: { value: string; label: string }[];
 }) {
   const router = useRouter();
   const [values, setValues] = useState<ProductFormValues>(initial);
@@ -168,7 +164,7 @@ export default function ProductForm({
               value={values.category}
               onChange={(e) => update('category', e.target.value)}
             >
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <option key={c.value} value={c.value}>
                   {c.label}
                 </option>

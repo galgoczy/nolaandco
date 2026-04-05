@@ -5,16 +5,13 @@ import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import ProductRowActions from './ProductRowActions';
 
-const categoryLabels: Record<string, string> = {
-  pillow: 'Párna',
-  poster: 'Poszter',
-  giftcard: 'Ajándékkártya',
-};
-
 export default async function AdminProductsPage() {
-  const products = await prisma.product.findMany({
-    orderBy: [{ category: 'asc' }, { name: 'asc' }],
-  });
+  const [products, dbCats] = await Promise.all([
+    prisma.product.findMany({ orderBy: [{ category: 'asc' }, { name: 'asc' }] }),
+    prisma.category.findMany(),
+  ]);
+  const categoryLabels: Record<string, string> = {};
+  dbCats.forEach((c) => { categoryLabels[c.slug] = c.name; });
 
   return (
     <div>

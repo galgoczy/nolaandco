@@ -1,7 +1,13 @@
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
+import { prisma } from '@/lib/prisma';
 import ProductForm, { emptyProduct } from '../ProductForm';
 
-export default function NewProductPage() {
+export default async function NewProductPage() {
+  const dbCats = await prisma.category.findMany({ orderBy: { sortOrder: 'asc' } });
+  const categories = dbCats.map((c) => ({ value: c.slug, label: c.name }));
+
   return (
     <div>
       <div className="mb-6">
@@ -15,7 +21,7 @@ export default function NewProductPage() {
           Új termék
         </h1>
       </div>
-      <ProductForm initial={emptyProduct} />
+      <ProductForm initial={emptyProduct} categories={categories} />
     </div>
   );
 }

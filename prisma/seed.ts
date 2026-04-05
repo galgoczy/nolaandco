@@ -122,6 +122,24 @@ async function main() {
   }
   console.log('Cleaned up old gift card variants.');
 
+  // --- Categories ---
+  console.log('Seeding categories...');
+
+  const categories = [
+    { slug: 'pillow', name: 'Párnák', nameEn: 'KEEPSAKES', sortOrder: 0, visibleOnHome: true },
+    { slug: 'poster', name: 'Poszterek', nameEn: 'ART PRINTS', sortOrder: 1, visibleOnHome: true },
+    { slug: 'giftcard', name: 'Ajándékkártya', nameEn: 'GIFT CARDS', sortOrder: 2, visibleOnHome: true },
+  ];
+
+  for (const cat of categories) {
+    await prisma.category.upsert({
+      where: { slug: cat.slug },
+      update: { name: cat.name, nameEn: cat.nameEn, sortOrder: cat.sortOrder, visibleOnHome: cat.visibleOnHome },
+      create: cat,
+    });
+    console.log(`  Upserted category: ${cat.name}`);
+  }
+
   console.log('Seeding products...');
 
   for (const product of products) {
