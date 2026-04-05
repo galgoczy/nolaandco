@@ -16,12 +16,14 @@ export default async function AdminProtectedLayout({
 }: {
   children: ReactNode;
 }) {
-  // Check both custom token auth and NextAuth Google session
+  // Check both custom token auth and NextAuth Google session.
+  // NextAuth sessions must have role === 'admin' to access the admin area.
   const tokenSession = await getAdminSession();
   const nextAuthSession = await getServerSession(authOptions);
-  const isAuthenticated = !!tokenSession || !!nextAuthSession?.user?.email;
+  const isAdmin =
+    !!tokenSession || nextAuthSession?.user?.role === 'admin';
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     redirect('/admin/bejelentkezes');
   }
 

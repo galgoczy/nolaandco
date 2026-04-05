@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import SessionProviderWrapper from '@/components/providers/SessionProviderWrapper';
 
 export const metadata: Metadata = {
   title: 'Nola & Co. | Nordic Serenity',
@@ -27,9 +28,11 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <SessionProviderWrapper>
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+        </SessionProviderWrapper>
       </body>
     </html>
   );
