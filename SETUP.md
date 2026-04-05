@@ -1,40 +1,103 @@
-# Nola & Co — Beüzemelési útmutató
+# Nola & Co — Beüzemelési útmutató (Vercel)
 
-## 1. Adatbázis (Neon PostgreSQL)
+Ez az útmutató a webshop Vercelen történő beüzemelését írja le lépésről lépésre. A hosting **Vercel**, az adatbázis **Neon PostgreSQL**, az admin auth **Google OAuth (NextAuth)**.
 
-### 1.1 Vercel environment változók beállítása
+---
 
-Menj a Vercel Dashboard → Settings → Environment Variables, és add hozzá:
+## Előfeltételek
 
-| Változó | Érték |
-|---------|-------|
-| `DATABASE_URL` | `postgresql://neondb_owner:npg_MOZnqAiI7mK0@ep-sweet-moon-agb6umfb-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require` |
+Mielőtt elkezded, szükséged lesz egy fiókra mindhárom szolgáltatásnál (mind ingyenes):
 
-> Ez a connection string a Neon DB-ből származik. Ha már beállítottad, ezt a lépést kihagyhatod.
+- **Vercel** → https://vercel.com (GitHub fiókkal célszerű belépni)
+- **Neon** → https://neon.tech (PostgreSQL adatbázis)
+- **Google Cloud** → https://console.cloud.google.com (OAuth admin auth-hoz)
 
-### 1.2 Adatbázis séma létrehozása
+Ajánlott (de nem kötelező) a **Vercel CLI** lokális fejlesztéshez:
+```bash
+npm i -g vercel
+vercel login
+```
 
-Futtasd terminálban (lokálisan, a projekt mappájából):
+---
+
+## 1. lépés: Projekt importálása Vercelbe
+
+1. Nyisd meg: https://vercel.com/new
+2. **Import Git Repository** → válaszd ki a `galgoczy/nolaandco` repót
+3. **Framework Preset**: automatikusan felismeri a Next.js-t — hagyd úgy
+4. **Environment Variables** szekciót egyelőre hagyd üresen (lejjebb töltjük ki)
+5. Kattints **Deploy** → várd meg az első (valószínűleg sikertelen) buildet
+   > Az első build elbukhat, mert még nincsenek env var-ok. Ez normális — a 6. lépésben újra deploy-oljuk.
+6. Jegyezd meg a Vercel által kiosztott domain-t (pl. `nolaandco.vercel.app`) — erre szükség lesz.
+
+---
+
+## 2. lépés: Neon adatbázis létrehozása
+
+1. Nyisd meg: https://console.neon.tech
+2. **Create Project**:
+   - Name: `nolaandco`
+   - Region: `EU Central (Frankfurt)` (Vercelhez legközelebb)
+   - PostgreSQL version: legújabb
+3. A létrehozás után másold ki a **Connection string**-et (Dashboard → Connection Details → pooled connection, `postgresql://...sslmode=require...`)
+
+---
+
+## 3. lépés: Environment változók beállítása Vercelen
+
+Vercel Dashboard → a projekt → **Settings** → **Environment Variables**. Add hozzá a következőket (mindegyik környezethez: Production + Preview + Development):
+
+| Változó | Érték | Honnan |
+|---|---|---|
+| `DATABASE_URL` | `postgresql://...` | Neon connection string (2. lépés) |
+| `NEXTAUTH_URL` | `https://nolaandco.vercel.app` | A saját Vercel domain-ed |
+| `NEXTAUTH_SECRET` | *(random 32 char)* | `openssl rand -base64 32` |
+| `ADMIN_SECRET` | *(random 32 char)* | `openssl rand -base64 32` |
+| `GOOGLE_CLIENT_ID` | *(később)* | 5. lépésben |
+| `GOOGLE_CLIENT_SECRET` | *(később)* | 5. lépésben |
+
+> `NEXTAUTH_SECRET` és `ADMIN_SECRET` generálásához futtasd terminálban:
+> ```bash
+> openssl rand -base64 32
+> ```
+
+A `GOOGLE_*` változókat az 5. lépésben kapod meg — addig hagyhatod üresen vagy placeholder-rel.
+
+---
+
+## 4. lépés: Adatbázis séma és seed
+
+A sémát és a kezdeti adatokat lokálisan futtatjuk, de a Vercel env var-okat használva — így nincs szükség külön `.env` fájlra.
+
+### Opció A — Vercel CLI-vel (ajánlott)
 
 ```bash
-# 1. Állítsd be a DATABASE_URL-t lokálisan is
-export DATABASE_URL="postgresql://neondb_owner:npg_MOZnqAiI7mK0@ep-sweet-moon-agb6umfb-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# 1. Húzd le a Vercel env var-okat lokális .env.local fájlba
+vercel link            # kösd össze a projektet, ha még nincs
+vercel env pull .env.local
 
-# 2. Prisma séma push (táblákat létrehozza az adatbázisban)
+# 2. Prisma séma push (létrehozza a táblákat Neonban)
 npx prisma db push
 
-# 3. Seed: feltölti a termékeket és admin felhasználókat
+# 3. Seed: termékek + admin felhasználók betöltése
 npx tsx prisma/seed.ts
 ```
 
-### 1.3 Ellenőrzés
+### Opció B — DATABASE_URL kézi beállításával
 
 ```bash
-# Prisma Studio megnyitása (böngészőben nézegetheted az adatbázist)
+export DATABASE_URL="postgresql://...sslmode=require..."   # Neonból
+npx prisma db push
+npx tsx prisma/seed.ts
+```
+
+### Ellenőrzés
+
+```bash
 npx prisma studio
 ```
 
-Ellenőrizd, hogy megjelennek-e:
+A Prisma Studio-ban ellenőrizd, hogy megjelennek:
 - **9 termék** (6 párna + 2 poszter + 1 ajándékkártya)
 - **3 admin felhasználó**:
   - `admin@nolaandco.hu` (jelszó: `admin123`)
@@ -43,132 +106,147 @@ Ellenőrizd, hogy megjelennek-e:
 
 ---
 
-## 2. Google OAuth beállítása (admin bejelentkezéshez)
+## 5. lépés: Google OAuth beállítása
 
-### 2.1 Google Cloud projekt létrehozása
+### 5.1 Google Cloud projekt
 
 1. Nyisd meg: https://console.cloud.google.com
-2. Kattints a felső sávban a projekt nevére → **"New Project"**
-3. Név: `Nola and Co` → **Create**
-4. Várd meg, míg létrejön, majd válaszd ki
+2. Felső sáv → projekt dropdown → **New Project**
+3. Név: `Nola and Co` → **Create**, majd válaszd ki
 
-### 2.2 OAuth Consent Screen beállítása
+### 5.2 OAuth Consent Screen
 
-1. Bal oldali menü → **APIs & Services** → **OAuth consent screen**
-2. Válaszd: **External** → **Create**
+1. Bal menü → **APIs & Services** → **OAuth consent screen**
+2. **External** → **Create**
 3. Töltsd ki:
    - App name: `Nola & Co Admin`
    - User support email: `galgoczy.krisztina@gmail.com`
    - Developer contact email: `galgoczy.krisztina@gmail.com`
 4. **Save and Continue**
-5. Scopes: nem kell hozzáadni semmit → **Save and Continue**
-6. Test users: add hozzá mindkét e-mailt:
+5. Scopes: hagyd üresen → **Save and Continue**
+6. Test users → add hozzá:
    - `galgoczy.krisztina@gmail.com`
    - `galgoczy.gergely@gmail.com`
 7. **Save and Continue** → **Back to Dashboard**
 
-### 2.3 OAuth Client ID létrehozása
+### 5.3 OAuth Client ID
 
-1. Bal oldali menü → **APIs & Services** → **Credentials**
-2. Felül: **+ CREATE CREDENTIALS** → **OAuth client ID**
+1. **APIs & Services** → **Credentials**
+2. **+ CREATE CREDENTIALS** → **OAuth client ID**
 3. Application type: **Web application**
 4. Name: `Nola & Co Webshop`
-5. **Authorized redirect URIs** — add hozzá:
-   - `https://TEDOMAINED.vercel.app/api/auth/callback/google`
-   - `http://localhost:3000/api/auth/callback/google` (fejlesztéshez)
-   > Cseréld ki a `TEDOMAINED.vercel.app`-ot a valódi Vercel domain-edre!
-6. **Create**
-7. Megjelenik a **Client ID** és **Client Secret** — másold ki mindkettőt
+5. **Authorized redirect URIs** — add hozzá MINDHÁROM-at:
+   - `https://nolaandco.vercel.app/api/auth/callback/google` (production)
+   - `https://nolaandco-*.vercel.app/api/auth/callback/google` (preview — opcionális)
+   - `http://localhost:3000/api/auth/callback/google` (fejlesztés)
+   > Cseréld a `nolaandco.vercel.app`-ot a saját Vercel domain-edre!
+6. **Create** → másold ki a **Client ID**-t és **Client Secret**-et
 
-### 2.4 Vercel environment változók beállítása
+### 5.4 Vercel env var-ok frissítése
 
-Menj a Vercel Dashboard → Settings → Environment Variables, és add hozzá:
+Vercel Dashboard → Settings → Environment Variables → frissítsd / add hozzá:
 
-| Változó | Érték | Megjegyzés |
-|---------|-------|------------|
-| `GOOGLE_CLIENT_ID` | `1234...apps.googleusercontent.com` | A Google Console-ból |
-| `GOOGLE_CLIENT_SECRET` | `GOCSPX-...` | A Google Console-ból |
-| `NEXTAUTH_SECRET` | *(random string)* | Generáld: `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | `https://TEDOMAINED.vercel.app` | A Vercel URL-ed |
-| `ADMIN_SECRET` | *(random string)* | Generáld: `openssl rand -base64 32` |
-
-> A `NEXTAUTH_SECRET` generálásához futtasd terminálban:
-> ```bash
-> openssl rand -base64 32
-> ```
-> Másold be az eredményt.
-
-### 2.5 Redeploy
-
-A Vercel env var-ok beállítása után **redeploy** szükséges:
-- Vercel Dashboard → Deployments → legutóbbi → **Redeploy**
-
-### 2.6 Tesztelés
-
-1. Nyisd meg: `https://TEDOMAINED.vercel.app/admin/bejelentkezes`
-2. Kattints a **"Bejelentkezés Google fiókkal"** gombra
-3. Válaszd ki a `galgoczy.krisztina@gmail.com` vagy `galgoczy.gergely@gmail.com` fiókot
-4. Ha minden jól van beállítva, átirányít az admin felületre
-
-> **Fontos:** Amíg a Google OAuth app "Testing" módban van, csak a Test Users-be felvett e-mail címek tudnak bejelentkezni. Ha később más admint is szeretnél, add hozzá a Google Console-ban ÉS az adatbázisban is.
+| Változó | Érték |
+|---|---|
+| `GOOGLE_CLIENT_ID` | `1234...apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | `GOCSPX-...` |
 
 ---
 
-## 3. Stripe fizetés beállítása (később)
+## 6. lépés: Redeploy és tesztelés
 
-### Szükséges lépések:
-1. Regisztrálj: https://dashboard.stripe.com
-2. Developers → API keys → másold ki:
-   - **Publishable key** (`pk_test_...` vagy `pk_live_...`)
-   - **Secret key** (`sk_test_...` vagy `sk_live_...`)
-3. Developers → Webhooks → Add endpoint:
-   - URL: `https://TEDOMAINED.vercel.app/api/webhook`
+Env var változtatás után **mindig redeploy** szükséges (a Vercel nem automatikus itt):
+
+1. Vercel Dashboard → **Deployments** → legutóbbi → `⋯` → **Redeploy**
+2. Várd meg a sikeres buildet (✔ zöld pipa)
+
+### Tesztelési checklist
+
+- [ ] **Főoldal**: `https://nolaandco.vercel.app` betölt, a termékek megjelennek
+- [ ] **Termékek oldal**: `/termekek` — 9 terméket lát
+- [ ] **Kosár**: tudsz terméket hozzáadni és eltávolítani
+- [ ] **Admin (token)**: `/admin/bejelentkezes` — `admin@nolaandco.hu` / `admin123` működik
+- [ ] **Admin (Google)**: ugyanitt **Bejelentkezés Google fiókkal** → a 2 engedélyezett e-mail át tud lépni
+- [ ] **Hírlevél form**: a főoldal alján a feliratkozás sikeres
+
+> **Fontos:** amíg a Google OAuth app **"Testing"** módban van, csak a Test Users listában szereplő e-mailek tudnak bejelentkezni. Új admin hozzáadásához mind a Google Console Test Users listáját, MIND az adatbázis `AdminUser` tábláját frissíteni kell.
+
+---
+
+## Lokális fejlesztés
+
+Ha lokálisan szeretnél dolgozni a projekten:
+
+```bash
+# 1. Env var-ok szinkronizálása Vercelből
+vercel env pull .env.local
+
+# 2. Fejlesztői szerver
+npm install
+npm run dev
+```
+
+A `.env.local` fájl sosincs commitolva (a `.gitignore` kizárja). Ha új env var-t adsz hozzá Vercelen, futtasd újra a `vercel env pull` parancsot.
+
+---
+
+## 7. lépés (később): Stripe fizetés
+
+### Lépések
+1. Regisztráció: https://dashboard.stripe.com
+2. **Developers** → **API keys** — másold ki:
+   - **Publishable key** (`pk_test_...` / `pk_live_...`)
+   - **Secret key** (`sk_test_...` / `sk_live_...`)
+3. **Developers** → **Webhooks** → **Add endpoint**:
+   - URL: `https://nolaandco.vercel.app/api/webhook`
    - Events: `checkout.session.completed`
-   - Másold ki a **Webhook signing secret** (`whsec_...`)
+   - Másold ki a **Signing secret** (`whsec_...`)
 
-### Vercel env var-ok:
+### Vercel env var-ok
 
 | Változó | Érték |
-|---------|-------|
+|---|---|
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_test_...` vagy `pk_live_...` |
 | `STRIPE_SECRET_KEY` | `sk_test_...` vagy `sk_live_...` |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_...` |
 
-> Tipp: Először `test` kulcsokkal teszteld, később válts `live`-ra.
+Env var változás után **Redeploy**. Először `test` kulcsokkal teszteld, majd válts `live`-ra.
 
 ---
 
-## 4. Szállítás integráció (később)
+## 8. lépés (később): Szállítás integráció
 
-A szállítási módok a pénztár oldalon választhatók. Jelenleg a rendszer támogatja:
-- **Foxpost csomagautomata**
-- **Packeta csomagpont**
-- **Házhozszállítás**
+A pénztár a következő szállítási módokat támogatja:
+- **Foxpost csomagautomata** — https://foxpost.hu/uzleti-partnereinknek
+- **Packeta csomagpont** — https://www.packeta.hu/uzleti-partnereknek
+- **Házhozszállítás** (GLS / DPD / MPL)
 
-### Szükséges integrációk:
-1. **Foxpost API** — https://foxpost.hu/uzleti-partnereinknek
-   - Regisztráció és szerződés szükséges
-   - API kulcs a csomagautomata lista lekérdezéséhez és címke generáláshoz
-2. **Packeta API** — https://www.packeta.hu/uzleti-partnereknek
-   - Regisztráció és szerződés szükséges
-   - Widget a csomagpont választóhoz
-3. **GLS / DPD / MPL** (házhozszállítás) — bármelyik futárszolgálat
-   - API integráció a tracking number generáláshoz
-
-> Ezeket később, a Stripe beüzemelése után érdemes megcsinálni.
+Mindegyikhez szerződés és API kulcs szükséges. A Stripe beüzemelése után érdemes nekikezdeni.
 
 ---
 
-## Összefoglaló: összes Vercel env var
+## Összefoglaló: Vercel environment változók
 
 | Változó | Szükséges most? | Leírás |
-|---------|:---:|--------|
-| `DATABASE_URL` | **Igen** | Neon PostgreSQL connection string |
-| `GOOGLE_CLIENT_ID` | **Igen** | Google OAuth Client ID |
-| `GOOGLE_CLIENT_SECRET` | **Igen** | Google OAuth Client Secret |
-| `NEXTAUTH_SECRET` | **Igen** | NextAuth titkosítási kulcs |
-| `NEXTAUTH_URL` | **Igen** | Vercel domain URL |
-| `ADMIN_SECRET` | **Igen** | Admin token titkosítási kulcs |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Később | Stripe publikus kulcs |
-| `STRIPE_SECRET_KEY` | Később | Stripe titkos kulcs |
-| `STRIPE_WEBHOOK_SECRET` | Később | Stripe webhook kulcs |
+|---|:-:|---|
+| `DATABASE_URL` | ✅ | Neon PostgreSQL connection string |
+| `NEXTAUTH_URL` | ✅ | A Vercel domain teljes URL-je (https://...) |
+| `NEXTAUTH_SECRET` | ✅ | NextAuth titkosítási kulcs (`openssl rand -base64 32`) |
+| `ADMIN_SECRET` | ✅ | Admin token aláíró kulcs (`openssl rand -base64 32`) |
+| `GOOGLE_CLIENT_ID` | ✅ | Google OAuth Client ID |
+| `GOOGLE_CLIENT_SECRET` | ✅ | Google OAuth Client Secret |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | később | Stripe publikus kulcs |
+| `STRIPE_SECRET_KEY` | később | Stripe titkos kulcs |
+| `STRIPE_WEBHOOK_SECRET` | később | Stripe webhook aláíró kulcs |
+
+---
+
+## Gyakori hibák
+
+| Hiba | Megoldás |
+|---|---|
+| `Build error: DATABASE_URL is not defined` | Állítsd be a `DATABASE_URL`-t Vercelen és **Redeploy** |
+| Google login után `AccessDenied` | Az e-mail nincs benne az `AdminUser` táblában — futtasd újra a seedet |
+| Google login `redirect_uri_mismatch` | A Google Console Authorized redirect URIs listájában nincs a pontos Vercel URL |
+| NextAuth `Configuration` error | Hiányzik a `NEXTAUTH_SECRET` vagy a `NEXTAUTH_URL` nem a valódi domain |
+| Env var változott de nem érvényesül | Env var módosítás után **mindig Redeploy** szükséges |
