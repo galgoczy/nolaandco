@@ -19,8 +19,8 @@ export default function AccountMenu() {
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, [open]);
 
-  // Not logged in → direct link to login page
-  if (status !== 'authenticated' || !session?.user?.email) {
+  // Loading or not logged in → direct link to login page
+  if (status === 'loading' || status !== 'authenticated' || !session?.user?.email) {
     return (
       <Link
         href="/bejelentkezes"
