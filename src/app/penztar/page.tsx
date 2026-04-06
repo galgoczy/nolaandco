@@ -110,8 +110,7 @@ export default function CheckoutPage() {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     setErrors({});
 
     const schema = shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
@@ -175,7 +174,7 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Left column: Shipping + Payment */}
           <div className="lg:col-span-3 flex flex-col gap-6">
 
@@ -471,10 +470,17 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {errors._form && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-xl mt-4 text-sm">
+                  {errors._form}
+                </div>
+              )}
+
               <button
-                type="submit"
+                type="button"
+                onClick={handleSubmit}
                 disabled={loading}
-                className="w-full mt-6 bg-[#4A4A4A] text-white py-3.5 rounded-xl font-medium text-sm hover:bg-[#3A3A3A] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full mt-4 bg-[#4A4A4A] text-white py-3.5 rounded-xl font-medium text-sm hover:bg-[#3A3A3A] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -496,7 +502,7 @@ export default function CheckoutPage() {
               </p>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </main>
   );
