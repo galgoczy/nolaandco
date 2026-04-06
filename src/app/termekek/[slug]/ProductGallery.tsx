@@ -36,7 +36,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
           </div>
         )}
 
-        {/* Arrow navigation for mobile */}
+        {/* Arrow navigation */}
         {hasMultiple && (
           <>
             <button
@@ -44,7 +44,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
               onClick={() =>
                 setActiveIdx((i) => (i - 1 + allImages.length) % allImages.length)
               }
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center text-[#4A4A4A] hover:bg-white transition-colors md:hidden"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center text-[#4A4A4A] hover:bg-white transition-colors"
               aria-label="Előző kép"
             >
               <svg
@@ -63,7 +63,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
               onClick={() =>
                 setActiveIdx((i) => (i + 1) % allImages.length)
               }
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center text-[#4A4A4A] hover:bg-white transition-colors md:hidden"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center text-[#4A4A4A] hover:bg-white transition-colors"
               aria-label="Következő kép"
             >
               <svg

@@ -3,7 +3,10 @@ import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import ProductCard from './ProductCard';
 
 export default async function ProductGrid() {
-  const products = await prisma.product.findMany({ where: { active: true } });
+  const products = await prisma.product.findMany({
+    where: { active: true },
+    orderBy: { createdAt: 'asc' },
+  });
 
   return (
     <section className="py-24 bg-surface" id="collection">
