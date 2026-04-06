@@ -389,7 +389,7 @@ export default function CheckoutPage() {
 
           {/* Right column: Order summary */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-24">
+            <div className="bg-white rounded-2xl p-6 shadow-sm lg:sticky lg:top-24 relative z-10">
               <h2 className={sectionTitle}>Rendelés összesítő</h2>
 
               <div className="space-y-4">
