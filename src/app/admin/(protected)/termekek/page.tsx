@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import ProductRowActions from './ProductRowActions';
+import ProductSortButtons from './ProductSortButtons';
 
 export default async function AdminProductsPage() {
   const [products, dbCats] = await Promise.all([
-    prisma.product.findMany({ orderBy: [{ category: 'asc' }, { name: 'asc' }] }),
+    prisma.product.findMany({ orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] }),
     prisma.category.findMany(),
   ]);
   const categoryLabels: Record<string, string> = {};
@@ -30,9 +31,9 @@ export default async function AdminProductsPage() {
           <table className="w-full text-sm font-body">
             <thead>
               <tr className="border-b border-outline-variant text-left bg-surface-container-low">
+                <th className="p-4 text-on-surface/60 font-medium w-10">Sorrend</th>
                 <th className="p-4 text-on-surface/60 font-medium">Kép</th>
                 <th className="p-4 text-on-surface/60 font-medium">Név</th>
-                <th className="p-4 text-on-surface/60 font-medium">Slug</th>
                 <th className="p-4 text-on-surface/60 font-medium">Kategória</th>
                 <th className="p-4 text-on-surface/60 font-medium text-right">Ár</th>
                 <th className="p-4 text-on-surface/60 font-medium text-center">Státusz</th>
@@ -40,11 +41,20 @@ export default async function AdminProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {products.map((product, idx) => (
                 <tr
                   key={product.id}
                   className="border-b border-outline-variant/40 last:border-none"
                 >
+                  <td className="p-4">
+                    <ProductSortButtons
+                      productId={product.id}
+                      isFirst={idx === 0}
+                      isLast={idx === products.length - 1}
+                      allIds={products.map((p) => p.id)}
+                      currentIdx={idx}
+                    />
+                  </td>
                   <td className="p-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -60,9 +70,6 @@ export default async function AdminProductsPage() {
                     >
                       {product.name}
                     </Link>
-                  </td>
-                  <td className="p-4 text-on-surface/60 font-mono text-xs">
-                    {product.slug}
                   </td>
                   <td className="p-4 text-on-surface/70">
                     {categoryLabels[product.category] ?? product.category}
@@ -99,7 +106,7 @@ export default async function AdminProductsPage() {
               ))}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-on-surface/60">
+                  <td colSpan={8} className="p-8 text-center text-on-surface/60">
                     Még nincs termék. Kattints az &ldquo;Új termék&rdquo; gombra.
                   </td>
                 </tr>

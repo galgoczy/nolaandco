@@ -5,10 +5,21 @@ import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cart';
 import { shippingSchema, type ShippingData } from '@/lib/validators';
 import { formatPrice } from '@/lib/utils';
-import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
-const SHIPPING_COST = 1490;
+type ShippingMethod = 'parcel' | 'home';
+type CouponData = {
+  code: string;
+  discountType: string;
+  discountValue: number;
+  minOrderAmount: number | null;
+  description: string;
+} | null;
+
+const SHIPPING_COSTS: Record<ShippingMethod, number> = {
+  parcel: 990,
+  home: 1490,
+};
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -18,6 +29,7 @@ export default function CheckoutPage() {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('parcel');
   const [form, setForm] = useState<ShippingData>({
     email: '',
     phone: '',
@@ -28,6 +40,12 @@ export default function CheckoutPage() {
     shippingNote: '',
   });
 
+  // Coupon
+  const [couponCode, setCouponCode] = useState('');
+  const [coupon, setCoupon] = useState<CouponData>(null);
+  const [couponError, setCouponError] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+
   useEffect(() => {
     if (items.length === 0) {
       router.replace('/kosar');
@@ -37,7 +55,20 @@ export default function CheckoutPage() {
   if (items.length === 0) return null;
 
   const subtotal = total();
-  const grandTotal = subtotal + SHIPPING_COST;
+  const shippingCost = SHIPPING_COSTS[shippingMethod];
+
+  // Calculate discount
+  let discount = 0;
+  if (coupon) {
+    if (coupon.discountType === 'percent') {
+      discount = Math.round(subtotal * (coupon.discountValue / 100));
+    } else {
+      discount = coupon.discountValue;
+    }
+    if (discount > subtotal) discount = subtotal;
+  }
+
+  const grandTotal = subtotal - discount + shippingCost;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -48,6 +79,34 @@ export default function CheckoutPage() {
         delete next[name];
         return next;
       });
+    }
+  }
+
+  async function validateCoupon() {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponError('');
+    setCoupon(null);
+    try {
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCouponError(data.error || 'Érvénytelen kuponkód');
+      } else {
+        if (data.minOrderAmount && subtotal < data.minOrderAmount) {
+          setCouponError(`Minimum rendelési összeg: ${formatPrice(data.minOrderAmount)}`);
+        } else {
+          setCoupon(data);
+        }
+      }
+    } catch {
+      setCouponError('Hálózati hiba');
+    } finally {
+      setCouponLoading(false);
     }
   }
 
@@ -73,7 +132,12 @@ export default function CheckoutPage() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, shipping: result.data }),
+        body: JSON.stringify({
+          items,
+          shipping: result.data,
+          shippingMethod,
+          couponCode: coupon?.code ?? null,
+        }),
       });
 
       const data = await res.json();
@@ -92,123 +156,352 @@ export default function CheckoutPage() {
     }
   }
 
+  const sectionTitle = "text-lg font-headline font-bold text-on-surface mb-4";
+
   return (
-    <main className="container mx-auto px-4 py-12 max-w-6xl">
-      <h1 className="text-3xl font-bold font-heading mb-8">PÉNZTÁR</h1>
+    <main className="min-h-screen bg-[#F7F3EE] py-12 px-4">
+      <div className="max-w-5xl mx-auto">
+        <h1
+          className="text-3xl text-[#4A4A4A] tracking-wide mb-8"
+          style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
+        >
+          Pénztár
+        </h1>
 
-      {errors._form && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 text-sm">
-          {errors._form}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Left column: Shipping form */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold font-heading mb-4">Szállítási adatok</h2>
-
-          <Input
-            label="E-mail cím"
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={handleChange}
-            error={errors.email}
-            required
-          />
-          <Input
-            label="Telefonszám"
-            name="phone"
-            type="tel"
-            value={form.phone}
-            onChange={handleChange}
-            error={errors.phone}
-          />
-          <Input
-            label="Név"
-            name="shippingName"
-            value={form.shippingName}
-            onChange={handleChange}
-            error={errors.shippingName}
-            required
-          />
-          <Input
-            label="Irányítószám"
-            name="shippingZip"
-            value={form.shippingZip}
-            onChange={handleChange}
-            error={errors.shippingZip}
-            required
-          />
-          <Input
-            label="Város"
-            name="shippingCity"
-            value={form.shippingCity}
-            onChange={handleChange}
-            error={errors.shippingCity}
-            required
-          />
-          <Input
-            label="Cím"
-            name="shippingAddress"
-            value={form.shippingAddress}
-            onChange={handleChange}
-            error={errors.shippingAddress}
-            required
-          />
-          <Input
-            label="Megjegyzés (opcionális)"
-            name="shippingNote"
-            value={form.shippingNote}
-            onChange={handleChange}
-            error={errors.shippingNote}
-          />
-        </div>
-
-        {/* Right column: Order summary */}
-        <div>
-          <h2 className="text-xl font-bold font-heading mb-4">Rendelés összesítő</h2>
-
-          <div className="bg-surface-container rounded-2xl p-6 space-y-4">
-            {items.map((item) => (
-              <div key={item.id} className="flex justify-between items-start gap-4 border-b border-outline-variant pb-4 last:border-0 last:pb-0">
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-carbon truncate">{item.name}</p>
-                  {item.babyName && (
-                    <p className="text-sm text-carbon-light">
-                      {item.babyName}
-                      {item.birthDate && ` • ${item.birthDate}`}
-                      {item.birthWeight && ` • ${item.birthWeight}`}
-                      {item.birthHeight && ` • ${item.birthHeight}`}
-                    </p>
-                  )}
-                  <p className="text-sm text-carbon-light">Mennyiség: {item.quantity}</p>
-                </div>
-                <p className="font-bold whitespace-nowrap">{formatPrice(item.price * item.quantity)}</p>
-              </div>
-            ))}
-
-            <div className="border-t border-outline-variant pt-4 space-y-2">
-              <div className="flex justify-between text-carbon-light">
-                <span>Részösszeg</span>
-                <span>{formatPrice(subtotal)}</span>
-              </div>
-              <div className="flex justify-between text-carbon-light">
-                <span>Szállítás</span>
-                <span>{formatPrice(SHIPPING_COST)}</span>
-              </div>
-              <div className="flex justify-between text-lg font-bold pt-2 border-t border-outline-variant">
-                <span>Összesen</span>
-                <span>{formatPrice(grandTotal)}</span>
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full mt-4" disabled={loading}>
-              {loading ? 'Feldolgozás...' : 'Fizetés'}
-            </Button>
+        {errors._form && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 text-sm">
+            {errors._form}
           </div>
-        </div>
-      </form>
+        )}
+
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Left column: Shipping + Payment */}
+          <div className="lg:col-span-3 flex flex-col gap-6">
+
+            {/* Step 1: Contact info */}
+            <section className="bg-white rounded-2xl p-6 shadow-sm">
+              <h2 className={sectionTitle}>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">1</span>
+                Kapcsolat
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="E-mail cím"
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  error={errors.email}
+                  required
+                />
+                <Input
+                  label="Telefonszám"
+                  name="phone"
+                  type="tel"
+                  value={form.phone}
+                  onChange={handleChange}
+                  error={errors.phone}
+                />
+              </div>
+            </section>
+
+            {/* Step 2: Shipping method */}
+            <section className="bg-white rounded-2xl p-6 shadow-sm">
+              <h2 className={sectionTitle}>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">2</span>
+                Szállítási mód
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setShippingMethod('parcel')}
+                  className={`p-4 rounded-xl border-2 text-left transition-all ${
+                    shippingMethod === 'parcel'
+                      ? 'border-[#C4A591] bg-[#C4A591]/5'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      shippingMethod === 'parcel' ? 'border-[#C4A591]' : 'border-gray-300'
+                    }`}>
+                      {shippingMethod === 'parcel' && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#C4A591]" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm text-[#4A4A4A]">Csomagautomata</div>
+                      <div className="text-xs text-[#4A4A4A]/60">Foxpost / Packeta</div>
+                    </div>
+                  </div>
+                  <div className="mt-2 text-right font-semibold text-sm text-[#4A4A4A]">
+                    {formatPrice(SHIPPING_COSTS.parcel)}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShippingMethod('home')}
+                  className={`p-4 rounded-xl border-2 text-left transition-all ${
+                    shippingMethod === 'home'
+                      ? 'border-[#C4A591] bg-[#C4A591]/5'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      shippingMethod === 'home' ? 'border-[#C4A591]' : 'border-gray-300'
+                    }`}>
+                      {shippingMethod === 'home' && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#C4A591]" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm text-[#4A4A4A]">Házhozszállítás</div>
+                      <div className="text-xs text-[#4A4A4A]/60">GLS futárszolgálat</div>
+                    </div>
+                  </div>
+                  <div className="mt-2 text-right font-semibold text-sm text-[#4A4A4A]">
+                    {formatPrice(SHIPPING_COSTS.home)}
+                  </div>
+                </button>
+              </div>
+
+              {/* Parcel locker map placeholder */}
+              {shippingMethod === 'parcel' && (
+                <div className="mt-4">
+                  <div className="bg-[#F7F3EE] rounded-xl border-2 border-dashed border-[#C4A591]/30 p-8 text-center">
+                    <div className="text-[#C4A591] mb-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium text-[#4A4A4A] mb-1">
+                      Csomagautomata térkép
+                    </p>
+                    <p className="text-xs text-[#4A4A4A]/60">
+                      Itt jelenik meg a Foxpost / Packeta csomagautomata választó térképpel — hamarosan.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Home delivery address */}
+              {shippingMethod === 'home' && (
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="Címzett neve"
+                    name="shippingName"
+                    value={form.shippingName}
+                    onChange={handleChange}
+                    error={errors.shippingName}
+                    required
+                  />
+                  <Input
+                    label="Irányítószám"
+                    name="shippingZip"
+                    value={form.shippingZip}
+                    onChange={handleChange}
+                    error={errors.shippingZip}
+                    required
+                  />
+                  <Input
+                    label="Város"
+                    name="shippingCity"
+                    value={form.shippingCity}
+                    onChange={handleChange}
+                    error={errors.shippingCity}
+                    required
+                  />
+                  <Input
+                    label="Utca, házszám"
+                    name="shippingAddress"
+                    value={form.shippingAddress}
+                    onChange={handleChange}
+                    error={errors.shippingAddress}
+                    required
+                  />
+                  <div className="md:col-span-2">
+                    <Input
+                      label="Megjegyzés (opcionális)"
+                      name="shippingNote"
+                      value={form.shippingNote}
+                      onChange={handleChange}
+                      error={errors.shippingNote}
+                    />
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Step 3: Payment (Stripe placeholder) */}
+            <section className="bg-white rounded-2xl p-6 shadow-sm">
+              <h2 className={sectionTitle}>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">3</span>
+                Fizetés
+              </h2>
+
+              <div className="bg-[#F7F3EE] rounded-xl p-6">
+                {/* Stripe card element placeholder */}
+                <div className="border border-gray-200 rounded-lg bg-white p-4 mb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-medium text-[#4A4A4A]">Bankkártya</span>
+                    <div className="flex gap-2">
+                      {/* Card brand logos */}
+                      <div className="w-10 h-6 bg-[#1A1F71] rounded flex items-center justify-center text-white text-[8px] font-bold">VISA</div>
+                      <div className="w-10 h-6 bg-[#EB001B] rounded-full relative overflow-hidden">
+                        <div className="absolute right-0 w-6 h-6 bg-[#F79E1B] rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Fake card input fields */}
+                  <div className="space-y-3">
+                    <div className="h-10 rounded-md border border-gray-200 bg-gray-50 px-3 flex items-center">
+                      <span className="text-sm text-gray-400">1234 5678 9012 3456</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="h-10 rounded-md border border-gray-200 bg-gray-50 px-3 flex items-center">
+                        <span className="text-sm text-gray-400">HH/ÉÉ</span>
+                      </div>
+                      <div className="h-10 rounded-md border border-gray-200 bg-gray-50 px-3 flex items-center">
+                        <span className="text-sm text-gray-400">CVC</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-xs text-[#4A4A4A]/50 text-center">
+                  A fizetés a Stripe biztonságos rendszerén keresztül történik. A Stripe integrálása hamarosan.
+                </p>
+
+                <div className="flex items-center justify-center gap-3 mt-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span className="text-xs text-[#4A4A4A]/60">256-bit SSL titkosított kapcsolat</span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Right column: Order summary */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-24">
+              <h2 className={sectionTitle}>Rendelés összesítő</h2>
+
+              <div className="space-y-4">
+                {items.map((item) => (
+                  <div key={item.id} className="flex justify-between items-start gap-3 border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm text-[#4A4A4A] truncate">{item.name}</p>
+                      {item.babyName && (
+                        <p className="text-xs text-[#4A4A4A]/60">
+                          {item.babyName}
+                          {item.birthDate && ` · ${item.birthDate}`}
+                        </p>
+                      )}
+                      <p className="text-xs text-[#4A4A4A]/60">{item.quantity} db</p>
+                    </div>
+                    <p className="font-medium text-sm whitespace-nowrap">{formatPrice(item.price * item.quantity)}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Coupon input */}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Kuponkód"
+                    className="flex-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C4A591]/30"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    disabled={!!coupon}
+                  />
+                  {coupon ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCoupon(null);
+                        setCouponCode('');
+                        setCouponError('');
+                      }}
+                      className="px-3 py-2 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100"
+                    >
+                      Törlés
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={validateCoupon}
+                      disabled={couponLoading || !couponCode.trim()}
+                      className="px-4 py-2 rounded-lg text-sm font-medium bg-[#D5E8F0] text-[#4A4A4A] hover:opacity-90 disabled:opacity-50"
+                    >
+                      {couponLoading ? '...' : 'Beváltás'}
+                    </button>
+                  )}
+                </div>
+                {couponError && (
+                  <p className="text-xs text-red-500 mt-1">{couponError}</p>
+                )}
+                {coupon && (
+                  <p className="text-xs text-green-600 mt-1">
+                    ✓ {coupon.code} — {coupon.discountType === 'percent' ? `${coupon.discountValue}%` : formatPrice(coupon.discountValue)} kedvezmény
+                  </p>
+                )}
+              </div>
+
+              {/* Totals */}
+              <div className="mt-4 pt-4 border-t border-gray-100 space-y-2 text-sm">
+                <div className="flex justify-between text-[#4A4A4A]/70">
+                  <span>Részösszeg</span>
+                  <span>{formatPrice(subtotal)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Kedvezmény ({coupon?.code})</span>
+                    <span>-{formatPrice(discount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-[#4A4A4A]/70">
+                  <span>Szállítás ({shippingMethod === 'parcel' ? 'Csomagautomata' : 'Házhozszállítás'})</span>
+                  <span>{formatPrice(shippingCost)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-100 text-[#4A4A4A]">
+                  <span>Összesen</span>
+                  <span>{formatPrice(grandTotal)}</span>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full mt-6 bg-[#4A4A4A] text-white py-3.5 rounded-xl font-medium text-sm hover:bg-[#3A3A3A] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Feldolgozás...
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Megrendelés — {formatPrice(grandTotal)}
+                  </>
+                )}
+              </button>
+
+              <p className="text-[10px] text-[#4A4A4A]/40 text-center mt-3">
+                A megrendelés gomb megnyomásával elfogadod az Általános Szerződési Feltételeket.
+              </p>
+            </div>
+          </div>
+        </form>
+      </div>
     </main>
   );
 }

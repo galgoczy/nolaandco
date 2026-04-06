@@ -5,7 +5,7 @@ import ProductCard from './ProductCard';
 export default async function ProductGrid() {
   const products = await prisma.product.findMany({
     where: { active: true },
-    orderBy: { createdAt: 'asc' },
+    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
   });
 
   return (

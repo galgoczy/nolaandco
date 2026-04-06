@@ -18,6 +18,7 @@ model Product {
   variant     String   // "core" | "linea" | "atelier"
   imageUrl    String
   images      String[] @default([])
+  sortOrder   Int      @default(0)
   badge       String?  // "Core Series" | "Limited Edition" | null
   active      Boolean  @default(true)
   onSale      Boolean  @default(false)
