@@ -1,8 +1,12 @@
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import './globals.css';
-import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import SessionProviderWrapper from '@/components/providers/SessionProviderWrapper';
+
+const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
+  ssr: false,
+});
 
 export const metadata: Metadata = {
   title: 'Nola & Co. | Nordic Serenity',
