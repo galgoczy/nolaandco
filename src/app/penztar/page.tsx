@@ -193,7 +193,6 @@ export default function CheckoutPage() {
                   value={form.email}
                   onChange={handleChange}
                   error={errors.email}
-                  required
                 />
                 <Input
                   label="Telefonszám"
@@ -297,7 +296,6 @@ export default function CheckoutPage() {
                     value={form.shippingName}
                     onChange={handleChange}
                     error={errors.shippingName}
-                    required
                   />
                   <Input
                     label="Irányítószám"
@@ -305,7 +303,6 @@ export default function CheckoutPage() {
                     value={form.shippingZip}
                     onChange={handleChange}
                     error={errors.shippingZip}
-                    required
                   />
                   <Input
                     label="Város"
@@ -313,7 +310,6 @@ export default function CheckoutPage() {
                     value={form.shippingCity}
                     onChange={handleChange}
                     error={errors.shippingCity}
-                    required
                   />
                   <Input
                     label="Utca, házszám"
@@ -321,7 +317,6 @@ export default function CheckoutPage() {
                     value={form.shippingAddress}
                     onChange={handleChange}
                     error={errors.shippingAddress}
-                    required
                   />
                   <div className="md:col-span-2">
                     <Input
