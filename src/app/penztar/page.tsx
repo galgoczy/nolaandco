@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cart';
-import { shippingSchema, type ShippingData } from '@/lib/validators';
+import { shippingSchema, homeDeliverySchema, type ShippingData } from '@/lib/validators';
 import { formatPrice } from '@/lib/utils';
 import Input from '@/components/ui/Input';
 
@@ -114,7 +114,8 @@ export default function CheckoutPage() {
     e.preventDefault();
     setErrors({});
 
-    const result = shippingSchema.safeParse(form);
+    const schema = shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
+    const result = schema.safeParse(form);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       for (const issue of result.error.issues) {
@@ -149,7 +150,7 @@ export default function CheckoutPage() {
       }
 
       clearCart();
-      window.location.href = data.url;
+      router.push(data.url);
     } catch {
       setErrors({ _form: 'Hiba történt. Kérjük, próbáld újra.' });
       setLoading(false);

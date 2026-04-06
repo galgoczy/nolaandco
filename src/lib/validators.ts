@@ -12,11 +12,18 @@ export const birthDataSchema = z.object({
 export const shippingSchema = z.object({
   email: z.string().email('Érvényes e-mail cím szükséges'),
   phone: z.string().min(9, 'Érvényes telefonszám szükséges').optional(),
+  shippingName: z.string().min(3, 'Név megadása kötelező').optional().default(''),
+  shippingZip: z.string().optional().default(''),
+  shippingCity: z.string().optional().default(''),
+  shippingAddress: z.string().optional().default(''),
+  shippingNote: z.string().max(500).optional(),
+});
+
+export const homeDeliverySchema = shippingSchema.extend({
   shippingName: z.string().min(3, 'Név megadása kötelező'),
   shippingZip: z.string().regex(/^\d{4}$/, 'Érvényes irányítószám (4 számjegy)'),
   shippingCity: z.string().min(2, 'Város megadása kötelező'),
   shippingAddress: z.string().min(5, 'Cím megadása kötelező'),
-  shippingNote: z.string().max(500).optional(),
 });
 
 export const newsletterSchema = z.object({

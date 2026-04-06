@@ -1,21 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { stripe } from '@/lib/stripe';
-import { shippingSchema } from '@/lib/validators';
+import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
 import type { CartItemData } from '@/store/cart';
 
-const SHIPPING_COST = 1490;
+const SHIPPING_COSTS: Record<string, number> = {
+  parcel: 990,
+  home: 1490,
+};
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { items, shipping } = body as {
+    const { items, shipping, shippingMethod, couponCode } = body as {
       items: CartItemData[];
       shipping: Record<string, unknown>;
+      shippingMethod: string;
+      couponCode?: string | null;
     };
 
-    // Validate shipping data
-    const shippingResult = shippingSchema.safeParse(shipping);
+    // Validate shipping data — stricter for home delivery
+    const schema = shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
+    const shippingResult = schema.safeParse(shipping);
     if (!shippingResult.success) {
       return NextResponse.json(
         { error: 'Érvénytelen szállítási adatok.', details: shippingResult.error.flatten() },
@@ -78,7 +83,40 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const total = subtotal + SHIPPING_COST;
+    const shippingCost = SHIPPING_COSTS[shippingMethod] ?? 1490;
+
+    // Apply coupon if provided
+    let discount = 0;
+    if (couponCode) {
+      const coupon = await prisma.coupon.findFirst({
+        where: {
+          code: couponCode,
+          active: true,
+          startsAt: { lte: new Date() },
+          endsAt: { gte: new Date() },
+        },
+      });
+      if (coupon) {
+        if (!coupon.usageLimit || coupon.usageCount < coupon.usageLimit) {
+          if (!coupon.minOrderAmount || subtotal >= coupon.minOrderAmount) {
+            if (coupon.discountType === 'percent') {
+              discount = Math.round(subtotal * (coupon.discountValue / 100));
+            } else {
+              discount = coupon.discountValue;
+            }
+            if (discount > subtotal) discount = subtotal;
+
+            // Increment usage
+            await prisma.coupon.update({
+              where: { id: coupon.id },
+              data: { usageCount: { increment: 1 } },
+            });
+          }
+        }
+      }
+    }
+
+    const total = subtotal - discount + shippingCost;
     const shippingData = shippingResult.data;
 
     // Create order in DB
@@ -87,13 +125,13 @@ export async function POST(request: NextRequest) {
         status: 'pending',
         email: shippingData.email,
         phone: shippingData.phone || null,
-        shippingName: shippingData.shippingName,
-        shippingZip: shippingData.shippingZip,
-        shippingCity: shippingData.shippingCity,
-        shippingAddress: shippingData.shippingAddress,
+        shippingName: shippingData.shippingName || 'Csomagautomata',
+        shippingZip: shippingData.shippingZip || '',
+        shippingCity: shippingData.shippingCity || '',
+        shippingAddress: shippingData.shippingAddress || `Csomagautomata (${shippingMethod})`,
         shippingNote: shippingData.shippingNote || null,
         subtotal,
-        shippingCost: SHIPPING_COST,
+        shippingCost,
         total,
         items: {
           create: verifiedItems.map((item) => ({
@@ -111,56 +149,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create Stripe Checkout Session
-    const lineItems = verifiedItems.map((item) => ({
-      price_data: {
-        currency: 'huf',
-        product_data: {
-          name: item.name,
-          description: item.babyName ? `Baba neve: ${item.babyName}` : undefined,
-        },
-        unit_amount: item.price,
-      },
-      quantity: item.quantity,
-    }));
+    // TODO: When Stripe is integrated, create Stripe Checkout Session here
+    // and redirect to Stripe. For now, we redirect directly to the thank you page.
 
-    // Add shipping as a line item
-    lineItems.push({
-      price_data: {
-        currency: 'huf',
-        product_data: {
-          name: 'Szállítási költség',
-          description: undefined,
-        },
-        unit_amount: SHIPPING_COST,
-      },
-      quantity: 1,
-    });
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      line_items: lineItems,
-      success_url: `${baseUrl}/koszonjuk?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/kosar`,
-      metadata: {
-        orderId: order.id,
-      },
-      customer_email: shippingData.email,
-    });
-
-    // Update order with Stripe payment ID
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { stripePaymentId: session.id },
-    });
-
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: `/koszonjuk?order_id=${order.id}` });
   } catch (error) {
     console.error('Checkout error:', error);
     return NextResponse.json(
-      { error: 'Hiba történt a fizetés indítása során.' },
+      { error: 'Hiba történt a rendelés rögzítése során.' },
       { status: 500 }
     );
   }
