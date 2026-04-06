@@ -27,6 +27,7 @@ export default function CheckoutPage() {
   const total = useCartStore((s) => s.total);
   const clearCart = useCartStore((s) => s.clearCart);
 
+  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('parcel');
@@ -47,12 +48,16 @@ export default function CheckoutPage() {
   const [couponLoading, setCouponLoading] = useState(false);
 
   useEffect(() => {
-    if (items.length === 0) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && items.length === 0) {
       router.replace('/kosar');
     }
-  }, [items.length, router]);
+  }, [mounted, items.length, router]);
 
-  if (items.length === 0) return null;
+  if (!mounted || items.length === 0) return null;
 
   const subtotal = total();
   const shippingCost = SHIPPING_COSTS[shippingMethod];
