@@ -129,6 +129,7 @@ export default function CheckoutPage() {
         }
       }
       setErrors(fieldErrors);
+      alert('Kérjük töltsd ki a kötelező mezőket: ' + Object.values(fieldErrors).join(', '));
       return;
     }
 
@@ -148,15 +149,19 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrors({ _form: data.error || 'Hiba történt a rendelés során.' });
+        const errorMsg = data.error || 'Hiba történt a rendelés során.';
+        setErrors({ _form: errorMsg });
+        alert('Hiba: ' + errorMsg);
         setLoading(false);
         return;
       }
 
       clearCart();
-      router.push(data.url);
-    } catch {
-      setErrors({ _form: 'Hiba történt. Kérjük, próbáld újra.' });
+      window.location.href = data.url;
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Hiba történt. Kérjük, próbáld újra.';
+      setErrors({ _form: errorMsg });
+      alert('Hiba: ' + errorMsg);
       setLoading(false);
     }
   }
