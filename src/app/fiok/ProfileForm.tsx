@@ -9,6 +9,7 @@ type Profile = {
   shippingZip: string;
   shippingCity: string;
   shippingAddress: string;
+  shippingNote: string;
   newsletter: boolean;
 };
 
@@ -53,7 +54,16 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
             type="text"
             className={inputCls}
             value={profile.name}
-            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+            onChange={(e) => {
+              const name = e.target.value;
+              setProfile((prev) => ({
+                ...prev,
+                name,
+                shippingName: !prev.shippingName || prev.shippingName === prev.name
+                  ? name
+                  : prev.shippingName,
+              }));
+            }}
           />
         </div>
         <div>
@@ -104,6 +114,16 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
               className={inputCls}
               value={profile.shippingAddress}
               onChange={(e) => setProfile({ ...profile, shippingAddress: e.target.value })}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className={labelCls}>Megjegyzés (opcionális)</label>
+            <input
+              type="text"
+              className={inputCls}
+              value={profile.shippingNote}
+              onChange={(e) => setProfile({ ...profile, shippingNote: e.target.value })}
+              placeholder="Pl. kapucsengő, emelet, ajtó..."
             />
           </div>
         </div>

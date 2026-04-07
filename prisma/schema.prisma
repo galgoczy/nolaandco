@@ -44,6 +44,8 @@ model Order {
   total           Int
   stripePaymentId String?
   trackingNumber  String?
+  customerId      String?
+  customer        Customer? @relation(fields: [customerId], references: [id])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -92,9 +94,12 @@ model Customer {
   shippingZip     String?
   shippingCity    String?
   shippingAddress String?
+  shippingNote    String?
   newsletter      Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  orders Order[]
 }
 
 model Category {

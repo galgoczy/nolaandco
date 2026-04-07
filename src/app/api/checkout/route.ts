@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
 import type { CartItemData } from '@/store/cart';
@@ -119,10 +121,21 @@ export async function POST(request: NextRequest) {
     const total = subtotal - discount + shippingCost;
     const shippingData = shippingResult.data;
 
+    // Link to customer if logged in
+    let customerId: string | null = null;
+    const session = await getServerSession(authOptions);
+    if (session?.user?.email) {
+      const customer = await prisma.customer.findUnique({
+        where: { email: session.user.email },
+      });
+      if (customer) customerId = customer.id;
+    }
+
     // Create order in DB
     const order = await prisma.order.create({
       data: {
         status: 'pending',
+        customerId,
         email: shippingData.email,
         phone: shippingData.phone || null,
         shippingName: shippingData.shippingName || 'Csomagautomata',

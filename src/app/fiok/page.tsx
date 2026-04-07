@@ -44,8 +44,14 @@ export default async function AccountPage() {
     update: {},
   });
 
+  // Show orders linked by customerId OR by email (for orders placed before linking)
   const orders = await prisma.order.findMany({
-    where: { email },
+    where: {
+      OR: [
+        { customerId: customer.id },
+        { email },
+      ],
+    },
     orderBy: { createdAt: 'desc' },
     include: { items: { include: { product: true } } },
   });
@@ -80,17 +86,18 @@ export default async function AccountPage() {
             initial={{
               name: customer.name ?? '',
               phone: customer.phone ?? '',
-              shippingName: customer.shippingName ?? '',
+              shippingName: customer.shippingName ?? customer.name ?? '',
               shippingZip: customer.shippingZip ?? '',
               shippingCity: customer.shippingCity ?? '',
               shippingAddress: customer.shippingAddress ?? '',
+              shippingNote: customer.shippingNote ?? '',
               newsletter: customer.newsletter,
             }}
           />
         </section>
 
         {/* Orders */}
-        <section className="bg-white rounded-2xl shadow-sm p-6">
+        <section id="rendelesek" className="bg-white rounded-2xl shadow-sm p-6">
           <h2
             className="text-xl text-[#4A4A4A] mb-4"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}

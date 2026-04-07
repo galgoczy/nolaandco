@@ -1,8 +1,11 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
+import AnimatedCheck from './AnimatedCheck';
 
 interface Props {
   searchParams: Promise<{ order_id?: string; session_id?: string }>;
@@ -10,6 +13,8 @@ interface Props {
 
 export default async function ThankYouPage({ searchParams }: Props) {
   const { order_id, session_id } = await searchParams;
+  const session = await getServerSession(authOptions);
+  const isLoggedIn = !!session?.user?.email;
 
   // Find order by direct ID or by Stripe session ID (for future Stripe integration)
   let order = null;
@@ -53,6 +58,7 @@ export default async function ThankYouPage({ searchParams }: Props) {
     return (
       <main className="min-h-screen bg-[#F7F3EE] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
+          <AnimatedCheck />
           <h1
             className="text-3xl text-[#4A4A4A] tracking-wide mb-4"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
@@ -78,11 +84,7 @@ export default async function ThankYouPage({ searchParams }: Props) {
       <div className="max-w-2xl mx-auto">
         {/* Success header */}
         <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
+          <AnimatedCheck />
           <h1
             className="text-3xl text-[#4A4A4A] tracking-wide mb-2"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
@@ -174,13 +176,21 @@ export default async function ThankYouPage({ searchParams }: Props) {
           </p>
         </div>
 
-        <div className="text-center mt-8">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
           <Link
             href="/"
             className="inline-block bg-[#4A4A4A] text-white px-8 py-3 rounded-xl font-medium text-sm hover:bg-[#3A3A3A] transition-colors"
           >
             Vissza a főoldalra
           </Link>
+          {isLoggedIn && (
+            <Link
+              href="/fiok#rendelesek"
+              className="inline-block bg-[#C4A591] text-white px-8 py-3 rounded-xl font-medium text-sm hover:bg-[#B8957F] transition-colors"
+            >
+              Rendeléseim
+            </Link>
+          )}
         </div>
       </div>
     </main>

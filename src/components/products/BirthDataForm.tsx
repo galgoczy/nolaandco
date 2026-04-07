@@ -62,7 +62,7 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
         value={formData.babyName}
         onChange={handleChange}
         error={errors.babyName}
-        placeholder="Kis Bence"
+        placeholder="Bence"
       />
 
       <Input
@@ -95,7 +95,7 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
       </div>
 
       <Input
-        label="Születés időpontja"
+        label="Születés időpontja (opcionális)"
         name="birthTime"
         value={formData.birthTime}
         onChange={handleChange}

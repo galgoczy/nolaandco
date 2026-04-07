@@ -34,6 +34,7 @@ export async function PATCH(req: Request) {
     shippingZip,
     shippingCity,
     shippingAddress,
+    shippingNote,
     newsletter,
   } = body as Record<string, unknown>;
 
@@ -49,6 +50,7 @@ export async function PATCH(req: Request) {
       shippingZip: str(shippingZip),
       shippingCity: str(shippingCity),
       shippingAddress: str(shippingAddress),
+      shippingNote: str(shippingNote),
       newsletter: Boolean(newsletter),
     },
     update: {
@@ -58,6 +60,7 @@ export async function PATCH(req: Request) {
       shippingZip: str(shippingZip),
       shippingCity: str(shippingCity),
       shippingAddress: str(shippingAddress),
+      shippingNote: str(shippingNote),
       newsletter: Boolean(newsletter),
     },
   });

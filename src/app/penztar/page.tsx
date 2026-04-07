@@ -63,6 +63,7 @@ export default function CheckoutPage() {
             shippingZip: c.shippingZip || prev.shippingZip,
             shippingCity: c.shippingCity || prev.shippingCity,
             shippingAddress: c.shippingAddress || prev.shippingAddress,
+            shippingNote: c.shippingNote || prev.shippingNote,
           }));
         }
       })
