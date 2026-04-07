@@ -483,10 +483,7 @@ export default function CheckoutPage() {
 
               <button
                 type="button"
-                onClick={() => {
-                  alert('Gomb kattintva! A rendelés indul...');
-                  handleSubmit();
-                }}
+                onClick={handleSubmit}
                 disabled={loading}
                 className="w-full mt-4 bg-[#4A4A4A] text-white py-3.5 rounded-xl font-medium text-sm hover:bg-[#3A3A3A] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
