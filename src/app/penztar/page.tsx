@@ -29,6 +29,7 @@ export default function CheckoutPage() {
 
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('parcel');
   const [form, setForm] = useState<ShippingData>({
@@ -71,12 +72,12 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (mounted && items.length === 0) {
+    if (mounted && items.length === 0 && !redirecting) {
       router.replace('/kosar');
     }
-  }, [mounted, items.length, router]);
+  }, [mounted, items.length, redirecting, router]);
 
-  if (!mounted || items.length === 0) return null;
+  if (!mounted || (items.length === 0 && !redirecting)) return null;
 
   const subtotal = total();
   const shippingCost = SHIPPING_COSTS[shippingMethod];
@@ -172,6 +173,7 @@ export default function CheckoutPage() {
         return;
       }
 
+      setRedirecting(true);
       clearCart();
       window.location.href = data.url;
     } catch {

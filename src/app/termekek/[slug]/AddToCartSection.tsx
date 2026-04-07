@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import BirthDataForm from '@/components/products/BirthDataForm';
 import Button from '@/components/ui/Button';
@@ -30,11 +30,16 @@ export default function AddToCartSection({ product }: Props) {
   const [birthData, setBirthData] = useState<BirthData | null>(null);
   const [added, setAdded] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState(0);
+  const addToCartRef = useRef<HTMLDivElement>(null);
 
   const isGiftCard = product.category === 'giftcard';
 
   const handleBirthDataSubmit = (data: BirthData) => {
     setBirthData(data);
+    // Scroll so the "Kosárba" button is visible at the bottom of the viewport
+    setTimeout(() => {
+      addToCartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100);
   };
 
   const handleAddToCart = () => {
@@ -138,7 +143,7 @@ export default function AddToCartSection({ product }: Props) {
       {!birthData ? (
         <BirthDataForm onSubmit={handleBirthDataSubmit} />
       ) : !added ? (
-        <div className="space-y-4">
+        <div ref={addToCartRef} className="space-y-4">
           <div className="bg-[#faf6f1] rounded-2xl p-6 shadow-sm">
             <h3 className="text-lg font-bold text-carbon mb-3">Személyre szabás</h3>
             <div className="text-sm text-carbon-light space-y-1">
