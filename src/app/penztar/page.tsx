@@ -49,6 +49,24 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setMounted(true);
+    // Pre-fill from logged-in customer profile
+    fetch('/api/account/profile')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.customer) {
+          const c = data.customer;
+          setForm((prev) => ({
+            ...prev,
+            email: c.email || prev.email,
+            phone: c.phone || prev.phone,
+            shippingName: c.shippingName || c.name || prev.shippingName,
+            shippingZip: c.shippingZip || prev.shippingZip,
+            shippingCity: c.shippingCity || prev.shippingCity,
+            shippingAddress: c.shippingAddress || prev.shippingAddress,
+          }));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -129,7 +147,6 @@ export default function CheckoutPage() {
         }
       }
       setErrors(fieldErrors);
-      alert('Kérjük töltsd ki a kötelező mezőket: ' + Object.values(fieldErrors).join(', '));
       return;
     }
 
@@ -149,19 +166,15 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        const errorMsg = data.error || 'Hiba történt a rendelés során.';
-        setErrors({ _form: errorMsg });
-        alert('Hiba: ' + errorMsg);
+        setErrors({ _form: data.error || 'Hiba történt a rendelés során.' });
         setLoading(false);
         return;
       }
 
       clearCart();
       window.location.href = data.url;
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Hiba történt. Kérjük, próbáld újra.';
-      setErrors({ _form: errorMsg });
-      alert('Hiba: ' + errorMsg);
+    } catch {
+      setErrors({ _form: 'Hiba történt. Kérjük, próbáld újra.' });
       setLoading(false);
     }
   }
@@ -195,6 +208,13 @@ export default function CheckoutPage() {
                 Kapcsolat
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Teljes név"
+                  name="shippingName"
+                  value={form.shippingName}
+                  onChange={handleChange}
+                  error={errors.shippingName}
+                />
                 <Input
                   label="E-mail cím"
                   name="email"
@@ -299,13 +319,6 @@ export default function CheckoutPage() {
               {/* Home delivery address */}
               {shippingMethod === 'home' && (
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    label="Címzett neve"
-                    name="shippingName"
-                    value={form.shippingName}
-                    onChange={handleChange}
-                    error={errors.shippingName}
-                  />
                   <Input
                     label="Irányítószám"
                     name="shippingZip"

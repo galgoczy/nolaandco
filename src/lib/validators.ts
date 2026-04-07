@@ -12,7 +12,7 @@ export const birthDataSchema = z.object({
 export const shippingSchema = z.object({
   email: z.string().email('Érvényes e-mail cím szükséges'),
   phone: z.string().optional(),
-  shippingName: z.string().optional().default(''),
+  shippingName: z.string().min(3, 'Név megadása kötelező'),
   shippingZip: z.string().optional().default(''),
   shippingCity: z.string().optional().default(''),
   shippingAddress: z.string().optional().default(''),
