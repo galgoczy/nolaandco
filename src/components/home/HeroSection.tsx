@@ -9,7 +9,7 @@ export default function HeroSection() {
     <section className="relative w-full overflow-hidden leading-[0]">
       <div className="w-full relative">
         <video
-          src="/scrollytelling/hero4.mp4"
+          src="/scrollytelling/hero_static.mp4"
           autoPlay
           loop
           muted
