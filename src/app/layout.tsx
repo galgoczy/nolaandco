@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import './globals.css';
 import Footer from '@/components/layout/Footer';
+import CookieConsent from '@/components/layout/CookieConsent';
 import SessionProviderWrapper from '@/components/providers/SessionProviderWrapper';
 
 const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
@@ -36,6 +37,7 @@ export default function RootLayout({
           <Navbar />
           <main>{children}</main>
           <Footer />
+          <CookieConsent />
         </SessionProviderWrapper>
       </body>
     </html>

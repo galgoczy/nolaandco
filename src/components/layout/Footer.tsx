@@ -21,6 +21,7 @@ const socialLinks = [
   { label: 'Facebook', href: 'https://facebook.com' },
   { label: 'Instagram', href: 'https://instagram.com' },
   { label: 'E-mail', href: 'mailto:hello@nolaandco.hu' },
+  { label: 'Kapcsolat', href: '/kapcsolat' },
   { label: 'Kollaboráció', href: '/kollaboracio' },
 ];
 

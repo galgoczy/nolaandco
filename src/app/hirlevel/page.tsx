@@ -42,14 +42,15 @@ export default function HirlevelPage() {
       <div className="max-w-xl w-full text-center">
         <RevealOnScroll>
           <h1 className="montserrat-light-caps text-4xl md:text-5xl text-carbon mb-6">
-            Hírlevél
+            Csatlakozz a Nola családhoz!
           </h1>
 
           <div className="w-12 h-[2px] bg-primary mx-auto mb-8" />
 
           <p className="text-carbon-light font-body text-lg leading-relaxed mb-12">
-            Iratkozz fel hírlevelünkre és értesülj elsőként az újdonságokról,
-            akciókról és különleges ajánlatokról.
+            Iratkozz fel, és legyél az elsők között, akik értesülnek az új kollekcióinkról,
+            limitált kiadású termékekről és VIP akcióinkról. Ígérjük, nem bombázunk spam-mel
+            – csak azt küldjük, ami igazán különleges.
           </p>
         </RevealOnScroll>
 
@@ -81,7 +82,7 @@ export default function HirlevelPage() {
               )}
 
               <Button type="submit" disabled={status === 'loading'}>
-                {status === 'loading' ? 'Feliratkozás...' : 'Feliratkozom'}
+                {status === 'loading' ? 'Feliratkozás...' : 'Iratkozz fel'}
               </Button>
             </form>
           )}
