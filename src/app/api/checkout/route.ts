@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
+import { sendEmail } from '@/lib/emails/send';
+import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
 import type { CartItemData } from '@/store/cart';
 
 const SHIPPING_COSTS: Record<string, number> = {
@@ -164,6 +166,18 @@ export async function POST(request: NextRequest) {
 
     // TODO: When Stripe is integrated, create Stripe Checkout Session here
     // and redirect to Stripe. For now, we redirect directly to the thank you page.
+
+    // Send order confirmation email (fire-and-forget)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
+    sendEmail({
+      to: shippingData.email,
+      subject: orderConfirmationSubject(),
+      html: orderConfirmationHtml({
+        customerName: shippingData.shippingName || 'Vásárlónk',
+        orderId: order.id,
+        orderUrl: `${baseUrl}/fiok#rendelesek`,
+      }),
+    }).catch((err) => console.error('Order confirmation email failed:', err));
 
     return NextResponse.json({ url: `/koszonjuk?order_id=${order.id}` });
   } catch (error) {

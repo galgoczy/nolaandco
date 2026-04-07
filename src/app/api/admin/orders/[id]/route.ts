@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
+import { sendEmail } from '@/lib/emails/send';
+import { shippingNotificationSubject, shippingNotificationHtml } from '@/lib/emails/shipping-notification';
+import { followUpSubject, followUpHtml } from '@/lib/emails/follow-up';
 
 export async function GET(
   _request: NextRequest,
@@ -58,6 +61,9 @@ export async function PATCH(
   }
 
   try {
+    // Get previous status to detect transitions
+    const prev = await prisma.order.findUnique({ where: { id }, select: { status: true } });
+
     const order = await prisma.order.update({
       where: { id },
       data,
@@ -67,6 +73,30 @@ export async function PATCH(
         },
       },
     });
+
+    // Send shipping notification when status changes to "shipped"
+    if (status === 'shipped' && prev?.status !== 'shipped') {
+      const trackingUrl = order.trackingNumber || '';
+      sendEmail({
+        to: order.email,
+        subject: shippingNotificationSubject(),
+        html: shippingNotificationHtml({
+          customerName: order.shippingName,
+          trackingUrl,
+        }),
+      }).catch((err) => console.error('Shipping notification email failed:', err));
+    }
+
+    // Send follow-up email when status changes to "delivered"
+    if (status === 'delivered' && prev?.status !== 'delivered') {
+      sendEmail({
+        to: order.email,
+        subject: followUpSubject(),
+        html: followUpHtml({
+          customerName: order.shippingName,
+        }),
+      }).catch((err) => console.error('Follow-up email failed:', err));
+    }
 
     return NextResponse.json(order);
   } catch {
