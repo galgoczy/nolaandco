@@ -143,12 +143,19 @@ async function main() {
   console.log('Seeding products...');
 
   for (const product of products) {
-    await prisma.product.upsert({
-      where: { slug: product.slug },
-      update: { ...product },
-      create: { ...product },
-    });
-    console.log(`  Upserted: ${product.name}`);
+    const existing = await prisma.product.findUnique({ where: { slug: product.slug } });
+    if (existing) {
+      // Don't overwrite imageUrl or images — those may have been updated via admin
+      const { imageUrl, ...updateData } = product;
+      await prisma.product.update({
+        where: { slug: product.slug },
+        data: updateData,
+      });
+      console.log(`  Updated (kept images): ${product.name}`);
+    } else {
+      await prisma.product.create({ data: product });
+      console.log(`  Created: ${product.name}`);
+    }
   }
 
   console.log('Seeding admin users...');
