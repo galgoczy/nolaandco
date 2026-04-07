@@ -1,31 +1,47 @@
 'use client';
 
-import Image from 'next/image';
+import { useRef, useEffect } from 'react';
 
 export default function HeroSection() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // Ensure autoplay on all browsers (Safari sometimes blocks without user gesture)
+    const v = videoRef.current;
+    if (v) {
+      v.play().catch(() => {});
+    }
+  }, []);
+
+  const scrollToProducts = () => {
+    document.getElementById('products-start')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section className="relative w-full overflow-hidden leading-[0]">
       <div className="w-full relative">
-        <Image
-          src="/images/hero-image.png"
-          alt="Nola & Co Hero"
-          width={1920}
-          height={800}
-          priority
-          className="hero-img w-full h-auto object-cover"
+        <video
+          ref={videoRef}
+          src="/scrollytelling/hero_static.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="w-full h-auto object-cover"
         />
         <div className="absolute inset-0 flex pointer-events-none items-center justify-start px-8 md:px-32">
           <div className="flex flex-col items-start gap-4">
             <button
-              onClick={() => document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' })}
-              className="pointer-events-auto bg-brand-blue text-carbon rounded-full px-14 py-5 text-sm tracking-[0.25em] uppercase btn-anim shadow-xl cursor-pointer"
+              onClick={scrollToProducts}
+              className="pointer-events-auto bg-brand-blue text-carbon rounded-full px-14 py-5 text-sm tracking-[0.25em] uppercase btn-anim shadow-xl cursor-pointer hero-cta-pulse"
               style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
             >
               Görgess és fedezd fel!
             </button>
             {/* Fading arrows */}
             <button
-              onClick={() => document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={scrollToProducts}
               className="pointer-events-auto flex gap-1 items-center pl-6 cursor-pointer"
             >
               <svg

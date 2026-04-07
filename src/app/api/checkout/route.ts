@@ -70,14 +70,19 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const price = product.onSale && product.salePrice ? product.salePrice : product.price;
+      // For variant products (poster/giftcard), use the cart item price
+      // since the DB only stores the base price
+      const isVariant = product.category === 'poster' || product.category === 'giftcard';
+      const price = isVariant
+        ? item.price
+        : (product.onSale && product.salePrice ? product.salePrice : product.price);
       subtotal += price * item.quantity;
 
       verifiedItems.push({
         productId: product.id,
         quantity: item.quantity,
         price,
-        name: product.name,
+        name: item.name || product.name,
         babyName: item.babyName || undefined,
         birthDate: item.birthDate || undefined,
         birthWeight: item.birthWeight || undefined,

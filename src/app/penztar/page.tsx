@@ -146,6 +146,12 @@ export default function CheckoutPage() {
   async function handleSubmit() {
     setErrors({});
 
+    // Require locker selection for parcel shipping
+    if (shippingMethod === 'parcel' && !selectedLocker) {
+      setErrors({ _form: 'Kérjük, válassz csomagautomatát a térkép segítségével.' });
+      return;
+    }
+
     const schema = shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
     const result = schema.safeParse(form);
     if (!result.success) {
