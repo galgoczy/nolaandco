@@ -35,6 +35,7 @@ export async function POST(req: Request) {
       textColor: typeof d.textColor === 'string' ? d.textColor : '#FFFFFF',
       bgColor: typeof d.bgColor === 'string' ? d.bgColor : '#4A4A4A',
       href: typeof d.href === 'string' && d.href.trim() ? d.href.trim() : null,
+      bold: d.bold === true,
       active: d.active !== false,
       endsAt: typeof d.endsAt === 'string' && d.endsAt ? new Date(d.endsAt) : null,
     },
@@ -63,6 +64,7 @@ export async function PATCH(req: Request) {
   if (typeof d.bgColor === 'string') update.bgColor = d.bgColor;
   if (d.href !== undefined) update.href = typeof d.href === 'string' && d.href.trim() ? d.href.trim() : null;
   if (typeof d.active === 'boolean') update.active = d.active;
+  if (d.bold !== undefined) update.bold = d.bold === true || d.bold === 'true';
   if (d.endsAt !== undefined) update.endsAt = typeof d.endsAt === 'string' && d.endsAt ? new Date(d.endsAt) : null;
 
   const banner = await prisma.banner.update({ where: { id: d.id }, data: update });

@@ -22,6 +22,7 @@ type BannerData = {
   textColor: string;
   bgColor: string;
   href: string | null;
+  bold?: boolean;
 };
 
 export default function Navbar() {
@@ -46,10 +47,11 @@ export default function Navbar() {
       {/* Dynamic banner from admin */}
       {banner && showBanner && (
         <div
-          className="text-center text-sm font-medium py-2 px-8 relative z-[60]"
+          className="text-center text-sm py-2 px-8 relative z-[60]"
           style={{
             backgroundColor: banner.bgColor,
             color: banner.textColor,
+            fontWeight: banner.bold ? 700 : 500,
             minHeight: '38px',
           }}
         >

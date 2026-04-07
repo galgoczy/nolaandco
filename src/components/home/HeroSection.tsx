@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 
 export default function HeroSection() {
@@ -16,12 +15,47 @@ export default function HeroSection() {
           className="hero-img w-full h-auto object-cover"
         />
         <div className="absolute inset-0 flex pointer-events-none items-center justify-start px-8 md:px-32">
-          <Link
-            href="/termekek"
-            className="hero-cta pointer-events-auto bg-brand-blue text-carbon rounded-full px-14 py-5 text-lg font-bold tracking-wide btn-anim shadow-xl"
-          >
-            Fedezd fel a kollekciókat!
-          </Link>
+          <div className="flex flex-col items-start gap-4">
+            <span
+              className="pointer-events-auto bg-brand-blue text-carbon rounded-full px-14 py-5 text-sm tracking-[0.25em] uppercase btn-anim shadow-xl"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
+            >
+              Görgess és fedezd fel!
+            </span>
+            {/* Fading arrows */}
+            <div className="flex gap-1 items-center pl-6">
+              <svg
+                className="w-5 h-5 text-carbon/60 animate-fade-bounce"
+                style={{ animationDelay: '0s' }}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+              <svg
+                className="w-5 h-5 text-carbon/40 animate-fade-bounce"
+                style={{ animationDelay: '0.3s' }}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+              <svg
+                className="w-5 h-5 text-carbon/20 animate-fade-bounce"
+                style={{ animationDelay: '0.6s' }}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
     </section>

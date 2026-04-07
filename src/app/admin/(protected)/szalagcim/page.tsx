@@ -19,6 +19,7 @@ export default async function AdminBannerPage() {
           textColor: b.textColor,
           bgColor: b.bgColor,
           href: b.href ?? '',
+          bold: b.bold,
           active: b.active,
           endsAt: b.endsAt ? b.endsAt.toISOString().slice(0, 16) : '',
         }))}

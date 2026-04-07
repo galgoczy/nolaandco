@@ -3,26 +3,41 @@ import RevealOnScroll from '@/components/ui/RevealOnScroll';
 const features = [
   {
     title: 'Prémium alapanyagok',
-    desc: 'Kizárólag OEKO-TEX® minősítésű, bababarát, extra puha plüss textíliával dolgozunk, amely a legérzékenyebb bababőrnek is biztonságos.',
+    desc: 'Párnáink OEKO-TEX® Standard 100 minősítésű pamut alapanyagból és tanúsított cérnával készülnek. Ez a minősítés garantálja, hogy az alapanyagokat káros anyagokra bevizsgálták, így bababőrrel érintkezve is biztonságos választást jelentenek.',
   },
   {
     title: 'Tartós kidolgozás',
-    desc: 'Párnáinkat speciális, hipoallergén, mosógépben mosható és formatartó töltettel látjuk el, így évek múltán is ugyanolyan ölelni valók maradnak, mint a vásárlás napján.',
+    desc: 'A töltet hipoallergén, mosható és formatartó – használat és mosás során sem csomósodik, így hosszú távon is megőrzi puhaságát és egyenletes tartását.',
   },
   {
     title: 'Egyedi részletek',
-    desc: 'A sziluettet és a születési adatokat modern, kopásálló technológiával visszük fel az anyagra, amely a plüss szerkezetével együtt alkot harmonikus egységet.',
+    desc: 'A sziluettet és a születési adatokat modern, kopás- és mosásálló technológiával visszük fel az anyagra, amely a plüss szerkezetével együtt alkot harmonikus egységet.',
   },
   {
     title: 'Kézműves gondoskodás',
-    desc: 'Minden párnát gondos, kézi záróvarrással fejezünk be, ügyelve arra, hogy a végeredmény kívül-belül tökéletes legyen.',
+    desc: 'Minden darab gondosan, kis szériában készül, hogy a legkisebbek számára is megbízható, szerethető és tartós kiegészítő legyen.',
   },
 ];
 
 const steps = [
-  { num: '01', title: 'Válaszd ki a formát', desc: 'ORIGIN vagy NOVA – melyik sziluett áll közelebb a szívedhez?' },
-  { num: '02', title: 'Válaszd ki a stílust', desc: 'Core, Linea vagy Atelier – a színek és anyagok világa.' },
-  { num: '03', title: 'Add meg a születési adatokat', desc: 'Név, dátum, súly, hossz – és elkészítjük az egyedi párnádat.' },
+  {
+    num: '01',
+    title: 'Válaszd ki a formát',
+    subtitle: 'ORIGIN vagy NOVA',
+    desc: 'ORIGIN: a magzati állapotot idéző, oldalt fekvő pozíció\nNOVA: lendületes, dinamikus, hason fekvő pozíció',
+  },
+  {
+    num: '02',
+    title: 'Dönts a stílusról',
+    subtitle: 'CORE, LINEA vagy ATELIER',
+    desc: 'CORE: skandináv minimalizmus\nLINEA: megszakítás nélküli vonalvezetés\nATELIER: kézműves részletgazdagság',
+  },
+  {
+    num: '03',
+    title: 'Add meg a születési adatokat és rendelj',
+    subtitle: 'NÉV, SZÜLETÉSI DÁTUM ÉS IDŐ, SÚLY, HOSSZ',
+    desc: 'Ezt követően mi 5-8 nap alatt elkészítjük a párnát és postázzuk neked.',
+  },
 ];
 
 export default function WorkshopSection() {
@@ -43,8 +58,8 @@ export default function WorkshopSection() {
           </RevealOnScroll>
           <RevealOnScroll>
             <p className="text-[#FDFBF7]/85 leading-loose max-w-3xl mx-auto" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
-              Minden öltés mögött történetek állnak. A Nola &amp; Co. párnákat nemcsak varrjuk, hanem alkotjuk:
-              a legpuhább anyagokat választjuk és minden részletet kézzel finomítunk, hogy az emlék örök maradhasson.
+              A Nola &amp; Co. párnák nem sorozatgyártásban készülnek. Minden darab a Te megrendelésedre,
+              egyedi igények alapján születik meg budapesti műhelyünkben.
             </p>
           </RevealOnScroll>
         </div>
@@ -88,7 +103,7 @@ export default function WorkshopSection() {
           </RevealOnScroll>
           <RevealOnScroll>
             <p className="text-[#FDFBF7]/80 max-w-xl mx-auto" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
-              Három egyszerű lépésben elkészítjük a tökéletes emlékőrzőt.
+              Három egyszerű lépés a NOLA-párnáig
             </p>
           </RevealOnScroll>
         </div>
@@ -98,8 +113,9 @@ export default function WorkshopSection() {
             <RevealOnScroll key={i} delay={i * 150}>
               <div className="text-center">
                 <span className="text-5xl text-[#FDFBF7]/30 block mb-4" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>{s.num}</span>
-                <h4 className="text-lg text-[#FDFBF7] mb-2" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>{s.title}</h4>
-                <p className="text-sm text-[#FDFBF7]/80 leading-relaxed" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200 }}>{s.desc}</p>
+                <h4 className="text-lg text-[#FDFBF7] mb-1" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>{s.title}</h4>
+                <p className="text-xs uppercase tracking-wider text-[#FDFBF7]/60 mb-3" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}>{s.subtitle}</p>
+                <p className="text-sm text-[#FDFBF7]/80 leading-relaxed whitespace-pre-line" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200 }}>{s.desc}</p>
               </div>
             </RevealOnScroll>
           ))}

@@ -119,6 +119,7 @@ model Banner {
   textColor String   @default("#FFFFFF")
   bgColor   String   @default("#4A4A4A")
   href      String?  // optional link
+  bold      Boolean  @default(false)
   active    Boolean  @default(false)
   endsAt    DateTime? // auto-deactivate (null = manual only)
   createdAt DateTime @default(now())

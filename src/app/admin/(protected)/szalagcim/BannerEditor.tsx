@@ -11,7 +11,13 @@ type BannerRow = {
   href: string;
   active: boolean;
   endsAt: string;
+  bold: boolean;
 };
+
+const PRESET_COLORS = [
+  { bg: '#C4C4C4', text: '#FFFFFF', label: 'Szürke' },
+  { bg: '#C4A591', text: '#FFFFFF', label: 'Bézs' },
+];
 
 const emptyForm = {
   text: '',
@@ -20,6 +26,7 @@ const emptyForm = {
   href: '',
   active: true,
   endsAt: '',
+  bold: false,
 };
 
 export default function BannerEditor({ initial }: { initial: BannerRow[] }) {
@@ -85,6 +92,7 @@ export default function BannerEditor({ initial }: { initial: BannerRow[] }) {
         textColor: data.banner.textColor,
         bgColor: data.banner.bgColor,
         href: data.banner.href ?? '',
+        bold: data.banner.bold ?? false,
         active: data.banner.active,
         endsAt: data.banner.endsAt
           ? new Date(data.banner.endsAt).toISOString().slice(0, 16)
@@ -110,10 +118,11 @@ export default function BannerEditor({ initial }: { initial: BannerRow[] }) {
         >
           {/* Preview */}
           <div
-            className="rounded-lg py-2 px-4 text-center text-sm font-medium"
+            className="rounded-lg py-2 px-4 text-center text-sm"
             style={{
               backgroundColor: b.bgColor,
               color: b.textColor,
+              fontWeight: b.bold ? 700 : 500,
             }}
           >
             {b.text || 'Szalagcím szövege...'}
@@ -202,18 +211,58 @@ export default function BannerEditor({ initial }: { initial: BannerRow[] }) {
               </div>
             </div>
             <div>
-              <label className={labelCls}>Automatikus kikapcsolás (üresen = manuális)</label>
-              <input
-                type="datetime-local"
-                className={inputCls}
-                value={b.endsAt}
-                onChange={(e) =>
-                  setBanners((prev) =>
-                    prev.map((x) => (x.id === b.id ? { ...x, endsAt: e.target.value } : x)),
-                  )
-                }
-                onBlur={() => saveField(b.id, 'endsAt', b.endsAt)}
-              />
+              <label className={labelCls}>Gyorsszín</label>
+              <div className="flex gap-2">
+                {PRESET_COLORS.map((preset) => (
+                  <button
+                    key={preset.bg}
+                    type="button"
+                    onClick={() => {
+                      setBanners((prev) =>
+                        prev.map((x) =>
+                          x.id === b.id ? { ...x, bgColor: preset.bg, textColor: preset.text } : x,
+                        ),
+                      );
+                      saveField(b.id, 'bgColor', preset.bg);
+                      saveField(b.id, 'textColor', preset.text);
+                    }}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium border border-outline-variant hover:opacity-80"
+                    style={{ backgroundColor: preset.bg, color: preset.text }}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-end gap-4">
+              <div className="flex-1">
+                <label className={labelCls}>Automatikus kikapcsolás (üresen = manuális)</label>
+                <input
+                  type="datetime-local"
+                  className={inputCls}
+                  value={b.endsAt}
+                  onChange={(e) =>
+                    setBanners((prev) =>
+                      prev.map((x) => (x.id === b.id ? { ...x, endsAt: e.target.value } : x)),
+                    )
+                  }
+                  onBlur={() => saveField(b.id, 'endsAt', b.endsAt)}
+                />
+              </div>
+              <label className="flex items-center gap-2 text-sm font-body cursor-pointer pb-2">
+                <input
+                  type="checkbox"
+                  checked={b.bold}
+                  onChange={(e) => {
+                    const bold = e.target.checked;
+                    setBanners((prev) =>
+                      prev.map((x) => (x.id === b.id ? { ...x, bold } : x)),
+                    );
+                    saveField(b.id, 'bold', String(bold));
+                  }}
+                />
+                <span className="font-bold">B</span>
+              </label>
             </div>
           </div>
 
