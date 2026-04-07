@@ -6,6 +6,7 @@ import { useCartStore } from '@/store/cart';
 import { shippingSchema, homeDeliverySchema, type ShippingData } from '@/lib/validators';
 import { formatPrice } from '@/lib/utils';
 import Input from '@/components/ui/Input';
+import FoxpostSelector from '@/components/checkout/FoxpostSelector';
 
 type ShippingMethod = 'parcel' | 'home';
 type CouponData = {
@@ -41,6 +42,13 @@ export default function CheckoutPage() {
     shippingAddress: '',
     shippingNote: '',
   });
+
+  // Foxpost locker selection
+  const [selectedLocker, setSelectedLocker] = useState<{
+    place_id: string;
+    name: string;
+    address: string;
+  } | null>(null);
 
   // Coupon
   const [couponCode, setCouponCode] = useState('');
@@ -299,24 +307,20 @@ export default function CheckoutPage() {
                 </button>
               </div>
 
-              {/* Parcel locker map placeholder */}
+              {/* Foxpost parcel locker selector */}
               {shippingMethod === 'parcel' && (
-                <div className="mt-4">
-                  <div className="bg-[#F7F3EE] rounded-xl border-2 border-dashed border-[#C4A591]/30 p-8 text-center">
-                    <div className="text-[#C4A591] mb-3">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                      </svg>
-                    </div>
-                    <p className="text-sm font-medium text-[#4A4A4A] mb-1">
-                      Csomagautomata térkép
-                    </p>
-                    <p className="text-xs text-[#4A4A4A]/60">
-                      Itt jelenik meg a Foxpost / Packeta csomagautomata választó térképpel — hamarosan.
-                    </p>
-                  </div>
-                </div>
+                <FoxpostSelector
+                  selected={selectedLocker}
+                  onSelect={(locker) => {
+                    setSelectedLocker(locker);
+                    // Store the place_id in shippingNote so the API can use it for Foxpost
+                    setForm((prev) => ({
+                      ...prev,
+                      shippingAddress: `Foxpost: ${locker.name}`,
+                      shippingNote: locker.place_id,
+                    }));
+                  }}
+                />
               )}
 
               {/* Home delivery address */}
