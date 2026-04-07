@@ -14,7 +14,7 @@ export default function HeroSection() {
           loop
           muted
           playsInline
-          className="hero-video w-full h-auto object-cover"
+          className="w-full h-auto object-cover"
         />
         <div className="absolute inset-0 flex pointer-events-none items-center justify-start px-8 md:px-32">
           <div className="flex flex-col items-start gap-4">
