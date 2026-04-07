@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import BirthDataForm from '@/components/products/BirthDataForm';
 import Button from '@/components/ui/Button';
@@ -35,17 +35,31 @@ export default function AddToCartSection({ product }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const [birthData, setBirthData] = useState<BirthData | null>(null);
   const [added, setAdded] = useState(false);
+  const [fading, setFading] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState(0);
   const addToCartRef = useRef<HTMLDivElement>(null);
 
   const isGiftCard = product.category === 'giftcard';
   const isPoster = product.category === 'poster';
 
+  // Start fading the success message after it appears
+  useEffect(() => {
+    if (added) {
+      setFading(false);
+      const timer = setTimeout(() => setFading(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [added]);
+
   const handleBirthDataSubmit = (data: BirthData) => {
     setBirthData(data);
-    // Scroll so the "Kosárba" button is visible at the bottom of the viewport
+    // Scroll so the "Kosárba" button is visible with some breathing room below
     setTimeout(() => {
-      addToCartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      if (addToCartRef.current) {
+        const rect = addToCartRef.current.getBoundingClientRect();
+        const scrollTarget = window.scrollY + rect.bottom - window.innerHeight + 60;
+        window.scrollTo({ top: scrollTarget, behavior: 'smooth' });
+      }
     }, 100);
   };
 
@@ -96,9 +110,15 @@ export default function AddToCartSection({ product }: Props) {
   if (isGiftCard) {
     if (added) {
       return (
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center space-y-3">
+        <div
+          className="rounded-2xl p-6 text-center space-y-3 transition-all duration-[2500ms] ease-in-out border"
+          style={{
+            backgroundColor: fading ? '#faf6f1' : '#f0fdf4',
+            borderColor: fading ? 'transparent' : '#bbf7d0',
+          }}
+        >
           <div className="text-2xl">&#10003;</div>
-          <p className="text-green-800 font-medium text-lg">
+          <p className={`font-medium text-lg transition-colors duration-[2500ms] ${fading ? 'text-carbon' : 'text-green-800'}`}>
             Hozzáadva a kosárhoz!
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
@@ -219,9 +239,15 @@ export default function AddToCartSection({ product }: Props) {
           </Button>
         </div>
       ) : (
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center space-y-3">
+        <div
+          className="rounded-2xl p-6 text-center space-y-3 transition-all duration-[2500ms] ease-in-out border"
+          style={{
+            backgroundColor: fading ? '#faf6f1' : '#f0fdf4',
+            borderColor: fading ? 'transparent' : '#bbf7d0',
+          }}
+        >
           <div className="text-2xl">&#10003;</div>
-          <p className="text-green-800 font-medium text-lg">
+          <p className={`font-medium text-lg transition-colors duration-[2500ms] ${fading ? 'text-carbon' : 'text-green-800'}`}>
             Hozzáadva a kosárhoz!
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">

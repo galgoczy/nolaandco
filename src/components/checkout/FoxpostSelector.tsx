@@ -73,7 +73,7 @@ export default function FoxpostSelector({ onSelect, selected }: FoxpostSelectorP
   return (
     <div className="mt-4">
       {showMap ? (
-        <div className="rounded-xl overflow-hidden border-2 border-[#C4A591]/30" style={{ height: 480 }}>
+        <div className="rounded-xl overflow-hidden border-2 border-[#C4A591]/30" style={{ height: 720 }}>
           <iframe
             ref={iframeRef}
             src="https://cdn.foxpost.hu/apt-finder/v1/app/?lang=hu"
