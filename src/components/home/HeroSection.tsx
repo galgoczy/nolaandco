@@ -16,14 +16,18 @@ export default function HeroSection() {
         />
         <div className="absolute inset-0 flex pointer-events-none items-center justify-start px-8 md:px-32">
           <div className="flex flex-col items-start gap-4">
-            <span
-              className="pointer-events-auto bg-brand-blue text-carbon rounded-full px-14 py-5 text-sm tracking-[0.25em] uppercase btn-anim shadow-xl"
+            <button
+              onClick={() => document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' })}
+              className="pointer-events-auto bg-brand-blue text-carbon rounded-full px-14 py-5 text-sm tracking-[0.25em] uppercase btn-anim shadow-xl cursor-pointer"
               style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
             >
               Görgess és fedezd fel!
-            </span>
+            </button>
             {/* Fading arrows */}
-            <div className="flex gap-1 items-center pl-6">
+            <button
+              onClick={() => document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' })}
+              className="pointer-events-auto flex gap-1 items-center pl-6 cursor-pointer"
+            >
               <svg
                 className="w-5 h-5 text-carbon/60 animate-fade-bounce"
                 style={{ animationDelay: '0s' }}
@@ -54,7 +58,7 @@ export default function HeroSection() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
-            </div>
+            </button>
           </div>
         </div>
       </div>

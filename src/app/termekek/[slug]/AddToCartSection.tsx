@@ -9,9 +9,15 @@ import { formatPrice } from '@/lib/utils';
 import type { BirthData } from '@/lib/validators';
 
 const giftCardVariants = [
-  { label: 'Poszter', price: 5900, description: 'Egy darab születési poszter' },
-  { label: 'Párna', price: 22900, description: 'Egy darab születési párna' },
-  { label: 'Párna + Poszter', price: 27900, description: 'Párna és poszter csomag' },
+  { label: 'Digitális poszter', price: 6000, description: 'Egy darab digitális születési poszter' },
+  { label: 'Nyomtatott poszter + szállítás', price: 14000, description: 'Nyomtatott poszter kézbesítéssel' },
+  { label: 'Párna + digitális poszter + szállítás', price: 26000, description: 'Párna és digitális poszter csomag' },
+  { label: 'Párna + nyomtatott poszter + szállítás', price: 33000, description: 'Párna és nyomtatott poszter csomag' },
+];
+
+const posterVariants = [
+  { label: 'Digitális', price: 5900, description: 'Digitális fájl (PDF), amit otthon nyomtathatsz ki' },
+  { label: 'Nyomtatott', price: 12900, description: 'Prémium papírra nyomtatva, kézbesítéssel' },
 ];
 
 interface Props {
@@ -33,6 +39,7 @@ export default function AddToCartSection({ product }: Props) {
   const addToCartRef = useRef<HTMLDivElement>(null);
 
   const isGiftCard = product.category === 'giftcard';
+  const isPoster = product.category === 'poster';
 
   const handleBirthDataSubmit = (data: BirthData) => {
     setBirthData(data);
@@ -64,11 +71,14 @@ export default function AddToCartSection({ product }: Props) {
 
     if (!birthData) return;
 
+    const finalPrice = isPoster ? posterVariants[selectedVariant].price : product.price;
+    const variantLabel = isPoster ? posterVariants[selectedVariant].label : undefined;
+
     addItem({
       productId: product.id,
-      name: product.name,
+      name: isPoster ? `${product.name} – ${variantLabel}` : product.name,
       slug: product.slug,
-      price: product.price,
+      price: finalPrice,
       imageUrl: product.imageUrl,
       quantity: 1,
       babyName: birthData.babyName,
@@ -76,7 +86,7 @@ export default function AddToCartSection({ product }: Props) {
       birthWeight: birthData.birthWeight,
       birthHeight: birthData.birthHeight,
       birthTime: birthData.birthTime,
-      customNote: birthData.customNote,
+      customNote: isPoster ? `Poszter verzió: ${variantLabel}` : birthData.customNote,
     });
 
     setAdded(true);
@@ -140,6 +150,32 @@ export default function AddToCartSection({ product }: Props) {
   // Standard product flow (pillow/poster)
   return (
     <div className="space-y-6">
+      {isPoster && (
+        <div className="space-y-3">
+          <h3 className="text-lg font-bold text-carbon">Válassz verziót</h3>
+          {posterVariants.map((variant, i) => (
+            <button
+              key={i}
+              onClick={() => setSelectedVariant(i)}
+              className={`w-full text-left rounded-2xl p-5 transition-all border-2 ${
+                selectedVariant === i
+                  ? 'border-[#C4A591] bg-[#faf6f1]'
+                  : 'border-transparent bg-surface-container hover:bg-surface-container-low'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-medium text-carbon">{variant.label}</span>
+                  <p className="text-sm text-carbon-light mt-0.5">{variant.description}</p>
+                </div>
+                <span className="text-lg font-bold text-carbon whitespace-nowrap ml-4">
+                  {formatPrice(variant.price)}
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
       {!birthData ? (
         <BirthDataForm onSubmit={handleBirthDataSubmit} />
       ) : !added ? (
@@ -179,7 +215,7 @@ export default function AddToCartSection({ product }: Props) {
           </div>
 
           <Button onClick={handleAddToCart} className="w-full">
-            Kosárba
+            Kosárba{isPoster ? ` – ${formatPrice(posterVariants[selectedVariant].price)}` : ''}
           </Button>
         </div>
       ) : (

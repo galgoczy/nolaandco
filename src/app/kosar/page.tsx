@@ -22,7 +22,7 @@ export default function KosarPage() {
       <section className="py-24 bg-surface min-h-screen">
         <div className="max-w-4xl mx-auto px-8">
           <h1 className="text-4xl md:text-6xl montserrat-light-caps text-carbon mb-12 text-center">
-            KOSAR
+            KOSÁR
           </h1>
         </div>
       </section>
@@ -34,10 +34,10 @@ export default function KosarPage() {
       <section className="py-24 bg-surface min-h-screen">
         <div className="max-w-4xl mx-auto px-8 text-center">
           <h1 className="text-4xl md:text-6xl montserrat-light-caps text-carbon mb-12">
-            KOSAR
+            KOSÁR
           </h1>
-          <p className="text-carbon-light text-lg mb-8">A kosarad ures.</p>
-          <Button href="/termekek">Termekek bongeszese</Button>
+          <p className="text-carbon-light text-lg mb-8">A kosarad üres.</p>
+          <Button href="/termekek">Termékek böngészése</Button>
         </div>
       </section>
     );
@@ -47,7 +47,7 @@ export default function KosarPage() {
     <section className="py-24 bg-surface min-h-screen">
       <div className="max-w-4xl mx-auto px-8">
         <h1 className="text-4xl md:text-6xl montserrat-light-caps text-carbon mb-12 text-center">
-          KOSAR
+          KOSÁR
         </h1>
 
         <div className="space-y-6">
@@ -89,7 +89,7 @@ export default function KosarPage() {
                   onClick={() => updateQuantity(item.id, item.quantity - 1)}
                   disabled={item.quantity <= 1}
                   className="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-carbon-light hover:bg-surface-container transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  aria-label="Mennyiseg csokkentese"
+                  aria-label="Mennyiség csökkentése"
                 >
                   &minus;
                 </button>
@@ -99,7 +99,7 @@ export default function KosarPage() {
                 <button
                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
                   className="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-carbon-light hover:bg-surface-container transition-colors"
-                  aria-label="Mennyiseg novelese"
+                  aria-label="Mennyiség növelése"
                 >
                   +
                 </button>
@@ -121,7 +121,7 @@ export default function KosarPage() {
               <button
                 onClick={() => removeItem(item.id)}
                 className="p-2 text-carbon-light hover:text-red-500 transition-colors"
-                aria-label="Termek eltavolitasa"
+                aria-label="Termék eltávolítása"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -149,22 +149,22 @@ export default function KosarPage() {
         <div className="mt-10 bg-white rounded-2xl p-6 md:p-8 shadow-sm ghost-border">
           <div className="space-y-3">
             <div className="flex justify-between text-carbon">
-              <span>Reszosszeg</span>
+              <span>Részösszeg</span>
               <span className="font-medium">{formatPrice(total())}</span>
             </div>
             <div className="flex justify-between text-carbon-light text-sm">
-              <span>Szallitasi koltseg</span>
-              <span>szamitas a penztarban</span>
+              <span>Szállítási költség</span>
+              <span>számítás a pénztárban</span>
             </div>
             <div className="border-t border-outline-variant pt-3 flex justify-between text-lg font-bold text-carbon">
-              <span>Osszesen</span>
+              <span>Összesen</span>
               <span>{formatPrice(total())}</span>
             </div>
           </div>
 
           <div className="mt-6">
             <Button href="/penztar" className="w-full">
-              Tovabb a penztarhoz
+              Tovább a pénztárhoz
             </Button>
           </div>
         </div>

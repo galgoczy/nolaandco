@@ -62,7 +62,7 @@ export default async function TermekekPage({ searchParams }: Props) {
                 href="/termekek"
                 className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                   !category
-                    ? 'bg-primary text-on-primary shadow-sm'
+                    ? 'bg-[#D5E8F0] text-carbon shadow-sm'
                     : 'bg-surface-container text-carbon-light hover:bg-surface-container-low'
                 }`}
               >
@@ -76,7 +76,7 @@ export default async function TermekekPage({ searchParams }: Props) {
                     href={`/termekek?category=${cat.slug}`}
                     className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                       isActive
-                        ? 'bg-primary text-on-primary shadow-sm'
+                        ? 'bg-[#D5E8F0] text-carbon shadow-sm'
                         : 'bg-surface-container text-carbon-light hover:bg-surface-container-low'
                     }`}
                   >

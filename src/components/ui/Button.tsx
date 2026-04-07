@@ -2,9 +2,9 @@ import Link from 'next/link';
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 
 const variants = {
-  primary: 'bg-primary text-on-primary rounded-full px-8 py-3 font-bold btn-anim',
-  secondary: 'bg-brand-blue text-carbon rounded-full px-8 py-3 font-bold btn-anim',
-  outline: 'border border-outline-variant text-carbon rounded-full px-8 py-3 btn-anim',
+  primary: 'bg-primary text-on-primary rounded-full px-8 py-3 uppercase tracking-[0.15em] btn-anim',
+  secondary: 'bg-brand-blue text-carbon rounded-full px-8 py-3 uppercase tracking-[0.15em] btn-anim',
+  outline: 'border border-outline-variant text-carbon rounded-full px-8 py-3 uppercase tracking-[0.15em] btn-anim',
 } as const;
 
 const sizes = {
@@ -29,7 +29,7 @@ export default function Button({
   href,
   ...props
 }: ButtonProps) {
-  const classes = `${variants[variant]} ${sizes[size]} inline-flex items-center justify-center transition-all ${className}`.trim();
+  const classes = `${variants[variant]} ${sizes[size]} inline-flex items-center justify-center transition-all font-light ${className}`.trim();
 
   if (href) {
     return (

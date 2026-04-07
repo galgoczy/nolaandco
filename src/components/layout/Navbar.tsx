@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCartStore } from '@/store/cart';
 import AccountMenu from './AccountMenu';
+import SearchModal from './SearchModal';
 
 const navLinks = [
   { label: 'FŐOLDAL', href: '/' },
@@ -14,7 +15,7 @@ const navLinks = [
   { label: 'NEKTEK', href: '/nektek' },
   { label: 'PÁRNA', href: '/termekek?category=pillow' },
   { label: 'POSZTER', href: '/termekek?category=poster' },
-  { label: 'AJÁNDÉKKÁRTYA', href: '/termekek/nola-ajandekkartya' },
+  { label: 'AJÁNDÉKKÁRTYÁK', href: '/termekek/nola-ajandekkartya' },
 ];
 
 type BannerData = {
@@ -105,11 +106,7 @@ export default function Navbar() {
           {/* Right: Icons */}
           <div className="flex-1 flex justify-end items-center gap-6">
             {/* Search */}
-            <button className="icon-hover text-[#C4A591] hover:text-[#4A4A4A]" aria-label="Keresés">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
-              </svg>
-            </button>
+            <SearchModal />
 
             {/* Account */}
             <AccountMenu />

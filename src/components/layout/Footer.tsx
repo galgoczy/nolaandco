@@ -2,11 +2,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const quickLinks = [
-  { label: 'Főoldal', href: '/' },
+  { label: 'Rólunk', href: '/rolunk' },
   { label: 'Nektek', href: '/nektek' },
   { label: 'Párna', href: '/termekek?category=pillow' },
   { label: 'Poszter', href: '/termekek?category=poster' },
-  { label: 'Ajándékkártya', href: '/termekek?category=giftcard' },
+  { label: 'Ajándékkártyák', href: '/termekek?category=giftcard' },
 ];
 
 const infoLinks = [

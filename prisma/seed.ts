@@ -81,7 +81,7 @@ const products = [
     slug: 'origin-poszter',
     description:
       'Az ORIGIN Poszter a baba születési adatait művészi formában örökíti meg. Prémium papírra nyomtatva, az Origin sorozat stílusában készül. Személyre szabható: név, dátum, súly, hossz és időpont. Gyönyörű dekoráció a babaszobába.',
-    price: 9990,
+    price: 5900,
     category: 'poster',
     series: 'origin',
     variant: 'core',
@@ -93,7 +93,7 @@ const products = [
     slug: 'nova-poszter',
     description:
       'A NOVA Poszter modern, minimalista dizájnnal jeleníti meg a baba születési adatait. Prémium nyomtatás, személyre szabható tartalommal: név, dátum, súly, hossz és időpont. Tökéletes ajándék és emlék.',
-    price: 9990,
+    price: 5900,
     category: 'poster',
     series: 'nova',
     variant: 'core',
@@ -104,8 +104,8 @@ const products = [
     name: 'NOLA Ajándékkártya',
     slug: 'nola-ajandekkartya',
     description:
-      'Digitális ajándékkártya – tökéletes ajándék várandós vagy friss szülő ismerősöknek! A megajándékozott szabadon választhat a Nola & Co. termékpalettájáról, amikor már ismeri a baba születési adatait. Válassz a három verzió közül: Poszter (5.900 Ft), Párna (22.900 Ft), vagy Párna + Poszter csomag (27.900 Ft).',
-    price: 5900,
+      'Digitális ajándékkártya – tökéletes ajándék várandós vagy friss szülő ismerősöknek! A megajándékozott szabadon választhat a Nola & Co. termékpalettájáról, amikor már ismeri a baba születési adatait. Válassz a négy verzió közül: Digitális poszter (6.000 Ft), Nyomtatott poszter + szállítás (14.000 Ft), Párna + digitális poszter + szállítás (26.000 Ft), vagy Párna + nyomtatott poszter + szállítás (33.000 Ft).',
+    price: 6000,
     category: 'giftcard',
     series: 'nola',
     variant: 'giftcard',
@@ -128,7 +128,7 @@ async function main() {
   const categories = [
     { slug: 'pillow', name: 'Párnák', nameEn: 'KEEPSAKES', sortOrder: 0, visibleOnHome: true },
     { slug: 'poster', name: 'Poszterek', nameEn: 'ART PRINTS', sortOrder: 1, visibleOnHome: true },
-    { slug: 'giftcard', name: 'Ajándékkártya', nameEn: 'GIFT CARDS', sortOrder: 2, visibleOnHome: true },
+    { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 2, visibleOnHome: true },
   ];
 
   for (const cat of categories) {
