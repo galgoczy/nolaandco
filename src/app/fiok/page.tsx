@@ -119,10 +119,11 @@ export default async function AccountPage() {
             <ul className="divide-y divide-gray-100">
               {orders.map((order) => (
                 <li key={order.id} className="py-4 first:pt-0 last:pb-0">
+                  <Link href={`/fiok/rendeles/${order.id}`} className="block hover:bg-[#F7F3EE]/50 rounded-xl -mx-2 px-2 py-1 transition-colors">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-body text-sm text-[#4A4A4A]">
+                        <span className="font-body text-sm text-[#C4A591] underline underline-offset-2">
                           #{order.id.slice(-8).toUpperCase()}
                         </span>
                         <span
@@ -157,6 +158,7 @@ export default async function AccountPage() {
                       </div>
                     </div>
                   </div>
+                  </Link>
                 </li>
               ))}
             </ul>

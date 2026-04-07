@@ -26,6 +26,7 @@ export default function OrderActions({
   const [status, setStatus] = useState(currentStatus);
   const [tracking, setTracking] = useState(currentTracking);
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState('');
 
   const handleUpdate = async () => {
@@ -48,6 +49,29 @@ export default function OrderActions({
       setMessage('Hálózati hiba');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Biztosan törölni szeretnéd ezt a rendelést? Ez a művelet nem visszavonható.')) {
+      return;
+    }
+    setDeleting(true);
+    setMessage('');
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        router.push('/admin/rendelesek');
+      } else {
+        const data = await res.json();
+        setMessage(data.error || 'Hiba történt a törlés során');
+      }
+    } catch {
+      setMessage('Hálózati hiba');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -85,13 +109,20 @@ export default function OrderActions({
             className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
-        <div className="flex items-end">
+        <div className="flex items-end gap-2">
           <button
             onClick={handleUpdate}
             disabled={loading}
             className="bg-primary text-on-primary px-6 py-2.5 rounded-full text-sm font-medium btn-anim disabled:opacity-50"
           >
             {loading ? 'Mentés...' : 'Mentés'}
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="bg-red-50 text-red-600 px-4 py-2.5 rounded-full text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+          >
+            {deleting ? 'Törlés...' : 'Törlés'}
           </button>
         </div>
       </div>
