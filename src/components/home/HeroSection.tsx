@@ -1,6 +1,18 @@
 'use client';
 
+import { useRef, useEffect } from 'react';
+
 export default function HeroSection() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // Ensure autoplay on all browsers (Safari sometimes blocks without user gesture)
+    const v = videoRef.current;
+    if (v) {
+      v.play().catch(() => {});
+    }
+  }, []);
+
   const scrollToProducts = () => {
     document.getElementById('products-start')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -9,11 +21,13 @@ export default function HeroSection() {
     <section className="relative w-full overflow-hidden leading-[0]">
       <div className="w-full relative">
         <video
+          ref={videoRef}
           src="/scrollytelling/hero_static.mp4"
           autoPlay
           loop
           muted
           playsInline
+          preload="auto"
           className="w-full h-auto object-cover"
         />
         <div className="absolute inset-0 flex pointer-events-none items-center justify-start px-8 md:px-32">
