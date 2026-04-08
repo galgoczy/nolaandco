@@ -30,13 +30,36 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-red-500',
 };
 
+interface AnalyticsData {
+  realtimeUsers: number;
+  overview: {
+    users: number;
+    sessions: number;
+    pageViews: number;
+    avgSessionDuration: number;
+    bounceRate: number;
+  };
+  pages: { path: string; views: number; users: number }[];
+  sources: { source: string; sessions: number; users: number }[];
+  daily: { date: string; users: number; sessions: number }[];
+}
+
 function formatPrice(amount: number) {
   return new Intl.NumberFormat('hu-HU').format(amount) + ' Ft';
 }
 
+function formatDuration(seconds: number) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}p ${s}mp`;
+}
+
 export default function StatisztikakPage() {
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [ga, setGa] = useState<AnalyticsData | null>(null);
+  const [gaError, setGaError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [gaLoading, setGaLoading] = useState(true);
   const [tab, setTab] = useState<'sales' | 'analytics'>('sales');
 
   useEffect(() => {
@@ -45,6 +68,18 @@ export default function StatisztikakPage() {
       .then((data) => setStats(data))
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    fetch('/api/admin/analytics')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) {
+          setGaError(data.error);
+        } else {
+          setGa(data);
+        }
+      })
+      .catch(() => setGaError('Hálózati hiba'))
+      .finally(() => setGaLoading(false));
   }, []);
 
   if (loading) {
@@ -194,47 +229,130 @@ export default function StatisztikakPage() {
         </div>
       ) : (
         /* Google Analytics tab */
-        <div className="space-y-4">
-          <div className="bg-surface-container-lowest rounded-2xl p-6">
-            <p className="text-sm text-on-surface/60 mb-4">
-              A Google Analytics valós idejű adatait közvetlenül a GA felületen érheted el.
-              Az alábbi linkekkel gyorsan hozzáférhetsz a legfontosabb riportokhoz:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <GaLink
-                label="Valós idejű nézet"
-                description="Ki van most az oldalon?"
-                href="https://analytics.google.com/analytics/web/#/p/G-XQ02YFVB9M/realtime/overview"
-              />
-              <GaLink
-                label="Felhasználók áttekintése"
-                description="Látogatók, munkamenetek, oldalmegtekintések"
-                href="https://analytics.google.com/analytics/web/#/p/G-XQ02YFVB9M/reports/reportinghub"
-              />
-              <GaLink
-                label="Forgalmi források"
-                description="Honnan érkeznek a látogatók?"
-                href="https://analytics.google.com/analytics/web/#/p/G-XQ02YFVB9M/reports/explorer?params=_u..nav%3Dmaui&r=lifecycle-traffic-acquisition-v2"
-              />
-              <GaLink
-                label="Oldalak és képernyők"
-                description="Melyik oldal a legnépszerűbb?"
-                href="https://analytics.google.com/analytics/web/#/p/G-XQ02YFVB9M/reports/explorer?params=_u..nav%3Dmaui&r=all-pages-and-screens"
-              />
+        <div className="space-y-6">
+          {gaLoading ? (
+            <div className="flex items-center justify-center py-24">
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
-          </div>
-          <p className="text-xs text-on-surface/40 text-center">
-            A GA4 property ID: G-XQ02YFVB9M · A részletes analitika elérhető a{' '}
-            <a
-              href="https://analytics.google.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline"
-            >
-              Google Analytics
-            </a>{' '}
-            dashboardon.
-          </p>
+          ) : gaError ? (
+            <div className="bg-surface-container-lowest rounded-2xl p-6">
+              <p className="text-sm text-on-surface/60 mb-4">{gaError}</p>
+              <div className="bg-yellow-50 rounded-xl p-4 text-sm text-yellow-800 space-y-2">
+                <p className="font-medium">A beállításhoz szükséges lépések:</p>
+                <ol className="list-decimal list-inside space-y-1 text-xs">
+                  <li>Google Cloud Console → APIs &amp; Services → Enable &quot;Google Analytics Data API&quot;</li>
+                  <li>Create a Service Account → Download JSON key</li>
+                  <li>GA4 Admin → Property Access → Add service account email as Viewer</li>
+                  <li>Vercel env: <code className="bg-yellow-100 px-1 rounded">GA_SERVICE_ACCOUNT_KEY</code> = a JSON fájl tartalma</li>
+                  <li>Vercel env: <code className="bg-yellow-100 px-1 rounded">GA_PROPERTY_ID</code> = a GA4 property numerikus ID-ja</li>
+                </ol>
+              </div>
+            </div>
+          ) : ga ? (
+            <>
+              {/* Overview cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <Card label="Most az oldalon" value={ga.realtimeUsers.toString()} sub="valós idejű" badge="LIVE" badgeColor="text-green-600 bg-green-50" />
+                <Card label="Látogatók (30 nap)" value={ga.overview.users.toLocaleString('hu-HU')} sub="egyedi felhasználók" />
+                <Card label="Munkamenetek" value={ga.overview.sessions.toLocaleString('hu-HU')} sub="utolsó 30 nap" />
+                <Card label="Oldalmegtekintések" value={ga.overview.pageViews.toLocaleString('hu-HU')} sub="utolsó 30 nap" />
+                <Card label="Átl. munkamenet" value={formatDuration(ga.overview.avgSessionDuration)} sub={`Visszaford.: ${ga.overview.bounceRate}%`} />
+              </div>
+
+              {/* Daily visitors chart */}
+              <div className="bg-surface-container-lowest rounded-2xl p-6">
+                <h2 className="text-lg font-headline font-bold text-on-surface mb-4">
+                  Napi látogatók (30 nap)
+                </h2>
+                {ga.daily.length > 0 ? (
+                  <>
+                    <div className="flex items-end gap-[2px] h-48">
+                      {ga.daily.map((d) => {
+                        const maxUsers = Math.max(...ga.daily.map((x) => x.users), 1);
+                        const height = Math.max((d.users / maxUsers) * 100, 2);
+                        return (
+                          <div key={d.date} className="flex-1 group relative flex flex-col justify-end">
+                            <div
+                              className="bg-blue-400/70 hover:bg-blue-500 rounded-t transition-colors min-w-[4px]"
+                              style={{ height: `${height}%` }}
+                            />
+                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block bg-on-surface text-surface text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+                              {d.date.slice(5)}: {d.users} látogató, {d.sessions} munkamenet
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="flex justify-between text-xs text-on-surface/40 mt-2">
+                      <span>{ga.daily[0]?.date.slice(5)}</span>
+                      <span>{ga.daily[ga.daily.length - 1]?.date.slice(5)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-on-surface/50 text-sm py-8 text-center">Még nincs adat</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Top pages */}
+                <div className="bg-surface-container-lowest rounded-2xl p-6">
+                  <h2 className="text-lg font-headline font-bold text-on-surface mb-4">
+                    Legnépszerűbb oldalak
+                  </h2>
+                  <div className="space-y-3">
+                    {ga.pages.map((p, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="text-xs font-bold text-on-surface/40 w-5">{i + 1}.</span>
+                          <span className="text-sm text-on-surface truncate font-mono">{p.path}</span>
+                        </div>
+                        <div className="text-right flex-shrink-0 ml-4">
+                          <span className="text-sm font-medium text-on-surface">{p.views}</span>
+                          <span className="text-xs text-on-surface/50 ml-1">megtekintés</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Traffic sources */}
+                <div className="bg-surface-container-lowest rounded-2xl p-6">
+                  <h2 className="text-lg font-headline font-bold text-on-surface mb-4">
+                    Forgalmi források
+                  </h2>
+                  <div className="space-y-3">
+                    {ga.sources.map((s, i) => {
+                      const maxSessions = Math.max(...ga.sources.map((x) => x.sessions), 1);
+                      const pct = Math.round((s.sessions / maxSessions) * 100);
+                      return (
+                        <div key={i}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-on-surface">{s.source || '(direct)'}</span>
+                            <span className="text-on-surface/60">{s.sessions} munkamenet</span>
+                          </div>
+                          <div className="h-2 bg-surface-container rounded-full overflow-hidden">
+                            <div className="h-full rounded-full bg-blue-500" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-xs text-on-surface/40 text-center">
+                Részletes analitika:{' '}
+                <a
+                  href="https://analytics.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  Google Analytics Dashboard
+                </a>
+              </p>
+            </>
+          ) : null}
         </div>
       )}
     </div>
@@ -270,21 +388,3 @@ function Card({
   );
 }
 
-function GaLink({ label, description, href }: { label: string; description: string; href: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block p-4 rounded-xl border border-outline-variant/30 hover:border-primary/30 hover:bg-primary/5 transition-colors"
-    >
-      <div className="flex items-center gap-2 mb-1">
-        <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
-        <span className="text-sm font-medium text-on-surface">{label}</span>
-      </div>
-      <p className="text-xs text-on-surface/50">{description}</p>
-    </a>
-  );
-}

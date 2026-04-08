@@ -13,6 +13,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@google-analytics/data": "^5.2.1",
     "@prisma/client": "^5.20.0",
     "@stripe/stripe-js": "^4.0.0",
     "@vercel/blob": "^2.3.3",
