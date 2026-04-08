@@ -30,7 +30,7 @@ function getClient() {
     clientInstance = new Client({
       authToken: agentKey,
       eInvoice: false,
-      requestInvoiceDownload: false,
+      requestInvoiceDownload: true,
       responseVersion: 2,
     });
   }
@@ -59,7 +59,7 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
     city: order.shippingCity,
     address: order.shippingAddress,
     email: order.email,
-    sendEmail: true,
+    sendEmail: false,
     taxSubject: 0, // Unknown
   });
 

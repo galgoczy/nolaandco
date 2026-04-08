@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { createSzamlazzInvoice } from '@/lib/szamlazz';
+import { sendEmail } from '@/lib/emails/send';
+import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
 import Stripe from 'stripe';
 
 export const runtime = 'nodejs';
@@ -40,15 +42,53 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Generate Számlázz.hu invoice (fire-and-forget)
       const order = await prisma.order.findUnique({
         where: { id: orderId },
         include: { items: { include: { product: true } } },
       });
+
       if (order) {
-        createSzamlazzInvoice(order).catch((err) =>
-          console.error('Számlázz.hu invoice error:', err)
-        );
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
+
+        // Generate Számlázz.hu invoice and get PDF
+        let invoicePdf: Buffer | undefined;
+        try {
+          const invoiceResult = await createSzamlazzInvoice(order);
+          if (invoiceResult.pdf) {
+            invoicePdf = invoiceResult.pdf;
+          }
+        } catch (err) {
+          console.error('Számlázz.hu invoice error:', err);
+        }
+
+        // Send confirmation email with order details + invoice PDF
+        const emailItems = order.items.map((item) => ({
+          name: item.product.name,
+          quantity: item.quantity,
+          price: item.price,
+          babyName: item.babyName,
+        }));
+
+        const attachments = invoicePdf
+          ? [{ filename: `nola-szamla-${order.id.slice(-8)}.pdf`, content: invoicePdf }]
+          : undefined;
+
+        sendEmail({
+          to: order.email,
+          subject: orderConfirmationSubject(),
+          html: orderConfirmationHtml({
+            customerName: order.shippingName || 'Vásárlónk',
+            orderId: order.id,
+            orderUrl: `${baseUrl}/fiok#rendelesek`,
+            items: emailItems,
+            subtotal: order.subtotal,
+            shippingCost: order.shippingCost,
+            total: order.total,
+            shippingMethod: order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home',
+            hasInvoice: !!invoicePdf,
+          }),
+          attachments,
+        }).catch((err) => console.error('Order confirmation email failed:', err));
       }
     }
   }

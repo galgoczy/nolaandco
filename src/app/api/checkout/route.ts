@@ -4,8 +4,6 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
-import { sendEmail } from '@/lib/emails/send';
-import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
 import type { CartItemData } from '@/store/cart';
 
 const SHIPPING_COSTS: Record<string, number> = {
@@ -180,7 +178,7 @@ export async function POST(request: NextRequest) {
           name: item.name,
           ...(item.babyName ? { description: `${item.babyName}${item.birthDate ? ` · ${item.birthDate}` : ''}` } : {}),
         },
-        unit_amount: item.price, // already in HUF (smallest unit = 1 Ft)
+        unit_amount: item.price * 100, // HUF is two-decimal in Stripe (1 Ft = 100)
       },
       quantity: item.quantity,
     }));
@@ -192,7 +190,7 @@ export async function POST(request: NextRequest) {
         product_data: {
           name: shippingMethod === 'parcel' ? 'Szállítás (Csomagautomata)' : 'Szállítás (Házhozszállítás)',
         },
-        unit_amount: shippingCost,
+        unit_amount: shippingCost * 100,
       },
       quantity: 1,
     });
@@ -202,7 +200,7 @@ export async function POST(request: NextRequest) {
     if (discount > 0) {
       // Create a one-time Stripe coupon for the discount
       const stripeCoupon = await stripe.coupons.create({
-        amount_off: discount,
+        amount_off: discount * 100,
         currency: 'huf',
         duration: 'once',
         name: couponCode || 'Kedvezmény',
@@ -230,17 +228,7 @@ export async function POST(request: NextRequest) {
       data: { stripePaymentId: stripeSession.id },
     });
 
-    // Send order confirmation email (fire-and-forget)
-    sendEmail({
-      to: shippingData.email,
-      subject: orderConfirmationSubject(),
-      html: orderConfirmationHtml({
-        customerName: shippingData.shippingName || 'Vásárlónk',
-        orderId: order.id,
-        orderUrl: `${baseUrl}/fiok#rendelesek`,
-      }),
-    }).catch((err) => console.error('Order confirmation email failed:', err));
-
+    // Confirmation email is sent after successful payment (in webhook)
     return NextResponse.json({ url: stripeSession.url });
   } catch (error) {
     console.error('Checkout error:', error);
