@@ -28,7 +28,7 @@ export default async function ProductGrid() {
         </div>
         <div id="products-start" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 stagger-children">
           {products.map((product, i) => (
-            <RevealOnScroll key={product.id} delay={i * 120}>
+            <RevealOnScroll key={product.id} delay={i * 80}>
               <ProductCard product={product} />
             </RevealOnScroll>
           ))}
