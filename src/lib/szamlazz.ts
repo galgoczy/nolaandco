@@ -69,7 +69,7 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
         label: item.product.name,
         quantity: item.quantity,
         unit: 'db',
-        vat: 27,
+        vat: 'AAM',
         grossUnitPrice: item.price,
       })
   );
@@ -81,7 +81,7 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
         label: 'Szállítási költség',
         quantity: 1,
         unit: 'db',
-        vat: 27,
+        vat: 'AAM',
         grossUnitPrice: order.shippingCost,
       })
     );
