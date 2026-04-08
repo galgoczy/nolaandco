@@ -304,7 +304,7 @@ export default function CheckoutPage() {
                     </div>
                     <div>
                       <div className="font-medium text-sm text-[#4A4A4A]">Házhozszállítás</div>
-                      <div className="text-xs text-[#4A4A4A]/60">GLS futárszolgálat</div>
+                      <div className="text-xs text-[#4A4A4A]/60">Foxpost futárszolgálat</div>
                     </div>
                   </div>
                   <div className="mt-2 text-right font-semibold text-sm text-[#4A4A4A]">

@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Order not found' }, { status: 404 });
   }
 
-  const isAutomata = order.shippingAddress.toLowerCase().includes('csomagautomata');
+  const isAutomata = order.shippingAddress.toLowerCase().startsWith('foxpost:') ||
+    order.shippingAddress.toLowerCase().includes('csomagautomata');
 
   try {
     const result = await createFoxpostParcel({
