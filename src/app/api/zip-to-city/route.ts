@@ -1,0 +1,123 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+// Major Hungarian cities/towns by zip code
+// Budapest: all 1xxx codes
+// Other cities listed explicitly
+const ZIP_TO_CITY: Record<string, string> = {
+  '2000': 'Szentendre', '2013': 'Pomáz', '2030': 'Érd', '2040': 'Budaörs', '2045': 'Törökbálint',
+  '2051': 'Biatorbágy', '2060': 'Bicske', '2071': 'Páty', '2072': 'Zsámbék', '2083': 'Solymár',
+  '2090': 'Remeteszőlős', '2092': 'Budakeszi', '2094': 'Nagykovácsi', '2096': 'Üröm',
+  '2100': 'Gödöllő', '2112': 'Veresegyház', '2120': 'Dunakeszi', '2131': 'Göd', '2132': 'Göd',
+  '2133': 'Sződliget', '2134': 'Sződ', '2141': 'Csömör', '2142': 'Nagytarcsa', '2143': 'Kistarcsa',
+  '2144': 'Kerepes', '2146': 'Mogyoród', '2151': 'Fót', '2161': 'Csomád', '2162': 'Őrbottyán',
+  '2163': 'Vácrátót', '2170': 'Aszód', '2200': 'Monor', '2220': 'Vecsés', '2225': 'Üllő',
+  '2230': 'Gyömrő', '2234': 'Maglód', '2240': 'Dabas', '2300': 'Ráckeve', '2310': 'Szigetszentmiklós',
+  '2315': 'Szigethalom', '2330': 'Dunaharaszti', '2335': 'Taksony', '2340': 'Kiskunlacháza',
+  '2360': 'Gyál', '2370': 'Dabas', '2400': 'Dunaújváros', '2440': 'Százhalombatta',
+  '2500': 'Esztergom', '2510': 'Dorog', '2600': 'Vác', '2610': 'Nőtincs', '2660': 'Balassagyarmat',
+  '2700': 'Cegléd', '2730': 'Albertirsa', '2740': 'Abony', '2750': 'Nagykőrös',
+  '2760': 'Nagykáta', '2800': 'Tatabánya', '2840': 'Oroszlány', '2870': 'Kisbér',
+  '2890': 'Tata', '2900': 'Komárom', '2921': 'Komárom',
+  '3000': 'Hatvan', '3003': 'Hatvan', '3060': 'Pásztó', '3100': 'Salgótarján',
+  '3170': 'Szécsény', '3200': 'Gyöngyös', '3232': 'Mátrafüred', '3300': 'Eger',
+  '3304': 'Eger', '3350': 'Kál', '3360': 'Heves', '3400': 'Mezőkövesd',
+  '3500': 'Miskolc', '3501': 'Miskolc', '3508': 'Miskolc', '3515': 'Miskolc',
+  '3516': 'Miskolc', '3517': 'Miskolc', '3518': 'Miskolc', '3519': 'Miskolc',
+  '3521': 'Miskolc', '3525': 'Miskolc', '3526': 'Miskolc', '3527': 'Miskolc',
+  '3528': 'Miskolc', '3529': 'Miskolc', '3530': 'Miskolc', '3531': 'Miskolc',
+  '3532': 'Miskolc', '3533': 'Miskolc', '3534': 'Miskolc', '3535': 'Miskolc',
+  '3580': 'Tiszaújváros', '3600': 'Ózd', '3630': 'Putnok', '3700': 'Kazincbarcika',
+  '3800': 'Szikszó', '3860': 'Encs', '3900': 'Szerencs', '3910': 'Tokaj',
+  '3950': 'Sárospatak', '3980': 'Sátoraljaújhely',
+  '4000': 'Debrecen', '4002': 'Debrecen', '4024': 'Debrecen', '4025': 'Debrecen',
+  '4026': 'Debrecen', '4027': 'Debrecen', '4028': 'Debrecen', '4029': 'Debrecen',
+  '4030': 'Debrecen', '4031': 'Debrecen', '4032': 'Debrecen', '4033': 'Debrecen',
+  '4034': 'Debrecen', '4071': 'Debrecen', '4078': 'Debrecen',
+  '4080': 'Hajdúnánás', '4090': 'Polgár', '4100': 'Berettyóújfalu',
+  '4110': 'Biharkeresztes', '4130': 'Derecske', '4150': 'Püspökladány',
+  '4170': 'Nádudvar', '4200': 'Hajdúszoboszló', '4220': 'Hajdúböszörmény',
+  '4242': 'Hajdúhadház', '4244': 'Újfehértó', '4251': 'Hajdúsámson',
+  '4254': 'Nyíradony', '4300': 'Nyírbátor', '4320': 'Nagykálló',
+  '4400': 'Nyíregyháza', '4401': 'Nyíregyháza', '4405': 'Nyíregyháza',
+  '4431': 'Nyíregyháza', '4432': 'Nyíregyháza', '4433': 'Nyíregyháza',
+  '4440': 'Tiszavasvári', '4461': 'Nyírtelek',
+  '4500': 'Kisvárda', '4520': 'Záhony', '4530': 'Pap',
+  '4600': 'Vásárosnamény', '4700': 'Mátészalka',
+  '4800': 'Vásárosnamény', '4900': 'Fehérgyarmat',
+  '5000': 'Szolnok', '5004': 'Szolnok', '5007': 'Szolnok', '5008': 'Szolnok',
+  '5051': 'Zagyvarékas', '5052': 'Újszász', '5060': 'Tiszaföldvár',
+  '5100': 'Jászberény', '5130': 'Jászapáti', '5200': 'Törökszentmiklós',
+  '5300': 'Karcag', '5310': 'Kisújszállás', '5320': 'Kunhegyes',
+  '5350': 'Tiszafüred', '5400': 'Mezőtúr', '5420': 'Túrkeve',
+  '5500': 'Gyomaendrőd', '5510': 'Dévaványa', '5520': 'Szeghalom',
+  '5540': 'Szarvas', '5600': 'Békéscsaba', '5601': 'Békéscsaba',
+  '5610': 'Békéscsaba', '5620': 'Békéscsaba', '5623': 'Békéscsaba',
+  '5630': 'Békés', '5650': 'Mezőberény', '5661': 'Újkígyós',
+  '5700': 'Gyula', '5720': 'Sarkad', '5800': 'Mezőkovácsháza',
+  '5830': 'Battonya', '5900': 'Orosháza', '5940': 'Tótkomlós',
+  '6000': 'Kecskemét', '6001': 'Kecskemét', '6031': 'Szentkirály',
+  '6060': 'Tiszakécske', '6070': 'Izsák', '6080': 'Szabadszállás',
+  '6100': 'Kiskunfélegyháza', '6120': 'Kiskunmajsa', '6200': 'Kiskőrös',
+  '6210': 'Akasztó', '6220': 'Soltvadkert', '6230': 'Soltvadkert',
+  '6300': 'Kalocsa', '6320': 'Solt', '6400': 'Kiskunhalas',
+  '6500': 'Baja', '6600': 'Szentes', '6620': 'Szentes',
+  '6630': 'Mindszent', '6640': 'Csongrád', '6700': 'Szeged',
+  '6701': 'Szeged', '6720': 'Szeged', '6721': 'Szeged', '6722': 'Szeged',
+  '6723': 'Szeged', '6724': 'Szeged', '6725': 'Szeged', '6726': 'Szeged',
+  '6728': 'Szeged', '6729': 'Szeged',
+  '6750': 'Algyő', '6760': 'Kistelek', '6800': 'Hódmezővásárhely',
+  '6900': 'Makó', '6920': 'Kiszombor',
+  '7000': 'Sárbogárd', '7030': 'Paks', '7060': 'Madocsa',
+  '7090': 'Tamási', '7100': 'Szekszárd', '7130': 'Tolna',
+  '7150': 'Bonyhád', '7200': 'Dombóvár', '7300': 'Komló',
+  '7400': 'Kaposvár', '7401': 'Kaposvár', '7500': 'Nagyatád',
+  '7530': 'Kadarkút', '7600': 'Pécs', '7621': 'Pécs', '7622': 'Pécs',
+  '7623': 'Pécs', '7624': 'Pécs', '7625': 'Pécs', '7626': 'Pécs',
+  '7627': 'Pécs', '7628': 'Pécs', '7629': 'Pécs', '7630': 'Pécs',
+  '7631': 'Pécs', '7632': 'Pécs', '7633': 'Pécs', '7634': 'Pécs',
+  '7635': 'Pécs', '7636': 'Pécs',
+  '7700': 'Mohács', '7800': 'Siklós', '7815': 'Harkány',
+  '7900': 'Szigetvár',
+  '8000': 'Székesfehérvár', '8001': 'Székesfehérvár', '8002': 'Székesfehérvár',
+  '8003': 'Székesfehérvár', '8004': 'Székesfehérvár', '8005': 'Székesfehérvár',
+  '8051': 'Sárkeszi', '8060': 'Mór', '8071': 'Szentkirályszabadja',
+  '8083': 'Csákvár', '8100': 'Várpalota', '8104': 'Inota',
+  '8130': 'Enying', '8154': 'Polgárdi', '8200': 'Veszprém',
+  '8201': 'Veszprém', '8210': 'Veszprém', '8220': 'Balatonalmádi',
+  '8230': 'Balatonfüred', '8237': 'Tihany', '8248': 'Nemesvámos',
+  '8258': 'Badacsonytomaj', '8261': 'Badacsony', '8300': 'Tapolca',
+  '8330': 'Sümeg', '8360': 'Keszthely', '8380': 'Hévíz',
+  '8400': 'Ajka', '8420': 'Zirc', '8440': 'Herend',
+  '8500': 'Pápa', '8600': 'Siófok', '8617': 'Zamárdi', '8618': 'Szántód',
+  '8620': 'Fonyód', '8622': 'Balatonboglár', '8623': 'Balatonlelle',
+  '8630': 'Balatonboglár', '8640': 'Fonyód', '8700': 'Marcali',
+  '8800': 'Nagykanizsa', '8801': 'Nagykanizsa', '8900': 'Zalaegerszeg',
+  '8901': 'Zalaegerszeg', '8960': 'Lenti',
+  '9000': 'Győr', '9001': 'Győr', '9002': 'Győr', '9011': 'Győr',
+  '9012': 'Győr', '9021': 'Győr', '9022': 'Győr', '9023': 'Győr',
+  '9024': 'Győr', '9025': 'Győr', '9026': 'Győr', '9027': 'Győr',
+  '9028': 'Győr', '9029': 'Győr', '9030': 'Győr',
+  '9081': 'Győrújbarát', '9082': 'Nyúl', '9083': 'Écs',
+  '9090': 'Pannonhalma', '9100': 'Tét', '9200': 'Mosonmagyaróvár',
+  '9300': 'Csorna', '9330': 'Kapuvár', '9400': 'Sopron',
+  '9401': 'Sopron', '9408': 'Sopron', '9500': 'Celldömölk',
+  '9600': 'Sárvár', '9700': 'Szombathely', '9701': 'Szombathely',
+  '9730': 'Kőszeg', '9790': 'Csepreg',
+  '9800': 'Vasvár', '9900': 'Körmend', '9970': 'Szentgotthárd',
+};
+
+export async function GET(request: NextRequest) {
+  const zip = request.nextUrl.searchParams.get('zip') || '';
+
+  if (!/^\d{4}$/.test(zip)) {
+    return NextResponse.json({ city: null });
+  }
+
+  // Budapest: all 1xxx codes
+  if (zip.startsWith('1')) {
+    return NextResponse.json({ city: 'Budapest' });
+  }
+
+  const city = ZIP_TO_CITY[zip] || null;
+  return NextResponse.json({ city });
+}

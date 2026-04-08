@@ -91,6 +91,9 @@ export default async function AccountPage() {
               shippingCity: customer.shippingCity ?? '',
               shippingAddress: customer.shippingAddress ?? '',
               shippingNote: customer.shippingNote ?? '',
+              billingZip: customer.billingZip ?? '',
+              billingCity: customer.billingCity ?? '',
+              billingAddress: customer.billingAddress ?? '',
               newsletter: customer.newsletter,
             }}
           />

@@ -17,6 +17,9 @@ export const shippingSchema = z.object({
   shippingCity: z.string().optional().default(''),
   shippingAddress: z.string().optional().default(''),
   shippingNote: z.string().max(500).optional(),
+  billingZip: z.string().regex(/^\d{4}$/, 'Érvényes irányítószám (4 számjegy)'),
+  billingCity: z.string().min(2, 'Város megadása kötelező'),
+  billingAddress: z.string().min(5, 'Utca, házszám megadása kötelező'),
 });
 
 export const homeDeliverySchema = shippingSchema.extend({

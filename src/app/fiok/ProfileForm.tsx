@@ -10,6 +10,9 @@ type Profile = {
   shippingCity: string;
   shippingAddress: string;
   shippingNote: string;
+  billingZip: string;
+  billingCity: string;
+  billingAddress: string;
   newsletter: boolean;
 };
 
@@ -124,6 +127,53 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
               value={profile.shippingNote}
               onChange={(e) => setProfile({ ...profile, shippingNote: e.target.value })}
               placeholder="Pl. kapucsengő, emelet, ajtó..."
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <h3 className="text-sm font-body text-[#4A4A4A] mb-3">Számlázási cím</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Irányítószám</label>
+            <input
+              type="text"
+              className={inputCls}
+              value={profile.billingZip}
+              maxLength={4}
+              inputMode="numeric"
+              onChange={async (e) => {
+                const zip = e.target.value;
+                setProfile((prev) => ({ ...prev, billingZip: zip }));
+                if (zip.length === 4) {
+                  try {
+                    const res = await fetch(`/api/zip-to-city?zip=${zip}`);
+                    const data = await res.json();
+                    if (data.city) {
+                      setProfile((prev) => ({ ...prev, billingCity: data.city }));
+                    }
+                  } catch { /* ignore */ }
+                }
+              }}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Város</label>
+            <input
+              type="text"
+              className={inputCls}
+              value={profile.billingCity}
+              onChange={(e) => setProfile({ ...profile, billingCity: e.target.value })}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className={labelCls}>Utca, házszám</label>
+            <input
+              type="text"
+              className={inputCls}
+              value={profile.billingAddress}
+              onChange={(e) => setProfile({ ...profile, billingAddress: e.target.value })}
             />
           </div>
         </div>

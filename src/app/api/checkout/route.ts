@@ -14,11 +14,12 @@ const SHIPPING_COSTS: Record<string, number> = {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { items, shipping, shippingMethod, couponCode } = body as {
+    const { items, shipping, shippingMethod, couponCode, saveData } = body as {
       items: CartItemData[];
       shipping: Record<string, unknown>;
       shippingMethod: string;
       couponCode?: string | null;
+      saveData?: boolean;
     };
 
     // Validate shipping data — stricter for home delivery
@@ -149,6 +150,9 @@ export async function POST(request: NextRequest) {
         shippingCity: shippingData.shippingCity || '',
         shippingAddress: shippingData.shippingAddress || `Csomagautomata (${shippingMethod})`,
         shippingNote: shippingData.shippingNote || null,
+        billingZip: shippingData.billingZip || null,
+        billingCity: shippingData.billingCity || null,
+        billingAddress: shippingData.billingAddress || null,
         subtotal,
         shippingCost,
         total,
@@ -167,6 +171,36 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Save data: upsert customer (auto-register if new, update if existing)
+    if (saveData || customerId) {
+      const customerData = {
+        name: shippingData.shippingName,
+        phone: shippingData.phone || null,
+        shippingName: shippingData.shippingName,
+        shippingZip: shippingData.shippingZip || null,
+        shippingCity: shippingData.shippingCity || null,
+        shippingAddress: shippingData.shippingAddress || null,
+        shippingNote: shippingData.shippingNote || null,
+        billingZip: shippingData.billingZip || null,
+        billingCity: shippingData.billingCity || null,
+        billingAddress: shippingData.billingAddress || null,
+      };
+
+      const upsertedCustomer = await prisma.customer.upsert({
+        where: { email: shippingData.email },
+        update: customerData,
+        create: { email: shippingData.email, ...customerData },
+      });
+
+      // Link order to customer if not already linked
+      if (!customerId) {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { customerId: upsertedCustomer.id },
+        });
+      }
+    }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cart';
 import { shippingSchema, homeDeliverySchema, type ShippingData } from '@/lib/validators';
@@ -33,6 +33,8 @@ export default function CheckoutPage() {
   const [redirecting, setRedirecting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('parcel');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [saveData, setSaveData] = useState(false);
   const [form, setForm] = useState<ShippingData>({
     email: '',
     phone: '',
@@ -41,6 +43,9 @@ export default function CheckoutPage() {
     shippingCity: '',
     shippingAddress: '',
     shippingNote: '',
+    billingZip: '',
+    billingCity: '',
+    billingAddress: '',
   });
 
   // Foxpost locker selection
@@ -58,12 +63,12 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setMounted(true);
-    // Pre-fill from logged-in customer profile
     fetch('/api/account/profile')
       .then((r) => r.json())
       .then((data) => {
         if (data.customer) {
           const c = data.customer;
+          setIsLoggedIn(true);
           setForm((prev) => ({
             ...prev,
             email: c.email || prev.email,
@@ -73,10 +78,25 @@ export default function CheckoutPage() {
             shippingCity: c.shippingCity || prev.shippingCity,
             shippingAddress: c.shippingAddress || prev.shippingAddress,
             shippingNote: c.shippingNote || prev.shippingNote,
+            billingZip: c.billingZip || prev.billingZip,
+            billingCity: c.billingCity || prev.billingCity,
+            billingAddress: c.billingAddress || prev.billingAddress,
           }));
         }
       })
       .catch(() => {});
+  }, []);
+
+  // Zip-to-city auto-fill for billing
+  const lookupCity = useCallback(async (zip: string, field: 'billingCity' | 'shippingCity') => {
+    if (zip.length !== 4) return;
+    try {
+      const res = await fetch(`/api/zip-to-city?zip=${zip}`);
+      const data = await res.json();
+      if (data.city) {
+        setForm((prev) => ({ ...prev, [field]: data.city }));
+      }
+    } catch { /* ignore */ }
   }, []);
 
   useEffect(() => {
@@ -90,7 +110,6 @@ export default function CheckoutPage() {
   const subtotal = total();
   const shippingCost = SHIPPING_COSTS[shippingMethod];
 
-  // Calculate discount
   let discount = 0;
   if (coupon) {
     if (coupon.discountType === 'percent') {
@@ -112,6 +131,14 @@ export default function CheckoutPage() {
         delete next[name];
         return next;
       });
+    }
+    // Auto-lookup city for billing zip
+    if (name === 'billingZip' && value.length === 4) {
+      lookupCity(value, 'billingCity');
+    }
+    // Auto-lookup city for shipping zip (home delivery)
+    if (name === 'shippingZip' && value.length === 4) {
+      lookupCity(value, 'shippingCity');
     }
   }
 
@@ -146,7 +173,6 @@ export default function CheckoutPage() {
   async function handleSubmit() {
     setErrors({});
 
-    // Require locker selection for parcel shipping
     if (shippingMethod === 'parcel' && !selectedLocker) {
       setErrors({ _form: 'Kérjük, válassz csomagautomatát a térkép segítségével.' });
       return;
@@ -176,6 +202,7 @@ export default function CheckoutPage() {
           shipping: result.data,
           shippingMethod,
           couponCode: coupon?.code ?? null,
+          saveData,
         }),
       });
 
@@ -215,7 +242,7 @@ export default function CheckoutPage() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Left column: Shipping + Payment */}
+          {/* Left column */}
           <div className="lg:col-span-3 flex flex-col gap-6">
 
             {/* Step 1: Contact info */}
@@ -251,10 +278,45 @@ export default function CheckoutPage() {
               </div>
             </section>
 
-            {/* Step 2: Shipping method */}
+            {/* Step 2: Billing address */}
             <section className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className={sectionTitle}>
                 <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">2</span>
+                Számlázási cím
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Irányítószám"
+                  name="billingZip"
+                  value={form.billingZip}
+                  onChange={handleChange}
+                  error={errors.billingZip}
+                  maxLength={4}
+                  inputMode="numeric"
+                />
+                <Input
+                  label="Város"
+                  name="billingCity"
+                  value={form.billingCity}
+                  onChange={handleChange}
+                  error={errors.billingCity}
+                />
+                <div className="md:col-span-2">
+                  <Input
+                    label="Utca, házszám"
+                    name="billingAddress"
+                    value={form.billingAddress}
+                    onChange={handleChange}
+                    error={errors.billingAddress}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Step 3: Shipping method */}
+            <section className="bg-white rounded-2xl p-6 shadow-sm">
+              <h2 className={sectionTitle}>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">3</span>
                 Szállítási mód
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
@@ -313,13 +375,11 @@ export default function CheckoutPage() {
                 </button>
               </div>
 
-              {/* Foxpost parcel locker selector */}
               {shippingMethod === 'parcel' && (
                 <FoxpostSelector
                   selected={selectedLocker}
                   onSelect={(locker) => {
                     setSelectedLocker(locker);
-                    // Store the place_id in shippingNote so the API can use it for Foxpost
                     setForm((prev) => ({
                       ...prev,
                       shippingAddress: `Foxpost: ${locker.name}`,
@@ -329,7 +389,6 @@ export default function CheckoutPage() {
                 />
               )}
 
-              {/* Home delivery address */}
               {shippingMethod === 'home' && (
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
@@ -338,6 +397,8 @@ export default function CheckoutPage() {
                     value={form.shippingZip}
                     onChange={handleChange}
                     error={errors.shippingZip}
+                    maxLength={4}
+                    inputMode="numeric"
                   />
                   <Input
                     label="Város"
@@ -366,10 +427,10 @@ export default function CheckoutPage() {
               )}
             </section>
 
-            {/* Step 3: Payment info */}
+            {/* Step 4: Payment info */}
             <section className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className={sectionTitle}>
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">3</span>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">4</span>
                 Fizetés
               </h2>
 
@@ -393,6 +454,28 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </section>
+
+            {/* Save data checkbox */}
+            {!isLoggedIn && (
+              <section className="bg-white rounded-2xl p-6 shadow-sm">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={saveData}
+                    onChange={(e) => setSaveData(e.target.checked)}
+                    className="mt-1 w-4 h-4 rounded border-gray-300 text-[#C4A591] focus:ring-[#C4A591]/30"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-[#4A4A4A]">
+                      Adataim mentése későbbi rendelésekhez
+                    </span>
+                    <p className="text-xs text-[#4A4A4A]/60 mt-1">
+                      A megadott e-mail címmel létrehozunk egy fiókot, így legközelebb nem kell újra kitöltened az adataidat.
+                    </p>
+                  </div>
+                </label>
+              </section>
+            )}
           </div>
 
           {/* Right column: Order summary */}
