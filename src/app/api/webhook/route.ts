@@ -50,28 +50,18 @@ export async function POST(request: NextRequest) {
       if (order) {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
 
-        // Generate Számlázz.hu invoice and get PDF
-        let invoicePdf: Buffer | undefined;
-        try {
-          const invoiceResult = await createSzamlazzInvoice(order);
-          if (invoiceResult.pdf) {
-            invoicePdf = invoiceResult.pdf;
-          }
-        } catch (err) {
-          console.error('Számlázz.hu invoice error:', err);
-        }
+        // Generate Számlázz.hu invoice (sent separately by Számlázz.hu)
+        createSzamlazzInvoice(order).catch((err) =>
+          console.error('Számlázz.hu invoice error:', err)
+        );
 
-        // Send confirmation email with order details + invoice PDF
+        // Send confirmation email with order details
         const emailItems = order.items.map((item) => ({
           name: item.product.name,
           quantity: item.quantity,
           price: item.price,
           babyName: item.babyName,
         }));
-
-        const attachments = invoicePdf
-          ? [{ filename: `nola-szamla-${order.id.slice(-8)}.pdf`, content: invoicePdf }]
-          : undefined;
 
         sendEmail({
           to: order.email,
@@ -85,9 +75,7 @@ export async function POST(request: NextRequest) {
             shippingCost: order.shippingCost,
             total: order.total,
             shippingMethod: order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home',
-            hasInvoice: !!invoicePdf,
           }),
-          attachments,
         }).catch((err) => console.error('Order confirmation email failed:', err));
       }
     }
