@@ -65,6 +65,7 @@ export default function AdatkezelesPage() {
               <li><strong className="text-carbon">Számlázás:</strong> Számlázz.hu (A számla kiállítása).</li>
               <li><strong className="text-carbon">Szállítás:</strong> Foxpost Zrt. / Packeta Hungary Kft. (A csomag kézbesítése – név, cím, telefonszám, email cím).</li>
               <li><strong className="text-carbon">Fizetés:</strong> Stripe, Inc. (Bankkártyás fizetés lebonyolítása).</li>
+              <li><strong className="text-carbon">Könyvelés:</strong> Andreotti Bt.</li>
             </ol>
           </RevealOnScroll>
 
