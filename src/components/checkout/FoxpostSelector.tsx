@@ -24,14 +24,11 @@ export default function FoxpostSelector({ onSelect, selected }: FoxpostSelectorP
     if (!showMap) return;
 
     function handleMessage(event: MessageEvent) {
-      // Only accept messages from Foxpost CDN
-      if (!event.origin.includes('foxpost.hu')) return;
-
       try {
         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-        if (data && data.place_id) {
+        if (data && (data.place_id || data.place_id === 0)) {
           onSelect({
-            place_id: data.place_id,
+            place_id: String(data.place_id),
             name: data.name || data.operator_id || '',
             address: data.address || '',
             city: data.city || '',
@@ -40,7 +37,7 @@ export default function FoxpostSelector({ onSelect, selected }: FoxpostSelectorP
           setShowMap(false);
         }
       } catch {
-        // Not a JSON message or not from Foxpost — ignore
+        // Not a JSON message — ignore
       }
     }
 
