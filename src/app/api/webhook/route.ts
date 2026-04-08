@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
+import { createSzamlazzInvoice } from '@/lib/szamlazz';
 import Stripe from 'stripe';
 
 export const runtime = 'nodejs';
@@ -33,8 +34,22 @@ export async function POST(request: NextRequest) {
     if (orderId) {
       await prisma.order.update({
         where: { id: orderId },
-        data: { status: 'paid' },
+        data: {
+          status: 'paid',
+          stripePaymentId: session.id,
+        },
       });
+
+      // Generate Számlázz.hu invoice (fire-and-forget)
+      const order = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: { items: { include: { product: true } } },
+      });
+      if (order) {
+        createSzamlazzInvoice(order).catch((err) =>
+          console.error('Számlázz.hu invoice error:', err)
+        );
+      }
     }
   }
 

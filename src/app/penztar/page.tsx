@@ -366,52 +366,30 @@ export default function CheckoutPage() {
               )}
             </section>
 
-            {/* Step 3: Payment (Stripe placeholder) */}
+            {/* Step 3: Payment info */}
             <section className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className={sectionTitle}>
                 <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">3</span>
                 Fizetés
               </h2>
 
-              <div className="bg-[#F7F3EE] rounded-xl p-6">
-                {/* Stripe card element placeholder */}
-                <div className="border border-gray-200 rounded-lg bg-white p-4 mb-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm font-medium text-[#4A4A4A]">Bankkártya</span>
-                    <div className="flex gap-2">
-                      {/* Card brand logos */}
-                      <div className="w-10 h-6 bg-[#1A1F71] rounded flex items-center justify-center text-white text-[8px] font-bold">VISA</div>
-                      <div className="w-10 h-6 bg-[#EB001B] rounded-full relative overflow-hidden">
-                        <div className="absolute right-0 w-6 h-6 bg-[#F79E1B] rounded-full" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Fake card input fields */}
-                  <div className="space-y-3">
-                    <div className="h-10 rounded-md border border-gray-200 bg-gray-50 px-3 flex items-center">
-                      <span className="text-sm text-gray-400">1234 5678 9012 3456</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="h-10 rounded-md border border-gray-200 bg-gray-50 px-3 flex items-center">
-                        <span className="text-sm text-gray-400">HH/ÉÉ</span>
-                      </div>
-                      <div className="h-10 rounded-md border border-gray-200 bg-gray-50 px-3 flex items-center">
-                        <span className="text-sm text-gray-400">CVC</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-xs text-[#4A4A4A]/50 text-center">
-                  A fizetés a Stripe biztonságos rendszerén keresztül történik. A Stripe integrálása hamarosan.
-                </p>
-
-                <div className="flex items-center justify-center gap-3 mt-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div className="bg-[#F7F3EE] rounded-xl p-6 text-center">
+                <div className="flex items-center justify-center gap-3 mb-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
-                  <span className="text-xs text-[#4A4A4A]/60">256-bit SSL titkosított kapcsolat</span>
+                  <span className="text-sm font-medium text-[#4A4A4A]">Biztonságos online fizetés</span>
+                </div>
+                <p className="text-xs text-[#4A4A4A]/60 mb-3">
+                  A &quot;Megrendelés&quot; gomb megnyomása után átirányítunk a Stripe biztonságos fizetési oldalára,
+                  ahol bankkártyával fizethetsz.
+                </p>
+                <div className="flex items-center justify-center gap-3">
+                  <div className="w-10 h-6 bg-[#1A1F71] rounded flex items-center justify-center text-white text-[8px] font-bold">VISA</div>
+                  <div className="w-10 h-6 bg-[#EB001B] rounded-full relative overflow-hidden">
+                    <div className="absolute right-0 w-6 h-6 bg-[#F79E1B] rounded-full" />
+                  </div>
+                  <div className="w-10 h-6 bg-[#635BFF] rounded flex items-center justify-center text-white text-[7px] font-bold tracking-tight">stripe</div>
                 </div>
               </div>
             </section>

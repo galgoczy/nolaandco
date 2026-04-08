@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
+import { stripe } from '@/lib/stripe';
 import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
 import { sendEmail } from '@/lib/emails/send';
 import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
@@ -169,11 +170,67 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: When Stripe is integrated, create Stripe Checkout Session here
-    // and redirect to Stripe. For now, we redirect directly to the thank you page.
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
+
+    // Create Stripe Checkout Session
+    const lineItems = verifiedItems.map((item) => ({
+      price_data: {
+        currency: 'huf',
+        product_data: {
+          name: item.name,
+          ...(item.babyName ? { description: `${item.babyName}${item.birthDate ? ` · ${item.birthDate}` : ''}` } : {}),
+        },
+        unit_amount: item.price, // already in HUF (smallest unit = 1 Ft)
+      },
+      quantity: item.quantity,
+    }));
+
+    // Add shipping as a line item
+    lineItems.push({
+      price_data: {
+        currency: 'huf',
+        product_data: {
+          name: shippingMethod === 'parcel' ? 'Szállítás (Csomagautomata)' : 'Szállítás (Házhozszállítás)',
+        },
+        unit_amount: shippingCost,
+      },
+      quantity: 1,
+    });
+
+    // Add discount as a negative line item description (Stripe handles via coupon)
+    const stripeDiscounts: { coupon: string }[] = [];
+    if (discount > 0) {
+      // Create a one-time Stripe coupon for the discount
+      const stripeCoupon = await stripe.coupons.create({
+        amount_off: discount,
+        currency: 'huf',
+        duration: 'once',
+        name: couponCode || 'Kedvezmény',
+      });
+      stripeDiscounts.push({ coupon: stripeCoupon.id });
+    }
+
+    const stripeSession = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      locale: 'hu',
+      customer_email: shippingData.email,
+      line_items: lineItems,
+      ...(stripeDiscounts.length > 0 ? { discounts: stripeDiscounts } : {}),
+      metadata: {
+        orderId: order.id,
+      },
+      success_url: `${baseUrl}/koszonjuk?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
+      cancel_url: `${baseUrl}/penztar`,
+    });
+
+    // Save Stripe session ID to order
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { stripePaymentId: stripeSession.id },
+    });
 
     // Send order confirmation email (fire-and-forget)
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
     sendEmail({
       to: shippingData.email,
       subject: orderConfirmationSubject(),
@@ -184,7 +241,7 @@ export async function POST(request: NextRequest) {
       }),
     }).catch((err) => console.error('Order confirmation email failed:', err));
 
-    return NextResponse.json({ url: `/koszonjuk?order_id=${order.id}` });
+    return NextResponse.json({ url: stripeSession.url });
   } catch (error) {
     console.error('Checkout error:', error);
     return NextResponse.json(
