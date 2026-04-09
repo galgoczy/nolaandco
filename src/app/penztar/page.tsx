@@ -434,7 +434,18 @@ export default function CheckoutPage() {
                       <input
                         type="checkbox"
                         checked={shippingSameAsBilling}
-                        onChange={(e) => setShippingSameAsBilling(e.target.checked)}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setShippingSameAsBilling(checked);
+                          if (checked) {
+                            setForm((prev) => ({
+                              ...prev,
+                              billingZip: prev.shippingZip,
+                              billingCity: prev.shippingCity,
+                              billingAddress: prev.shippingAddress,
+                            }));
+                          }
+                        }}
                         className="w-4 h-4 rounded border-gray-300 text-[#C4A591] focus:ring-[#C4A591]/30"
                       />
                       A számlázási cím megegyezik a szállítási címmel
