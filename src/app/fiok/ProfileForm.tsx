@@ -21,15 +21,34 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
+  // Default ON if billing is empty or matches shipping
+  const [billingSameAsShipping, setBillingSameAsShipping] = useState(
+    !initial.billingZip && !initial.billingCity && !initial.billingAddress
+      ? true
+      : initial.billingZip === initial.shippingZip &&
+        initial.billingCity === initial.shippingCity &&
+        initial.billingAddress === initial.shippingAddress
+  );
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
     setMessage(null);
+
+    // If checkbox is on, copy shipping to billing before saving
+    const toSave = billingSameAsShipping
+      ? {
+          ...profile,
+          billingZip: profile.shippingZip,
+          billingCity: profile.shippingCity,
+          billingAddress: profile.shippingAddress,
+        }
+      : profile;
     try {
       const res = await fetch('/api/account/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(profile),
+        body: JSON.stringify(toSave),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -134,49 +153,59 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
 
       <div className="mt-4">
         <h3 className="text-sm font-body text-[#4A4A4A] mb-3">Számlázási cím</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Irányítószám</label>
-            <input
-              type="text"
-              className={inputCls}
-              value={profile.billingZip}
-              maxLength={4}
-              inputMode="numeric"
-              onChange={async (e) => {
-                const zip = e.target.value;
-                setProfile((prev) => ({ ...prev, billingZip: zip }));
-                if (zip.length === 4) {
-                  try {
-                    const res = await fetch(`/api/zip-to-city?zip=${zip}`);
-                    const data = await res.json();
-                    if (data.city) {
-                      setProfile((prev) => ({ ...prev, billingCity: data.city }));
-                    }
-                  } catch { /* ignore */ }
-                }
-              }}
-            />
+        <label className="flex items-center gap-2 mb-3 text-sm text-[#4A4A4A] font-body cursor-pointer">
+          <input
+            type="checkbox"
+            checked={billingSameAsShipping}
+            onChange={(e) => setBillingSameAsShipping(e.target.checked)}
+          />
+          Megegyezik a szállítási címmel
+        </label>
+        {!billingSameAsShipping && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Irányítószám</label>
+              <input
+                type="text"
+                className={inputCls}
+                value={profile.billingZip}
+                maxLength={4}
+                inputMode="numeric"
+                onChange={async (e) => {
+                  const zip = e.target.value;
+                  setProfile((prev) => ({ ...prev, billingZip: zip }));
+                  if (zip.length === 4) {
+                    try {
+                      const res = await fetch(`/api/zip-to-city?zip=${zip}`);
+                      const data = await res.json();
+                      if (data.city) {
+                        setProfile((prev) => ({ ...prev, billingCity: data.city }));
+                      }
+                    } catch { /* ignore */ }
+                  }
+                }}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Város</label>
+              <input
+                type="text"
+                className={inputCls}
+                value={profile.billingCity}
+                onChange={(e) => setProfile({ ...profile, billingCity: e.target.value })}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className={labelCls}>Utca, házszám</label>
+              <input
+                type="text"
+                className={inputCls}
+                value={profile.billingAddress}
+                onChange={(e) => setProfile({ ...profile, billingAddress: e.target.value })}
+              />
+            </div>
           </div>
-          <div>
-            <label className={labelCls}>Város</label>
-            <input
-              type="text"
-              className={inputCls}
-              value={profile.billingCity}
-              onChange={(e) => setProfile({ ...profile, billingCity: e.target.value })}
-            />
-          </div>
-          <div className="md:col-span-2">
-            <label className={labelCls}>Utca, házszám</label>
-            <input
-              type="text"
-              className={inputCls}
-              value={profile.billingAddress}
-              onChange={(e) => setProfile({ ...profile, billingAddress: e.target.value })}
-            />
-          </div>
-        </div>
+        )}
       </div>
 
       <label className="flex items-center gap-2 mt-2 text-sm text-[#4A4A4A] font-body cursor-pointer">

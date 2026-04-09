@@ -17,7 +17,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/termekek/${product.slug}`} className="group cursor-pointer card-hover block">
-      <div className="relative aspect-square rounded-2xl overflow-hidden bg-surface-container-low mb-6 ghost-border">
+      <div className={`relative ${product.category === 'pillow' ? 'aspect-[2/3]' : 'aspect-square'} rounded-2xl overflow-hidden bg-surface-container-low mb-6 ghost-border`}>
         <Image
           src={product.imageUrl}
           alt={product.name}

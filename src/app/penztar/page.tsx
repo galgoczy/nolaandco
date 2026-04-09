@@ -35,6 +35,7 @@ export default function CheckoutPage() {
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('parcel');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [saveData, setSaveData] = useState(false);
+  const [shippingSameAsBilling, setShippingSameAsBilling] = useState(false);
   const [form, setForm] = useState<ShippingData>({
     email: '',
     phone: '',
@@ -178,8 +179,13 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Copy shipping to billing if checkbox is on
+    const formToValidate = shippingSameAsBilling && shippingMethod === 'home'
+      ? { ...form, billingZip: form.shippingZip, billingCity: form.shippingCity, billingAddress: form.shippingAddress }
+      : form;
+
     const schema = shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
-    const result = schema.safeParse(form);
+    const result = schema.safeParse(formToValidate);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       for (const issue of result.error.issues) {
@@ -422,6 +428,17 @@ export default function CheckoutPage() {
                       onChange={handleChange}
                       error={errors.shippingNote}
                     />
+                  </div>
+                  <div className="md:col-span-2 mt-1">
+                    <label className="flex items-center gap-2 text-sm text-[#4A4A4A] font-body cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={shippingSameAsBilling}
+                        onChange={(e) => setShippingSameAsBilling(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-[#C4A591] focus:ring-[#C4A591]/30"
+                      />
+                      A számlázási cím megegyezik a szállítási címmel
+                    </label>
                   </div>
                 </div>
               )}
