@@ -32,7 +32,7 @@ export default function AboutSection() {
             <RevealOnScroll>
               <Link
                 href="/rolunk"
-                className="inline-block bg-[#D5E8F0] text-carbon px-8 py-3 rounded-full text-sm font-medium btn-anim"
+                className="inline-block bg-[#D5E8F0] text-carbon px-8 py-3 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em]"
               >
                 Ismerj meg minket
               </Link>
@@ -75,14 +75,14 @@ export default function AboutSection() {
             </RevealOnScroll>
             <RevealOnScroll>
               <p className="text-carbon-light leading-relaxed mb-8 italic text-[15px]" style={thinText}>
-                Ezen kívül szeretnénk segíteni az angyalbaba-szülőknek, hogy szeretetben őrizhessék
+                Ezen kívül szeretnénk segíteni az <strong className="font-semibold not-italic">angyalbaba-szülőknek</strong>, hogy szeretetben őrizhessék
                 meg azt az emléket, ami örökre a szívükbe égett.
               </p>
             </RevealOnScroll>
             <RevealOnScroll>
               <Link
                 href="/termekek"
-                className="inline-block bg-[#D5E8F0] text-carbon px-8 py-3 rounded-full text-sm font-medium btn-anim"
+                className="inline-block bg-[#D5E8F0] text-carbon px-8 py-3 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em]"
               >
                 Megnézem a párnákat
               </Link>

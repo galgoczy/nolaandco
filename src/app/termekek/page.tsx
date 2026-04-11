@@ -105,7 +105,7 @@ export default async function TermekekPage({ searchParams }: Props) {
                     en={cat.nameEn ?? cat.slug.toUpperCase()}
                     hu={cat.name}
                   />
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 stagger-children">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto stagger-children">
                     {catProducts.map((product, i) => (
                       <RevealOnScroll key={product.id} delay={i * 120}>
                         <ProductCard product={product} />
@@ -124,7 +124,7 @@ export default async function TermekekPage({ searchParams }: Props) {
                 hu={selectedCat.name}
               />
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 stagger-children">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto stagger-children">
               {products.map((product, i) => (
                 <RevealOnScroll key={product.id} delay={i * 120}>
                   <ProductCard product={product} />
