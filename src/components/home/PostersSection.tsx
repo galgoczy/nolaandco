@@ -42,7 +42,7 @@ export default async function PostersSection() {
                   <p className="ethereal-title text-sm font-bold tracking-[0.2em] group-hover:text-[#4A4A4A] transition-colors">
                     {poster.name.toUpperCase()}
                   </p>
-                  <p className="text-sm text-carbon-light mt-1">{formatPrice(poster.price)}</p>
+                  <p className="text-sm text-carbon-light mt-1">{formatPrice(poster.price)}-tól</p>
                 </div>
               </Link>
             </RevealOnScroll>

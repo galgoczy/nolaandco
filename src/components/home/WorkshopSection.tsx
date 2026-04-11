@@ -1,9 +1,10 @@
+import Image from 'next/image';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
 const features = [
   {
     title: 'Prémium alapanyagok',
-    desc: 'Párnáink OEKO-TEX® Standard 100 minősítésű pamut alapanyagból és tanúsított cérnával készülnek. Ez a minősítés garantálja, hogy az alapanyagokat káros anyagokra bevizsgálták, így bababőrrel érintkezve is biztonságos választást jelentenek.',
+    desc: 'Párnáink OEKO-TEX® Standard 100 minősítésű alapanyagból és tanúsított cérnával készülnek. Ez a minősítés garantálja, hogy az alapanyagokat káros anyagokra bevizsgálták, így bababőrrel érintkezve is biztonságos választást jelentenek.',
   },
   {
     title: 'Tartós kidolgozás',
@@ -71,10 +72,10 @@ export default function WorkshopSection() {
               <div className="flex gap-4 items-start">
                 <span className="text-[#FDFBF7] text-2xl mt-1">·</span>
                 <div>
-                  <h4 className="text-sm uppercase tracking-wider mb-2 text-[#FDFBF7]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600 }}>
+                  <h4 className="text-sm uppercase tracking-wider mb-2 text-[#FDFBF7]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>
                     {f.title}
                   </h4>
-                  <p className="text-sm text-[#FDFBF7]/80 leading-relaxed" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200 }}>
+                  <p className="text-sm text-[#FDFBF7]/90 leading-relaxed" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}>
                     {f.desc}
                   </p>
                 </div>
@@ -83,12 +84,22 @@ export default function WorkshopSection() {
           ))}
         </div>
 
-        {/* 3 Placeholder photos */}
+        {/* 3 Workshop photos */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
-          {['Szabás', 'Hőpréselés', 'Címke & varrás'].map((label, i) => (
+          {[
+            { src: '/images/bal.jpg', alt: 'Szabás' },
+            { src: '/images/kozep.jpg', alt: 'Hőpréselés' },
+            { src: '/images/jobb.jpg', alt: 'Címke & varrás' },
+          ].map((img, i) => (
             <RevealOnScroll key={i} delay={i * 120}>
-              <div className="aspect-[4/3] rounded-2xl bg-[#FDFBF7]/10 flex items-center justify-center">
-                <span className="text-[#FDFBF7]/40 text-sm font-body">{label}</span>
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#FDFBF7]/10">
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
               </div>
             </RevealOnScroll>
           ))}
@@ -113,9 +124,9 @@ export default function WorkshopSection() {
             <RevealOnScroll key={i} delay={i * 150}>
               <div className="text-center">
                 <span className="text-5xl text-[#FDFBF7]/30 block mb-4" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>{s.num}</span>
-                <h4 className="text-lg text-[#FDFBF7] mb-1" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>{s.title}</h4>
-                <p className="text-xs uppercase tracking-wider text-[#FDFBF7]/60 mb-3" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}>{s.subtitle}</p>
-                <p className="text-sm text-[#FDFBF7]/80 leading-relaxed whitespace-pre-line" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200 }}>{s.desc}</p>
+                <h4 className="text-lg text-[#FDFBF7] mb-1" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600 }}>{s.title}</h4>
+                <p className="text-xs uppercase tracking-wider text-[#FDFBF7]/80 mb-3" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>{s.subtitle}</p>
+                <p className="text-sm text-[#FDFBF7]/90 leading-relaxed whitespace-pre-line" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}>{s.desc}</p>
               </div>
             </RevealOnScroll>
           ))}
