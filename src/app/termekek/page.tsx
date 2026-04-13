@@ -48,12 +48,9 @@ export default async function TermekekPage({ searchParams }: Props) {
       <div className="max-w-7xl mx-auto px-8">
         <div className="text-center mb-16">
           <RevealOnScroll>
-            <h1 className="text-4xl md:text-6xl montserrat-light-caps text-carbon mb-6 leading-tight">
+            <h1 className="text-4xl md:text-6xl uppercase tracking-[0.15em] text-[#4A4A4A] mb-10 leading-tight" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>
               TERMÉKEK
             </h1>
-          </RevealOnScroll>
-          <RevealOnScroll>
-            <div className="w-12 h-0.5 bg-primary mx-auto mb-10" />
           </RevealOnScroll>
 
           <RevealOnScroll>

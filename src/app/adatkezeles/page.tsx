@@ -35,7 +35,7 @@ export default function AdatkezelesPage() {
             <h2 className="text-lg text-carbon font-medium mb-3">II. Milyen adatokat kezelünk és miért?</h2>
 
             <div className="space-y-6">
-              <div className="bg-surface-container-lowest rounded-xl p-5 ghost-border">
+              <div>
                 <h3 className="text-carbon font-medium mb-2">1. Rendelés teljesítése</h3>
                 <ul className="space-y-1 text-sm">
                   <li><strong className="text-carbon">Adatok:</strong> Név, szállítási cím, email, telefonszám.</li>
@@ -45,7 +45,7 @@ export default function AdatkezelesPage() {
                 </ul>
               </div>
 
-              <div className="bg-surface-container-lowest rounded-xl p-5 ghost-border">
+              <div>
                 <h3 className="text-carbon font-medium mb-2">2. A termékre kerülő adatok (Baba adatai)</h3>
                 <ul className="space-y-1 text-sm">
                   <li><strong className="text-carbon">Adatok:</strong> Baba neve, születési adatai (születési dátum, időpont, súly, hossz).</li>

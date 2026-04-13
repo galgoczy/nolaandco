@@ -31,7 +31,7 @@ const config: Config = {
         'outline-variant': '#d2c4bb',
         'warm-beige': '#F5F0E8',
         'nav-beige': '#FDFBF7',
-        carbon: '#333333',
+        carbon: '#4A4A4A',
         'carbon-light': '#4A4A4A',
         error: '#ba1a1a',
       },

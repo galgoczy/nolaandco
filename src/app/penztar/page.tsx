@@ -254,7 +254,7 @@ export default function CheckoutPage() {
             {/* Step 1: Contact info */}
             <section className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className={sectionTitle}>
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">1</span>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#D5E8F0] text-[#4A4A4A] text-xs mr-2 font-semibold">1</span>
                 Kapcsolat
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -287,7 +287,7 @@ export default function CheckoutPage() {
             {/* Step 2: Billing address */}
             <section className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className={sectionTitle}>
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">2</span>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#D5E8F0] text-[#4A4A4A] text-xs mr-2 font-semibold">2</span>
                 Számlázási cím
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -322,7 +322,7 @@ export default function CheckoutPage() {
             {/* Step 3: Shipping method */}
             <section className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className={sectionTitle}>
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">3</span>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#D5E8F0] text-[#4A4A4A] text-xs mr-2 font-semibold">3</span>
                 Szállítási mód
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
@@ -458,7 +458,7 @@ export default function CheckoutPage() {
             {/* Step 4: Payment info */}
             <section className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className={sectionTitle}>
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#4A4A4A] text-white text-xs mr-2">4</span>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#D5E8F0] text-[#4A4A4A] text-xs mr-2 font-semibold">4</span>
                 Fizetés
               </h2>
 
@@ -605,11 +605,11 @@ export default function CheckoutPage() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-full mt-4 bg-[#4A4A4A] text-white py-3.5 rounded-xl font-medium text-sm hover:bg-[#3A3A3A] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full mt-4 bg-[#D5E8F0] text-[#4A4A4A] py-3.5 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
-                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="inline-block w-4 h-4 border-2 border-[#4A4A4A] border-t-transparent rounded-full animate-spin" />
                     Feldolgozás...
                   </>
                 ) : (

@@ -39,6 +39,7 @@ export default async function EditProductPage({
           name: product.name,
           slug: product.slug,
           description: product.description,
+          longDescription: product.longDescription ?? '',
           price: product.price,
           category: product.category,
           series: product.series,

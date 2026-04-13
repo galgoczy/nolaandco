@@ -128,7 +128,7 @@ export default function AddToCartSection({ product }: Props) {
             >
               További vásárlás
             </Button>
-            <Button href="/kosar">Kosár megtekintése</Button>
+            <Button variant="secondary" href="/kosar">Kosár megtekintése</Button>
           </div>
         </div>
       );
@@ -160,7 +160,7 @@ export default function AddToCartSection({ product }: Props) {
             </button>
           ))}
         </div>
-        <Button onClick={handleAddToCart} className="w-full">
+        <Button variant="secondary" onClick={handleAddToCart} className="w-full">
           Kosárba – {formatPrice(giftCardVariants[selectedVariant].price)}
         </Button>
       </div>
@@ -234,7 +234,7 @@ export default function AddToCartSection({ product }: Props) {
             </button>
           </div>
 
-          <Button onClick={handleAddToCart} className="w-full">
+          <Button variant="secondary" onClick={handleAddToCart} className="w-full">
             Kosárba{isPoster ? ` – ${formatPrice(posterVariants[selectedVariant].price)}` : ''}
           </Button>
         </div>
@@ -260,7 +260,7 @@ export default function AddToCartSection({ product }: Props) {
             >
               További vásárlás
             </Button>
-            <Button href="/kosar">Kosár megtekintése</Button>
+            <Button variant="secondary" href="/kosar">Kosár megtekintése</Button>
           </div>
         </div>
       )}

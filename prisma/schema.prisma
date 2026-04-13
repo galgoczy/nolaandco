@@ -8,23 +8,24 @@ datasource db {
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String
-  price       Int      // price in HUF (fillér-free)
-  category    String   // "pillow" | "poster"
-  series      String   // "origin" | "nova"
-  variant     String   // "core" | "linea" | "atelier"
-  imageUrl    String
-  images      String[] @default([])
-  sortOrder   Int      @default(0)
-  badge       String?  // "Core Series" | "Limited Edition" | null
-  active      Boolean  @default(true)
-  onSale      Boolean  @default(false)
-  salePrice   Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  description     String
+  longDescription String?
+  price           Int      // price in HUF (fillér-free)
+  category        String   // "pillow" | "poster"
+  series          String   // "origin" | "nova"
+  variant         String   // "core" | "linea" | "atelier"
+  imageUrl        String
+  images          String[] @default([])
+  sortOrder       Int      @default(0)
+  badge           String?  // "Core Series" | "Limited Edition" | null
+  active          Boolean  @default(true)
+  onSale          Boolean  @default(false)
+  salePrice       Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   orderItems OrderItem[]
 }

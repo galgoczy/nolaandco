@@ -47,6 +47,7 @@ export async function POST(req: Request) {
         name,
         slug,
         description,
+        longDescription: str(data.longDescription) || null,
         price: num(data.price),
         category,
         series: str(data.series) || 'other',

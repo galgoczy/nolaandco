@@ -45,7 +45,7 @@ export default async function ProductDetailPage({ params }: Props) {
               </span>
             )}
 
-            <h1 className="text-3xl md:text-4xl montserrat-light-caps text-carbon leading-tight">
+            <h1 className="text-3xl md:text-4xl text-[#4A4A4A] leading-tight tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
               {product.name}
             </h1>
 
@@ -68,9 +68,12 @@ export default async function ProductDetailPage({ params }: Props) {
               </div>
             )}
 
-            <p className="text-carbon-light leading-relaxed">
-              {product.description}
-            </p>
+            <div className="space-y-2">
+              <h3 className="text-xs uppercase tracking-[0.2em] text-[#4A4A4A]/60 font-medium">Összefoglaló</h3>
+              <p className="text-[#4A4A4A] leading-relaxed">
+                {product.description}
+              </p>
+            </div>
 
             <div className="pt-4">
               <AddToCartSection
@@ -86,6 +89,18 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Bővebb leírás (long description) below images */}
+        {product.longDescription && (
+          <div className="mt-16 max-w-4xl mx-auto">
+            <h2 className="text-2xl md:text-3xl text-[#4A4A4A] mb-6 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
+              Bővebb leírás
+            </h2>
+            <div className="prose prose-neutral max-w-none text-[#4A4A4A] leading-relaxed whitespace-pre-line">
+              {product.longDescription}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

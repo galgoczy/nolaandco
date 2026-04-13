@@ -23,7 +23,7 @@ export default function SzallitasPage() {
           <RevealOnScroll>
             <p>
               Termékeinket a legnagyobb odafigyeléssel, környezetbarát csomagolásba csomagoljuk,
-              hogy sérülésmentesen érkezzenek meg hozzád.
+              hogy sérülésmentesen érkezzenek meg hozzád, ügyelve a bolygónk jövőjére.
             </p>
           </RevealOnScroll>
 

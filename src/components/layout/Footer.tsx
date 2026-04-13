@@ -6,7 +6,7 @@ const quickLinks = [
   { label: 'Nektek', href: '/nektek' },
   { label: 'Párna', href: '/termekek?category=pillow' },
   { label: 'Poszter', href: '/termekek?category=poster' },
-  { label: 'Ajándékkártyák', href: '/termekek?category=giftcard' },
+  { label: 'Ajándékkártya', href: '/termekek?category=giftcard' },
 ];
 
 const infoLinks = [
@@ -14,13 +14,13 @@ const infoLinks = [
   { label: 'Szállítás és fizetés', href: '/szallitas' },
   { label: 'Elállás és visszaküldés', href: '/visszakuldes' },
   { label: 'ÁSZF', href: '/aszf' },
-  { label: 'Adatkezelési nyilatkozat', href: '/adatkezeles' },
+  { label: 'Adatkezelési tájékoztató', href: '/adatkezeles' },
 ];
 
 const socialLinks = [
   { label: 'Facebook', href: 'https://facebook.com' },
   { label: 'Instagram', href: 'https://instagram.com' },
-  { label: 'E-mail', href: 'mailto:hello@nolaandco.hu' },
+  { label: 'E-mail', href: 'mailto:hello@nolaandco.hu?subject=Érdeklődés%20a%20Nola%26Co%20weboldalról' },
   { label: 'Kapcsolat', href: '/kapcsolat' },
   { label: 'Kollaboráció', href: '/kollaboracio' },
 ];

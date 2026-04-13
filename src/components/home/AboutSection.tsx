@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
@@ -88,8 +89,14 @@ export default function AboutSection() {
               </Link>
             </RevealOnScroll>
             <RevealOnScroll>
-              <div className="mt-10 aspect-[4/3] rounded-2xl bg-surface-container flex items-center justify-center">
-                <span className="text-carbon-light/40 text-sm font-body">Kép helye (szülők a párnával)</span>
+              <div className="relative mt-10 aspect-[4/3] rounded-2xl overflow-hidden bg-surface-container">
+                <Image
+                  src="/images/Nektek_1.jpg"
+                  alt="Nektek - Nola & Co."
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
               </div>
             </RevealOnScroll>
           </div>

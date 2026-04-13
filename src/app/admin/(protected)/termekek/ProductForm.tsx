@@ -8,6 +8,7 @@ export type ProductFormValues = {
   name: string;
   slug: string;
   description: string;
+  longDescription: string;
   price: number;
   category: string;
   series: string;
@@ -24,6 +25,7 @@ export const emptyProduct: ProductFormValues = {
   name: '',
   slug: '',
   description: '',
+  longDescription: '',
   price: 0,
   category: 'pillow',
   series: '',
@@ -149,12 +151,21 @@ export default function ProductForm({
             />
           </div>
           <div className="md:col-span-2">
-            <label className={labelCls}>Leírás *</label>
+            <label className={labelCls}>Összefoglaló (rövid leírás) *</label>
             <textarea
               className={`${inputCls} min-h-[120px]`}
               value={values.description}
               onChange={(e) => update('description', e.target.value)}
               required
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className={labelCls}>Bővebb leírás (a termék képek alatt jelenik meg)</label>
+            <textarea
+              className={`${inputCls} min-h-[200px]`}
+              value={values.longDescription}
+              onChange={(e) => update('longDescription', e.target.value)}
+              placeholder="Hosszabb, részletes termékleírás. Új sorok megőrződnek."
             />
           </div>
           <div>

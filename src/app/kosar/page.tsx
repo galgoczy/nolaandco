@@ -37,7 +37,7 @@ export default function KosarPage() {
             KOSÁR
           </h1>
           <p className="text-carbon-light text-lg mb-8">A kosarad üres.</p>
-          <Button href="/termekek">Termékek böngészése</Button>
+          <Button variant="secondary" href="/termekek">Termékek böngészése</Button>
         </div>
       </section>
     );
@@ -163,7 +163,7 @@ export default function KosarPage() {
           </div>
 
           <div className="mt-6">
-            <Button href="/penztar" className="w-full">
+            <Button variant="secondary" href="/penztar" className="w-full">
               Tovább a pénztárhoz
             </Button>
           </div>

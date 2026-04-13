@@ -45,7 +45,7 @@ export default async function ThankYouPage({ searchParams }: Props) {
           </p>
           <Link
             href="/"
-            className="inline-block bg-[#4A4A4A] text-white px-8 py-3 rounded-xl font-medium text-sm hover:bg-[#3A3A3A] transition-colors"
+            className="inline-block bg-[#D5E8F0] text-[#4A4A4A] px-8 py-3 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity"
           >
             Vissza a főoldalra
           </Link>
@@ -66,11 +66,11 @@ export default async function ThankYouPage({ searchParams }: Props) {
             Köszönjük a rendelésed!
           </h1>
           <p className="text-[#4A4A4A]/70 mb-8">
-            A rendelésed feldolgozás alatt van. Hamarosan kapni fogsz egy visszaigazoló e-mailt.
+            A rendelésed sikeresen rögzítettük, egyedi emléked hamarosan készül!
           </p>
           <Link
             href="/"
-            className="inline-block bg-[#4A4A4A] text-white px-8 py-3 rounded-xl font-medium text-sm hover:bg-[#3A3A3A] transition-colors"
+            className="inline-block bg-[#D5E8F0] text-[#4A4A4A] px-8 py-3 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity"
           >
             Vissza a főoldalra
           </Link>
@@ -92,7 +92,7 @@ export default async function ThankYouPage({ searchParams }: Props) {
             Köszönjük a rendelésed!
           </h1>
           <p className="text-[#4A4A4A]/70">
-            A rendelésed sikeresen rögzítettük. Hamarosan felvesszük veled a kapcsolatot.
+            A rendelésed sikeresen rögzítettük, egyedi emléked hamarosan készül!
           </p>
         </div>
 
@@ -179,7 +179,7 @@ export default async function ThankYouPage({ searchParams }: Props) {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
           <Link
             href="/"
-            className="inline-block bg-[#4A4A4A] text-white px-8 py-3 rounded-xl font-medium text-sm hover:bg-[#3A3A3A] transition-colors"
+            className="inline-block bg-[#D5E8F0] text-[#4A4A4A] px-8 py-3 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity"
           >
             Vissza a főoldalra
           </Link>

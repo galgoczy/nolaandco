@@ -29,6 +29,10 @@ export async function PATCH(
   if (data.name !== undefined) update.name = str(data.name);
   if (data.slug !== undefined) update.slug = str(data.slug);
   if (data.description !== undefined) update.description = str(data.description);
+  if (data.longDescription !== undefined) {
+    const s = str(data.longDescription);
+    update.longDescription = s || null;
+  }
   if (data.price !== undefined) update.price = num(data.price);
   if (data.category !== undefined) update.category = str(data.category);
   if (data.series !== undefined) update.series = str(data.series);

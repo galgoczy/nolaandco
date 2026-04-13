@@ -18,7 +18,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
   return (
     <div className="flex flex-col gap-3">
       {/* Main image */}
-      <div className="relative aspect-square rounded-2xl overflow-hidden bg-surface-container-low ghost-border">
+      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-surface-container-low ghost-border">
         <Image
           key={allImages[activeIdx]}
           src={allImages[activeIdx]}
