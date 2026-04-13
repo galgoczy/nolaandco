@@ -69,10 +69,17 @@ export default async function ProductDetailPage({ params }: Props) {
             )}
 
             <div className="space-y-2">
-              <h3 className="text-xs uppercase tracking-[0.2em] text-[#4A4A4A]/60 font-medium">Összefoglaló</h3>
               <p className="text-[#4A4A4A] leading-relaxed">
                 {product.description}
               </p>
+              {product.longDescription && (
+                <a
+                  href="#bovebb-leiras"
+                  className="inline-block text-sm text-[#C4A591] hover:text-[#4A4A4A] underline underline-offset-2 transition-colors mt-1"
+                >
+                  további információk...
+                </a>
+              )}
             </div>
 
             <div className="pt-4">
@@ -92,7 +99,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
         {/* Bővebb leírás (long description) below images */}
         {product.longDescription && (
-          <div className="mt-16 max-w-4xl mx-auto">
+          <div id="bovebb-leiras" className="mt-16 max-w-4xl mx-auto scroll-mt-24">
             <h2 className="text-2xl md:text-3xl text-[#4A4A4A] mb-6 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
               Bővebb leírás
             </h2>

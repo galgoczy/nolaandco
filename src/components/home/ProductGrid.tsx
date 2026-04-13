@@ -9,7 +9,7 @@ export default async function ProductGrid() {
   });
 
   return (
-    <section className="py-24 bg-surface" id="collection">
+    <section className="pt-12 pb-24 md:py-24 bg-surface" id="collection">
       <div className="max-w-7xl mx-auto px-8">
         <div className="text-center mb-20">
           <RevealOnScroll>

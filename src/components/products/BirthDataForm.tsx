@@ -127,7 +127,7 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
 
       <button
         type="submit"
-        className="w-full bg-primary text-on-primary rounded-full px-8 py-3 font-bold btn-anim transition-all hover:shadow-md"
+        className="w-full bg-[#D5E8F0] text-[#4A4A4A] rounded-full px-8 py-3 font-bold btn-anim transition-all hover:shadow-md"
       >
         Mentés
       </button>
