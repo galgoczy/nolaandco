@@ -33,13 +33,13 @@ export default function HeroSection() {
         <video
           ref={videoRef}
           key={isMobile ? 'mobile' : 'desktop'}
-          src={isMobile ? '/scrollytelling/hero5-mobile.mp4' : '/scrollytelling/hero5-desktop.mp4'}
+          src={isMobile ? '/scrollytelling/hero6-mobile.mp4' : '/scrollytelling/hero6-desktop.mp4'}
           autoPlay
           loop
           muted
           playsInline
           preload="auto"
-          className={`w-full object-cover ${isMobile ? 'h-[85vh]' : 'h-auto'}`}
+          className={`w-full object-cover ${isMobile ? 'h-[68vh]' : 'h-auto'}`}
         />
         <div className="absolute inset-0 flex pointer-events-none items-center justify-start px-8 md:px-32">
           <div className="flex flex-col items-start gap-4">
