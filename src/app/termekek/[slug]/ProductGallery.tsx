@@ -16,7 +16,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
   const hasMultiple = allImages.length > 1;
 
   return (
-    <div className="flex flex-col gap-3 w-full max-w-[470px] mx-auto">
+    <div className="flex flex-col gap-3 w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0">
       {/* Main image */}
       <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-surface-container-low ghost-border">
         <Image
