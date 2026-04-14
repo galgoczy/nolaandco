@@ -39,7 +39,7 @@ export default function AboutSection() {
               </Link>
             </RevealOnScroll>
             <RevealOnScroll>
-              <div className="relative mt-10 aspect-[3/4] max-w-sm mx-auto md:mx-0 rounded-2xl overflow-hidden bg-surface-container">
+              <div className="relative mt-10 aspect-[3/4] max-w-sm mx-auto rounded-2xl overflow-hidden bg-surface-container">
                 <Image
                   src="/images/Tőlünk.jpg"
                   alt="Tőlünk - Nola & Co."

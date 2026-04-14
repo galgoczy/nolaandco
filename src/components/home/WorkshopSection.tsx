@@ -80,6 +80,7 @@ export default function WorkshopSection() {
                     alt=""
                     fill
                     className="object-contain"
+                    style={{ filter: 'brightness(0) invert(1)' }}
                     sizes="48px"
                   />
                 </div>
