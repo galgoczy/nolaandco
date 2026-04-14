@@ -61,7 +61,7 @@ export default function HeroSection() {
               className="pointer-events-auto bg-white text-carbon rounded-2xl px-8 md:px-12 py-3.5 md:py-4 text-xs md:text-sm btn-anim shadow-xl cursor-pointer hero-cta-pulse"
               style={{
                 fontFamily: "'Gilroy', 'Inter', 'Montserrat', sans-serif",
-                fontWeight: 600,
+                fontWeight: 400,
                 letterSpacing: '0.128em',
                 textTransform: 'uppercase',
               }}
