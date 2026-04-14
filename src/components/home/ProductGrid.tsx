@@ -47,7 +47,7 @@ export default async function ProductGrid() {
   return (
     <section className="pt-12 pb-24 md:py-24 bg-surface" id="collection">
       <div className="max-w-7xl mx-auto px-8">
-        <div className="text-center mb-16 md:mb-20">
+        <div id="products-start" className="text-center mb-16 md:mb-20 scroll-mt-20">
           <RevealOnScroll>
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-carbon mb-4 leading-tight tracking-[0.18em] uppercase sm:whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>
               THE SHAPE OF<br className="sm:hidden" /> <span className="sm:inline">YOUR MEMORIES</span>
@@ -61,7 +61,7 @@ export default async function ProductGrid() {
         </div>
 
         {/* Mobile: horizontal scrollable groups */}
-        <div id="products-start" className="md:hidden space-y-12">
+        <div className="md:hidden space-y-12">
           {groups.map((group) => (
             <div key={group.key}>
               <h4 className="text-sm tracking-[0.2em] text-carbon-light mb-4 px-1" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}>
