@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import ImageUpload from './ImageUpload';
+import RichTextarea from '@/components/admin/RichTextarea';
 
 export type ProductFormValues = {
   name: string;
@@ -152,19 +153,21 @@ export default function ProductForm({
           </div>
           <div className="md:col-span-2">
             <label className={labelCls}>Összefoglaló (rövid leírás) *</label>
-            <textarea
-              className={`${inputCls} min-h-[120px]`}
+            <RichTextarea
+              className={inputCls}
+              minHeight="120px"
               value={values.description}
-              onChange={(e) => update('description', e.target.value)}
+              onChange={(v) => update('description', v)}
               required
             />
           </div>
           <div className="md:col-span-2">
             <label className={labelCls}>Bővebb leírás (a termék képek alatt jelenik meg)</label>
-            <textarea
-              className={`${inputCls} min-h-[200px]`}
+            <RichTextarea
+              className={inputCls}
+              minHeight="200px"
               value={values.longDescription}
-              onChange={(e) => update('longDescription', e.target.value)}
+              onChange={(v) => update('longDescription', v)}
               placeholder="Hosszabb, részletes termékleírás. Új sorok megőrződnek."
             />
           </div>
