@@ -12,7 +12,7 @@ const navLinks = [
   { label: 'NEKTEK', href: '/nektek' },
   { label: 'PÁRNA', href: '/termekek?category=pillow' },
   { label: 'POSZTER', href: '/termekek?category=poster' },
-  { label: 'AJÁNDÉKKÁRTYÁK', href: '/termekek/nola-ajandekkartya' },
+  { label: 'AJÁNDÉKKÁRTYA', href: '/termekek/nola-ajandekkartya' },
 ];
 
 type BannerData = {
@@ -76,13 +76,13 @@ export default function Navbar() {
       <nav className="nav-animate sticky top-0 z-50 bg-nav-beige glass-nav">
         <div className="max-w-7xl mx-auto px-6 md:px-8 h-16 md:h-[76px] flex items-center justify-between">
           {/* Left: Logo */}
-          <div className="flex-1 flex items-center">
+          <div className="flex-1 flex items-center md:-ml-3">
             <Link href="/">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/logo-wide.svg"
                 alt="Nola & Co."
-                className="h-8 md:h-11 w-auto"
+                className="h-8 md:h-[37px] w-auto"
               />
             </Link>
           </div>

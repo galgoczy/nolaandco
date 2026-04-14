@@ -13,7 +13,7 @@ const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
 });
 
 export const metadata: Metadata = {
-  title: 'Nola & Co. | Nordic Serenity',
+  title: 'Nola & Co | Születési emlékpárnák & poszterek',
   description:
     'Személyre szabott babapárnák és poszterek. Prémium minőségű, OEKO-TEX tanúsítvánnyal rendelkező anyagokból.',
 };

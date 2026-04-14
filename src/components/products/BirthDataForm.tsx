@@ -20,7 +20,7 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
   const [errors, setErrors] = useState<Partial<Record<keyof BirthData, string>>>({});
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -75,33 +75,69 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
       />
 
       <div className="grid grid-cols-2 gap-4">
-        <Input
-          label="Születési súly"
-          name="birthWeight"
-          value={formData.birthWeight}
-          onChange={handleChange}
-          error={errors.birthWeight}
-          placeholder="3450g"
-        />
+        <div className="flex flex-col gap-1">
+          <label htmlFor="birthWeight" className="text-carbon-light text-sm font-body">
+            Születési súly (gramm)
+          </label>
+          <input
+            id="birthWeight"
+            name="birthWeight"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={formData.birthWeight}
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, '');
+              setFormData((prev) => ({ ...prev, birthWeight: onlyDigits }));
+              if (errors.birthWeight) setErrors((prev) => ({ ...prev, birthWeight: undefined }));
+            }}
+            placeholder="3450"
+            className={`bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 ${errors.birthWeight ? 'ring-2 ring-red-400' : ''}`}
+          />
+          {errors.birthWeight && (
+            <span className="text-red-500 text-xs mt-0.5">{errors.birthWeight}</span>
+          )}
+        </div>
 
-        <Input
-          label="Születési hossz"
-          name="birthHeight"
-          value={formData.birthHeight}
-          onChange={handleChange}
-          error={errors.birthHeight}
-          placeholder="52cm"
-        />
+        <div className="flex flex-col gap-1">
+          <label htmlFor="birthHeight" className="text-carbon-light text-sm font-body">
+            Születési hossz (cm)
+          </label>
+          <select
+            id="birthHeight"
+            name="birthHeight"
+            value={formData.birthHeight}
+            onChange={handleChange}
+            className={`bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 ${errors.birthHeight ? 'ring-2 ring-red-400' : ''}`}
+          >
+            <option value="">Válassz...</option>
+            {Array.from({ length: 61 - 44 + 1 }, (_, i) => 44 + i).map((cm) => (
+              <option key={cm} value={String(cm)}>
+                {cm} cm
+              </option>
+            ))}
+          </select>
+          {errors.birthHeight && (
+            <span className="text-red-500 text-xs mt-0.5">{errors.birthHeight}</span>
+          )}
+        </div>
       </div>
 
-      <Input
-        label="Születés időpontja (opcionális)"
-        name="birthTime"
-        value={formData.birthTime}
-        onChange={handleChange}
-        error={errors.birthTime}
-        placeholder="14:32"
-      />
+      <div className="flex flex-col gap-1">
+        <label htmlFor="birthTime" className="text-carbon-light text-sm font-body">
+          Születés időpontja (opcionális)
+        </label>
+        <input
+          id="birthTime"
+          name="birthTime"
+          type="time"
+          value={formData.birthTime}
+          onChange={handleChange}
+          className={`bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 ${errors.birthTime ? 'ring-2 ring-red-400' : ''}`}
+        />
+        {errors.birthTime && (
+          <span className="text-red-500 text-xs mt-0.5">{errors.birthTime}</span>
+        )}
+      </div>
 
       <div className="flex flex-col gap-1">
         <label

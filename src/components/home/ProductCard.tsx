@@ -35,8 +35,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
       <div className="text-center">
-        <h4 className="text-base uppercase tracking-[0.08em] text-carbon font-normal">{product.name}</h4>
-        <p className="text-sm uppercase tracking-[0.05em] text-carbon-light mt-1 font-normal">
+        <h4 className="text-base tracking-[0.08em] text-carbon font-normal">{product.name}</h4>
+        <p className="text-sm tracking-[0.05em] text-carbon-light mt-1 font-normal">
           {showFromPrice
             ? `${formatPrice(product.price)}-tól`
             : formatPrice(product.price)}

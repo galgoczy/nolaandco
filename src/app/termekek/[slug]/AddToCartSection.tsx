@@ -9,10 +9,11 @@ import { formatPrice } from '@/lib/utils';
 import type { BirthData } from '@/lib/validators';
 
 const giftCardVariants = [
-  { label: 'Digitális poszter', price: 6000, description: 'Egy darab digitális születési poszter' },
-  { label: 'Nyomtatott poszter + szállítás', price: 14000, description: 'Nyomtatott poszter kézbesítéssel' },
-  { label: 'Párna + digitális poszter + szállítás', price: 26000, description: 'Párna és digitális poszter csomag' },
-  { label: 'Párna + nyomtatott poszter + szállítás', price: 33000, description: 'Párna és nyomtatott poszter csomag' },
+  { label: 'Digitális poszter', price: 6000, description: 'emailben kiküldve, tetszőleges méretben nyomtatható' },
+  { label: 'Print poszter + szállítás', price: 14000, description: 'nyomtatott poszter 50 x 70 cm + csomagautomatás szállítás' },
+  { label: 'Párna + szállítás', price: 24000, description: 'választott párna + csomagautomatás szállítás' },
+  { label: 'Nola Duet – digital', price: 27000, description: 'digitális poszter + párna + csomagautomatás szállítás' },
+  { label: 'Nola Duet – print', price: 33000, description: 'nyomtatott poszter 50 x 70 cm + párna + csomagautomatás szállítás' },
 ];
 
 const posterVariants = [

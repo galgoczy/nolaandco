@@ -76,7 +76,7 @@ export default function AboutSection() {
             </RevealOnScroll>
             <RevealOnScroll>
               <p className="text-carbon-light leading-relaxed mb-8 italic text-[15px]" style={thinText}>
-                Ezen kívül szeretnénk segíteni az <strong className="font-semibold not-italic">angyalbaba-szülőknek</strong>, hogy szeretetben őrizhessék
+                Ezen kívül szeretnénk segíteni az <strong className="font-bold italic">angyalbaba-szülőknek</strong>, hogy szeretetben őrizhessék
                 meg azt az emléket, ami örökre a szívükbe égett.
               </p>
             </RevealOnScroll>

@@ -50,12 +50,23 @@ export async function POST(request: NextRequest) {
       if (order) {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
 
-        // Generate Számlázz.hu invoice (sent separately by Számlázz.hu)
-        createSzamlazzInvoice(order).catch((err) =>
-          console.error('Számlázz.hu invoice error:', err)
-        );
+        // Generate Számlázz.hu invoice (awaited so we can capture the PDF
+        // and attach it to our confirmation email). If anything goes wrong
+        // we still send the confirmation email without the invoice.
+        let invoicePdf: Buffer | undefined;
+        try {
+          const invoiceResult = await createSzamlazzInvoice(order);
+          // The szamlazz.js client returns { pdf: Buffer } when
+          // requestInvoiceDownload is enabled on the client.
+          if (invoiceResult.pdf && Buffer.isBuffer(invoiceResult.pdf) && invoiceResult.pdf.length > 0) {
+            invoicePdf = invoiceResult.pdf;
+          }
+        } catch (err) {
+          console.error('Számlázz.hu invoice error:', err);
+        }
 
-        // Send confirmation email with order details
+        // Send confirmation email with order details (and invoice PDF
+        // attached if we got it back from Számlázz.hu).
         const emailItems = order.items.map((item) => ({
           name: item.product.name,
           quantity: item.quantity,
@@ -63,20 +74,28 @@ export async function POST(request: NextRequest) {
           babyName: item.babyName,
         }));
 
-        sendEmail({
-          to: order.email,
-          subject: orderConfirmationSubject(),
-          html: orderConfirmationHtml({
-            customerName: order.shippingName || 'Vásárlónk',
-            orderId: order.id,
-            orderUrl: `${baseUrl}/fiok#rendelesek`,
-            items: emailItems,
-            subtotal: order.subtotal,
-            shippingCost: order.shippingCost,
-            total: order.total,
-            shippingMethod: order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home',
-          }),
-        }).catch((err) => console.error('Order confirmation email failed:', err));
+        try {
+          await sendEmail({
+            to: order.email,
+            subject: orderConfirmationSubject(),
+            html: orderConfirmationHtml({
+              customerName: order.shippingName || 'Vásárlónk',
+              orderId: order.id,
+              orderUrl: `${baseUrl}/fiok#rendelesek`,
+              items: emailItems,
+              subtotal: order.subtotal,
+              shippingCost: order.shippingCost,
+              total: order.total,
+              shippingMethod: order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home',
+              hasInvoice: !!invoicePdf,
+            }),
+            attachments: invoicePdf
+              ? [{ filename: `szamla-${order.id.slice(-8).toUpperCase()}.pdf`, content: invoicePdf }]
+              : undefined,
+          });
+        } catch (err) {
+          console.error('Order confirmation email failed:', err);
+        }
       }
     }
   }

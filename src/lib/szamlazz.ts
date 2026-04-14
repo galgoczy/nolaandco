@@ -33,7 +33,7 @@ function getClient() {
     clientInstance = new Client({
       authToken: agentKey,
       eInvoice: false,
-      requestInvoiceDownload: false,
+      requestInvoiceDownload: true,
       responseVersion: 2,
     });
   }
@@ -62,7 +62,9 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
     city: order.billingCity || order.shippingCity,
     address: order.billingAddress || order.shippingAddress,
     email: order.email,
-    sendEmail: true,
+    // Don't let Számlázz.hu send the invoice separately — we attach
+    // the PDF to our own order confirmation email instead.
+    sendEmail: false,
     taxSubject: 0, // Unknown
   });
 

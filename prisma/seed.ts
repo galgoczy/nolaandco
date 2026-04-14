@@ -104,7 +104,7 @@ const products = [
     name: 'NOLA Ajándékkártya',
     slug: 'nola-ajandekkartya',
     description:
-      'Digitális ajándékkártya – tökéletes ajándék várandós vagy friss szülő ismerősöknek! A megajándékozott szabadon választhat a Nola & Co. termékpalettájáról, amikor már ismeri a baba születési adatait. Válassz a négy verzió közül: Digitális poszter (6.000 Ft), Nyomtatott poszter + szállítás (14.000 Ft), Párna + digitális poszter + szállítás (26.000 Ft), vagy Párna + nyomtatott poszter + szállítás (33.000 Ft).',
+      'Digitális ajándékkártya – tökéletes ajándék várandós vagy friss szülő ismerősöknek! A megajándékozott szabadon választhat a Nola & Co. termékpalettájáról, amikor már ismeri a baba születési adatait. Válassz öt verzió közül: Digitális poszter (6.000 Ft), Print poszter + szállítás (14.000 Ft), Párna + szállítás (24.000 Ft), Nola Duet – digital (27.000 Ft), vagy Nola Duet – print (33.000 Ft).',
     price: 6000,
     category: 'giftcard',
     series: 'nola',
