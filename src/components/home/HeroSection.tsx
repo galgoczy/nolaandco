@@ -41,10 +41,10 @@ export default function HeroSection() {
           preload="auto"
           className={`w-full object-cover ${isMobile ? 'h-[68vh]' : 'h-auto'}`}
         />
-        <div className="absolute inset-0 flex pointer-events-none items-center justify-start px-8 md:px-20 lg:px-32">
+        <div className="absolute inset-0 flex pointer-events-none items-start md:items-end justify-start px-8 md:px-20 lg:px-32 pt-[10vh] md:pt-0 pb-0 md:pb-[10%]">
           <div className="flex flex-col items-start gap-6 md:gap-8 max-w-[90%] md:max-w-[60%]">
             <h1
-              className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
+              className="text-white text-3xl sm:text-4xl md:text-4xl lg:text-5xl"
               style={{
                 fontFamily: "'Gilroy', 'Inter', 'Montserrat', sans-serif",
                 fontWeight: 600,
@@ -58,7 +58,7 @@ export default function HeroSection() {
             </h1>
             <button
               onClick={scrollToProducts}
-              className="pointer-events-auto bg-brand-blue text-carbon rounded-full px-8 md:px-12 py-3.5 md:py-4 text-xs md:text-sm btn-anim shadow-xl cursor-pointer hero-cta-pulse"
+              className="pointer-events-auto bg-white text-carbon rounded-2xl px-8 md:px-12 py-3.5 md:py-4 text-xs md:text-sm btn-anim shadow-xl cursor-pointer hero-cta-pulse"
               style={{
                 fontFamily: "'Gilroy', 'Inter', 'Montserrat', sans-serif",
                 fontWeight: 600,
