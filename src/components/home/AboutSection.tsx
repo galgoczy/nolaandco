@@ -39,8 +39,14 @@ export default function AboutSection() {
               </Link>
             </RevealOnScroll>
             <RevealOnScroll>
-              <div className="mt-10 aspect-[4/3] rounded-2xl bg-surface-container flex items-center justify-center">
-                <span className="text-carbon-light/40 text-sm font-body">Kép helye (varrógép, varrás)</span>
+              <div className="relative mt-10 aspect-[3/4] max-w-sm mx-auto md:mx-0 rounded-2xl overflow-hidden bg-surface-container">
+                <Image
+                  src="/images/Tőlünk.jpg"
+                  alt="Tőlünk - Nola & Co."
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 384px"
+                />
               </div>
             </RevealOnScroll>
           </div>
