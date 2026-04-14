@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { newsletterSchema } from '@/lib/validators';
+import { mailerliteSubscribe } from '@/lib/mailerlite';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +20,13 @@ export async function POST(request: NextRequest) {
       update: { active: true },
       create: { email: result.data.email },
     });
+
+    // Push to MailerLite. Don't fail the user's request if MailerLite is down —
+    // the DB upsert is the source of truth, admin can re-sync manually.
+    const mlResult = await mailerliteSubscribe({ email: result.data.email });
+    if (!mlResult.ok) {
+      console.error('MailerLite subscribe failed:', mlResult.error);
+    }
 
     return NextResponse.json({ message: 'Sikeres feliratkozás!' });
   } catch (error) {

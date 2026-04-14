@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
+import { mailerliteSubscribe, mailerliteUnsubscribe } from '@/lib/mailerlite';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -43,6 +44,11 @@ export async function PATCH(req: Request) {
 
   const str = (v: unknown) => (typeof v === 'string' ? v.trim() || null : null);
 
+  const existing = await prisma.customer.findUnique({
+    where: { email: session.user.email },
+  });
+  const wantsNewsletter = Boolean(newsletter);
+
   const customer = await prisma.customer.upsert({
     where: { email: session.user.email },
     create: {
@@ -57,7 +63,7 @@ export async function PATCH(req: Request) {
       billingZip: str(billingZip),
       billingCity: str(billingCity),
       billingAddress: str(billingAddress),
-      newsletter: Boolean(newsletter),
+      newsletter: wantsNewsletter,
     },
     update: {
       name: str(name),
@@ -70,9 +76,39 @@ export async function PATCH(req: Request) {
       billingZip: str(billingZip),
       billingCity: str(billingCity),
       billingAddress: str(billingAddress),
-      newsletter: Boolean(newsletter),
+      newsletter: wantsNewsletter,
     },
   });
+
+  // Sync newsletter status to MailerLite when the opt-in flag changed.
+  const previous = existing?.newsletter ?? false;
+  if (wantsNewsletter !== previous) {
+    try {
+      if (wantsNewsletter) {
+        await prisma.newsletterSubscriber.upsert({
+          where: { email: session.user.email },
+          update: { active: true },
+          create: { email: session.user.email },
+        });
+        const res = await mailerliteSubscribe({
+          email: session.user.email,
+          name: str(name) || str(shippingName) || undefined,
+        });
+        if (!res.ok) console.error('MailerLite subscribe failed:', res.error);
+      } else {
+        await prisma.newsletterSubscriber
+          .update({
+            where: { email: session.user.email },
+            data: { active: false },
+          })
+          .catch(() => {});
+        const res = await mailerliteUnsubscribe(session.user.email);
+        if (!res.ok) console.error('MailerLite unsubscribe failed:', res.error);
+      }
+    } catch (err) {
+      console.error('Newsletter sync error:', err);
+    }
+  }
 
   return NextResponse.json({ ok: true, customer });
 }

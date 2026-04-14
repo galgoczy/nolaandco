@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
+import { renderRichText } from '@/lib/richText';
 import AddToCartSection from './AddToCartSection';
 import ProductGallery from './ProductGallery';
 
@@ -69,9 +70,10 @@ export default async function ProductDetailPage({ params }: Props) {
             )}
 
             <div className="space-y-2">
-              <p className="text-[#4A4A4A] leading-relaxed">
-                {product.description}
-              </p>
+              <div
+                className="text-[#4A4A4A] leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: renderRichText(product.description) }}
+              />
               {product.longDescription && (
                 <a
                   href="#bovebb-leiras"
@@ -103,9 +105,10 @@ export default async function ProductDetailPage({ params }: Props) {
             <h2 className="text-2xl md:text-3xl text-[#4A4A4A] mb-6 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
               Bővebb leírás
             </h2>
-            <div className="prose prose-neutral max-w-none text-[#4A4A4A] leading-relaxed whitespace-pre-line">
-              {product.longDescription}
-            </div>
+            <div
+              className="prose prose-neutral max-w-none text-[#4A4A4A] leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: renderRichText(product.longDescription) }}
+            />
           </div>
         )}
       </div>
