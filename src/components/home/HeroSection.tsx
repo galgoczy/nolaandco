@@ -41,14 +41,32 @@ export default function HeroSection() {
           preload="auto"
           className={`w-full object-cover ${isMobile ? 'h-[68vh]' : 'h-auto'}`}
         />
-        <div className="absolute inset-0 flex pointer-events-none items-center justify-start px-8 md:px-32">
-          <div className="flex flex-col items-start gap-4">
+        <div className="absolute inset-0 flex pointer-events-none items-center justify-start px-8 md:px-20 lg:px-32">
+          <div className="flex flex-col items-start gap-6 md:gap-8 max-w-[90%] md:max-w-[60%]">
+            <h1
+              className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
+              style={{
+                fontFamily: "'Gilroy', 'Inter', 'Montserrat', sans-serif",
+                fontWeight: 600,
+                letterSpacing: '-0.024em',
+                lineHeight: 1.2,
+                textShadow:
+                  '0 2px 24px rgba(0,0,0,0.35), 0 0 12px rgba(0,0,0,0.25), 0 0 2px rgba(255,255,255,0.15)',
+              }}
+            >
+              születési emlékpárnák<br />&amp; poszterek
+            </h1>
             <button
               onClick={scrollToProducts}
-              className="pointer-events-auto bg-brand-blue text-carbon rounded-full px-14 py-5 text-sm tracking-[0.25em] uppercase btn-anim shadow-xl cursor-pointer hero-cta-pulse"
-              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+              className="pointer-events-auto bg-brand-blue text-carbon rounded-full px-8 md:px-12 py-3.5 md:py-4 text-xs md:text-sm btn-anim shadow-xl cursor-pointer hero-cta-pulse"
+              style={{
+                fontFamily: "'Gilroy', 'Inter', 'Montserrat', sans-serif",
+                fontWeight: 600,
+                letterSpacing: '0.128em',
+                textTransform: 'uppercase',
+              }}
             >
-              Görgess és fedezd fel!
+              Megnézem a kollekciót
             </button>
           </div>
         </div>
