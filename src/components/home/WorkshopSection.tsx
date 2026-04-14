@@ -4,18 +4,22 @@ import RevealOnScroll from '@/components/ui/RevealOnScroll';
 const features = [
   {
     title: 'Prémium alapanyagok',
+    icon: '/images/31.png',
     desc: 'Párnáink OEKO-TEX® Standard 100 minősítésű alapanyagból és tanúsított cérnával készülnek. Ez a minősítés garantálja, hogy az alapanyagokat káros anyagokra bevizsgálták, így bababőrrel érintkezve is biztonságos választást jelentenek.',
   },
   {
     title: 'Tartós kidolgozás',
+    icon: '/images/5.png',
     desc: 'A töltet hipoallergén, mosható és formatartó – használat és mosás során sem csomósodik, így hosszú távon is megőrzi puhaságát és egyenletes tartását.',
   },
   {
     title: 'Egyedi részletek',
+    icon: '/images/9.png',
     desc: 'A sziluettet és a születési adatokat modern, kopás- és mosásálló technológiával visszük fel az anyagra, amely a plüss szerkezetével együtt alkot harmonikus egységet.',
   },
   {
     title: 'Kézműves gondoskodás',
+    icon: '/images/19.png',
     desc: 'Minden darab gondosan, kis szériában készül, hogy a legkisebbek számára is megbízható, szerethető és tartós kiegészítő legyen.',
   },
 ];
@@ -70,7 +74,15 @@ export default function WorkshopSection() {
           {features.map((f, i) => (
             <RevealOnScroll key={i} delay={i * 120}>
               <div className="flex gap-4 items-start">
-                <span className="text-[#FDFBF7] text-2xl mt-1">·</span>
+                <div className="relative w-12 h-12 flex-shrink-0 mt-0.5">
+                  <Image
+                    src={f.icon}
+                    alt=""
+                    fill
+                    className="object-contain"
+                    sizes="48px"
+                  />
+                </div>
                 <div>
                   <h4 className="text-sm uppercase tracking-wider mb-2 text-[#FDFBF7]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>
                     {f.title}
