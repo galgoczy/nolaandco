@@ -1,6 +1,5 @@
 export const dynamic = 'force-dynamic';
 
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
@@ -26,20 +25,43 @@ export default async function ProductDetailPage({ params }: Props) {
   const isGiftCard = product.category === 'giftcard';
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
 
+  const longDescriptionBlock = product.longDescription ? (
+    <>
+      <h2 className="text-2xl md:text-3xl text-[#4A4A4A] mb-6 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
+        Bővebb leírás
+      </h2>
+      <div
+        className="prose prose-neutral max-w-none text-[#4A4A4A] leading-relaxed"
+        dangerouslySetInnerHTML={{ __html: renderRichText(product.longDescription) }}
+      />
+    </>
+  ) : null;
+
   return (
     <section className="py-24 bg-surface min-h-screen">
       <div className="max-w-7xl mx-auto px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-x-16 lg:gap-y-12">
-          {/* Left col (row 1): Product Images */}
-          <ProductGallery
-            mainImage={product.imageUrl}
-            images={product.images ?? []}
-            alt={product.name}
-            badge={product.badge}
-          />
+        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-x-16">
+          {/* Left column: gallery + (desktop) long description */}
+          <div className="w-full lg:w-1/2 flex flex-col gap-12">
+            <ProductGallery
+              mainImage={product.imageUrl}
+              images={product.images ?? []}
+              alt={product.name}
+              badge={product.badge}
+            />
 
-          {/* Right col (row 1): Product Details */}
-          <div className="flex flex-col justify-center space-y-6">
+            {product.longDescription && (
+              <div
+                id="bovebb-leiras-desktop"
+                className="hidden lg:block w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0 scroll-mt-24"
+              >
+                {longDescriptionBlock}
+              </div>
+            )}
+          </div>
+
+          {/* Right column: product details */}
+          <div className="w-full lg:w-1/2 flex flex-col justify-center space-y-6 mt-12 lg:mt-0">
             {!isGiftCard && product.series && (
               <span className="inline-block self-start px-3 py-1 rounded-full bg-surface-container text-xs font-medium uppercase tracking-wider text-carbon-light">
                 {product.series} series
@@ -75,12 +97,20 @@ export default async function ProductDetailPage({ params }: Props) {
                 dangerouslySetInnerHTML={{ __html: renderRichText(product.description) }}
               />
               {product.longDescription && (
-                <a
-                  href="#bovebb-leiras"
-                  className="inline-block text-sm text-[#C4A591] hover:text-[#4A4A4A] underline underline-offset-2 transition-colors mt-1"
-                >
-                  további információk...
-                </a>
+                <>
+                  <a
+                    href="#bovebb-leiras-desktop"
+                    className="hidden lg:inline-block text-sm text-[#C4A591] hover:text-[#4A4A4A] underline underline-offset-2 transition-colors mt-1"
+                  >
+                    további információk...
+                  </a>
+                  <a
+                    href="#bovebb-leiras-mobile"
+                    className="inline-block lg:hidden text-sm text-[#C4A591] hover:text-[#4A4A4A] underline underline-offset-2 transition-colors mt-1"
+                  >
+                    további információk...
+                  </a>
+                </>
               )}
             </div>
 
@@ -98,19 +128,13 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Long description: desktop → left column row 2 (under gallery); mobile → below everything */}
+          {/* Mobile-only long description, at the very bottom */}
           {product.longDescription && (
             <div
-              id="bovebb-leiras"
-              className="lg:col-start-1 lg:row-start-2 w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0 scroll-mt-24"
+              id="bovebb-leiras-mobile"
+              className="lg:hidden w-full max-w-[470px] mx-auto mt-12 scroll-mt-24"
             >
-              <h2 className="text-2xl md:text-3xl text-[#4A4A4A] mb-6 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
-                Bővebb leírás
-              </h2>
-              <div
-                className="prose prose-neutral max-w-none text-[#4A4A4A] leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: renderRichText(product.longDescription) }}
-              />
+              {longDescriptionBlock}
             </div>
           )}
         </div>

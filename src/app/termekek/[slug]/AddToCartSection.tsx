@@ -18,7 +18,7 @@ const giftCardVariants = [
 
 const posterVariants = [
   { label: 'Digitális', price: 5900, description: 'Digitális fájl (PDF), amit otthon nyomtathatsz ki' },
-  { label: 'Nyomtatott', price: 12900, description: 'Prémium papírra nyomtatva, kézbesítéssel' },
+  { label: 'Nyomtatott', price: 12900, description: 'Prémium papírra nyomtatva' },
 ];
 
 interface Props {
