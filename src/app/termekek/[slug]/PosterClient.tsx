@@ -76,13 +76,18 @@ function PosterPreview({
     >
       {/* Baby silhouette — fills the full poster. The PNG has its own
           built-in padding so the figure sits in the upper ~80% and the
-          lower area is free for the birth-data text. */}
+          lower area is free for the birth-data text.
+          mix-blend-mode: darken drops the white pixels of the PNG onto the
+          colored background (keeps the black line, removes the white fill)
+          so we get a "pseudo-transparent" effect even if the PNG itself
+          has no alpha channel. */}
       <Image
         key={layout.id}
         src={layout.webImage}
         alt={layout.label}
         fill
         className="object-contain transition-opacity duration-300"
+        style={{ mixBlendMode: 'darken' }}
         sizes="(max-width: 1024px) 100vw, 50vw"
         priority
       />
@@ -326,7 +331,14 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
                 }`}
                 style={{ backgroundColor: posterBackground(color) }}
               >
-                <Image src={layout.webImage} alt="" fill className="object-contain" sizes="64px" />
+                <Image
+                  src={layout.webImage}
+                  alt=""
+                  fill
+                  className="object-contain"
+                  style={{ mixBlendMode: 'darken' }}
+                  sizes="64px"
+                />
               </button>
               {lifestyleImages.map((img, idx) => {
                 const active = view === 'lifestyle' && idx === activeLifestyleIdx;
