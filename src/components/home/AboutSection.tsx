@@ -41,7 +41,7 @@ export default function AboutSection() {
             <RevealOnScroll>
               <div className="relative mt-10 aspect-[3/4] max-w-sm mx-auto rounded-2xl overflow-hidden bg-surface-container">
                 <Image
-                  src="/images/Tőlünk.jpg"
+                  src="/images/tőlünk2.png"
                   alt="Tőlünk - Nola & Co."
                   fill
                   className="object-cover"
@@ -95,13 +95,13 @@ export default function AboutSection() {
               </Link>
             </RevealOnScroll>
             <RevealOnScroll>
-              <div className="relative mt-10 aspect-[4/3] rounded-2xl overflow-hidden bg-surface-container">
+              <div className="relative mt-10 aspect-[3/4] max-w-sm mx-auto rounded-2xl overflow-hidden bg-surface-container">
                 <Image
-                  src="/images/Nektek_1.jpg"
+                  src="/images/nektek2.png"
                   alt="Nektek - Nola & Co."
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 100vw, 384px"
                 />
               </div>
             </RevealOnScroll>
