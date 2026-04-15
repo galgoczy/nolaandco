@@ -72,17 +72,16 @@ function PosterPreview({
   return (
     <div className="relative w-full aspect-[5/7] bg-white rounded-md shadow-[0_20px_40px_-16px_rgba(74,74,74,0.25)] overflow-hidden">
       {/* Inner colored "window" inside the white paszpartu.
-          Arányok: felül 4%, oldalt 5%, alul 13% (az eredeti 20%-ból 35%-al
-          keskenyebb — a teteje alacsonyabban). */}
+          Arányok: felül 4%, oldalt 5%, alul 12.5%. */}
       <div
-        className="absolute left-[5%] right-[5%] top-[4%] bottom-[13%]"
+        className="absolute left-[5%] right-[5%] top-[4%] bottom-[12.5%]"
         style={{ backgroundColor: posterBackground(color) }}
       />
 
-      {/* Baby silhouette — a PNG a poszter felső 95%-án (5%-al kisebb,
+      {/* Baby silhouette — a PNG a poszter felső 97%-án (3%-al kisebb,
           felülre igazítva), így picit túlnyúlik a belső színes doboz alján.
           mix-blend-mode: darken tünteti el a fehér pixeleket. */}
-      <div className="absolute inset-x-0 top-0 h-[95%]">
+      <div className="absolute inset-x-0 top-0 h-[97%]">
         <Image
           key={layout.id}
           src={layout.webImage}
@@ -95,10 +94,11 @@ function PosterPreview({
         />
       </div>
 
-      {/* Birth data — két sor a fehér paszpartu alján. A szövegblokk alja
-          bottom-[7%]-nál rögzítve (terv aljához), a betűméret 35%-al
-          csökkent, így a blokk lefelé zsugorodik. */}
-      <div className="absolute left-0 right-0 bottom-[7%] text-center px-8">
+      {/* Birth data — két sor a fehér paszpartu alján. bottom-[4%]-nál
+          rögzítve (az alsó sor ~2 sorral lejjebb a korábbi helyzethez
+          képest). A mt-3 (12px) margó miatt a felső sor csak ~1 sorral
+          kerül lejjebb. */}
+      <div className="absolute left-0 right-0 bottom-[4%] text-center px-8">
         {birthData ? (
           <>
             {/* Top line: "1:1 ARÁNYÚ [NÉV]" — Montserrat Bold, 150 tracking */}
@@ -118,7 +118,7 @@ function PosterPreview({
             </div>
             {/* Bottom line — Montserrat Regular, 250 tracking, ~60% smaller */}
             <div
-              className="text-[#4A4A4A] uppercase mt-1.5"
+              className="text-[#4A4A4A] uppercase mt-3"
               style={{
                 fontFamily: "'Montserrat', sans-serif",
                 fontWeight: 400,
@@ -337,10 +337,10 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
               >
                 {/* inner colored window, ugyanazokkal az arányokkal */}
                 <div
-                  className="absolute left-[5%] right-[5%] top-[4%] bottom-[13%]"
+                  className="absolute left-[5%] right-[5%] top-[4%] bottom-[12.5%]"
                   style={{ backgroundColor: posterBackground(color) }}
                 />
-                <div className="absolute inset-x-0 top-0 h-[95%]">
+                <div className="absolute inset-x-0 top-0 h-[97%]">
                   <Image
                     src={layout.webImage}
                     alt=""
