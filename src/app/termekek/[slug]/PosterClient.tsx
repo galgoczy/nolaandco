@@ -70,17 +70,20 @@ function PosterPreview({
   onFloatingCartClick: () => void;
 }) {
   return (
-    <div
-      className="relative w-full aspect-[5/7] rounded-md shadow-[0_20px_40px_-16px_rgba(74,74,74,0.25)] overflow-hidden"
-      style={{ backgroundColor: posterBackground(color) }}
-    >
-      {/* Baby silhouette — fills the full poster. The PNG has its own
-          built-in padding so the figure sits in the upper ~80% and the
-          lower area is free for the birth-data text.
-          mix-blend-mode: darken drops the white pixels of the PNG onto the
-          colored background (keeps the black line, removes the white fill)
-          so we get a "pseudo-transparent" effect even if the PNG itself
-          has no alpha channel. */}
+    <div className="relative w-full aspect-[5/7] bg-white rounded-md shadow-[0_20px_40px_-16px_rgba(74,74,74,0.25)] overflow-hidden">
+      {/* Inner colored "window" inside the white paszpartu.
+          Arányok a látványtervről: felül 4%, oldalt 5%, alul 20%
+          (az alsó sávon jelenik meg a szöveg). */}
+      <div
+        className="absolute left-[5%] right-[5%] top-[4%] bottom-[20%]"
+        style={{ backgroundColor: posterBackground(color) }}
+      />
+
+      {/* Baby silhouette — a PNG a TELJES poszter területére kerül,
+          mert a feltöltött fájl a teljes kerettel van exportálva és a baba
+          már a helyén van. mix-blend-mode: darken tünteti el a fehér
+          pixeleket (ami vagy a fehér paszpartuval olvad össze, vagy a
+          színes belső dobozzal). A fekete vonalak megmaradnak. */}
       <Image
         key={layout.id}
         src={layout.webImage}
@@ -92,8 +95,10 @@ function PosterPreview({
         priority
       />
 
-      {/* Birth data — two lines near the bottom of the poster */}
-      <div className="absolute left-0 right-0 bottom-[6%] text-center px-8">
+      {/* Birth data — two lines on the white paszpartu, under the colored box.
+          A látványtervben: felső sor ~86%, alsó sor ~91% a teljes magassághoz
+          képest (kb. a fehér paszpartu alsó sávjának közepén). */}
+      <div className="absolute left-0 right-0 bottom-[7%] text-center px-8">
         {birthData ? (
           <>
             {/* Top line: "1:1 ARÁNYÚ [NÉV]" — Montserrat Bold, 150 tracking */}
@@ -324,13 +329,17 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
                 type="button"
                 onClick={() => setView('preview')}
                 aria-label="Saját tervezett poszter"
-                className={`relative w-16 h-[89px] rounded flex-shrink-0 border-2 transition-all overflow-hidden ${
+                className={`relative w-16 h-[89px] rounded flex-shrink-0 border-2 bg-white transition-all overflow-hidden ${
                   view === 'preview'
                     ? 'border-[#C4A591] shadow-sm'
                     : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
-                style={{ backgroundColor: posterBackground(color) }}
               >
+                {/* inner colored window, ugyanazokkal az arányokkal */}
+                <div
+                  className="absolute left-[5%] right-[5%] top-[4%] bottom-[20%]"
+                  style={{ backgroundColor: posterBackground(color) }}
+                />
                 <Image
                   src={layout.webImage}
                   alt=""
