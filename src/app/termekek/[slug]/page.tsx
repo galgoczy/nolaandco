@@ -6,13 +6,19 @@ import { formatPrice } from '@/lib/utils';
 import { renderRichText } from '@/lib/richText';
 import AddToCartSection from './AddToCartSection';
 import ProductGallery from './ProductGallery';
+import PosterClient from './PosterClient';
+import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
+
+const POSTER_DESIGNER_SLUG = 'poszter';
 
 interface Props {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function ProductDetailPage({ params }: Props) {
+export default async function ProductDetailPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const search = await searchParams;
 
   const product = await prisma.product.findUnique({
     where: { slug },
@@ -23,7 +29,39 @@ export default async function ProductDetailPage({ params }: Props) {
   }
 
   const isGiftCard = product.category === 'giftcard';
+  const isPosterDesigner = product.slug === POSTER_DESIGNER_SLUG;
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
+
+  if (isPosterDesigner) {
+    const requested = typeof search.elrendezes === 'string' ? search.elrendezes : undefined;
+    const initialLayoutId =
+      requested && POSTER_LAYOUTS.some((l) => l.id === requested) ? requested : DEFAULT_LAYOUT_ID;
+
+    return (
+      <section className="pt-4 pb-16 md:py-24 bg-surface min-h-screen">
+        <div className="max-w-7xl mx-auto px-8">
+          <PosterClient
+            product={{
+              id: product.id,
+              name: product.name,
+              slug: product.slug,
+              price: product.price,
+              imageUrl: product.imageUrl,
+              category: product.category,
+              description: product.description,
+              longDescription: product.longDescription,
+              badge: product.badge,
+              series: product.series,
+              onSale: product.onSale,
+              salePrice: product.salePrice,
+              images: product.images ?? [],
+            }}
+            initialLayoutId={initialLayoutId}
+          />
+        </div>
+      </section>
+    );
+  }
 
   const longDescriptionBlock = product.longDescription ? (
     <>

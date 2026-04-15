@@ -30,9 +30,11 @@ interface Props {
     imageUrl: string;
     category?: string | null;
   };
+  onBirthDataChange?: (data: BirthData | null) => void;
+  extraNote?: string;
 }
 
-export default function AddToCartSection({ product }: Props) {
+export default function AddToCartSection({ product, onBirthDataChange, extraNote }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const [birthData, setBirthData] = useState<BirthData | null>(null);
   const [added, setAdded] = useState(false);
@@ -54,6 +56,7 @@ export default function AddToCartSection({ product }: Props) {
 
   const handleBirthDataSubmit = (data: BirthData) => {
     setBirthData(data);
+    onBirthDataChange?.(data);
     // Scroll so the "Kosárba" button is visible with some breathing room below
     setTimeout(() => {
       if (addToCartRef.current) {
@@ -89,6 +92,11 @@ export default function AddToCartSection({ product }: Props) {
     const finalPrice = isPoster ? posterVariants[selectedVariant].price : product.price;
     const variantLabel = isPoster ? posterVariants[selectedVariant].label : undefined;
 
+    const noteParts = [
+      extraNote,
+      isPoster ? `Poszter verzió: ${variantLabel}` : birthData.customNote,
+    ].filter(Boolean);
+
     addItem({
       productId: product.id,
       name: isPoster ? `${product.name} – ${variantLabel}` : product.name,
@@ -101,7 +109,7 @@ export default function AddToCartSection({ product }: Props) {
       birthWeight: birthData.birthWeight,
       birthHeight: birthData.birthHeight,
       birthTime: birthData.birthTime,
-      customNote: isPoster ? `Poszter verzió: ${variantLabel}` : birthData.customNote,
+      customNote: noteParts.join('\n'),
     });
 
     setAdded(true);
@@ -228,7 +236,10 @@ export default function AddToCartSection({ product }: Props) {
               )}
             </div>
             <button
-              onClick={() => setBirthData(null)}
+              onClick={() => {
+                setBirthData(null);
+                onBirthDataChange?.(null);
+              }}
               className="text-sm text-primary underline mt-3"
             >
               Módosítás
@@ -257,6 +268,7 @@ export default function AddToCartSection({ product }: Props) {
               onClick={() => {
                 setBirthData(null);
                 setAdded(false);
+                onBirthDataChange?.(null);
               }}
             >
               További vásárlás
