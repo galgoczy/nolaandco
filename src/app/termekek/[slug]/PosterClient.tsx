@@ -72,32 +72,32 @@ function PosterPreview({
   return (
     <div className="relative w-full aspect-[5/7] bg-white rounded-md shadow-[0_20px_40px_-16px_rgba(74,74,74,0.25)] overflow-hidden">
       {/* Inner colored "window" inside the white paszpartu.
-          Arányok a látványtervről: felül 4%, oldalt 5%, alul 20%
-          (az alsó sávon jelenik meg a szöveg). */}
+          Arányok: felül 4%, oldalt 5%, alul 13% (az eredeti 20%-ból 35%-al
+          keskenyebb — a teteje alacsonyabban). */}
       <div
-        className="absolute left-[5%] right-[5%] top-[4%] bottom-[20%]"
+        className="absolute left-[5%] right-[5%] top-[4%] bottom-[13%]"
         style={{ backgroundColor: posterBackground(color) }}
       />
 
-      {/* Baby silhouette — a PNG a TELJES poszter területére kerül,
-          mert a feltöltött fájl a teljes kerettel van exportálva és a baba
-          már a helyén van. mix-blend-mode: darken tünteti el a fehér
-          pixeleket (ami vagy a fehér paszpartuval olvad össze, vagy a
-          színes belső dobozzal). A fekete vonalak megmaradnak. */}
-      <Image
-        key={layout.id}
-        src={layout.webImage}
-        alt={layout.label}
-        fill
-        className="object-contain transition-opacity duration-300"
-        style={{ mixBlendMode: 'darken' }}
-        sizes="(max-width: 1024px) 100vw, 50vw"
-        priority
-      />
+      {/* Baby silhouette — a PNG a poszter felső 95%-án (5%-al kisebb,
+          felülre igazítva), így picit túlnyúlik a belső színes doboz alján.
+          mix-blend-mode: darken tünteti el a fehér pixeleket. */}
+      <div className="absolute inset-x-0 top-0 h-[95%]">
+        <Image
+          key={layout.id}
+          src={layout.webImage}
+          alt={layout.label}
+          fill
+          className="object-contain transition-opacity duration-300"
+          style={{ mixBlendMode: 'darken' }}
+          sizes="(max-width: 1024px) 100vw, 50vw"
+          priority
+        />
+      </div>
 
-      {/* Birth data — two lines on the white paszpartu, under the colored box.
-          A látványtervben: felső sor ~86%, alsó sor ~91% a teljes magassághoz
-          képest (kb. a fehér paszpartu alsó sávjának közepén). */}
+      {/* Birth data — két sor a fehér paszpartu alján. A szövegblokk alja
+          bottom-[7%]-nál rögzítve (terv aljához), a betűméret 35%-al
+          csökkent, így a blokk lefelé zsugorodik. */}
       <div className="absolute left-0 right-0 bottom-[7%] text-center px-8">
         {birthData ? (
           <>
@@ -111,20 +111,20 @@ function PosterPreview({
                 // Compensate for trailing letter-spacing so the centering
                 // stays optically balanced.
                 paddingLeft: '0.15em',
-                fontSize: 'clamp(13px, 2.2vw, 20px)',
+                fontSize: 'clamp(8.5px, 1.43vw, 13px)',
               }}
             >
               1:1 ARÁNYÚ {birthData.babyName}
             </div>
             {/* Bottom line — Montserrat Regular, 250 tracking, ~60% smaller */}
             <div
-              className="text-[#4A4A4A] uppercase mt-2"
+              className="text-[#4A4A4A] uppercase mt-1.5"
               style={{
                 fontFamily: "'Montserrat', sans-serif",
                 fontWeight: 400,
                 letterSpacing: '0.25em',
                 paddingLeft: '0.25em',
-                fontSize: 'clamp(8px, 1.375vw, 12.5px)',
+                fontSize: 'clamp(5.2px, 0.894vw, 8.1px)',
               }}
             >
               {formatBirthDateHU(birthData.birthDate)}
@@ -337,17 +337,19 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
               >
                 {/* inner colored window, ugyanazokkal az arányokkal */}
                 <div
-                  className="absolute left-[5%] right-[5%] top-[4%] bottom-[20%]"
+                  className="absolute left-[5%] right-[5%] top-[4%] bottom-[13%]"
                   style={{ backgroundColor: posterBackground(color) }}
                 />
-                <Image
-                  src={layout.webImage}
-                  alt=""
-                  fill
-                  className="object-contain"
-                  style={{ mixBlendMode: 'darken' }}
-                  sizes="64px"
-                />
+                <div className="absolute inset-x-0 top-0 h-[95%]">
+                  <Image
+                    src={layout.webImage}
+                    alt=""
+                    fill
+                    className="object-contain"
+                    style={{ mixBlendMode: 'darken' }}
+                    sizes="64px"
+                  />
+                </div>
               </button>
               {lifestyleImages.map((img, idx) => {
                 const active = view === 'lifestyle' && idx === activeLifestyleIdx;
