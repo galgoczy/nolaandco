@@ -9,10 +9,12 @@ import AddToCartSection, { POSTER_VARIANTS } from './AddToCartSection';
 import {
   POSTER_LAYOUTS,
   POSTER_COLORS,
+  POSTER_COLOR_ALPHA,
   DEFAULT_LAYOUT_ID,
   DEFAULT_COLOR_ID,
   findLayout,
   findColor,
+  posterBackground,
   type PosterLayout,
   type PosterColor,
 } from './posterData';
@@ -53,10 +55,10 @@ function PosterPreview({
 }) {
   return (
     <div className="relative w-full aspect-[5/7] bg-white rounded-md shadow-[0_20px_40px_-16px_rgba(74,74,74,0.25)] overflow-hidden">
-      {/* Inner colored "window" inside the paszpartu */}
+      {/* Inner colored "window" inside the paszpartu (43% opacity over white) */}
       <div
         className="absolute left-[7%] right-[7%] top-[7%] bottom-[22%] overflow-hidden"
-        style={{ backgroundColor: color.hex }}
+        style={{ backgroundColor: posterBackground(color) }}
       >
         <Image
           key={layout.id}
@@ -196,12 +198,16 @@ function PosterPickers({
                 onClick={() => onColorChange(c.id)}
                 aria-label={c.label}
                 title={c.label}
-                className={`w-12 h-12 rounded-full border-2 transition-all ${
+                className={`w-12 h-12 rounded-full border-2 bg-white transition-all ${
                   active
                     ? 'border-[#C4A591] shadow-sm scale-105 ring-2 ring-[#C4A591]/20 ring-offset-2 ring-offset-surface'
                     : 'border-[#4A4A4A]/15 hover:scale-105'
                 }`}
-                style={{ backgroundColor: c.hex }}
+                style={{
+                  // Overlay the 43% color on a white base so the swatch matches
+                  // what the poster will actually look like.
+                  backgroundImage: `linear-gradient(${posterBackground(c)}, ${posterBackground(c)})`,
+                }}
               />
             );
           })}
@@ -231,7 +237,8 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
   );
 
   const currentPrice = POSTER_VARIANTS[variantIdx].price;
-  const extraNote = `Elrendezés: ${layout.label} | Háttérszín: ${color.label} (${color.hex})`;
+  const alphaPct = Math.round(POSTER_COLOR_ALPHA * 100);
+  const extraNote = `Elrendezés: ${layout.label} | Háttérszín: ${color.label} (${color.hex} @ ${alphaPct}%)`;
 
   const handleBirthDataChange = (data: BirthData | null) => {
     setBirthData(data);
@@ -286,7 +293,7 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
               >
                 <div
                   className="absolute left-[10%] right-[10%] top-[10%] bottom-[28%]"
-                  style={{ backgroundColor: color.hex }}
+                  style={{ backgroundColor: posterBackground(color) }}
                 >
                   <Image src={layout.webImage} alt="" fill className="object-contain" sizes="64px" />
                 </div>
