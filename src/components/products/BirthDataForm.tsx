@@ -51,8 +51,9 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
 
   return (
     <form
+      id="birth-data-form"
       onSubmit={handleSubmit}
-      className="bg-[#faf6f1] rounded-2xl p-6 md:p-8 space-y-5 shadow-sm"
+      className="bg-[#faf6f1] rounded-2xl p-6 md:p-8 space-y-5 shadow-sm scroll-mt-24"
     >
       <h3 className="text-lg font-bold text-carbon mb-2">Személyre szabás</h3>
 
@@ -107,7 +108,7 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
             name="birthHeight"
             value={formData.birthHeight}
             onChange={handleChange}
-            className={`bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 ${errors.birthHeight ? 'ring-2 ring-red-400' : ''}`}
+            className={`bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 mt-3 md:mt-0 ${errors.birthHeight ? 'ring-2 ring-red-400' : ''}`}
           >
             <option value="">Válassz...</option>
             {Array.from({ length: 61 - 44 + 1 }, (_, i) => 44 + i).map((cm) => (

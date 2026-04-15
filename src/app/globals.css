@@ -72,6 +72,19 @@
 }
 .hero-cta-pulse { animation: ctaPulse 3s ease-in-out infinite; }
 
+/* Cart attention — stronger pulse + shake for mobile floating cart */
+@keyframes cartAttention {
+  0%, 100% { transform: scale(1) rotate(0deg); box-shadow: 0 10px 25px -5px rgba(74,74,74,0.2); }
+  10% { transform: scale(1.1) rotate(-6deg); }
+  20% { transform: scale(1.1) rotate(6deg); }
+  30% { transform: scale(1.12) rotate(-5deg); box-shadow: 0 18px 35px -4px rgba(213,232,240,0.7); }
+  40% { transform: scale(1.12) rotate(5deg); }
+  50% { transform: scale(1.08) rotate(-3deg); box-shadow: 0 16px 32px -4px rgba(213,232,240,0.55); }
+  60% { transform: scale(1.04) rotate(2deg); }
+  70% { transform: scale(1) rotate(0deg); box-shadow: 0 10px 25px -5px rgba(74,74,74,0.2); }
+}
+.cart-attention { animation: cartAttention 2.4s ease-in-out infinite; }
+
 /* Float animation */
 @keyframes float {
   0%, 100% { transform: translateY(0); }

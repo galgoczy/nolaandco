@@ -38,8 +38,6 @@ type Props = {
   initialLayoutId: string;
 };
 
-type ViewMode = 'preview' | 'lifestyle';
-
 const HU_MONTHS = [
   'JANUÁR', 'FEBRUÁR', 'MÁRCIUS', 'ÁPRILIS', 'MÁJUS', 'JÚNIUS',
   'JÚLIUS', 'AUGUSZTUS', 'SZEPTEMBER', 'OKTÓBER', 'NOVEMBER', 'DECEMBER',
@@ -60,14 +58,10 @@ function PosterPreview({
   layout,
   color,
   birthData,
-  showFloatingCart,
-  onFloatingCartClick,
 }: {
   layout: PosterLayout;
   color: PosterColor;
   birthData: BirthData | null;
-  showFloatingCart: boolean;
-  onFloatingCartClick: () => void;
 }) {
   return (
     <div className="relative w-full aspect-[5/7] bg-white rounded-md shadow-[0_20px_40px_-16px_rgba(74,74,74,0.25)] overflow-hidden">
@@ -78,10 +72,10 @@ function PosterPreview({
         style={{ backgroundColor: posterBackground(color) }}
       />
 
-      {/* Baby silhouette — a PNG a poszter felső 97%-án (3%-al kisebb,
-          felülre igazítva), így picit túlnyúlik a belső színes doboz alján.
+      {/* Baby silhouette — a PNG a poszter felső 99%-án, felülre igazítva,
+          így picit túlnyúlik a belső színes doboz alján.
           mix-blend-mode: darken tünteti el a fehér pixeleket. */}
-      <div className="absolute inset-x-0 top-0 h-[97%]">
+      <div className="absolute inset-x-0 top-0 h-[99%]">
         <Image
           key={layout.id}
           src={layout.webImage}
@@ -145,30 +139,6 @@ function PosterPreview({
         )}
       </div>
 
-      {/* Floating cart button — mobile only, once birth data is filled in */}
-      {showFloatingCart && (
-        <button
-          type="button"
-          onClick={onFloatingCartClick}
-          aria-label="Kosárba"
-          className="lg:hidden absolute bottom-4 right-4 w-14 h-14 rounded-full bg-[#D5E8F0] text-carbon shadow-xl flex items-center justify-center hero-cta-pulse"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.75}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.7 3.39A1 1 0 006.2 18H19m-9 2a1 1 0 11-2 0 1 1 0 012 0zm8 0a1 1 0 11-2 0 1 1 0 012 0z"
-            />
-          </svg>
-        </button>
-      )}
     </div>
   );
 }
@@ -268,8 +238,8 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
   const [variantIdx, setVariantIdx] = useState(0);
   const [added, setAdded] = useState(false);
   const [addToCartSignal, setAddToCartSignal] = useState(0);
-  const [view, setView] = useState<ViewMode>('preview');
-  const [activeLifestyleIdx, setActiveLifestyleIdx] = useState(0);
+  // Gallery: slide 0 = designer (PosterPreview), 1..N = lifestyle images.
+  const [slideIdx, setSlideIdx] = useState(0);
   const previewRef = useRef<HTMLDivElement>(null);
 
   const layout = useMemo(() => findLayout(layoutId), [layoutId]);
@@ -279,6 +249,26 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
     () => (product.images ?? []).filter((img) => img && img !== product.imageUrl),
     [product.images, product.imageUrl]
   );
+  const totalSlides = 1 + lifestyleImages.length;
+  const hasLifestyle = lifestyleImages.length > 0;
+  const isDesigner = slideIdx === 0;
+
+  const goPrev = () => setSlideIdx((i) => (i - 1 + totalSlides) % totalSlides);
+  const goNext = () => setSlideIdx((i) => (i + 1) % totalSlides);
+
+  // On mobile, tapping a variant selector should scroll the user down to
+  // the personalization form so the next step is obvious.
+  const handleVariantChange = (i: number) => {
+    setVariantIdx(i);
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setTimeout(() => {
+        document.getElementById('birth-data-form')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }, 60);
+    }
+  };
 
   const currentPrice = POSTER_VARIANTS[variantIdx].price;
   const alphaPct = Math.round(POSTER_COLOR_ALPHA * 100);
@@ -302,90 +292,155 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
       {/* Left column: preview (or lifestyle) + pickers */}
       <div className="w-full lg:w-1/2 flex flex-col gap-6">
         <div ref={previewRef} className="w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0 scroll-mt-20">
-          {view === 'preview' ? (
-            <PosterPreview
-              layout={layout}
-              color={color}
-              birthData={birthData}
-              showFloatingCart={showFloatingCart}
-              onFloatingCartClick={() => setAddToCartSignal((s) => s + 1)}
-            />
-          ) : (
-            <div className="relative w-full aspect-[5/7] bg-surface-container-low rounded-md overflow-hidden ghost-border">
-              <Image
-                src={lifestyleImages[activeLifestyleIdx]}
-                alt={`${product.name} — lifestyle ${activeLifestyleIdx + 1}`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-            </div>
-          )}
-
-          {/* Thumbnails row: preview tile + lifestyle tiles */}
-          {lifestyleImages.length > 0 && (
-            <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+          {/* Thumbnail circles above the designer — first is a pencil
+              (signifying "designer"), rest are lifestyle photo circles. */}
+          {hasLifestyle && (
+            <div className="flex justify-center items-center gap-3 mb-4">
               <button
                 type="button"
-                onClick={() => setView('preview')}
+                onClick={() => setSlideIdx(0)}
                 aria-label="Saját tervezett poszter"
-                className={`relative w-16 h-[89px] rounded flex-shrink-0 border-2 bg-white transition-all overflow-hidden ${
-                  view === 'preview'
-                    ? 'border-[#C4A591] shadow-sm'
-                    : 'border-transparent opacity-60 hover:opacity-100'
+                className={`w-10 h-10 rounded-full flex items-center justify-center border-2 bg-white transition-all ${
+                  isDesigner
+                    ? 'border-[#C4A591] text-[#C4A591] shadow-sm'
+                    : 'border-[#4A4A4A]/20 text-[#4A4A4A]/60 hover:text-[#4A4A4A] hover:border-[#4A4A4A]/40'
                 }`}
               >
-                {/* inner colored window, ugyanazokkal az arányokkal */}
-                <div
-                  className="absolute left-[5%] right-[5%] top-[4%] bottom-[12.5%]"
-                  style={{ backgroundColor: posterBackground(color) }}
-                />
-                <div className="absolute inset-x-0 top-0 h-[97%]">
-                  <Image
-                    src={layout.webImage}
-                    alt=""
-                    fill
-                    className="object-contain"
-                    style={{ mixBlendMode: 'darken' }}
-                    sizes="64px"
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                   />
-                </div>
+                </svg>
               </button>
               {lifestyleImages.map((img, idx) => {
-                const active = view === 'lifestyle' && idx === activeLifestyleIdx;
+                const active = slideIdx === idx + 1;
                 return (
                   <button
                     key={`${img}-${idx}`}
                     type="button"
-                    onClick={() => {
-                      setView('lifestyle');
-                      setActiveLifestyleIdx(idx);
-                    }}
-                    className={`relative w-16 h-[89px] rounded flex-shrink-0 border-2 overflow-hidden transition-all ${
+                    onClick={() => setSlideIdx(idx + 1)}
+                    aria-label={`Fotó ${idx + 1}`}
+                    className={`relative w-10 h-10 rounded-full overflow-hidden border-2 transition-all ${
                       active
                         ? 'border-[#C4A591] shadow-sm'
-                        : 'border-transparent opacity-60 hover:opacity-100'
+                        : 'border-[#4A4A4A]/20 opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <Image src={img} alt="" fill className="object-cover" sizes="64px" />
+                    <Image src={img} alt="" fill className="object-cover" sizes="40px" />
                   </button>
                 );
               })}
             </div>
           )}
 
-          {/* Pickers — always visible, even while viewing a lifestyle thumbnail */}
+          {/* Main slide area — PosterPreview or lifestyle image, with
+              optional side arrows and the mobile floating cart. */}
+          <div className="relative">
+            {isDesigner ? (
+              <PosterPreview layout={layout} color={color} birthData={birthData} />
+            ) : (
+              <div className="relative w-full aspect-[5/7] bg-surface-container-low rounded-md overflow-hidden ghost-border">
+                <Image
+                  key={lifestyleImages[slideIdx - 1]}
+                  src={lifestyleImages[slideIdx - 1]}
+                  alt={`${product.name} — lifestyle ${slideIdx}`}
+                  fill
+                  className="object-cover transition-opacity duration-300"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              </div>
+            )}
+
+            {/* Arrow navigation — only when lifestyle images exist */}
+            {hasLifestyle && (
+              <>
+                <button
+                  type="button"
+                  onClick={goPrev}
+                  aria-label="Előző"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 backdrop-blur-sm shadow flex items-center justify-center text-[#4A4A4A] hover:bg-white transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={goNext}
+                  aria-label="Következő"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 backdrop-blur-sm shadow flex items-center justify-center text-[#4A4A4A] hover:bg-white transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
+
+            {/* Floating cart — mobile only, once birth data is saved.
+                Lives at the gallery level so it stays visible even on a
+                lifestyle slide. cart-attention = pulse + shake. */}
+            {showFloatingCart && (
+              <button
+                type="button"
+                onClick={() => setAddToCartSignal((s) => s + 1)}
+                aria-label="Kosárba"
+                className="lg:hidden absolute bottom-4 right-4 w-14 h-14 rounded-full bg-[#D5E8F0] text-carbon shadow-xl flex items-center justify-center cart-attention"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.7 3.39A1 1 0 006.2 18H19m-9 2a1 1 0 11-2 0 1 1 0 012 0zm8 0a1 1 0 11-2 0 1 1 0 012 0z"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* Pickers — always visible. Any layout/color change jumps the
+              slide back to the designer so the user sees the effect. */}
           <div className="mt-6">
             <PosterPickers
               layoutId={layoutId}
               colorId={colorId}
               onLayoutChange={(id) => {
                 setLayoutId(id);
-                setView('preview');
+                setSlideIdx(0);
               }}
               onColorChange={(id) => {
                 setColorId(id);
-                setView('preview');
+                setSlideIdx(0);
               }}
             />
           </div>
@@ -469,7 +524,7 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
               category: product.category,
             }}
             onBirthDataChange={handleBirthDataChange}
-            onVariantChange={setVariantIdx}
+            onVariantChange={handleVariantChange}
             onAdded={() => setAdded(true)}
             addToCartSignal={addToCartSignal}
             disableAutoScroll
