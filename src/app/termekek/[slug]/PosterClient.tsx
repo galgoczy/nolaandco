@@ -40,6 +40,22 @@ type Props = {
 
 type ViewMode = 'preview' | 'lifestyle';
 
+const HU_MONTHS = [
+  'JANUÁR', 'FEBRUÁR', 'MÁRCIUS', 'ÁPRILIS', 'MÁJUS', 'JÚNIUS',
+  'JÚLIUS', 'AUGUSZTUS', 'SZEPTEMBER', 'OKTÓBER', 'NOVEMBER', 'DECEMBER',
+];
+
+/** "2022-12-16" → "2022. DECEMBER 16." */
+function formatBirthDateHU(iso: string): string {
+  if (!iso) return '';
+  const parts = iso.split('-');
+  if (parts.length !== 3) return iso;
+  const [year, month, day] = parts;
+  const idx = parseInt(month, 10) - 1;
+  if (idx < 0 || idx > 11) return iso;
+  return `${year}. ${HU_MONTHS[idx]} ${parseInt(day, 10)}.`;
+}
+
 function PosterPreview({
   layout,
   color,
@@ -54,41 +70,59 @@ function PosterPreview({
   onFloatingCartClick: () => void;
 }) {
   return (
-    <div className="relative w-full aspect-[5/7] bg-white rounded-md shadow-[0_20px_40px_-16px_rgba(74,74,74,0.25)] overflow-hidden">
-      {/* Inner colored "window" inside the paszpartu (43% opacity over white) */}
-      <div
-        className="absolute left-[7%] right-[7%] top-[7%] bottom-[22%] overflow-hidden"
-        style={{ backgroundColor: posterBackground(color) }}
-      >
-        <Image
-          key={layout.id}
-          src={layout.webImage}
-          alt={layout.label}
-          fill
-          className="object-contain transition-opacity duration-300"
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          priority
-        />
-      </div>
+    <div
+      className="relative w-full aspect-[5/7] rounded-md shadow-[0_20px_40px_-16px_rgba(74,74,74,0.25)] overflow-hidden"
+      style={{ backgroundColor: posterBackground(color) }}
+    >
+      {/* Baby silhouette — fills the full poster. The PNG has its own
+          built-in padding so the figure sits in the upper ~80% and the
+          lower area is free for the birth-data text. */}
+      <Image
+        key={layout.id}
+        src={layout.webImage}
+        alt={layout.label}
+        fill
+        className="object-contain transition-opacity duration-300"
+        sizes="(max-width: 1024px) 100vw, 50vw"
+        priority
+      />
 
-      {/* Birth data on the lower paszpartu */}
+      {/* Birth data — two lines near the bottom of the poster */}
       <div className="absolute left-0 right-0 bottom-[6%] text-center px-8">
         {birthData ? (
           <>
+            {/* Top line: "1:1 ARÁNYÚ [NÉV]" — Montserrat Bold, 150 tracking */}
             <div
-              className="text-[#4A4A4A] uppercase tracking-[0.28em]"
-              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: 'clamp(14px, 2.4vw, 22px)' }}
+              className="text-[#4A4A4A] uppercase"
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: 700,
+                letterSpacing: '0.15em',
+                // Compensate for trailing letter-spacing so the centering
+                // stays optically balanced.
+                paddingLeft: '0.15em',
+                fontSize: 'clamp(13px, 2.2vw, 20px)',
+              }}
             >
-              {birthData.babyName}
+              1:1 ARÁNYÚ {birthData.babyName}
             </div>
+            {/* Bottom line — Montserrat Regular, 250 tracking, ~60% smaller */}
             <div
-              className="text-[#4A4A4A]/70 mt-1 tracking-[0.18em]"
-              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, fontSize: 'clamp(9px, 1.4vw, 13px)' }}
+              className="text-[#4A4A4A] uppercase mt-2"
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: 400,
+                letterSpacing: '0.25em',
+                paddingLeft: '0.25em',
+                fontSize: 'clamp(8px, 1.375vw, 12.5px)',
+              }}
             >
-              {birthData.birthDate}
-              {birthData.birthTime ? ` · ${birthData.birthTime}` : ''}
-              {' · '}
-              {birthData.birthWeight} / {birthData.birthHeight}
+              {formatBirthDateHU(birthData.birthDate)}
+              {birthData.birthTime ? ` ${birthData.birthTime}` : ''}
+              {' / '}
+              {birthData.birthHeight} CENTIMÉTER
+              {' / '}
+              {birthData.birthWeight} GRAMM
             </div>
           </>
         ) : (
@@ -285,18 +319,14 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
                 type="button"
                 onClick={() => setView('preview')}
                 aria-label="Saját tervezett poszter"
-                className={`relative w-16 h-[89px] rounded flex-shrink-0 border-2 bg-white transition-all overflow-hidden ${
+                className={`relative w-16 h-[89px] rounded flex-shrink-0 border-2 transition-all overflow-hidden ${
                   view === 'preview'
                     ? 'border-[#C4A591] shadow-sm'
                     : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
+                style={{ backgroundColor: posterBackground(color) }}
               >
-                <div
-                  className="absolute left-[10%] right-[10%] top-[10%] bottom-[28%]"
-                  style={{ backgroundColor: posterBackground(color) }}
-                >
-                  <Image src={layout.webImage} alt="" fill className="object-contain" sizes="64px" />
-                </div>
+                <Image src={layout.webImage} alt="" fill className="object-contain" sizes="64px" />
               </button>
               {lifestyleImages.map((img, idx) => {
                 const active = view === 'lifestyle' && idx === activeLifestyleIdx;
