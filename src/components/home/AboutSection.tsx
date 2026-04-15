@@ -6,7 +6,7 @@ const thinText = { fontFamily: "'Montserrat', sans-serif", fontWeight: 200 } as 
 
 export default function AboutSection() {
   return (
-    <section className="py-24 md:py-32 bg-surface">
+    <section className="pt-12 pb-24 md:pt-16 md:pb-32 bg-surface">
       <div className="max-w-7xl mx-auto px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
           {/* Left: TŐLÜNK */}

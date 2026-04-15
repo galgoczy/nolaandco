@@ -45,7 +45,7 @@ export default async function ProductGrid() {
   ].filter((g) => g.items.length > 0);
 
   return (
-    <section className="pt-12 pb-24 md:py-24 bg-surface" id="collection">
+    <section className="pt-12 pb-12 md:pt-24 md:pb-12 bg-surface" id="collection">
       <div className="max-w-7xl mx-auto px-8">
         <div id="products-start" className="text-center mb-16 md:mb-20 scroll-mt-4">
           <RevealOnScroll>
