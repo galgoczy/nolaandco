@@ -29,8 +29,8 @@ export default async function ProductDetailPage({ params }: Props) {
   return (
     <section className="py-24 bg-surface min-h-screen">
       <div className="max-w-7xl mx-auto px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Left: Product Images */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-x-16 lg:gap-y-12">
+          {/* Left col (row 1): Product Images */}
           <ProductGallery
             mainImage={product.imageUrl}
             images={product.images ?? []}
@@ -38,7 +38,7 @@ export default async function ProductDetailPage({ params }: Props) {
             badge={product.badge}
           />
 
-          {/* Right: Product Details */}
+          {/* Right col (row 1): Product Details */}
           <div className="flex flex-col justify-center space-y-6">
             {!isGiftCard && product.series && (
               <span className="inline-block self-start px-3 py-1 rounded-full bg-surface-container text-xs font-medium uppercase tracking-wider text-carbon-light">
@@ -97,20 +97,23 @@ export default async function ProductDetailPage({ params }: Props) {
               />
             </div>
           </div>
-        </div>
 
-        {/* Bővebb leírás (long description) below images */}
-        {product.longDescription && (
-          <div id="bovebb-leiras" className="mt-16 max-w-4xl mx-auto scroll-mt-24">
-            <h2 className="text-2xl md:text-3xl text-[#4A4A4A] mb-6 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
-              Bővebb leírás
-            </h2>
+          {/* Long description: desktop → left column row 2 (under gallery); mobile → below everything */}
+          {product.longDescription && (
             <div
-              className="prose prose-neutral max-w-none text-[#4A4A4A] leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: renderRichText(product.longDescription) }}
-            />
-          </div>
-        )}
+              id="bovebb-leiras"
+              className="lg:col-start-1 lg:row-start-2 w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0 scroll-mt-24"
+            >
+              <h2 className="text-2xl md:text-3xl text-[#4A4A4A] mb-6 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
+                Bővebb leírás
+              </h2>
+              <div
+                className="prose prose-neutral max-w-none text-[#4A4A4A] leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: renderRichText(product.longDescription) }}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
