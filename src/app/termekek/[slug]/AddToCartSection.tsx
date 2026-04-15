@@ -21,6 +21,8 @@ const posterVariants = [
   { label: 'Nyomtatott', price: 12900, description: 'Prémium papírra nyomtatva' },
 ];
 
+export const POSTER_VARIANTS = posterVariants;
+
 interface Props {
   product: {
     id: string;
@@ -31,10 +33,23 @@ interface Props {
     category?: string | null;
   };
   onBirthDataChange?: (data: BirthData | null) => void;
+  onVariantChange?: (variantIdx: number) => void;
+  onAdded?: () => void;
   extraNote?: string;
+  disableAutoScroll?: boolean;
+  /** When this number changes, trigger the add-to-cart action externally. */
+  addToCartSignal?: number;
 }
 
-export default function AddToCartSection({ product, onBirthDataChange, extraNote }: Props) {
+export default function AddToCartSection({
+  product,
+  onBirthDataChange,
+  onVariantChange,
+  onAdded,
+  extraNote,
+  disableAutoScroll,
+  addToCartSignal,
+}: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const [birthData, setBirthData] = useState<BirthData | null>(null);
   const [added, setAdded] = useState(false);
@@ -57,6 +72,7 @@ export default function AddToCartSection({ product, onBirthDataChange, extraNote
   const handleBirthDataSubmit = (data: BirthData) => {
     setBirthData(data);
     onBirthDataChange?.(data);
+    if (disableAutoScroll) return;
     // Scroll so the "Kosárba" button is visible with some breathing room below
     setTimeout(() => {
       if (addToCartRef.current) {
@@ -113,7 +129,18 @@ export default function AddToCartSection({ product, onBirthDataChange, extraNote
     });
 
     setAdded(true);
+    onAdded?.();
   };
+
+  // External trigger: when addToCartSignal changes, fire add-to-cart.
+  const lastSignalRef = useRef<number | undefined>(addToCartSignal);
+  useEffect(() => {
+    if (addToCartSignal === undefined) return;
+    if (lastSignalRef.current === addToCartSignal) return;
+    lastSignalRef.current = addToCartSignal;
+    handleAddToCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addToCartSignal]);
 
   // Gift card flow
   if (isGiftCard) {
@@ -185,7 +212,10 @@ export default function AddToCartSection({ product, onBirthDataChange, extraNote
           {posterVariants.map((variant, i) => (
             <button
               key={i}
-              onClick={() => setSelectedVariant(i)}
+              onClick={() => {
+                setSelectedVariant(i);
+                onVariantChange?.(i);
+              }}
               className={`w-full text-left rounded-2xl p-5 transition-all border-2 ${
                 selectedVariant === i
                   ? 'border-[#C4A591] bg-[#faf6f1]'

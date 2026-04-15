@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { renderRichText } from '@/lib/richText';
 import { formatPrice } from '@/lib/utils';
 import type { BirthData } from '@/lib/validators';
-import AddToCartSection from './AddToCartSection';
+import AddToCartSection, { POSTER_VARIANTS } from './AddToCartSection';
 import {
   POSTER_LAYOUTS,
   POSTER_COLORS,
@@ -42,10 +42,14 @@ function PosterPreview({
   layout,
   color,
   birthData,
+  showFloatingCart,
+  onFloatingCartClick,
 }: {
   layout: PosterLayout;
   color: PosterColor;
   birthData: BirthData | null;
+  showFloatingCart: boolean;
+  onFloatingCartClick: () => void;
 }) {
   return (
     <div className="relative w-full aspect-[5/7] bg-white rounded-md shadow-[0_20px_40px_-16px_rgba(74,74,74,0.25)] overflow-hidden">
@@ -94,6 +98,31 @@ function PosterPreview({
           </div>
         )}
       </div>
+
+      {/* Floating cart button — mobile only, once birth data is filled in */}
+      {showFloatingCart && (
+        <button
+          type="button"
+          onClick={onFloatingCartClick}
+          aria-label="Kosárba"
+          className="lg:hidden absolute bottom-4 right-4 w-14 h-14 rounded-full bg-[#D5E8F0] text-carbon shadow-xl flex items-center justify-center hero-cta-pulse"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.75}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.7 3.39A1 1 0 006.2 18H19m-9 2a1 1 0 11-2 0 1 1 0 012 0zm8 0a1 1 0 11-2 0 1 1 0 012 0z"
+            />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
@@ -186,8 +215,12 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
   const [layoutId, setLayoutId] = useState(initialLayoutId || DEFAULT_LAYOUT_ID);
   const [colorId, setColorId] = useState(DEFAULT_COLOR_ID);
   const [birthData, setBirthData] = useState<BirthData | null>(null);
+  const [variantIdx, setVariantIdx] = useState(0);
+  const [added, setAdded] = useState(false);
+  const [addToCartSignal, setAddToCartSignal] = useState(0);
   const [view, setView] = useState<ViewMode>('preview');
   const [activeLifestyleIdx, setActiveLifestyleIdx] = useState(0);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const layout = useMemo(() => findLayout(layoutId), [layoutId]);
   const color = useMemo(() => findColor(colorId), [colorId]);
@@ -197,16 +230,35 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
     [product.images, product.imageUrl]
   );
 
-  const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
+  const currentPrice = POSTER_VARIANTS[variantIdx].price;
   const extraNote = `Elrendezés: ${layout.label} | Háttérszín: ${color.label} (${color.hex})`;
+
+  const handleBirthDataChange = (data: BirthData | null) => {
+    setBirthData(data);
+    if (data && typeof window !== 'undefined' && window.innerWidth < 1024) {
+      // On mobile: scroll up to the preview so user can review before adding to cart.
+      setTimeout(() => {
+        previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+    if (!data) setAdded(false);
+  };
+
+  const showFloatingCart = !!birthData && !added;
 
   return (
     <div className="flex flex-col lg:flex-row lg:items-start lg:gap-x-16">
       {/* Left column: preview (or lifestyle) + pickers */}
       <div className="w-full lg:w-1/2 flex flex-col gap-6">
-        <div className="w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0">
+        <div ref={previewRef} className="w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0 scroll-mt-20">
           {view === 'preview' ? (
-            <PosterPreview layout={layout} color={color} birthData={birthData} />
+            <PosterPreview
+              layout={layout}
+              color={color}
+              birthData={birthData}
+              showFloatingCart={showFloatingCart}
+              onFloatingCartClick={() => setAddToCartSignal((s) => s + 1)}
+            />
           ) : (
             <div className="relative w-full aspect-[5/7] bg-surface-container-low rounded-md overflow-hidden ghost-border">
               <Image
@@ -315,14 +367,12 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
         </h1>
 
         <div className="flex items-center gap-3">
-          {product.onSale && product.salePrice ? (
-            <>
-              <span className="text-2xl font-bold text-primary">{formatPrice(product.salePrice)}</span>
-              <span className="text-lg text-carbon-light line-through">{formatPrice(product.price)}</span>
-            </>
-          ) : (
-            <span className="text-2xl font-bold text-carbon">{formatPrice(product.price)}</span>
-          )}
+          <span className="text-2xl font-bold text-carbon transition-colors">
+            {formatPrice(currentPrice)}
+          </span>
+          <span className="text-xs uppercase tracking-[0.15em] text-carbon-light">
+            {POSTER_VARIANTS[variantIdx].label}
+          </span>
         </div>
 
         <div className="space-y-2">
@@ -354,11 +404,15 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
               id: product.id,
               name: product.name,
               slug: product.slug,
-              price: effectivePrice,
+              price: currentPrice,
               imageUrl: product.imageUrl,
               category: product.category,
             }}
-            onBirthDataChange={setBirthData}
+            onBirthDataChange={handleBirthDataChange}
+            onVariantChange={setVariantIdx}
+            onAdded={() => setAdded(true)}
+            addToCartSignal={addToCartSignal}
+            disableAutoScroll
             extraNote={extraNote}
           />
         </div>

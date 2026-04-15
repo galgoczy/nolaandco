@@ -38,7 +38,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
       requested && POSTER_LAYOUTS.some((l) => l.id === requested) ? requested : DEFAULT_LAYOUT_ID;
 
     return (
-      <section className="pt-4 pb-16 md:py-24 bg-surface min-h-screen">
+      <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
         <div className="max-w-7xl mx-auto px-8">
           <PosterClient
             product={{
@@ -76,7 +76,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   ) : null;
 
   return (
-    <section className="pt-4 pb-16 md:py-24 bg-surface min-h-screen">
+    <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
       <div className="max-w-7xl mx-auto px-8">
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-x-16">
           {/* Left column: gallery + (desktop) long description */}
