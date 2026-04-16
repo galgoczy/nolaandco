@@ -18,7 +18,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const showFromPrice = product.category === 'giftcard' || product.category === 'poster';
   return (
     <Link href={`/termekek/${product.slug}`} className="group cursor-pointer card-hover block">
-      <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-surface-container-low mb-3 ghost-border">
+      <div className="relative aspect-[2/3] rounded-sm overflow-hidden bg-surface-container-low mb-3 ghost-border">
         <Image
           src={product.imageUrl}
           alt={product.name}

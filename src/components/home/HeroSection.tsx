@@ -44,12 +44,12 @@ export default function HeroSection() {
         <div className="absolute inset-0 flex pointer-events-none items-start md:items-end justify-start px-8 md:px-20 lg:px-32 pt-[8vh] md:pt-0 pb-0 md:pb-[22vh] lg:pb-[24vh]">
           <div className="flex flex-col items-start gap-3 md:gap-6 max-w-[90%] md:max-w-[60%]">
             <p
-              className="text-white text-[1.3125rem] sm:text-[1.575rem] md:text-[1.575rem] lg:text-[2.1rem] uppercase"
+              className="text-white text-xs sm:text-sm md:text-sm lg:text-base uppercase"
               style={{
                 fontFamily: "'Gilroy', 'Inter', 'Montserrat', sans-serif",
-                fontWeight: 600,
-                letterSpacing: '-0.024em',
-                lineHeight: 1.2,
+                fontWeight: 300,
+                letterSpacing: '0.18em',
+                lineHeight: 1.4,
                 textShadow:
                   '0 2px 24px rgba(0,0,0,0.35), 0 0 12px rgba(0,0,0,0.25), 0 0 2px rgba(255,255,255,0.15)',
               }}
