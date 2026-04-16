@@ -44,7 +44,7 @@ export default function HeroSection() {
         <div className="absolute inset-0 flex pointer-events-none items-start md:items-end justify-start px-8 md:px-20 lg:px-32 pt-[8vh] md:pt-0 pb-0 md:pb-[22vh] lg:pb-[24vh]">
           <div className="flex flex-col items-start gap-3 md:gap-6 max-w-[90%] md:max-w-[60%]">
             <p
-              className="text-white text-xs sm:text-sm md:text-sm lg:text-base uppercase"
+              className="text-white text-[0.9rem] sm:text-[1.05rem] md:text-[1.05rem] lg:text-[1.2rem] uppercase"
               style={{
                 fontFamily: "'Gilroy', 'Inter', 'Montserrat', sans-serif",
                 fontWeight: 300,
@@ -57,7 +57,7 @@ export default function HeroSection() {
               EMLÉKEK, AMIK PONTOSAN AKKORÁK, MINT Ő VOLT
             </p>
             <h1
-              className="text-white text-3xl sm:text-4xl md:text-4xl lg:text-5xl"
+              className="text-white text-[1.6875rem] sm:text-[2.025rem] md:text-[2.025rem] lg:text-[2.7rem]"
               style={{
                 fontFamily: "'Gilroy', 'Inter', 'Montserrat', sans-serif",
                 fontWeight: 600,
