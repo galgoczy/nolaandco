@@ -68,7 +68,7 @@ export default async function ProductGrid() {
                 {groupTitle(group).toUpperCase()}
               </h4>
               <div className="-mx-8">
-                <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 px-8 scroll-smooth hide-scrollbar">
+                <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-3 px-8 scroll-smooth hide-scrollbar">
                   {group.items.map((product) => (
                     <div
                       key={product.id}
@@ -84,7 +84,7 @@ export default async function ProductGrid() {
         </div>
 
         {/* Desktop: grid (unchanged) */}
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto stagger-children">
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-2 max-w-6xl mx-auto stagger-children">
           {simple.map((product, i) => (
             <RevealOnScroll key={product.id} delay={i * 80}>
               <ProductCard product={product} />
