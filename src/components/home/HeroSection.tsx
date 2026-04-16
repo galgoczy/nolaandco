@@ -41,7 +41,7 @@ export default function HeroSection() {
           preload="auto"
           className={`w-full object-cover ${isMobile ? 'h-[68vh]' : 'h-auto'}`}
         />
-        <div className="absolute inset-0 flex pointer-events-none items-start md:items-end justify-start px-8 md:px-20 lg:px-32 pt-[8vh] md:pt-0 pb-0 md:pb-[22vh] lg:pb-[24vh]">
+        <div className="absolute inset-0 flex pointer-events-none items-end justify-start px-8 md:px-20 lg:px-32 pb-[8vh] md:pb-[22vh] lg:pb-[24vh]">
           <div className="flex flex-col items-start gap-3 md:gap-6 max-w-[90%] md:max-w-[60%]">
             <p
               className="text-white text-[0.9rem] sm:text-[1.05rem] md:text-[1.05rem] lg:text-[1.2rem] uppercase"
