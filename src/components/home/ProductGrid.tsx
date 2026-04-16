@@ -13,8 +13,6 @@ type SimpleProduct = {
   series: string | null;
 };
 
-const groupTitle = (group: { key: string; label: string }) => group.label;
-
 export default async function ProductGrid() {
   const products = await prisma.product.findMany({
     where: { active: true },
@@ -32,20 +30,16 @@ export default async function ProductGrid() {
     series: (p as unknown as { series?: string | null }).series ?? null,
   }));
 
-  const originPillows = simple.filter((p) => p.category === 'pillow' && p.series === 'origin');
-  const novaPillows = simple.filter((p) => p.category === 'pillow' && p.series === 'nova');
-  const posters = simple.filter((p) => p.category === 'poster');
-  const giftCards = simple.filter((p) => p.category === 'giftcard');
+  const pillows = simple.filter((p) => p.category === 'pillow');
+  const others = simple.filter((p) => p.category === 'poster' || p.category === 'giftcard');
 
-  const groups = [
-    { key: 'origin', label: 'ORIGIN párnák', items: originPillows },
-    { key: 'nova', label: 'NOVA párnák', items: novaPillows },
-    { key: 'posters', label: 'Poszterek', items: posters },
-    { key: 'giftcards', label: 'Ajándékkártyák', items: giftCards },
+  const groups: { key: string; label: string; showLabel: boolean; items: SimpleProduct[] }[] = [
+    { key: 'pillows', label: 'PÁRNÁK', showLabel: true, items: pillows },
+    { key: 'others', label: '', showLabel: false, items: others },
   ].filter((g) => g.items.length > 0);
 
   return (
-    <section className="pt-12 pb-12 md:pt-24 md:pb-12 bg-surface" id="collection">
+    <section className="pt-12 pb-4 md:pt-24 md:pb-8 bg-surface" id="collection">
       <div className="max-w-7xl mx-auto px-8">
         <div id="products-start" className="text-center mb-16 md:mb-20 scroll-mt-4">
           <RevealOnScroll>
@@ -60,19 +54,25 @@ export default async function ProductGrid() {
           </RevealOnScroll>
         </div>
 
-        {/* Mobile: horizontal scrollable groups */}
-        <div className="md:hidden space-y-12">
+        {/* Horizontal scrollable rows — mobile: 1 card (85%), desktop: 3 cards.
+            The first row (PÁRNÁK) has a label, the second row has no label. */}
+        <div className="space-y-10 md:space-y-14">
           {groups.map((group) => (
             <div key={group.key}>
-              <h4 className="text-sm tracking-[0.2em] text-carbon-light mb-4 px-1" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}>
-                {groupTitle(group).toUpperCase()}
-              </h4>
-              <div className="-mx-8">
-                <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-3 px-8 scroll-smooth hide-scrollbar">
+              {group.showLabel && (
+                <h4
+                  className="text-sm tracking-[0.2em] text-carbon-light mb-4 px-1"
+                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}
+                >
+                  {group.label}
+                </h4>
+              )}
+              <div className="-mx-8 md:mx-0">
+                <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-3 px-8 md:px-0 scroll-smooth hide-scrollbar">
                   {group.items.map((product) => (
                     <div
                       key={product.id}
-                      className="snap-start flex-shrink-0 w-[85%]"
+                      className="snap-start flex-shrink-0 w-[85%] md:w-[calc((100%-16px)/3)]"
                     >
                       <ProductCard product={product} />
                     </div>
@@ -80,15 +80,6 @@ export default async function ProductGrid() {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Desktop: grid (unchanged) */}
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-2 max-w-6xl mx-auto stagger-children">
-          {simple.map((product, i) => (
-            <RevealOnScroll key={product.id} delay={i * 80}>
-              <ProductCard product={product} />
-            </RevealOnScroll>
           ))}
         </div>
       </div>
