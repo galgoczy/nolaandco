@@ -72,7 +72,7 @@ export default async function ProductGrid() {
                   {group.items.map((product) => (
                     <div
                       key={product.id}
-                      className="snap-start flex-shrink-0 w-[85%] md:w-[calc((100%-16px)/3)]"
+                      className="snap-start flex-shrink-0 w-[85%] md:w-[30%]"
                     >
                       <ProductCard product={product} />
                     </div>
