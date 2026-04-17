@@ -72,18 +72,21 @@ function PosterPreview({
         style={{ backgroundColor: posterBackground(color) }}
       />
 
-      {/* Baby silhouette — a PNG a poszter felső 99%-án, felülre igazítva,
-          így picit túlnyúlik a belső színes doboz alján.
-          Variant 1-2 (white bg): darken hides white pixels.
-          Variant 3 (black bg, sketch): lighten hides black pixels. */}
-      <div className="absolute inset-x-0 top-0 h-[99%]">
+      {/* Baby silhouette — a PNG a poszter felső 99%-án.
+          mix-blend-mode: darken tünteti el a fehér pixeleket.
+          A layout.yOffsetPct függőleges eltolást ad minden PNG-hez, hogy
+          a baba kontúr ugyanolyan magasan legyen mint az origin-1-nél. */}
+      <div
+        className="absolute inset-x-0 top-0 h-[99%]"
+        style={{ transform: `translateY(${layout.yOffsetPct}%)` }}
+      >
         <Image
           key={layout.id}
           src={layout.webImage}
           alt={layout.label}
           fill
           className="object-contain transition-opacity duration-300"
-          style={{ mixBlendMode: layout.blendMode, objectPosition: 'center top' }}
+          style={{ mixBlendMode: 'darken' }}
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
         />
@@ -167,14 +170,13 @@ function PosterPickers({
         <div className="flex gap-2.5 flex-wrap">
           {POSTER_LAYOUTS.map((l) => {
             const active = l.id === layoutId;
-            const isSketch = l.variant === 3;
             return (
               <button
                 key={l.id}
                 type="button"
                 onClick={() => onLayoutChange(l.id)}
                 aria-label={l.label}
-                className={`relative w-14 h-14 rounded-full overflow-hidden border-2 transition-all ${
+                className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
                   active
                     ? 'border-[#C4A591] shadow-sm scale-105'
                     : 'border-[#4A4A4A]/15 opacity-70 hover:opacity-100'
@@ -182,15 +184,23 @@ function PosterPickers({
               >
                 <span
                   className="absolute inset-0"
-                  style={{ backgroundColor: isSketch ? '#2a2a2a' : (active ? '#f0ebe3' : '#e8e2d8') }}
+                  style={{ backgroundColor: active ? '#faf6f1' : '#f5f0e8' }}
                 />
+                {/* Image scaled up (scale 1.5) from center and cropped by the
+                    circle so the baby outline fills more of the thumb.
+                    contrast(2.2) brightness(0.7) darkens the thin gray lines
+                    so they're more visible at 48px. */}
                 <Image
                   src={l.webImage}
                   alt={l.label}
                   fill
-                  className="object-contain p-0.5"
-                  style={{ mixBlendMode: l.blendMode }}
-                  sizes="56px"
+                  className="object-contain"
+                  style={{
+                    transform: `scale(1.55) translateY(${l.yOffsetPct * 0.5}%)`,
+                    filter: 'contrast(2.2) brightness(0.7)',
+                    mixBlendMode: 'darken',
+                  }}
+                  sizes="48px"
                 />
               </button>
             );
@@ -259,6 +269,26 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
   const goPrev = () => setSlideIdx((i) => (i - 1 + totalSlides) % totalSlides);
   const goNext = () => setSlideIdx((i) => (i + 1) % totalSlides);
 
+  // Touch-swipe navigation for the gallery on mobile. 50px horizontal
+  // threshold, must dominate over vertical movement so we don't hijack
+  // page scroll.
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart.current || !hasLifestyle) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) goNext();
+      else goPrev();
+    }
+  };
+
   // On mobile, tapping a variant selector should scroll the user down to
   // the personalization form so the next step is obvious.
   const handleVariantChange = (i: number) => {
@@ -295,10 +325,12 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
       {/* Left column: preview (or lifestyle) + pickers */}
       <div className="w-full lg:w-1/2 flex flex-col gap-6">
         <div ref={previewRef} className="w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0 scroll-mt-20">
-          {/* Thumbnail circles above the designer — first is a pencil
-              (signifying "designer"), rest are lifestyle photo circles. */}
+          {/* Thumbnail circles above the designer — desktop only.
+              On mobile users navigate with arrows + swipe.
+              First is a pencil (signifying "designer"), rest are lifestyle
+              photo circles. */}
           {hasLifestyle && (
-            <div className="flex justify-center items-center gap-3 mb-4">
+            <div className="hidden lg:flex justify-center items-center gap-3 mb-4">
               <button
                 type="button"
                 onClick={() => setSlideIdx(0)}
@@ -346,8 +378,13 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
           )}
 
           {/* Main slide area — PosterPreview or lifestyle image, with
-              optional side arrows and the mobile floating cart. */}
-          <div className="relative">
+              optional side arrows and the mobile floating cart.
+              Touch handlers enable swipe navigation on mobile. */}
+          <div
+            className="relative"
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
             {isDesigner ? (
               <PosterPreview layout={layout} color={color} birthData={birthData} />
             ) : (

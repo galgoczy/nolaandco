@@ -4,7 +4,9 @@ export type PosterLayout = {
   series: 'origin' | 'nova';
   variant: 1 | 2 | 3;
   webImage: string;
-  blendMode: 'darken' | 'lighten';
+  /** Vertical nudge (in % of poster height) used to align each PNG's baby
+   *  content to the same top position as origin-1. Negative = move up. */
+  yOffsetPct: number;
 };
 
 export type PosterColor = {
@@ -14,12 +16,12 @@ export type PosterColor = {
 };
 
 export const POSTER_LAYOUTS: PosterLayout[] = [
-  { id: 'origin-1', label: 'Origin 1', series: 'origin', variant: 1, webImage: '/posters/web/origin-1.png', blendMode: 'darken' },
-  { id: 'origin-2', label: 'Origin 2', series: 'origin', variant: 2, webImage: '/posters/web/origin-2.png', blendMode: 'darken' },
-  { id: 'origin-3', label: 'Origin 3', series: 'origin', variant: 3, webImage: '/posters/web/origin-3.png', blendMode: 'lighten' },
-  { id: 'nova-1', label: 'Nova 1', series: 'nova', variant: 1, webImage: '/posters/web/nova-1.png', blendMode: 'darken' },
-  { id: 'nova-2', label: 'Nova 2', series: 'nova', variant: 2, webImage: '/posters/web/nova-2.png', blendMode: 'darken' },
-  { id: 'nova-3', label: 'Nova 3', series: 'nova', variant: 3, webImage: '/posters/web/nova-3.png', blendMode: 'lighten' },
+  { id: 'origin-1', label: 'Origin 1', series: 'origin', variant: 1, webImage: '/posters/web/origin-1.png', yOffsetPct: 0 },
+  { id: 'origin-2', label: 'Origin 2', series: 'origin', variant: 2, webImage: '/posters/web/origin-2.png', yOffsetPct: -2.5 },
+  { id: 'origin-3', label: 'Origin 3', series: 'origin', variant: 3, webImage: '/posters/web/origin-3.png', yOffsetPct: -2.5 },
+  { id: 'nova-1', label: 'Nova 1', series: 'nova', variant: 1, webImage: '/posters/web/nova-1.png', yOffsetPct: -2.5 },
+  { id: 'nova-2', label: 'Nova 2', series: 'nova', variant: 2, webImage: '/posters/web/nova-2.png', yOffsetPct: -2.5 },
+  { id: 'nova-3', label: 'Nova 3', series: 'nova', variant: 3, webImage: '/posters/web/nova-3.png', yOffsetPct: -2.5 },
 ];
 
 // The 6 poster background colors. On the printed poster each color is applied
