@@ -35,11 +35,25 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
 
   const pillowVariants = isPillow
-    ? await prisma.product.findMany({
-        where: { category: 'pillow', active: true },
-        orderBy: [{ series: 'asc' }, { variant: 'asc' }],
-        select: { id: true, slug: true, name: true, imageUrl: true },
-      })
+    ? await (async () => {
+        const all = await prisma.product.findMany({
+          where: { category: 'pillow', active: true },
+          select: { id: true, slug: true, name: true, imageUrl: true },
+        });
+        const order = [
+          'origin-core',
+          'origin-linea',
+          'origin-atelier',
+          'nova-core',
+          'nova-linea',
+          'nova-atelier',
+        ];
+        const rank = (slug: string) => {
+          const i = order.indexOf(slug);
+          return i === -1 ? order.length : i;
+        };
+        return [...all].sort((a, b) => rank(a.slug) - rank(b.slug));
+      })()
     : [];
 
   if (isPosterDesigner) {

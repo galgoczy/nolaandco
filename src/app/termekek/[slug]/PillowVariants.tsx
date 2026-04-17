@@ -34,7 +34,7 @@ export default function PillowVariants({
               href={`/termekek/${p.slug}`}
               aria-label={p.name}
               title={p.name}
-              className={`relative w-14 h-14 rounded-full overflow-hidden border-2 transition-all ${
+              className={`relative w-16 h-16 rounded-full overflow-hidden border-2 transition-all ${
                 active
                   ? 'border-[#C4A591] shadow-sm scale-105 cursor-default'
                   : 'border-[#4A4A4A]/15 hover:border-[#C4A591] hover:scale-105'
@@ -45,8 +45,12 @@ export default function PillowVariants({
                 alt={p.name}
                 fill
                 className="object-cover"
-                style={{ objectPosition: 'top' }}
-                sizes="56px"
+                style={{
+                  objectPosition: 'top',
+                  transform: 'scale(1.5)',
+                  transformOrigin: 'top center',
+                }}
+                sizes="64px"
               />
             </Link>
           );
