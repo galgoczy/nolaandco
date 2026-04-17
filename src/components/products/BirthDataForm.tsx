@@ -7,6 +7,31 @@ interface BirthDataFormProps {
   onSubmit: (data: BirthData) => void;
 }
 
+function formatDateEU(iso: string): string {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  if (!y || !m || !d) return '';
+  return `${y}/${m}/${d}`;
+}
+
+function formatTime24(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 4);
+  if (digits.length === 0) return '';
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+}
+
+function clampTime(value: string): string {
+  const m = value.match(/^(\d{1,2}):(\d{1,2})$/);
+  if (!m) return value;
+  let h = parseInt(m[1], 10);
+  let min = parseInt(m[2], 10);
+  if (Number.isNaN(h) || Number.isNaN(min)) return value;
+  if (h > 23) h = 23;
+  if (min > 59) min = 59;
+  return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+}
+
 export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
   const [formData, setFormData] = useState({
     babyName: '',
@@ -66,14 +91,35 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
         placeholder="Bence"
       />
 
-      <Input
-        label="Születési dátum"
-        name="birthDate"
-        type="date"
-        value={formData.birthDate}
-        onChange={handleChange}
-        error={errors.birthDate}
-      />
+      <div className="flex flex-col gap-1">
+        <label htmlFor="birthDate" className="text-carbon-light text-sm font-body">
+          Születési dátum
+        </label>
+        <div className="relative">
+          <div
+            className={`w-full bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body transition-colors ${
+              errors.birthDate ? 'ring-2 ring-red-400' : ''
+            }`}
+          >
+            {formData.birthDate ? (
+              formatDateEU(formData.birthDate)
+            ) : (
+              <span className="text-carbon-light/60">ÉÉÉÉ/HH/NN</span>
+            )}
+          </div>
+          <input
+            id="birthDate"
+            name="birthDate"
+            type="date"
+            value={formData.birthDate}
+            onChange={handleChange}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+        </div>
+        {errors.birthDate && (
+          <span className="text-red-500 text-xs mt-0.5">{errors.birthDate}</span>
+        )}
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
@@ -130,9 +176,22 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
         <input
           id="birthTime"
           name="birthTime"
-          type="time"
+          type="text"
+          inputMode="numeric"
           value={formData.birthTime}
-          onChange={handleChange}
+          onChange={(e) => {
+            const formatted = formatTime24(e.target.value);
+            setFormData((prev) => ({ ...prev, birthTime: formatted }));
+            if (errors.birthTime) setErrors((prev) => ({ ...prev, birthTime: undefined }));
+          }}
+          onBlur={(e) => {
+            const clamped = clampTime(e.target.value);
+            if (clamped !== e.target.value) {
+              setFormData((prev) => ({ ...prev, birthTime: clamped }));
+            }
+          }}
+          placeholder="ÓÓ:PP"
+          maxLength={5}
           className={`bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 ${errors.birthTime ? 'ring-2 ring-red-400' : ''}`}
         />
         {errors.birthTime && (
