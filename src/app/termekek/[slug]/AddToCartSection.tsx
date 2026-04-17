@@ -58,6 +58,7 @@ export default function AddToCartSection({
   const [added, setAdded] = useState(false);
   const [fading, setFading] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
   const addToCartRef = useRef<HTMLDivElement>(null);
 
   const isGiftCard = product.category === 'giftcard';
@@ -88,6 +89,7 @@ export default function AddToCartSection({
   const handleBirthDataSubmit = (data: BirthData) => {
     setBirthData(data);
     setStoredBirthData(data);
+    setIsEditing(false);
     onBirthDataChange?.(data);
     if (disableAutoScroll) return;
     // Scroll so the "Kosárba" button is visible with some breathing room below
@@ -252,8 +254,11 @@ export default function AddToCartSection({
           ))}
         </div>
       )}
-      {!birthData ? (
-        <BirthDataForm onSubmit={handleBirthDataSubmit} />
+      {!birthData || isEditing ? (
+        <BirthDataForm
+          initialValue={isEditing ? birthData : null}
+          onSubmit={handleBirthDataSubmit}
+        />
       ) : !added ? (
         <div ref={addToCartRef} className="space-y-4">
           <div className="bg-[#faf6f1] rounded-2xl p-6 shadow-sm">
@@ -283,11 +288,7 @@ export default function AddToCartSection({
               )}
             </div>
             <button
-              onClick={() => {
-                setBirthData(null);
-                setStoredBirthData(null);
-                onBirthDataChange?.(null);
-              }}
+              onClick={() => setIsEditing(true)}
               className="text-sm text-primary underline mt-3"
             >
               Módosítás

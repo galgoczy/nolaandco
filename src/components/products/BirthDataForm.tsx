@@ -1,9 +1,10 @@
 'use client';
-import { useState, FormEvent } from 'react';
+import { useState, useRef, FormEvent } from 'react';
 import Input from '@/components/ui/Input';
 import { birthDataSchema, BirthData } from '@/lib/validators';
 
 interface BirthDataFormProps {
+  initialValue?: BirthData | null;
   onSubmit: (data: BirthData) => void;
 }
 
@@ -12,6 +13,24 @@ function formatDateEU(iso: string): string {
   const [y, m, d] = iso.split('-');
   if (!y || !m || !d) return '';
   return `${y}/${m}/${d}`;
+}
+
+function formatDateInput(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 4) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 4)}/${digits.slice(4)}`;
+  return `${digits.slice(0, 4)}/${digits.slice(4, 6)}/${digits.slice(6)}`;
+}
+
+/** Convert YYYY/MM/DD text to an ISO YYYY-MM-DD, or '' if incomplete/invalid. */
+function parseDateEU(text: string): string {
+  const m = text.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+  if (!m) return '';
+  const y = parseInt(m[1], 10);
+  const mo = parseInt(m[2], 10);
+  const d = parseInt(m[3], 10);
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || y < 1900 || y > 2100) return '';
+  return `${m[1]}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
 
 function formatTime24(raw: string): string {
@@ -32,15 +51,19 @@ function clampTime(value: string): string {
   return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
 }
 
-export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
+export default function BirthDataForm({ initialValue, onSubmit }: BirthDataFormProps) {
+  const dateInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
-    babyName: '',
-    birthDate: '',
-    birthWeight: '',
-    birthHeight: '',
-    birthTime: '',
-    customNote: '',
+    babyName: initialValue?.babyName ?? '',
+    birthDate: initialValue?.birthDate ?? '',
+    birthWeight: initialValue?.birthWeight ?? '',
+    birthHeight: initialValue?.birthHeight ?? '',
+    birthTime: initialValue?.birthTime ?? '',
+    customNote: initialValue?.customNote ?? '',
   });
+  const [dateText, setDateText] = useState(() =>
+    formatDateEU(initialValue?.birthDate ?? '')
+  );
 
   const [errors, setErrors] = useState<Partial<Record<keyof BirthData, string>>>({});
 
@@ -52,6 +75,35 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
     if (errors[name as keyof BirthData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
+  };
+
+  const handleDateTextChange = (raw: string) => {
+    const text = formatDateInput(raw);
+    setDateText(text);
+    const iso = parseDateEU(text);
+    setFormData((prev) => ({ ...prev, birthDate: iso }));
+    if (errors.birthDate) setErrors((prev) => ({ ...prev, birthDate: undefined }));
+  };
+
+  const handleDatePickerChange = (iso: string) => {
+    setFormData((prev) => ({ ...prev, birthDate: iso }));
+    setDateText(formatDateEU(iso));
+    if (errors.birthDate) setErrors((prev) => ({ ...prev, birthDate: undefined }));
+  };
+
+  const openDatePicker = () => {
+    const el = dateInputRef.current;
+    if (!el) return;
+    if (typeof el.showPicker === 'function') {
+      try {
+        el.showPicker();
+        return;
+      } catch {
+        /* fall through */
+      }
+    }
+    el.focus();
+    el.click();
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -96,24 +148,45 @@ export default function BirthDataForm({ onSubmit }: BirthDataFormProps) {
           Születési dátum
         </label>
         <div className="relative">
-          <div
-            className={`w-full bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body transition-colors ${
-              errors.birthDate ? 'ring-2 ring-red-400' : ''
-            }`}
-          >
-            {formData.birthDate ? (
-              formatDateEU(formData.birthDate)
-            ) : (
-              <span className="text-carbon-light/60">ÉÉÉÉ/HH/NN</span>
-            )}
-          </div>
           <input
             id="birthDate"
-            name="birthDate"
+            type="text"
+            inputMode="numeric"
+            value={dateText}
+            onChange={(e) => handleDateTextChange(e.target.value)}
+            placeholder="ÉÉÉÉ/HH/NN"
+            maxLength={10}
+            className={`w-full bg-surface-container rounded-[0.75rem] px-4 py-3 pr-12 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 ${errors.birthDate ? 'ring-2 ring-red-400' : ''}`}
+          />
+          <button
+            type="button"
+            onClick={openDatePicker}
+            aria-label="Naptár megnyitása"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg flex items-center justify-center text-carbon-light hover:text-carbon hover:bg-white/60 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.75}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+          </button>
+          <input
+            ref={dateInputRef}
             type="date"
             value={formData.birthDate}
-            onChange={handleChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            onChange={(e) => handleDatePickerChange(e.target.value)}
+            tabIndex={-1}
+            aria-hidden="true"
+            className="absolute opacity-0 pointer-events-none w-0 h-0"
           />
         </div>
         {errors.birthDate && (
