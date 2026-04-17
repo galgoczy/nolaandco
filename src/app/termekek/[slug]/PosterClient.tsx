@@ -196,7 +196,7 @@ function PosterPickers({
                   fill
                   className="object-contain"
                   style={{
-                    transform: `scale(1.55) translateY(${l.yOffsetPct * 0.5}%)`,
+                    transform: `scale(1.55) translateY(${10 + l.yOffsetPct * 0.5}%)`,
                     filter: 'contrast(2.2) brightness(0.7)',
                     mixBlendMode: 'darken',
                   }}

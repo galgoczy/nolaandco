@@ -16,7 +16,7 @@ export type PosterColor = {
 };
 
 export const POSTER_LAYOUTS: PosterLayout[] = [
-  { id: 'origin-1', label: 'Origin 1', series: 'origin', variant: 1, webImage: '/posters/web/origin-1.png', yOffsetPct: 0 },
+  { id: 'origin-1', label: 'Origin 1', series: 'origin', variant: 1, webImage: '/posters/web/origin-1.png?v=2', yOffsetPct: -2.5 },
   { id: 'origin-2', label: 'Origin 2', series: 'origin', variant: 2, webImage: '/posters/web/origin-2.png', yOffsetPct: -2.5 },
   { id: 'origin-3', label: 'Origin 3', series: 'origin', variant: 3, webImage: '/posters/web/origin-3.png', yOffsetPct: -2.5 },
   { id: 'nova-1', label: 'Nova 1', series: 'nova', variant: 1, webImage: '/posters/web/nova-1.png', yOffsetPct: -2.5 },
