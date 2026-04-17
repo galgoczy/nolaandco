@@ -4,6 +4,7 @@ export type PosterLayout = {
   series: 'origin' | 'nova';
   variant: 1 | 2 | 3;
   webImage: string;
+  blendMode: 'darken' | 'lighten';
 };
 
 export type PosterColor = {
@@ -13,12 +14,12 @@ export type PosterColor = {
 };
 
 export const POSTER_LAYOUTS: PosterLayout[] = [
-  { id: 'origin-1', label: 'Origin 1', series: 'origin', variant: 1, webImage: '/posters/web/origin-1.png' },
-  { id: 'origin-2', label: 'Origin 2', series: 'origin', variant: 2, webImage: '/posters/web/origin-2.png' },
-  { id: 'origin-3', label: 'Origin 3', series: 'origin', variant: 3, webImage: '/posters/web/origin-3.png' },
-  { id: 'nova-1', label: 'Nova 1', series: 'nova', variant: 1, webImage: '/posters/web/nova-1.png' },
-  { id: 'nova-2', label: 'Nova 2', series: 'nova', variant: 2, webImage: '/posters/web/nova-2.png' },
-  { id: 'nova-3', label: 'Nova 3', series: 'nova', variant: 3, webImage: '/posters/web/nova-3.png' },
+  { id: 'origin-1', label: 'Origin 1', series: 'origin', variant: 1, webImage: '/posters/web/origin-1.png', blendMode: 'darken' },
+  { id: 'origin-2', label: 'Origin 2', series: 'origin', variant: 2, webImage: '/posters/web/origin-2.png', blendMode: 'darken' },
+  { id: 'origin-3', label: 'Origin 3', series: 'origin', variant: 3, webImage: '/posters/web/origin-3.png', blendMode: 'lighten' },
+  { id: 'nova-1', label: 'Nova 1', series: 'nova', variant: 1, webImage: '/posters/web/nova-1.png', blendMode: 'darken' },
+  { id: 'nova-2', label: 'Nova 2', series: 'nova', variant: 2, webImage: '/posters/web/nova-2.png', blendMode: 'darken' },
+  { id: 'nova-3', label: 'Nova 3', series: 'nova', variant: 3, webImage: '/posters/web/nova-3.png', blendMode: 'lighten' },
 ];
 
 // The 6 poster background colors. On the printed poster each color is applied

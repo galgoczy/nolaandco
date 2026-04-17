@@ -74,7 +74,8 @@ function PosterPreview({
 
       {/* Baby silhouette — a PNG a poszter felső 99%-án, felülre igazítva,
           így picit túlnyúlik a belső színes doboz alján.
-          mix-blend-mode: darken tünteti el a fehér pixeleket. */}
+          Variant 1-2 (white bg): darken hides white pixels.
+          Variant 3 (black bg, sketch): lighten hides black pixels. */}
       <div className="absolute inset-x-0 top-0 h-[99%]">
         <Image
           key={layout.id}
@@ -82,7 +83,7 @@ function PosterPreview({
           alt={layout.label}
           fill
           className="object-contain transition-opacity duration-300"
-          style={{ mixBlendMode: 'darken' }}
+          style={{ mixBlendMode: layout.blendMode, objectPosition: 'center top' }}
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
         />
@@ -166,13 +167,14 @@ function PosterPickers({
         <div className="flex gap-2.5 flex-wrap">
           {POSTER_LAYOUTS.map((l) => {
             const active = l.id === layoutId;
+            const isSketch = l.variant === 3;
             return (
               <button
                 key={l.id}
                 type="button"
                 onClick={() => onLayoutChange(l.id)}
                 aria-label={l.label}
-                className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
+                className={`relative w-14 h-14 rounded-full overflow-hidden border-2 transition-all ${
                   active
                     ? 'border-[#C4A591] shadow-sm scale-105'
                     : 'border-[#4A4A4A]/15 opacity-70 hover:opacity-100'
@@ -180,14 +182,15 @@ function PosterPickers({
               >
                 <span
                   className="absolute inset-0"
-                  style={{ backgroundColor: active ? '#faf6f1' : '#f5f0e8' }}
+                  style={{ backgroundColor: isSketch ? '#2a2a2a' : (active ? '#f0ebe3' : '#e8e2d8') }}
                 />
                 <Image
                   src={l.webImage}
                   alt={l.label}
                   fill
-                  className="object-contain p-1"
-                  sizes="48px"
+                  className="object-contain p-0.5"
+                  style={{ mixBlendMode: l.blendMode }}
+                  sizes="56px"
                 />
               </button>
             );
