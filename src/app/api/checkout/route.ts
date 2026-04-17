@@ -7,8 +7,8 @@ import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
 import type { CartItemData } from '@/store/cart';
 
 const SHIPPING_COSTS: Record<string, number> = {
-  parcel: 990,
-  home: 1490,
+  parcel: 1190,
+  home: 2490,
 };
 
 export async function POST(request: NextRequest) {
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const shippingCost = SHIPPING_COSTS[shippingMethod] ?? 1490;
+    const shippingCost = SHIPPING_COSTS[shippingMethod] ?? 2490;
 
     // Apply coupon if provided
     let discount = 0;

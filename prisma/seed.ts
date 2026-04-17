@@ -101,7 +101,7 @@ const products = [
     badge: null,
   },
   {
-    name: 'NOLA Ajándékkártya',
+    name: 'Nola & Co ajándékkártya',
     slug: 'nola-ajandekkartya',
     description:
       'Digitális ajándékkártya – tökéletes ajándék várandós vagy friss szülő ismerősöknek! A megajándékozott szabadon választhat a Nola & Co. termékpalettájáról, amikor már ismeri a baba születési adatait. Válassz öt verzió közül: Digitális poszter (6.000 Ft), Print poszter + szállítás (14.000 Ft), Párna + szállítás (24.000 Ft), Nola Duet – digital (27.000 Ft), vagy Nola Duet – print (33.000 Ft).',
@@ -146,19 +146,18 @@ async function main() {
     const existing = await prisma.product.findUnique({ where: { slug: product.slug } });
     if (existing) {
       // On re-seed, only sync the "structural" fields that aren't editable in
-      // the admin UI. Admin-editable content (description, longDescription,
+      // the admin UI. Admin-editable content (name, description, longDescription,
       // price, badge, imageUrl, images, active, onSale, salePrice) is left
       // untouched so saved edits survive deploys.
       await prisma.product.update({
         where: { slug: product.slug },
         data: {
-          name: product.name,
           category: product.category,
           series: product.series,
           variant: product.variant,
         },
       });
-      console.log(`  Updated (kept admin-edited fields): ${product.name}`);
+      console.log(`  Updated (kept admin-edited fields): ${existing.name}`);
     } else {
       await prisma.product.create({ data: product });
       console.log(`  Created: ${product.name}`);

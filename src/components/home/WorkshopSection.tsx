@@ -74,14 +74,14 @@ export default function WorkshopSection() {
           {features.map((f, i) => (
             <RevealOnScroll key={i} delay={i * 120}>
               <div className="flex gap-4 items-start">
-                <div className="relative w-12 h-12 flex-shrink-0 mt-0.5">
+                <div className="relative w-10 h-10 flex-shrink-0 mt-1">
                   <Image
                     src={f.icon}
                     alt=""
                     fill
                     className="object-contain"
                     style={{ filter: 'brightness(0) invert(1)' }}
-                    sizes="48px"
+                    sizes="40px"
                   />
                 </div>
                 <div>
