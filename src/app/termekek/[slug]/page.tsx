@@ -6,6 +6,7 @@ import { formatPrice } from '@/lib/utils';
 import { renderRichText } from '@/lib/richText';
 import AddToCartSection from './AddToCartSection';
 import ProductGallery from './ProductGallery';
+import PillowVariants from './PillowVariants';
 import PosterClient from './PosterClient';
 import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
 
@@ -30,7 +31,16 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
 
   const isGiftCard = product.category === 'giftcard';
   const isPosterDesigner = product.slug === POSTER_DESIGNER_SLUG;
+  const isPillow = product.category === 'pillow';
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
+
+  const pillowVariants = isPillow
+    ? await prisma.product.findMany({
+        where: { category: 'pillow', active: true },
+        orderBy: [{ series: 'asc' }, { variant: 'asc' }],
+        select: { id: true, slug: true, name: true, imageUrl: true },
+      })
+    : [];
 
   if (isPosterDesigner) {
     const requested = typeof search.elrendezes === 'string' ? search.elrendezes : undefined;
@@ -151,6 +161,10 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                 </>
               )}
             </div>
+
+            {isPillow && pillowVariants.length > 0 && (
+              <PillowVariants variants={pillowVariants} currentSlug={product.slug} />
+            )}
 
             <div className="pt-4">
               <AddToCartSection

@@ -377,28 +377,37 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
             </div>
           )}
 
-          {/* Main slide area — PosterPreview or lifestyle image, with
-              optional side arrows and the mobile floating cart.
+          {/* Main slide area — single slider track, all slides always
+              mounted so color/layout changes never cause a remount.
               Touch handlers enable swipe navigation on mobile. */}
           <div
             className="relative"
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
           >
-            {isDesigner ? (
-              <PosterPreview layout={layout} color={color} birthData={birthData} />
-            ) : (
-              <div className="relative w-full aspect-[5/7] bg-surface-container-low rounded-md overflow-hidden ghost-border">
-                <Image
-                  key={lifestyleImages[slideIdx - 1]}
-                  src={lifestyleImages[slideIdx - 1]}
-                  alt={`${product.name} — lifestyle ${slideIdx}`}
-                  fill
-                  className="object-cover transition-opacity duration-300"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
+            <div className="relative overflow-hidden rounded-md">
+              <div
+                className="flex transition-transform duration-[350ms] ease-[cubic-bezier(0.22,0.61,0.36,1)]"
+                style={{ transform: `translateX(-${slideIdx * 100}%)` }}
+              >
+                <div className="w-full flex-shrink-0">
+                  <PosterPreview layout={layout} color={color} birthData={birthData} />
+                </div>
+                {lifestyleImages.map((img, idx) => (
+                  <div key={img} className="w-full flex-shrink-0">
+                    <div className="relative w-full aspect-[5/7] bg-surface-container-low overflow-hidden ghost-border">
+                      <Image
+                        src={img}
+                        alt={`${product.name} — lifestyle ${idx + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* Arrow navigation — only when lifestyle images exist */}
             {hasLifestyle && (

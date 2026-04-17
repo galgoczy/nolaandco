@@ -5,6 +5,7 @@ import Link from 'next/link';
 import BirthDataForm from '@/components/products/BirthDataForm';
 import Button from '@/components/ui/Button';
 import { useCartStore } from '@/store/cart';
+import { useBirthDataStore } from '@/store/birthData';
 import { formatPrice } from '@/lib/utils';
 import type { BirthData } from '@/lib/validators';
 
@@ -51,6 +52,8 @@ export default function AddToCartSection({
   addToCartSignal,
 }: Props) {
   const addItem = useCartStore((s) => s.addItem);
+  const storedBirthData = useBirthDataStore((s) => s.data);
+  const setStoredBirthData = useBirthDataStore((s) => s.setData);
   const [birthData, setBirthData] = useState<BirthData | null>(null);
   const [added, setAdded] = useState(false);
   const [fading, setFading] = useState(false);
@@ -59,6 +62,19 @@ export default function AddToCartSection({
 
   const isGiftCard = product.category === 'giftcard';
   const isPoster = product.category === 'poster';
+
+  // Hydrate from the persisted birth-data store so the form is pre-filled
+  // when the user navigates between products. Fires once after the client
+  // mount when the persisted value becomes available.
+  const hydratedRef = useRef(false);
+  useEffect(() => {
+    if (hydratedRef.current) return;
+    if (storedBirthData && !birthData) {
+      hydratedRef.current = true;
+      setBirthData(storedBirthData);
+      onBirthDataChange?.(storedBirthData);
+    }
+  }, [storedBirthData, birthData, onBirthDataChange]);
 
   // Start fading the success message after it appears
   useEffect(() => {
@@ -71,6 +87,7 @@ export default function AddToCartSection({
 
   const handleBirthDataSubmit = (data: BirthData) => {
     setBirthData(data);
+    setStoredBirthData(data);
     onBirthDataChange?.(data);
     if (disableAutoScroll) return;
     // Scroll so the "Kosárba" button is visible with some breathing room below
@@ -268,6 +285,7 @@ export default function AddToCartSection({
             <button
               onClick={() => {
                 setBirthData(null);
+                setStoredBirthData(null);
                 onBirthDataChange?.(null);
               }}
               className="text-sm text-primary underline mt-3"

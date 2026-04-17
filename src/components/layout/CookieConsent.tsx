@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { readConsent, setConsent } from '@/lib/cookieConsent';
+import { readConsent, setConsent, COOKIE_CONSENT_EVENT } from '@/lib/cookieConsent';
 
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (readConsent() === null) setVisible(true);
+    const onChange = () => setVisible(readConsent() === null);
+    window.addEventListener(COOKIE_CONSENT_EVENT, onChange);
+    return () => window.removeEventListener(COOKIE_CONSENT_EVENT, onChange);
   }, []);
 
   function handleAccept() {

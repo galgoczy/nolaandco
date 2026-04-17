@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import CookiePreferencesLink from './CookiePreferencesLink';
 
 const quickLinks = [
   { label: 'Rólunk', href: '/rolunk' },
@@ -65,6 +66,9 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <CookiePreferencesLink />
+              </li>
             </ul>
           </div>
 
