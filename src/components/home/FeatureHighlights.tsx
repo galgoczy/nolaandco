@@ -21,19 +21,19 @@ const highlights = [
 
 export default function FeatureHighlights() {
   return (
-    <section className="py-16 md:py-24 bg-surface">
+    <section className="py-8 md:py-12 bg-surface">
       <div className="max-w-6xl mx-auto px-6 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
           {highlights.map((h, i) => (
             <RevealOnScroll key={h.title} delay={i * 120}>
               <div className="flex flex-col items-center text-center">
-                <div className="relative w-20 h-20 md:w-24 md:h-24 mb-6">
+                <div className="relative w-14 h-14 md:w-[68px] md:h-[68px] mb-6">
                   <Image
                     src={h.icon}
                     alt=""
                     fill
                     className="object-contain"
-                    sizes="96px"
+                    sizes="68px"
                   />
                 </div>
                 <h3
