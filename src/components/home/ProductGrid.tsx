@@ -1,4 +1,3 @@
-import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import ProductCard from './ProductCard';
 import { getListingItems, type ListingItem } from '@/lib/productListing';
 
@@ -14,20 +13,9 @@ export default async function ProductGrid() {
   ].filter((g) => g.items.length > 0);
 
   return (
-    <section className="pt-12 pb-4 md:pt-24 md:pb-8 bg-surface" id="collection">
+    <section className="pt-4 pb-4 md:pt-8 md:pb-8 bg-surface" id="collection">
       <div className="max-w-7xl mx-auto px-8">
-        <div id="products-start" className="text-center mb-16 md:mb-20 scroll-mt-4">
-          <RevealOnScroll>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-carbon mb-4 leading-tight tracking-[0.18em] uppercase sm:whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>
-              THE SHAPE OF<br className="sm:hidden" /> <span className="sm:inline">YOUR MEMORIES</span>
-            </h2>
-          </RevealOnScroll>
-          <RevealOnScroll>
-            <h3 className="text-lg md:text-2xl text-carbon-light" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, letterSpacing: '0.08em' }}>
-              Emlékeid formába öntve
-            </h3>
-          </RevealOnScroll>
-        </div>
+        <div id="products-start" className="scroll-mt-4" />
 
         {/* Horizontal scrollable rows — mobile: 1 card (85%), desktop: 3 cards.
             The first row (PÁRNÁK) has a label, the second row has no label. */}

@@ -18,6 +18,7 @@ export type ProductFormValues = {
   images: string[];
   badge: string;
   active: boolean;
+  hiddenFromListing: boolean;
   onSale: boolean;
   salePrice: number | '';
 };
@@ -35,6 +36,7 @@ export const emptyProduct: ProductFormValues = {
   images: [],
   badge: '',
   active: true,
+  hiddenFromListing: false,
   onSale: false,
   salePrice: '',
 };
@@ -364,7 +366,7 @@ export default function ProductForm({
       </section>
 
       {/* Visibility */}
-      <section className="bg-surface-container-lowest rounded-2xl p-6">
+      <section className="bg-surface-container-lowest rounded-2xl p-6 space-y-3">
         <label className="flex items-center gap-2 text-sm font-body cursor-pointer">
           <input
             type="checkbox"
@@ -372,6 +374,20 @@ export default function ProductForm({
             onChange={(e) => update('active', e.target.checked)}
           />
           Aktív (látható a boltban)
+        </label>
+        <label className="flex items-start gap-2 text-sm font-body cursor-pointer">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={values.hiddenFromListing}
+            onChange={(e) => update('hiddenFromListing', e.target.checked)}
+          />
+          <span>
+            Elrejtés a listázásokból (főoldal + termékek oldal)
+            <span className="block text-xs text-on-surface/60 mt-0.5">
+              A termékoldal elérhető marad direkt linken keresztül (pl. aliasok).
+            </span>
+          </span>
         </label>
       </section>
 

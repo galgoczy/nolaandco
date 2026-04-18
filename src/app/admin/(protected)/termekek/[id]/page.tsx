@@ -48,6 +48,7 @@ export default async function EditProductPage({
           images: product.images ?? [],
           badge: product.badge ?? '',
           active: product.active,
+          hiddenFromListing: product.hiddenFromListing,
           onSale: product.onSale,
           salePrice: product.salePrice ?? '',
         }}

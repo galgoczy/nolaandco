@@ -44,6 +44,7 @@ export async function PATCH(
     update.badge = s || null;
   }
   if (data.active !== undefined) update.active = Boolean(data.active);
+  if (data.hiddenFromListing !== undefined) update.hiddenFromListing = Boolean(data.hiddenFromListing);
   if (data.onSale !== undefined) update.onSale = Boolean(data.onSale);
   if (data.salePrice !== undefined) {
     update.salePrice = data.salePrice === null || data.salePrice === '' ? null : num(data.salePrice);
