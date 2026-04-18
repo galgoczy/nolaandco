@@ -1,9 +1,9 @@
 export const dynamic = 'force-dynamic';
 
-import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import ProductCard from '@/components/home/ProductCard';
+import CategoryFilters from '@/components/products/CategoryFilters';
 import { getListingItems } from '@/lib/productListing';
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 function CategoryHeader({ en, hu }: { en: string; hu: string }) {
   return (
     <RevealOnScroll>
-      <div className="text-center mb-10">
+      <div className="text-center mb-10 mt-2">
         <h3 className="text-sm md:text-base tracking-[0.3em] uppercase text-secondary mb-1" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
           {en}
         </h3>
@@ -39,44 +39,11 @@ export default async function TermekekPage({ searchParams }: Props) {
     : null;
 
   return (
-    <section className="py-24 bg-surface min-h-screen">
+    <section className="pt-6 md:pt-8 pb-20 bg-surface min-h-screen">
       <div className="max-w-7xl mx-auto px-8">
-        <div className="text-center mb-16">
+        <div className="mb-10">
           <RevealOnScroll>
-            <h1 className="text-4xl md:text-6xl uppercase tracking-[0.15em] text-[#4A4A4A] mb-10 leading-tight" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>
-              TERMÉKEK
-            </h1>
-          </RevealOnScroll>
-
-          <RevealOnScroll>
-            <div className="flex items-center justify-center gap-4 flex-wrap">
-              <Link
-                href="/termekek"
-                className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                  !category
-                    ? 'bg-[#D5E8F0] text-carbon shadow-sm'
-                    : 'bg-surface-container text-carbon-light hover:bg-surface-container-low'
-                }`}
-              >
-                Összes
-              </Link>
-              {allCategories.map((cat) => {
-                const isActive = category === cat.slug;
-                return (
-                  <Link
-                    key={cat.slug}
-                    href={`/termekek?category=${cat.slug}`}
-                    className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                      isActive
-                        ? 'bg-[#D5E8F0] text-carbon shadow-sm'
-                        : 'bg-surface-container text-carbon-light hover:bg-surface-container-low'
-                    }`}
-                  >
-                    {cat.name}
-                  </Link>
-                );
-              })}
-            </div>
+            <CategoryFilters categories={allCategories} active={category ?? null} />
           </RevealOnScroll>
         </div>
 

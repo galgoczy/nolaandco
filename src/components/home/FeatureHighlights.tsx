@@ -5,23 +5,23 @@ const highlights = [
   {
     icon: '/images/50.png',
     title: '1:1 MÉRETARÁNY',
-    desc: 'Minden párna és poszter pontosan akkora, mint amekkora a babád a karjaidban volt.',
+    desc: 'Pontosan akkora, mint amekkora a kisbabád volt, amikor megszületett.',
   },
   {
     icon: '/images/49.png',
     title: 'IDŐKAPSZULA',
-    desc: 'Egy kézzel fogható, puha és örök emlék a legelső, megismételhetetlen napokról.',
+    desc: 'Életre kelti és megőrzi az emlékeket az első, megismételhetetlen napokról.',
   },
   {
     icon: '/images/51.png',
     title: 'KÉZMŰVES MINŐSÉG',
-    desc: 'Budapesti műhelyünkben, OEKO-TEX® minősített anyagból, hipoallergén töltettel, kézzel varrva készül.',
+    desc: 'Bababarát – OEKO-TEX® és hipoallergén – anyagokból, kézzel készül budapesti műhelyünkben.',
   },
 ];
 
 export default function FeatureHighlights() {
   return (
-    <section className="pt-8 md:pt-12 pb-[1.6rem] md:pb-[2.4rem] bg-surface">
+    <section className="py-8 md:py-12 bg-surface">
       <div className="max-w-6xl mx-auto px-6 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
           {highlights.map((h, i) => (

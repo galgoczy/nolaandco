@@ -7,29 +7,20 @@ export default async function ProductGrid() {
   const pillows = items.filter((p) => p.category === 'pillow');
   const others = items.filter((p) => p.category === 'poster' || p.category === 'giftcard');
 
-  const groups: { key: string; label: string; showLabel: boolean; items: ListingItem[] }[] = [
-    { key: 'pillows', label: 'PÁRNÁK', showLabel: true, items: pillows },
-    { key: 'others', label: '', showLabel: false, items: others },
+  const groups: { key: string; items: ListingItem[] }[] = [
+    { key: 'pillows', items: pillows },
+    { key: 'others', items: others },
   ].filter((g) => g.items.length > 0);
 
   return (
-    <section className="pt-4 pb-4 md:pt-8 md:pb-8 bg-surface" id="collection">
+    <section className="pt-0 pb-4 md:pb-8 bg-surface" id="collection">
       <div className="max-w-7xl mx-auto px-8">
         <div id="products-start" className="scroll-mt-4" />
 
-        {/* Horizontal scrollable rows — mobile: 1 card (85%), desktop: 3 cards.
-            The first row (PÁRNÁK) has a label, the second row has no label. */}
-        <div className="space-y-10 md:space-y-14">
+        {/* Horizontal scrollable rows — mobile: 1 card (85%), desktop: 3 cards. */}
+        <div className="space-y-8 md:space-y-12">
           {groups.map((group) => (
-            <div key={group.key}>
-              {group.showLabel && (
-                <h4
-                  className="text-sm tracking-[0.2em] text-carbon-light mb-4 px-1"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}
-                >
-                  {group.label}
-                </h4>
-              )}
+            <div key={group.key} className="relative">
               <div className="-mx-8 md:mx-0">
                 <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-3 px-8 md:px-0 scroll-smooth hide-scrollbar">
                   {group.items.map((product) => (
@@ -41,6 +32,12 @@ export default async function ProductGrid() {
                     </div>
                   ))}
                 </div>
+              </div>
+              {/* Small arrow hint: indicates the row is horizontally scrollable */}
+              <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-1 md:-right-2 text-carbon-light/40">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 6l6 6-6 6" />
+                </svg>
               </div>
             </div>
           ))}

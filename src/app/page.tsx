@@ -5,7 +5,7 @@ import FeatureHighlights from '@/components/home/FeatureHighlights';
 import ProductGrid from '@/components/home/ProductGrid';
 import AboutSection from '@/components/home/AboutSection';
 import WorkshopSection from '@/components/home/WorkshopSection';
-import PostersSection from '@/components/home/PostersSection';
+import TestimonialsSection from '@/components/home/TestimonialsSection';
 import ConversionSection from '@/components/home/ConversionSection';
 
 export default function HomePage() {
@@ -16,7 +16,7 @@ export default function HomePage() {
       <ProductGrid />
       <AboutSection />
       <WorkshopSection />
-      <PostersSection />
+      <TestimonialsSection />
       <ConversionSection />
     </main>
   );

@@ -51,7 +51,12 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
   return (
     <div className="flex flex-col gap-3 w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0">
       {/* Main slider */}
-      <div className="relative" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div
+        className="relative"
+        style={{ touchAction: 'pan-y' }}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-surface-container-low ghost-border">
           <div
             className="absolute inset-0 flex transition-transform duration-[350ms] ease-[cubic-bezier(0.22,0.61,0.36,1)]"

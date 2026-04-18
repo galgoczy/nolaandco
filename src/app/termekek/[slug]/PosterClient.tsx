@@ -382,6 +382,7 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
               Touch handlers enable swipe navigation on mobile. */}
           <div
             className="relative"
+            style={{ touchAction: 'pan-y' }}
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
           >
