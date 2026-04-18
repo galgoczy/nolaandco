@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   const { token, password } = parsed.data;
 
-  const customer = await prisma.customer.findUnique({
+  const customer = await prisma.customer.findFirst({
     where: { passwordResetToken: token },
   });
 

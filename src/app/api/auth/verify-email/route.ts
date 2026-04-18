@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Hiányzó megerősítő token.' }, { status: 400 });
   }
 
-  const customer = await prisma.customer.findUnique({
+  const customer = await prisma.customer.findFirst({
     where: { verificationToken: token },
   });
 

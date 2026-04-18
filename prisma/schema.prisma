@@ -96,9 +96,9 @@ model Customer {
   phone           String?
   passwordHash    String?
   emailVerified   Boolean  @default(false)
-  verificationToken        String?  @unique
+  verificationToken        String?
   verificationTokenExpires DateTime?
-  passwordResetToken        String?  @unique
+  passwordResetToken        String?
   passwordResetTokenExpires DateTime?
   shippingName    String?
   shippingZip     String?
@@ -113,6 +113,9 @@ model Customer {
   updatedAt       DateTime @updatedAt
 
   orders Order[]
+
+  @@index([verificationToken])
+  @@index([passwordResetToken])
 }
 
 model Category {
