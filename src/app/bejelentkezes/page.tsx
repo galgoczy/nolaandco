@@ -24,10 +24,14 @@ function LoginContent() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setNeedsVerification(false);
+    setResendStatus('idle');
     setLoading(true);
     try {
       const res = await signIn('credentials', {
@@ -44,6 +48,7 @@ function LoginContent() {
       if (res.error) {
         if (res.error === 'EMAIL_NOT_VERIFIED') {
           setError('Az e-mail címed még nincs megerősítve. Ellenőrizd a postaládád.');
+          setNeedsVerification(true);
         } else {
           setError('Hibás e-mail cím vagy jelszó.');
         }
@@ -55,6 +60,21 @@ function LoginContent() {
       setError('Hálózati hiba. Kérjük, próbáld újra.');
       setLoading(false);
     }
+  }
+
+  async function handleResend() {
+    if (!email) return;
+    setResendStatus('sending');
+    try {
+      await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+    } catch {
+      // Silent — the endpoint is idempotent and does not leak status anyway.
+    }
+    setResendStatus('sent');
   }
 
   return (
@@ -108,6 +128,25 @@ function LoginContent() {
             </p>
           )}
 
+          {needsVerification && (
+            <div className="text-center">
+              {resendStatus === 'sent' ? (
+                <p className="text-xs text-green-600 font-body">
+                  Ha a fiók létezik, küldtünk egy új megerősítő levelet.
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resendStatus === 'sending'}
+                  className="text-xs text-[#C4A591] underline underline-offset-2 hover:text-[#4A4A4A] disabled:opacity-50"
+                >
+                  {resendStatus === 'sending' ? 'Küldés...' : 'Küldd el újra a megerősítő levelet'}
+                </button>
+              )}
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
@@ -115,6 +154,15 @@ function LoginContent() {
           >
             {loading ? 'Bejelentkezés...' : 'Bejelentkezés'}
           </button>
+
+          <div className="text-center">
+            <Link
+              href="/elfelejtett-jelszo"
+              className="text-xs text-[#4A4A4A]/60 underline underline-offset-2 hover:text-[#4A4A4A]"
+            >
+              Elfelejtetted a jelszavad?
+            </Link>
+          </div>
         </form>
 
         <div className="my-6 flex items-center gap-3">

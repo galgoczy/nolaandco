@@ -94,12 +94,17 @@ function VerifyContent() {
           </Link>
         )}
         {status === 'error' && (
-          <Link
-            href="/regisztracio"
-            className="inline-block bg-[#C4A591] text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            Új regisztráció
-          </Link>
+          <div className="flex flex-col items-center gap-3">
+            <Link
+              href="/bejelentkezes"
+              className="inline-block bg-[#C4A591] text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              Bejelentkezés
+            </Link>
+            <p className="text-xs text-[#4A4A4A]/60 font-body">
+              A linkek 24 óráig érvényesek. Bejelentkezési kísérletnél új megerősítő levelet kérhetsz.
+            </p>
+          </div>
         )}
       </div>
     </div>

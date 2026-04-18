@@ -98,6 +98,8 @@ model Customer {
   emailVerified   Boolean  @default(false)
   verificationToken        String?  @unique
   verificationTokenExpires DateTime?
+  passwordResetToken        String?  @unique
+  passwordResetTokenExpires DateTime?
   shippingName    String?
   shippingZip     String?
   shippingCity    String?

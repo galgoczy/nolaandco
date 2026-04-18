@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/auth';
 import { sendEmail } from '@/lib/emails/send';
 import { verificationEmailHtml, verificationEmailSubject } from '@/lib/emails/verification';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
+import { baseUrl, VERIFY_TTL_MS } from '@/lib/authUrls';
 
 const schema = z.object({
   email: z.string().email('Érvényes e-mail cím szükséges'),
@@ -12,17 +14,15 @@ const schema = z.object({
   name: z.string().min(2, 'Név megadása kötelező').max(80),
 });
 
-const VERIFY_TTL_MS = 24 * 60 * 60 * 1000;
-
-function baseUrl(req: NextRequest) {
-  const envUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL;
-  if (envUrl) return envUrl.replace(/\/$/, '');
-  const host = req.headers.get('host');
-  const proto = req.headers.get('x-forwarded-proto') || 'https';
-  return `${proto}://${host}`;
-}
-
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req.headers);
+  const ipLimit = rateLimit(`register:ip:${ip}`, 5, 15 * 60 * 1000);
+  if (!ipLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },
+      { status: 429 },
+    );
+  }
   let body: unknown;
   try {
     body = await req.json();
@@ -40,6 +40,14 @@ export async function POST(req: NextRequest) {
 
   const email = parsed.data.email.toLowerCase().trim();
   const { password, name } = parsed.data;
+
+  const emailLimit = rateLimit(`register:email:${email}`, 3, 60 * 60 * 1000);
+  if (!emailLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Erre az e-mail címre már küldtünk megerősítő levelet. Várj legalább egy órát az újabb próbálkozás előtt.' },
+      { status: 429 },
+    );
+  }
 
   const admin = await prisma.adminUser.findUnique({ where: { email } });
   if (admin) {
