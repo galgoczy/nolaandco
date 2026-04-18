@@ -77,27 +77,15 @@ const products = [
     badge: null,
   },
   {
-    name: 'ORIGIN Poszter',
-    slug: 'origin-poszter',
+    name: 'Poszter',
+    slug: 'poszter',
     description:
-      'Az ORIGIN Poszter a baba születési adatait művészi formában örökíti meg. Prémium papírra nyomtatva, az Origin sorozat stílusában készül. Személyre szabható: név, dátum, súly, hossz és időpont. Gyönyörű dekoráció a babaszobába.',
+      'Személyre szabható emlékposzter a baba születési adataival. Válassz a hat grafikus dizájn és hat háttérszín közül — az elrendezést valós időben alakíthatod a tervezőben. Prémium papírra nyomtatva vagy digitális fájlként.',
     price: 5900,
     category: 'poster',
-    series: 'origin',
+    series: 'nola',
     variant: 'core',
     imageUrl: '/images/products/origin-poszter.jpg',
-    badge: null,
-  },
-  {
-    name: 'NOVA Poszter',
-    slug: 'nova-poszter',
-    description:
-      'A NOVA Poszter modern, minimalista dizájnnal jeleníti meg a baba születési adatait. Prémium nyomtatás, személyre szabható tartalommal: név, dátum, súly, hossz és időpont. Tökéletes ajándék és emlék.',
-    price: 5900,
-    category: 'poster',
-    series: 'nova',
-    variant: 'core',
-    imageUrl: '/images/products/nova-poszter.jpg',
     badge: null,
   },
   {
@@ -161,6 +149,61 @@ async function main() {
     } else {
       await prisma.product.create({ data: product });
       console.log(`  Created: ${product.name}`);
+    }
+  }
+
+  // --- Legacy poster products → hide from listings. They remain in the DB so
+  // historical OrderItem FKs stay valid, but the two aliases below replace
+  // them as the visible landing cards.
+  const legacyPosterSlugs = ['origin-poszter', 'nova-poszter'];
+  for (const slug of legacyPosterSlugs) {
+    const legacy = await prisma.product.findUnique({ where: { slug } });
+    if (legacy) {
+      await prisma.product.update({
+        where: { slug },
+        data: { hiddenFromListing: true, active: false },
+      });
+      console.log(`  Hid legacy poster product: ${slug}`);
+    }
+  }
+
+  // --- Product aliases: "landing cards" for the canonical poszter product ---
+  console.log('Seeding product aliases...');
+
+  const aliases = [
+    {
+      slug: 'origin-poszter',
+      name: 'ORIGIN poszter',
+      imageUrl: '/images/products/origin-poszter.jpg',
+      targetProductSlug: 'poszter',
+      defaultLayoutId: 'origin-1',
+      sortOrder: 0,
+    },
+    {
+      slug: 'nova-poszter',
+      name: 'NOVA poszter',
+      imageUrl: '/images/products/nova-poszter.jpg',
+      targetProductSlug: 'poszter',
+      defaultLayoutId: 'nova-1',
+      sortOrder: 1,
+    },
+  ];
+
+  for (const a of aliases) {
+    const existing = await prisma.productAlias.findUnique({ where: { slug: a.slug } });
+    if (existing) {
+      // Keep admin-edited name & imageUrl; only sync routing-structural fields.
+      await prisma.productAlias.update({
+        where: { slug: a.slug },
+        data: {
+          targetProductSlug: a.targetProductSlug,
+          defaultLayoutId: a.defaultLayoutId,
+        },
+      });
+      console.log(`  Updated alias (kept name/image): ${a.slug}`);
+    } else {
+      await prisma.productAlias.create({ data: a });
+      console.log(`  Created alias: ${a.slug}`);
     }
   }
 

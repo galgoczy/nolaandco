@@ -22,6 +22,7 @@ model Product {
   sortOrder       Int      @default(0)
   badge           String?  // "Core Series" | "Limited Edition" | null
   active          Boolean  @default(true)
+  hiddenFromListing Boolean @default(false)
   onSale          Boolean  @default(false)
   salePrice       Int?
   createdAt       DateTime @default(now())
@@ -67,6 +68,7 @@ model OrderItem {
   birthHeight   String?
   birthTime     String?
   customNote    String?
+  posterLayout  String?  // chosen poster design variant (e.g. "origin-1")
 
   orderId   String
   order     Order   @relation(fields: [orderId], references: [id])
@@ -159,4 +161,21 @@ model Coupon {
   endsAt          DateTime
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+/// A "landing card" that points at a real Product. Used for posters so the
+/// homepage/listing can show ORIGIN poszter + NOVA poszter as separate cards
+/// while all orders/cart/stats go against one canonical Product ("poszter").
+model ProductAlias {
+  id                String   @id @default(cuid())
+  slug              String   @unique // URL slug, e.g. "origin-poszter"
+  name              String            // Display name, e.g. "ORIGIN poszter"
+  imageUrl          String            // Card image
+  badge             String?
+  targetProductSlug String            // Canonical Product.slug the alias points to
+  defaultLayoutId   String            // Preselected layout id (e.g. "origin-1")
+  sortOrder         Int      @default(0)
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }

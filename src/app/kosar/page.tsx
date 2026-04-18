@@ -81,6 +81,11 @@ export default function KosarPage() {
                 <p className="text-sm text-carbon-light mt-0.5">
                   {item.babyName} &middot; {item.birthDate}
                 </p>
+                {item.posterLayoutLabel && (
+                  <p className="text-xs text-carbon-light/80 mt-0.5">
+                    Dizájn: {item.posterLayoutLabel}
+                  </p>
+                )}
               </div>
 
               {/* Quantity Controls */}

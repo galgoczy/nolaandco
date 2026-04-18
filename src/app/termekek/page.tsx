@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import ProductCard from '@/components/home/ProductCard';
+import { getListingItems } from '@/lib/productListing';
 
 interface Props {
   searchParams: Promise<{ category?: string }>;
@@ -30,13 +31,7 @@ export default async function TermekekPage({ searchParams }: Props) {
   // Read categories from DB (sorted by admin-defined order)
   const allCategories = await prisma.category.findMany({ orderBy: { sortOrder: 'asc' } });
 
-  const products = await prisma.product.findMany({
-    where: {
-      active: true,
-      ...(category ? { category } : {}),
-    },
-    orderBy: { createdAt: 'asc' },
-  });
+  const products = await getListingItems(category ? { category } : undefined);
 
   const showAll = !category;
   const selectedCat = category

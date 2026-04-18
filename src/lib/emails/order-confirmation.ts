@@ -5,6 +5,7 @@ interface OrderItem {
   quantity: number;
   price: number;
   babyName?: string | null;
+  posterLayoutLabel?: string | null;
 }
 
 interface OrderConfirmationData {
@@ -38,6 +39,7 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
         <td style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;">
           ${item.name}${item.quantity > 1 ? ` <span style="color:#999;">&times;${item.quantity}</span>` : ''}
           ${item.babyName ? `<br/><span style="font-size:12px;color:#999;">${item.babyName}</span>` : ''}
+          ${item.posterLayoutLabel ? `<br/><span style="font-size:12px;color:#999;">Dizájn: ${item.posterLayoutLabel}</span>` : ''}
         </td>
         <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;white-space:nowrap;">
           ${formatPrice(item.price * item.quantity)}

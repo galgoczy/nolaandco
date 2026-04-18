@@ -15,6 +15,10 @@ export interface CartItemData {
   birthHeight: string;
   birthTime?: string;
   customNote?: string;
+  /** Chosen poster design variant, e.g. "origin-1". Only set for poster items. */
+  posterLayout?: string;
+  /** Label of the chosen design for display, e.g. "Origin 1". */
+  posterLayoutLabel?: string;
 }
 
 interface CartStore {

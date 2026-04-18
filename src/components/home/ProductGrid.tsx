@@ -1,39 +1,14 @@
-import { prisma } from '@/lib/prisma';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import ProductCard from './ProductCard';
-
-type SimpleProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  imageUrl: string;
-  badge: string | null;
-  category: string | null;
-  series: string | null;
-};
+import { getListingItems, type ListingItem } from '@/lib/productListing';
 
 export default async function ProductGrid() {
-  const products = await prisma.product.findMany({
-    where: { active: true },
-    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-  });
+  const items = await getListingItems();
 
-  const simple: SimpleProduct[] = products.map((p) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.slug,
-    price: p.price,
-    imageUrl: p.imageUrl,
-    badge: p.badge,
-    category: p.category ?? null,
-    series: (p as unknown as { series?: string | null }).series ?? null,
-  }));
+  const pillows = items.filter((p) => p.category === 'pillow');
+  const others = items.filter((p) => p.category === 'poster' || p.category === 'giftcard');
 
-  const pillows = simple.filter((p) => p.category === 'pillow');
-  const others = simple.filter((p) => p.category === 'poster' || p.category === 'giftcard');
-
-  const groups: { key: string; label: string; showLabel: boolean; items: SimpleProduct[] }[] = [
+  const groups: { key: string; label: string; showLabel: boolean; items: ListingItem[] }[] = [
     { key: 'pillows', label: 'PÁRNÁK', showLabel: true, items: pillows },
     { key: 'others', label: '', showLabel: false, items: others },
   ].filter((g) => g.items.length > 0);

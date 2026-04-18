@@ -578,6 +578,8 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
             addToCartSignal={addToCartSignal}
             disableAutoScroll
             extraNote={extraNote}
+            posterLayout={layout.id}
+            posterLayoutLabel={layout.label}
           />
         </div>
       </div>

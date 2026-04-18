@@ -40,6 +40,10 @@ interface Props {
   disableAutoScroll?: boolean;
   /** When this number changes, trigger the add-to-cart action externally. */
   addToCartSignal?: number;
+  /** Structured poster layout id (e.g. "origin-1"). Persisted on order item. */
+  posterLayout?: string;
+  /** Human-readable label for the poster layout, e.g. "Origin 1". */
+  posterLayoutLabel?: string;
 }
 
 export default function AddToCartSection({
@@ -50,6 +54,8 @@ export default function AddToCartSection({
   extraNote,
   disableAutoScroll,
   addToCartSignal,
+  posterLayout,
+  posterLayoutLabel,
 }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const storedBirthData = useBirthDataStore((s) => s.data);
@@ -145,6 +151,7 @@ export default function AddToCartSection({
       birthHeight: birthData.birthHeight,
       birthTime: birthData.birthTime,
       customNote: noteParts.join('\n'),
+      ...(posterLayout ? { posterLayout, posterLayoutLabel } : {}),
     });
 
     setAdded(true);

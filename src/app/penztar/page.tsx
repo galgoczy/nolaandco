@@ -534,6 +534,11 @@ export default function CheckoutPage() {
                           {item.birthDate && ` · ${item.birthDate}`}
                         </p>
                       )}
+                      {item.posterLayoutLabel && (
+                        <p className="text-xs text-[#4A4A4A]/60">
+                          Dizájn: {item.posterLayoutLabel}
+                        </p>
+                      )}
                       <p className="text-xs text-[#4A4A4A]/60">{item.quantity} db</p>
                     </div>
                     <p className="font-medium text-sm whitespace-nowrap">{formatPrice(item.price * item.quantity)}</p>

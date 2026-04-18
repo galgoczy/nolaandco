@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { createSzamlazzInvoice } from '@/lib/szamlazz';
 import { sendEmail } from '@/lib/emails/send';
 import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
+import { findLayout } from '@/app/termekek/[slug]/posterData';
 import Stripe from 'stripe';
 
 export const runtime = 'nodejs';
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
           quantity: item.quantity,
           price: item.price,
           babyName: item.babyName,
+          posterLayoutLabel: item.posterLayout ? findLayout(item.posterLayout).label : null,
         }));
 
         try {

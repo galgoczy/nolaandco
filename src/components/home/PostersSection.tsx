@@ -1,14 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
-import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
+import { getListingItems } from '@/lib/productListing';
 
 export default async function PostersSection() {
-  const posters = await prisma.product.findMany({
-    where: { active: true, category: 'poster' },
-    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-  });
+  const posters = await getListingItems({ category: 'poster' });
 
   if (posters.length === 0) return null;
 

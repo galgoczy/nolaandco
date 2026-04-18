@@ -59,6 +59,8 @@ export async function POST(request: NextRequest) {
       birthHeight?: string;
       birthTime?: string;
       customNote?: string;
+      posterLayout?: string;
+      posterLayoutLabel?: string;
     }[] = [];
 
     for (const item of items) {
@@ -89,6 +91,8 @@ export async function POST(request: NextRequest) {
         birthHeight: item.birthHeight || undefined,
         birthTime: item.birthTime || undefined,
         customNote: item.customNote || undefined,
+        posterLayout: item.posterLayout || undefined,
+        posterLayoutLabel: item.posterLayoutLabel || undefined,
       });
     }
 
@@ -167,6 +171,7 @@ export async function POST(request: NextRequest) {
             birthHeight: item.birthHeight || null,
             birthTime: item.birthTime || null,
             customNote: item.customNote || null,
+            posterLayout: item.posterLayout || null,
           })),
         },
       },

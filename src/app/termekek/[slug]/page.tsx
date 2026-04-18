@@ -21,13 +21,21 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const { slug } = await params;
   const search = await searchParams;
 
+  // Alias lookup first — if this URL is a "landing card" for a canonical product,
+  // resolve to the canonical product and use the alias's default layout.
+  const alias = await prisma.productAlias.findUnique({ where: { slug } });
+
+  const canonicalSlug = alias?.targetProductSlug ?? slug;
   const product = await prisma.product.findUnique({
-    where: { slug },
+    where: { slug: canonicalSlug },
   });
 
   if (!product || !product.active) {
     notFound();
   }
+
+  // Alias's preset takes precedence unless the URL param explicitly overrides.
+  const aliasDefaultLayoutId = alias?.defaultLayoutId;
 
   const isGiftCard = product.category === 'giftcard';
   const isPosterDesigner = product.slug === POSTER_DESIGNER_SLUG;
@@ -59,7 +67,11 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   if (isPosterDesigner) {
     const requested = typeof search.elrendezes === 'string' ? search.elrendezes : undefined;
     const initialLayoutId =
-      requested && POSTER_LAYOUTS.some((l) => l.id === requested) ? requested : DEFAULT_LAYOUT_ID;
+      requested && POSTER_LAYOUTS.some((l) => l.id === requested)
+        ? requested
+        : aliasDefaultLayoutId && POSTER_LAYOUTS.some((l) => l.id === aliasDefaultLayoutId)
+          ? aliasDefaultLayoutId
+          : DEFAULT_LAYOUT_ID;
 
     return (
       <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">

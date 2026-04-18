@@ -9,6 +9,7 @@ const navItems = [
   { label: 'Vezérlőpult', href: '/admin' },
   { label: 'Rendelések', href: '/admin/rendelesek' },
   { label: 'Termékek', href: '/admin/termekek' },
+  { label: 'Termék aliasok', href: '/admin/termek-aliasok' },
   { label: 'Kategóriák', href: '/admin/kategoriak' },
   { label: 'Kuponok', href: '/admin/kuponok' },
   { label: 'Statisztikák', href: '/admin/statisztikak' },
