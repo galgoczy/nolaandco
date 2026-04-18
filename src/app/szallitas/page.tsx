@@ -43,6 +43,11 @@ export default function SzallitasPage() {
               </div>
 
               <div>
+                <h3 className="text-carbon font-medium mb-1">Szállítási idő</h3>
+                <p>Akár 1, általában 2-3 munkanap.</p>
+              </div>
+
+              <div>
                 <h3 className="text-carbon font-medium mb-1">Fizetés</h3>
                 <p>Biztonságos kártyás fizetés (Stripe), banki utalás.</p>
               </div>

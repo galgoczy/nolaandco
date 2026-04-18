@@ -36,8 +36,13 @@ const faqItems: FaqItem[] = [
   },
   {
     question: 'Az 1:1 méretarány mit jelent?',
-    answer:
-      'Azt jelenti, hogy a párna hossza megegyezik a babád születéskori testhosszával. A sziluett arányait pedig úgy terveztük, hogy az élethűen tükrözze a baba formáját.',
+    answer: (
+      <>
+        Azt jelenti, hogy a párna hossza megegyezik a babád születéskori testhosszával. A sziluett arányait pedig úgy terveztük, hogy az élethűen tükrözze a baba formáját.
+        <br />
+        A poszter esetében a választott grafikus sziluett mérete lesz pontosan akkora, mint a megadott születési hossz. (Maga a plakát 50x70 cm.)
+      </>
+    ),
   },
   {
     question: 'Honnan tudom, hogy mekkora lesz a párna?',
@@ -63,6 +68,11 @@ const faqItems: FaqItem[] = [
     question: 'Milyen szállítási módok közül választhatok?',
     answer:
       'Kényelmes csomagautomatás átvétel (Foxpost/Packeta) vagy házhozszállítás.',
+  },
+  {
+    question: 'Mennyi idő a szállítás?',
+    answer:
+      'A Foxpost/Packeta akár 1 munkanap alatt eljuttatja a csomagot a választott csomagautomatába (telítettségtől függően), illetve házhozszállítás esetén a megadott címre. A kézbesítési idő azonban általában 2-3 munkanap, ám ezek nem időgarantált szolgáltatások.',
   },
   {
     question: 'Fizethetek utánvéttel?',
