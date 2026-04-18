@@ -36,6 +36,7 @@ export default function CheckoutPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [saveData, setSaveData] = useState(false);
   const [shippingSameAsBilling, setShippingSameAsBilling] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(true);
   const [form, setForm] = useState<ShippingData>({
     email: '',
     phone: '',
@@ -173,6 +174,11 @@ export default function CheckoutPage() {
 
   async function handleSubmit() {
     setErrors({});
+
+    if (!termsAccepted) {
+      setErrors({ _form: 'A rendelés leadásához el kell fogadnod az Általános Szerződési Feltételeket.' });
+      return;
+    }
 
     if (shippingMethod === 'parcel' && !selectedLocker) {
       setErrors({ _form: 'Kérjük, válassz csomagautomatát a térkép segítségével.' });
@@ -607,10 +613,31 @@ export default function CheckoutPage() {
                 </div>
               )}
 
+              <label className="flex items-start gap-2 mt-4 text-xs text-[#4A4A4A] font-body cursor-pointer leading-relaxed">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded border-gray-300 text-[#C4A591] focus:ring-[#C4A591]/30 flex-shrink-0"
+                />
+                <span>
+                  A megrendelés véglegesítésével elfogadom a{' '}
+                  <a
+                    href="/aszf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-[#C4A591]"
+                  >
+                    Általános Szerződési Feltételeket
+                  </a>
+                  {' '}és tudomásul veszem, hogy a megrendelés fizetési kötelezettséget von maga után.
+                </span>
+              </label>
+
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={loading}
+                disabled={loading || !termsAccepted}
                 className="w-full mt-4 bg-[#D5E8F0] text-[#4A4A4A] py-3.5 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? (
@@ -627,10 +654,6 @@ export default function CheckoutPage() {
                   </>
                 )}
               </button>
-
-              <p className="text-[10px] text-[#4A4A4A]/40 text-center mt-3">
-                A megrendelés gomb megnyomásával elfogadod az Általános Szerződési Feltételeket.
-              </p>
             </div>
           </div>
         </div>

@@ -94,6 +94,10 @@ model Customer {
   name            String?
   image           String?
   phone           String?
+  passwordHash    String?
+  emailVerified   Boolean  @default(false)
+  verificationToken        String?  @unique
+  verificationTokenExpires DateTime?
   shippingName    String?
   shippingZip     String?
   shippingCity    String?
