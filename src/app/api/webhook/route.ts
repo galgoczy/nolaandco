@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
               shippingCost: order.shippingCost,
               total: order.total,
               shippingMethod: order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home',
+              paymentMethod: 'card',
               hasInvoice: !!invoicePdf,
             }),
             attachments: invoicePdf

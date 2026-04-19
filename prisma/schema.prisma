@@ -47,6 +47,7 @@ model Order {
   subtotal        Int
   shippingCost    Int      @default(0)
   total           Int
+  paymentMethod   String   @default("card") // "card" | "transfer"
   stripePaymentId String?
   trackingNumber  String?
   customerId      String?

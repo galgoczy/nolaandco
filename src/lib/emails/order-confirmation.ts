@@ -18,7 +18,11 @@ interface OrderConfirmationData {
   total?: number;
   shippingMethod?: string;
   hasInvoice?: boolean;
+  paymentMethod?: 'card' | 'transfer';
 }
+
+const BANK_ACCOUNT = '10918001-00000047-88110009';
+const BANK_BENEFICIARY = 'Galgóczy Krisztina EV';
 
 function formatPrice(amount: number): string {
   return amount.toLocaleString('hu-HU') + ' Ft';
@@ -87,6 +91,32 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
       </p>`
     : '';
 
+  const orderRef = `#${data.orderId.slice(-8).toUpperCase()}`;
+
+  const transferBlock =
+    data.paymentMethod === 'transfer' && data.total != null
+      ? `
+    <div style="margin:24px 0;padding:18px 20px;background-color:#F5F0E8;border-radius:10px;border:1px solid #E8E0D0;">
+      <p style="margin:0 0 10px;font-size:14px;font-weight:600;color:#4A4A4A;">
+        Banki átutalás
+      </p>
+      <p style="margin:0 0 12px;font-size:13px;line-height:1.7;color:#4A4A4A;">
+        A rendelést banki átutalással fizeted. Az alábbi adatokkal kérjük utalni az összeget. A termék elkészítése és postázása az utalás beérkezését követően történik.
+      </p>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="font-size:13px;color:#4A4A4A;line-height:1.8;">
+        <tr><td style="padding-right:14px;color:#999;">Összeg:</td><td><strong>${formatPrice(data.total)}</strong></td></tr>
+        <tr><td style="padding-right:14px;color:#999;">Bankszámlaszám:</td><td><strong>${BANK_ACCOUNT}</strong></td></tr>
+        <tr><td style="padding-right:14px;color:#999;">Kedvezményezett:</td><td>${BANK_BENEFICIARY}</td></tr>
+        <tr><td style="padding-right:14px;color:#999;">Közlemény:</td><td><strong>${orderRef}</strong></td></tr>
+      </table>
+    </div>`
+      : '';
+
+  const trackingNote =
+    data.paymentMethod === 'transfer'
+      ? 'Amint az utalás beérkezett, megkezdjük a baba születési adatainak feldolgozását, és küldünk egy újabb értesítést a csomagod útnak indításáról.'
+      : 'A rendelésedet rögzítettük, és műhelyünkben megkezdtük a baba születési adatainak feldolgozását. Amint az alkotás elkészült, küldünk egy újabb értesítést a csomagod útnak indításáról.';
+
   const body = `
     <h1 style="margin:0 0 16px;font-size:22px;color:#4A4A4A;font-weight:500;">
       Kedves ${data.customerName}!
@@ -95,9 +125,10 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
       Köszönjük a rendelésedet! Nagyon örülünk, hogy minket választottál, hogy megőrizzük a legelső pillanatok emlékét.
     </p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4A4A4A;">
-      A rendelésedet (<strong>#${data.orderId.slice(-8).toUpperCase()}</strong>) rögzítettük, és műhelyünkben megkezdtük a baba születési adatainak feldolgozását. Amint az alkotás elkészült, küldünk egy újabb értesítést a csomagod útnak indításáról.
+      A rendelésed (<strong>${orderRef}</strong>) ${data.paymentMethod === 'transfer' ? 'rögzítve. ' : ''}${trackingNote}
     </p>
     ${itemsHtml}
+    ${transferBlock}
     ${invoiceNote}
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
       <tr>

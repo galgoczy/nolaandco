@@ -37,6 +37,8 @@ export default function CheckoutPage() {
   const [saveData, setSaveData] = useState(false);
   const [shippingSameAsBilling, setShippingSameAsBilling] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'transfer'>('card');
+  const [altPaymentOpen, setAltPaymentOpen] = useState(false);
   const [form, setForm] = useState<ShippingData>({
     email: '',
     phone: '',
@@ -213,6 +215,7 @@ export default function CheckoutPage() {
           items,
           shipping: result.data,
           shippingMethod,
+          paymentMethod,
           couponCode: coupon?.code ?? null,
           saveData,
         }),
@@ -476,8 +479,11 @@ export default function CheckoutPage() {
                   <span className="text-sm font-medium text-[#4A4A4A]">Biztonságos online fizetés</span>
                 </div>
                 <p className="text-xs text-[#4A4A4A]/60 mb-3">
-                  A &quot;Megrendelés&quot; gomb megnyomása után átirányítunk a Stripe biztonságos fizetési oldalára,
-                  ahol bankkártyával fizethetsz.
+                  {paymentMethod === 'card' ? (
+                    <>A &quot;Megrendelés&quot; gomb megnyomása után átirányítunk a Stripe biztonságos fizetési oldalára, ahol bankkártyával fizethetsz.</>
+                  ) : (
+                    <>A &quot;Megrendelés&quot; gomb megnyomása után rögzítjük a rendelést, az utaláshoz szükséges adatokat e-mailben küldjük el.</>
+                  )}
                 </p>
                 <div className="flex items-center justify-center gap-3">
                   <div className="w-10 h-6 bg-[#1A1F71] rounded flex items-center justify-center text-white text-[8px] font-bold">VISA</div>
@@ -492,6 +498,45 @@ export default function CheckoutPage() {
                     <span className="text-[7px] font-semibold leading-none">Pay</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Alternative payment methods (collapsible) */}
+              <div className="mt-4 border-t border-gray-100 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setAltPaymentOpen((v) => !v)}
+                  className="w-full flex items-center justify-between text-sm font-medium text-[#4A4A4A]/80 hover:text-[#4A4A4A] py-1"
+                  aria-expanded={altPaymentOpen}
+                >
+                  <span>Alternatív fizetési módok</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`w-4 h-4 transition-transform duration-200 ${altPaymentOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {altPaymentOpen && (
+                  <div className="mt-3 space-y-3">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={paymentMethod === 'transfer'}
+                        onChange={(e) => setPaymentMethod(e.target.checked ? 'transfer' : 'card')}
+                        className="mt-1 w-4 h-4 rounded border-gray-300 text-[#C4A591] focus:ring-[#C4A591]/30"
+                      />
+                      <span className="text-sm text-[#4A4A4A]">Banki átutalás</span>
+                    </label>
+                    <p className="text-xs text-[#4A4A4A]/60 leading-relaxed pl-7">
+                      Banki átutalás esetén az átutaláshoz szükséges adatokat a visszaigazoló e-mailben küldjük el.
+                      A termék elkészítése és postázása az utalás beérkezését követően történik.
+                    </p>
+                  </div>
+                )}
               </div>
             </section>
 

@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
+import { sendEmail } from '@/lib/emails/send';
+import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
 import type { CartItemData } from '@/store/cart';
 
 const SHIPPING_COSTS: Record<string, number> = {
@@ -14,13 +16,16 @@ const SHIPPING_COSTS: Record<string, number> = {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { items, shipping, shippingMethod, couponCode, saveData } = body as {
+    const { items, shipping, shippingMethod, paymentMethod, couponCode, saveData } = body as {
       items: CartItemData[];
       shipping: Record<string, unknown>;
       shippingMethod: string;
+      paymentMethod?: 'card' | 'transfer';
       couponCode?: string | null;
       saveData?: boolean;
     };
+
+    const payMethod: 'card' | 'transfer' = paymentMethod === 'transfer' ? 'transfer' : 'card';
 
     // Validate shipping data — stricter for home delivery
     const schema = shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
@@ -146,6 +151,7 @@ export async function POST(request: NextRequest) {
     const order = await prisma.order.create({
       data: {
         status: 'pending',
+        paymentMethod: payMethod,
         customerId,
         email: shippingData.email,
         phone: shippingData.phone || null,
@@ -208,6 +214,41 @@ export async function POST(request: NextRequest) {
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
+
+    // ── Bank transfer flow: skip Stripe, send confirmation email immediately. ──
+    if (payMethod === 'transfer') {
+      try {
+        const emailItems = verifiedItems.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          babyName: item.babyName ?? null,
+          posterLayoutLabel: item.posterLayoutLabel ?? null,
+        }));
+        await sendEmail({
+          to: shippingData.email,
+          subject: orderConfirmationSubject(),
+          html: orderConfirmationHtml({
+            customerName: shippingData.shippingName || 'Vásárlónk',
+            orderId: order.id,
+            orderUrl: `${baseUrl}/fiok#rendelesek`,
+            items: emailItems,
+            subtotal,
+            shippingCost,
+            total,
+            shippingMethod,
+            paymentMethod: 'transfer',
+            hasInvoice: false,
+          }),
+        });
+      } catch (err) {
+        console.error('Transfer order confirmation email failed:', err);
+        // Don't block the order — admin can re-send if needed.
+      }
+      return NextResponse.json({
+        url: `${baseUrl}/koszonjuk?order_id=${order.id}&payment=transfer`,
+      });
+    }
 
     // Create Stripe Checkout Session
     const lineItems = verifiedItems.map((item) => ({

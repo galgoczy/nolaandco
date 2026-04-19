@@ -166,6 +166,34 @@ export default async function ThankYouPage({ searchParams }: Props) {
           </div>
         </div>
 
+        {order.paymentMethod === 'transfer' && (
+          <div className="bg-[#F5F0E8] border border-[#E8E0D0] rounded-2xl p-6 shadow-sm mt-4">
+            <h2 className="font-bold text-[#4A4A4A] mb-3">Banki átutalás</h2>
+            <p className="text-sm text-[#4A4A4A]/80 leading-relaxed mb-4">
+              A termék elkészítése és postázása az utalás beérkezését követően történik.
+              Kérjük, az alábbi adatokkal utald el az összeget:
+            </p>
+            <div className="text-sm text-[#4A4A4A] space-y-1.5">
+              <div className="flex justify-between gap-3">
+                <span className="text-[#4A4A4A]/60">Összeg</span>
+                <span className="font-bold">{formatPrice(order.total)}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-[#4A4A4A]/60">Bankszámlaszám</span>
+                <span className="font-mono font-bold">10918001-00000047-88110009</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-[#4A4A4A]/60">Kedvezményezett</span>
+                <span>Galgóczy Krisztina EV</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-[#4A4A4A]/60">Közlemény</span>
+                <span className="font-mono font-bold">#{order.id.slice(-8).toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Contact info */}
         <div className="bg-white rounded-2xl p-6 shadow-sm mt-4 text-center">
           <p className="text-sm text-[#4A4A4A]/70">
