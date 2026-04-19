@@ -8,7 +8,6 @@ import AddToCartSection from './AddToCartSection';
 import ProductGallery from './ProductGallery';
 import PillowVariants from './PillowVariants';
 import PosterClient from './PosterClient';
-import CategoryFilters from '@/components/products/CategoryFilters';
 import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
 
 const POSTER_DESIGNER_SLUG = 'poszter';
@@ -42,10 +41,6 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const isPosterDesigner = product.slug === POSTER_DESIGNER_SLUG;
   const isPillow = product.category === 'pillow';
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
-
-  const allCategories = isGiftCard
-    ? await prisma.category.findMany({ orderBy: { sortOrder: 'asc' } })
-    : [];
 
   const pillowVariants = isPillow
     ? await (async () => {
@@ -119,11 +114,6 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   return (
     <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
       <div className="max-w-7xl mx-auto px-8">
-        {isGiftCard && (
-          <div className="mb-8">
-            <CategoryFilters categories={allCategories} active="giftcard" />
-          </div>
-        )}
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-x-16">
           {/* Left column: gallery + (desktop) long description */}
           <div className="w-full lg:w-1/2 flex flex-col gap-12">
