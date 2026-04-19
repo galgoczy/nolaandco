@@ -60,8 +60,7 @@ Az adatkezelés során az Adatkezelő az Ön nevét, lakcímét, telefonszámát
 ### Az adatkezelés időtartama
 A hozzájárulásának visszavonásáig.
 ### Az adatkezelés jogalapja
-Az Ön önkéntes hozzájárulása, amit a regisztrációval ad meg az Adatkezelő számára [Rendelet 6. cikk (1) bekezdés
-- pont szerinti adatkezelés]
+Az Ön önkéntes hozzájárulása, amit a regisztrációval ad meg az Adatkezelő számára [Rendelet 6. cikk (1) bekezdés a) pont szerinti adatkezelés]
 ## A rendelés feldolgozása
 A rendelések feldolgozása során a szerződés teljesítése érdekében szükségesek adatkezelési tevékenységek.
 ### Kezelt adatok
@@ -188,7 +187,7 @@ Az Adatfeldolgozó az Adatkezelővel kötött szerződés alapján a személyes 
 ## Hírlevélküldéssel összefüggő adatfeldolgozói tevékenység
 - **Hírlevélküldő rendszert üzemeltető cég neve:** MailerLite Limited
 - **Hírlevélküldő rendszert üzemeltető cég székhelye:** 88 Harcourt Street, Dublin 2, D02 DK18, Ireland.
-Hírlevélküldő rendszert üzemeltető cég telefonszáma:
+- **Hírlevélküldő rendszert üzemeltető cég telefonszáma:**
 - **Hírlevélküldő rendszert üzemeltető cég e-mail címe:** [https://www.mailerlite.com/contact-us?_gl=1*ksx9hk*_up*MQ..*_gs*MQ..&gclid=CjwKCAjwtIfPBhAzEiwAv9RTJsOaXkqjr76Uwa-txy7a9scNcjkTZ7_Q56erwPqcdoA_D3XhFtsPohoClBsQAvD_BwE&gbraid=0AAAAADlbvHo4xqii9ZSYfg-4IgvNsVN7I](https://www.mailerlite.com/contact-us?_gl=1*ksx9hk*_up*MQ..*_gs*MQ..&gclid=CjwKCAjwtIfPBhAzEiwAv9RTJsOaXkqjr76Uwa-txy7a9scNcjkTZ7_Q56erwPqcdoA_D3XhFtsPohoClBsQAvD_BwE&gbraid=0AAAAADlbvHo4xqii9ZSYfg-4IgvNsVN7I)
 - **Hírlevélküldő rendszert üzemeltető cég weboldala:** [mailerlite.com](https://mailerlite.com)
 
@@ -203,8 +202,8 @@ Az Adatfeldolgozó az Adatkezelővel kötött szerződés alapján közreműköd
 Az Adatfeldolgozó az Adatkezelővel kötött szerződés alapján közreműködik a számviteli bizonylatok nyilvántartásában. Ennek során az Adatfeldolgozó az érintett nevét és címét a számviteli nyilvántartáshoz szükséges mértékben, a Sztv. 169. § (2) bekezdésének megfelelő időtartamban kezeli, ezt követően törli.
 - **Az adatfeldolgozó megnevezése:** Andreotti Kft.
 - **E-mail cím:** [monika@andreotti.hu](mailto:monika@andreotti.hu)
-Székhely:
-Weboldal:
+- **Székhely:**
+- **Weboldal:**
 
 A Nola & Co. az elektronikus számlázási folyamat és a jogszabályoknak megfelelő könyvelés biztosítása érdekében adatfeldolgozót vesz igénybe. A Vásárló számlázási adatait (Név, Cím, Adószám – amennyiben az megadott) a Szolgáltató átadja a könyvelési tevékenységet végző partnerének.
 - **Az adatfeldolgozó feladata:** Az átadott adatokat a Szolgáltató kizárólag a jogszabályok szerinti számviteli kötelezettségek teljesítése (számlázás, könyvelés, adóbevallás) érdekében kezeli. Az adatfeldolgozó az adatokat bizalmasan kezeli, azokat harmadik félnek nem adja tovább, és a törvényben előírt kötelező megőrzési idő lejárta után törli.
@@ -212,7 +211,7 @@ A Nola & Co. az elektronikus számlázási folyamat és a jogszabályoknak megfe
 ## Az online fizetéssel kapcsolatos adatkezelés
 - **Az adatkezelő megnevezése:** Stripe Technology Europe, Limited
 - **Az adatkezelő székhelye:** 1 Wilton Park, Wilton Place, Grand Canal Street Lower, Dublin 2, Ireland
-Az adatkezelő telefonszáma:
+- **Az adatkezelő telefonszáma:**
 - **Az adatkezelő e-mail címe:** [complaints@stripe.com](mailto:complaints@stripe.com)
 - **Az adatkezelő weboldala:** [stripe.com](https://stripe.com)
 
@@ -236,14 +235,14 @@ Az adatkezeléssel kapcsolatos panaszokat legkésőbb 30 napon belül válaszolj
 Ön jogosult arra, hogy az Adatkezelőtől visszajelzést kapjon arra vonatkozóan, hogy személyes adatainak kezelése folyamatban van-e, és ha adatkezelés folyamatban van, jogosult arra, hogy:
 - a kezelt személyes adatokhoz hozzáférést kapjon és
 - a következő információkról az Adatkezelő tájékoztassa:
-- az adatkezelés céljai;
-- az Önről kezelt személyes adatok kategóriái;
-- információ azon címzettekről vagy címzettek kategóriáiról, akikkel, illetve amelyekkel a személyes adatokat az Adatkezelő közölte vagy közölni fogja;
-- a személyes adatok tárolásának tervezett időtartama, vagy ha ez nem lehetséges, ezen időtartam meghatározásának szempontjai;
-- az Ön azon joga, hogy kérelmezheti az Adatkezelőtől az Önre vonatkozó személyes adatok helyesbítését, törlését vagy kezelésének korlátozását, és jogos érdeken alapuló adatkezelés esetén tiltakozhat az ilyen személyes adatok kezelése ellen;
-- a felügyeleti hatósághoz címzett panasz benyújtásának joga;
-- ha az adatokat nem Öntől gyűjtötték be, a forrásukra vonatkozó minden elérhető információ;
-- az automatizált döntéshozatal tényéről (ha alkalmazott ilyen eljárás), ideértve a profilalkotást is, valamint legalább ezekben az esetekben az alkalmazott logikára és arra vonatkozóan érthető információkat, hogy az ilyen adatkezelés milyen jelentőséggel, és Önre nézve milyen várható következményekkel bír.
+  - az adatkezelés céljai;
+  - az Önről kezelt személyes adatok kategóriái;
+  - információ azon címzettekről vagy címzettek kategóriáiról, akikkel, illetve amelyekkel a személyes adatokat az Adatkezelő közölte vagy közölni fogja;
+  - a személyes adatok tárolásának tervezett időtartama, vagy ha ez nem lehetséges, ezen időtartam meghatározásának szempontjai;
+  - az Ön azon joga, hogy kérelmezheti az Adatkezelőtől az Önre vonatkozó személyes adatok helyesbítését, törlését vagy kezelésének korlátozását, és jogos érdeken alapuló adatkezelés esetén tiltakozhat az ilyen személyes adatok kezelése ellen;
+  - a felügyeleti hatósághoz címzett panasz benyújtásának joga;
+  - ha az adatokat nem Öntől gyűjtötték be, a forrásukra vonatkozó minden elérhető információ;
+  - az automatizált döntéshozatal tényéről (ha alkalmazott ilyen eljárás), ideértve a profilalkotást is, valamint legalább ezekben az esetekben az alkalmazott logikára és arra vonatkozóan érthető információkat, hogy az ilyen adatkezelés milyen jelentőséggel, és Önre nézve milyen várható következményekkel bír.
 A jog gyakorlásának célja az adatkezelés jogszerűségének megállapítására és ellenőrzésére irányulhat, ezért többszöri tájékoztatás kérés esetén az Adatkezelő méltányos költségtérítést számolhat fel a tájékoztatás teljesítéséért cserébe.
 A személyes adatokhoz való hozzáférést az Adatkezelő úgy biztosítja, hogy az Ön azonosítását követően emailben juttatja el Önhöz a kezelt személyes adatokat és az információkat. Amennyiben regisztrációval rendelkezik, akkor a hozzáférést úgy biztosítjuk, hogy a felhasználói fiókjába belépve tudja az Önről kezelt személyes adatokat megtekinteni és ellenőrizni.
 Kérjük, hogy kérelmében jelölje meg, hogy a személyes adatokhoz kér hozzáférést, vagy az adatkezeléssel kapcsolatos információkat kéri.
@@ -274,7 +273,7 @@ A törlés nem alkalmazandó, amennyiben az adatkezelés szükséges:
 Ha a személyes adatok kezelése közvetlen üzletszerzés érdekében történik, Ön jogosult arra, hogy bármikor tiltakozzon az Önre vonatkozó személyes adatok e célból történő kezelése ellen, ideértve a profilalkotást is, amennyiben az a közvetlen üzletszerzéshez kapcsolódik. Ha Ön tiltakozik a személyes adatok közvetlen üzletszerzés érdekében történő kezelése ellen, akkor a személyes adatok a továbbiakban e célból nem kezelhetők.
 ### Hordozhatósághoz való jog
 Amennyiben az adatkezelés automatizált módon valósul meg, vagy ha az adatkezelés az Ön önkéntes hozzájárulásán alapul, Önnek joga van arra, hogy kérje az Adatkezelőtől, hogy az Ön által az Adatkezelő részére megadott adatokat megkapja, amit az Adatkezelő xml, JSON, vagy csv formátumban bocsát az Ön rendelkezésére, ha ez technikailag megvalósítható, akkor kérheti, hogy az Adatkezelő az adatokat ebben a formában más adatkezelő számára továbbítsa.
-### A fentiek nem alkalmazandóak abban az esetben, ha a döntés:
+A fentiek nem alkalmazandóak abban az esetben, ha a döntés:
 - Ön és az Adatkezelő közötti szerződés megkötése vagy teljesítése érdekében szükséges;
 - meghozatalát az Adatkezelőre alkalmazandó olyan uniós vagy tagállami jog teszi lehetővé, amely Ön jogainak és szabadságainak, valamint jogos érdekeinek védelmét szolgáló megfelelő intézkedéseket is megállapít; vagy
 - az Ön kifejezett hozzájárulásán alapul.
@@ -294,6 +293,5 @@ Amennyiben az Adatkezelő a gyűjtött adatokkal kapcsolatban a gyűjtésük cé
 - hozzájáruláson alapuló adatkezelés esetén arról, hogy a hozzájárulást Ön bármikor visszavonhatja,
 - a felügyeleti hatósághoz címzett panasz benyújtásának jogáról;
 - arról, hogy a személyes adat szolgáltatása jogszabályon vagy szerződéses kötelezettségen alapul vagy szerződés kötésének előfeltétele-e, valamint, hogy az Ön köteles-e a személyes adatokat megadni, továbbá, hogy milyen lehetséges következményeikkel járhat az adatszolgáltatás elmaradása;
-- az automatizált döntéshozatal tényéről (ha alkalmazott ilyen eljárás), ideértve a profilalkotást is, valamint
-legalább ezekben az esetekben az alkalmazott logikára és arra vonatkozóan érthető információkat, hogy az ilyen adatkezelés milyen jelentőséggel, és Önre nézve milyen várható következményekkel bír.
+- az automatizált döntéshozatal tényéről (ha alkalmazott ilyen eljárás), ideértve a profilalkotást is, valamint legalább ezekben az esetekben az alkalmazott logikára és arra vonatkozóan érthető információkat, hogy az ilyen adatkezelés milyen jelentőséggel, és Önre nézve milyen várható következményekkel bír.
 Az adatkezelés csak ezt követően kezdődhet meg, amennyiben az adatkezelés jogalapja hozzájárulás, az adatkezeléshez a tájékoztatáson felül Önnek hozzá is kell járulnia.
