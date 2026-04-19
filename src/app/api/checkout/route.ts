@@ -215,6 +215,10 @@ export async function POST(request: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
 
+    const hasGiftCard = verifiedItems.some(
+      (item) => productMap.get(item.productId)?.category === 'giftcard',
+    );
+
     // ── Bank transfer flow: skip Stripe, send confirmation email immediately. ──
     if (payMethod === 'transfer') {
       try {
@@ -239,6 +243,7 @@ export async function POST(request: NextRequest) {
             shippingMethod,
             paymentMethod: 'transfer',
             hasInvoice: false,
+            hasGiftCard,
           }),
         });
       } catch (err) {

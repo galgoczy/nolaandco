@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
           babyName: item.babyName,
           posterLayoutLabel: item.posterLayout ? findLayout(item.posterLayout).label : null,
         }));
+        const hasGiftCard = order.items.some((item) => item.product.category === 'giftcard');
 
         try {
           await sendEmail({
@@ -91,6 +92,7 @@ export async function POST(request: NextRequest) {
               shippingMethod: order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home',
               paymentMethod: 'card',
               hasInvoice: !!invoicePdf,
+              hasGiftCard,
             }),
             attachments: invoicePdf
               ? [{ filename: `szamla-${order.id.slice(-8).toUpperCase()}.pdf`, content: invoicePdf }]

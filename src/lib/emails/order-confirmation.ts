@@ -19,6 +19,7 @@ interface OrderConfirmationData {
   shippingMethod?: string;
   hasInvoice?: boolean;
   paymentMethod?: 'card' | 'transfer';
+  hasGiftCard?: boolean;
 }
 
 const BANK_ACCOUNT = '10918001-00000047-88110009';
@@ -117,6 +118,23 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
       ? 'Amint az utalás beérkezett, megkezdjük a baba születési adatainak feldolgozását, és küldünk egy újabb értesítést a csomagod útnak indításáról.'
       : 'A rendelésedet rögzítettük, és műhelyünkben megkezdtük a baba születési adatainak feldolgozását. Amint az alkotás elkészült, küldünk egy újabb értesítést a csomagod útnak indításáról.';
 
+  const giftCardBlock = data.hasGiftCard
+    ? `
+    <div style="margin:24px 0;padding:18px 20px;background-color:#F5F0E8;border-radius:10px;border:1px solid #E8E0D0;">
+      <p style="margin:0 0 10px;font-size:14px;font-weight:600;color:#4A4A4A;">
+        Ajándékkártya kézbesítése
+      </p>
+      <p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:#4A4A4A;">
+        Rendelésed tartalmaz ajándékkártyát. A kártyát a rendelés leadását követő 24 órán belül eljuttatjuk a megadott e-mail címre.
+      </p>
+      <p style="margin:0;font-size:13px;line-height:1.7;color:#4A4A4A;">
+        Sürgős esetben keress minket a
+        <a href="mailto:hello@nolaandco.hu" style="color:#C4A591;text-decoration:none;">hello@nolaandco.hu</a>
+        címen.
+      </p>
+    </div>`
+    : '';
+
   const body = `
     <h1 style="margin:0 0 16px;font-size:22px;color:#4A4A4A;font-weight:500;">
       Kedves ${data.customerName}!
@@ -128,6 +146,7 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
       A rendelésed (<strong>${orderRef}</strong>) ${data.paymentMethod === 'transfer' ? 'rögzítve. ' : ''}${trackingNote}
     </p>
     ${itemsHtml}
+    ${giftCardBlock}
     ${transferBlock}
     ${invoiceNote}
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
