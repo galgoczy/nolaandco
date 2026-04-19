@@ -74,5 +74,18 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
     })
     .filter((x): x is ListingItem => x !== null);
 
-  return [...productItems, ...aliasItems].sort((a, b) => a.sortOrder - b.sortOrder);
+  // Homepage/listing order: pillows → posters (aliases appear here) → giftcards.
+  // Within each bucket we keep the item's own sortOrder (then createdAt via fetch order).
+  const bucketRank = (cat: string | null) => {
+    if (cat === 'pillow') return 0;
+    if (cat === 'poster') return 1;
+    if (cat === 'giftcard') return 2;
+    return 3;
+  };
+
+  return [...productItems, ...aliasItems].sort((a, b) => {
+    const bucketDiff = bucketRank(a.category) - bucketRank(b.category);
+    if (bucketDiff !== 0) return bucketDiff;
+    return a.sortOrder - b.sortOrder;
+  });
 }

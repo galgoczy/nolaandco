@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
+import { findLayout } from '@/app/termekek/[slug]/posterData';
 import OrderActions from './OrderActions';
 
 const statusLabels: Record<string, string> = {
@@ -71,6 +72,20 @@ export default async function OrderDetailPage({
             <dd className="text-on-surface">{order.email}</dd>
             <dt className="text-on-surface/60">Telefon:</dt>
             <dd className="text-on-surface">{order.phone ?? '-'}</dd>
+            <dt className="text-on-surface/60">Fizetés:</dt>
+            <dd className="text-on-surface">
+              {order.paymentMethod === 'transfer' ? (
+                <span className="inline-flex items-center gap-2">
+                  <span className="inline-block px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-medium">
+                    Banki átutalás
+                  </span>
+                </span>
+              ) : (
+                <span className="inline-block px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
+                  Bankkártya
+                </span>
+              )}
+            </dd>
             {order.stripePaymentId && (
               <>
                 <dt className="text-on-surface/60">Stripe:</dt>
@@ -136,6 +151,11 @@ export default async function OrderDetailPage({
                 >
                   <td className="py-3 font-medium text-on-surface">
                     {item.product.name}
+                    {item.posterLayout && (
+                      <div className="text-xs font-normal text-on-surface/60 mt-0.5">
+                        Dizájn: {findLayout(item.posterLayout).label}
+                      </div>
+                    )}
                   </td>
                   <td className="py-3 text-on-surface/70">
                     {item.babyName ?? '-'}

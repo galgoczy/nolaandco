@@ -23,7 +23,7 @@ export default async function TermekekPage({ searchParams }: Props) {
             </p>
           </RevealOnScroll>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
             {products.map((product, i) => (
               <RevealOnScroll key={product.id} delay={i * 80}>
                 <ProductCard product={product} />

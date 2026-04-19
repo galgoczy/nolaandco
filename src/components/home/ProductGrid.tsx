@@ -8,7 +8,7 @@ export default async function ProductGrid() {
     <section className="pt-2 pb-12 md:pt-4 md:pb-16 bg-surface" id="collection">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <div id="products-start" className="scroll-mt-4" />
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
           {items.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
