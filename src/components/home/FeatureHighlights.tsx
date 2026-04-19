@@ -1,52 +1,64 @@
 import Image from 'next/image';
+import { Fragment } from 'react';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
 const highlights = [
   {
-    icon: '/images/50.png',
-    title: '1:1 MÉRETARÁNY',
-    desc: 'Pontosan akkora, mint amekkora a kisbabád volt, amikor megszületett.',
+    icon: '/images/1.png',
+    title: 'PONTOS MÉRETARÁNY',
+    desc: 'Születéskori méretek, 1:1 arányban megörökítve',
   },
   {
-    icon: '/images/49.png',
-    title: 'IDŐKAPSZULA',
-    desc: 'Életre kelti és megőrzi az emlékeket az első, megismételhetetlen napokról.',
+    icon: '/images/2.png',
+    title: 'ÖRÖK EMLÉK',
+    desc: 'Az első napok csodája, amely formát ölt és veletek marad',
   },
   {
-    icon: '/images/51.png',
-    title: 'KÉZMŰVES MINŐSÉG',
-    desc: 'Bababarát – OEKO-TEX® és hipoallergén – anyagokból, kézzel készül budapesti műhelyünkben.',
+    icon: '/images/3.png',
+    title: 'BABABARÁT MINŐSÉG',
+    desc: 'OEKO-TEX® tanúsítvány, hipoallergén töltet, budapesti manufaktúrából',
   },
 ];
 
 export default function FeatureHighlights() {
   return (
-    <section className="py-8 md:py-12 bg-surface">
-      <div className="max-w-6xl mx-auto px-6 md:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
+    <section className="py-10 md:py-16 bg-[#f5f0e8]">
+      <div className="max-w-4xl mx-auto px-6">
+        <div className="flex flex-col md:flex-row md:items-stretch md:justify-center">
           {highlights.map((h, i) => (
-            <RevealOnScroll key={h.title} delay={i * 120}>
-              <div className="flex flex-col items-center text-center">
-                <div className="relative w-[50px] h-[50px] md:w-[61px] md:h-[61px] mb-6">
-                  <Image
-                    src={h.icon}
-                    alt=""
-                    fill
-                    className="object-contain"
-                    sizes="61px"
-                  />
+            <Fragment key={h.title}>
+              {i > 0 && (
+                <div
+                  aria-hidden
+                  className="hidden md:block w-px bg-[#4A4A4A]/15 mx-[30px] lg:mx-[40px] my-4"
+                />
+              )}
+              <RevealOnScroll delay={i * 120}>
+                <div className="flex flex-col items-center text-center py-6 md:py-2 md:w-[220px]">
+                  <div className="relative w-[50px] h-[50px] md:w-[61px] md:h-[61px] mb-5">
+                    <Image
+                      src={h.icon}
+                      alt=""
+                      fill
+                      className="object-contain"
+                      sizes="61px"
+                    />
+                  </div>
+                  <h3
+                    className="text-sm md:text-base text-carbon mb-3 tracking-[0.22em]"
+                    style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
+                  >
+                    {h.title}
+                  </h3>
+                  <p
+                    className="text-sm text-[#4A4A4A] font-body"
+                    style={{ lineHeight: 1.8 }}
+                  >
+                    {h.desc}
+                  </p>
                 </div>
-                <h3
-                  className="text-sm md:text-base text-carbon mb-3 tracking-[0.2em]"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
-                >
-                  {h.title}
-                </h3>
-                <p className="text-sm text-carbon-light font-body leading-relaxed max-w-xs">
-                  {h.desc}
-                </p>
-              </div>
-            </RevealOnScroll>
+              </RevealOnScroll>
+            </Fragment>
           ))}
         </div>
       </div>
