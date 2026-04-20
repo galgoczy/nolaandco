@@ -19,8 +19,8 @@ const infoLinks = [
 ];
 
 const socialLinks = [
-  { label: 'Facebook', href: 'https://facebook.com' },
-  { label: 'Instagram', href: 'https://instagram.com' },
+  { label: 'Facebook', href: 'https://facebook.com/nolaandco' },
+  { label: 'Instagram', href: 'https://www.instagram.com/nolaandco.baby/' },
   { label: 'E-mail', href: 'mailto:hello@nolaandco.hu?subject=Érdeklődés%20a%20Nola%26Co%20weboldalról' },
   { label: 'Kapcsolat', href: '/kapcsolat' },
   { label: 'Kollaboráció', href: '/kollaboracio' },

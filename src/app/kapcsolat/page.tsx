@@ -32,8 +32,15 @@ export default function KapcsolatPage() {
               </a>
             </div>
             <div>
-              <p className="text-sm text-carbon-light uppercase tracking-wider mb-1">FB Messenger</p>
-              <p className="text-carbon font-medium">Nola & Co</p>
+              <p className="text-sm text-carbon-light uppercase tracking-wider mb-1">Facebook</p>
+              <a
+                href="https://facebook.com/nolaandco"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#C4A591] hover:text-[#4A4A4A] transition-colors underline underline-offset-2 font-medium"
+              >
+                facebook.com/nolaandco
+              </a>
             </div>
           </div>
         </RevealOnScroll>
