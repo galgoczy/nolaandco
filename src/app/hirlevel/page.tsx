@@ -1,17 +1,24 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
 export default function HirlevelPage() {
   const [email, setEmail] = useState('');
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!consent) {
+      setStatus('error');
+      setErrorMessage('A feliratkozáshoz a hozzájárulás megadása kötelező.');
+      return;
+    }
     setStatus('loading');
     setErrorMessage('');
 
@@ -19,7 +26,7 @@ export default function HirlevelPage() {
       const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, consent: true }),
       });
 
       if (!res.ok) {
@@ -29,6 +36,7 @@ export default function HirlevelPage() {
 
       setStatus('success');
       setEmail('');
+      setConsent(false);
     } catch (err) {
       setStatus('error');
       setErrorMessage(
@@ -77,11 +85,29 @@ export default function HirlevelPage() {
                 className="text-center"
               />
 
+              <label className="flex items-start gap-2 text-xs text-carbon-light leading-relaxed cursor-pointer text-left">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 flex-none accent-[#C4A591] cursor-pointer"
+                />
+                <span>
+                  Szeretnék e-mailben hírlevelet kapni a Nola &amp; Co-tól. A hozzájárulás bármikor visszavonható a levelek alján található leiratkozási linken.{' '}
+                  <Link
+                    href="/adatkezeles"
+                    className="text-[#C4A591] underline underline-offset-2 hover:text-[#4A4A4A] transition-colors"
+                  >
+                    Adatkezelés
+                  </Link>
+                </span>
+              </label>
+
               {status === 'error' && (
                 <p className="text-error text-sm">{errorMessage}</p>
               )}
 
-              <Button type="submit" disabled={status === 'loading'}>
+              <Button type="submit" disabled={status === 'loading' || !consent}>
                 {status === 'loading' ? 'Feliratkozás...' : 'Iratkozz fel'}
               </Button>
             </form>

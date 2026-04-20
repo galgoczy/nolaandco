@@ -7,21 +7,23 @@ import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
 export default function ConversionSection() {
   const [email, setEmail] = useState('');
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !consent) return;
     setStatus('loading');
     try {
       const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, consent: true }),
       });
       if (res.ok) {
         setStatus('success');
         setEmail('');
+        setConsent(false);
       } else {
         setStatus('error');
       }
@@ -77,22 +79,41 @@ export default function ConversionSection() {
                   Iratkozz fel és legyél az elsők között, akik értesülnek az új kollekciókról,
                   limitált kiadású termékekről és VIP kedvezményekről.
                 </p>
-                <form onSubmit={handleSubmit} className="flex gap-3">
-                  <input
-                    type="email"
-                    placeholder="E-mail címed"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="flex-1 px-4 py-3 rounded-full border border-[#FDFBF7]/40 bg-[#FDFBF7] text-sm text-carbon focus:outline-none focus:border-[#FDFBF7] transition-colors"
-                  />
-                  <button
-                    type="submit"
-                    disabled={status === 'loading'}
-                    className="bg-[#FDFBF7] text-[#C4A591] px-6 py-3 rounded-full text-sm font-medium btn-anim whitespace-nowrap"
-                  >
-                    {status === 'loading' ? '...' : 'Feliratkozom'}
-                  </button>
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div className="flex gap-3">
+                    <input
+                      type="email"
+                      placeholder="E-mail címed"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="flex-1 px-4 py-3 rounded-full border border-[#FDFBF7]/40 bg-[#FDFBF7] text-sm text-carbon focus:outline-none focus:border-[#FDFBF7] transition-colors"
+                    />
+                    <button
+                      type="submit"
+                      disabled={status === 'loading' || !consent}
+                      className="bg-[#FDFBF7] text-[#C4A591] px-6 py-3 rounded-full text-sm font-medium btn-anim whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {status === 'loading' ? '...' : 'Feliratkozom'}
+                    </button>
+                  </div>
+                  <label className="flex items-start gap-2 text-xs text-[#FDFBF7]/90 leading-relaxed cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={consent}
+                      onChange={(e) => setConsent(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 flex-none accent-[#FDFBF7] cursor-pointer"
+                    />
+                    <span>
+                      Szeretnék e-mailben hírlevelet kapni a Nola &amp; Co-tól. A hozzájárulás bármikor visszavonható a levelek alján található leiratkozási linken.{' '}
+                      <Link
+                        href="/adatkezeles"
+                        className="underline underline-offset-2 hover:text-[#FDFBF7]"
+                      >
+                        Adatkezelés
+                      </Link>
+                    </span>
+                  </label>
                 </form>
                 {status === 'success' && (
                   <p className="text-sm text-[#FDFBF7] mt-2">Sikeres feliratkozás!</p>

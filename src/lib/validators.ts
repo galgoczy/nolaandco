@@ -31,6 +31,9 @@ export const homeDeliverySchema = shippingSchema.extend({
 
 export const newsletterSchema = z.object({
   email: z.string().email('Érvényes e-mail cím szükséges'),
+  consent: z.literal(true, {
+    errorMap: () => ({ message: 'A hírlevél feliratkozáshoz a hozzájárulás megadása kötelező.' }),
+  }),
 });
 
 export type BirthData = z.infer<typeof birthDataSchema>;
