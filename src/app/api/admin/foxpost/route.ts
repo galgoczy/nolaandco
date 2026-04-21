@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getAdminSession } from '@/lib/auth';
+import { isAdminRequest } from '@/lib/admin-auth';
 import { createFoxpostParcel, getFoxpostLabel } from '@/lib/foxpost';
 import type { FoxpostSize } from '@/lib/foxpost';
 
 /** POST: Create a Foxpost parcel for an order */
 export async function POST(request: NextRequest) {
-  const session = await getAdminSession();
-  if (!session) {
+  if (!(await isAdminRequest())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

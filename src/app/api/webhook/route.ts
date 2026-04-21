@@ -86,57 +86,67 @@ export async function POST(request: NextRequest) {
           ? (order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home')
           : undefined;
 
-        const customerEmailPromise = sendEmail({
-          to: order.email,
-          subject: orderConfirmationSubject(),
-          html: orderConfirmationHtml({
-            customerName: order.shippingName || 'Vásárlónk',
-            orderId: order.id,
-            orderUrl: `${baseUrl}/fiok#rendelesek`,
-            items: emailItems,
-            subtotal: order.subtotal,
-            shippingCost: order.shippingCost,
-            total: order.total,
-            shippingMethod: derivedShippingMethod,
-            paymentMethod: 'card',
-            hasInvoice: !!invoicePdf,
-            hasGiftCard,
+        const [customerResult, adminResult] = await Promise.all([
+          sendEmail({
+            to: order.email,
+            subject: orderConfirmationSubject(),
+            html: orderConfirmationHtml({
+              customerName: order.shippingName || 'Vásárlónk',
+              orderId: order.id,
+              orderUrl: `${baseUrl}/fiok#rendelesek`,
+              items: emailItems,
+              subtotal: order.subtotal,
+              shippingCost: order.shippingCost,
+              total: order.total,
+              shippingMethod: derivedShippingMethod,
+              paymentMethod: 'card',
+              hasInvoice: !!invoicePdf,
+              hasGiftCard,
+            }),
+            attachments: invoicePdf
+              ? [{ filename: `szamla-${order.id.slice(-8).toUpperCase()}.pdf`, content: invoicePdf }]
+              : undefined,
           }),
-          attachments: invoicePdf
-            ? [{ filename: `szamla-${order.id.slice(-8).toUpperCase()}.pdf`, content: invoicePdf }]
-            : undefined,
-        }).catch((err) => {
-          console.error('Order confirmation email failed:', err);
-        });
-
-        const adminEmailPromise = sendEmail({
-          to: ADMIN_NOTIFICATION_RECIPIENT,
-          subject: orderNotificationSubject(order.id),
-          html: orderNotificationHtml({
-            orderId: order.id,
-            adminOrderUrl: `${baseUrl}/admin/rendeles/${order.id}`,
-            customerName: order.shippingName || 'Vásárlónk',
-            email: order.email,
-            phone: order.phone,
-            shippingMethod: derivedShippingMethod,
-            shippingAddress: derivedShippingMethod ? order.shippingAddress : undefined,
-            shippingZip: derivedShippingMethod ? order.shippingZip : undefined,
-            shippingCity: derivedShippingMethod ? order.shippingCity : undefined,
-            billingAddress: order.billingAddress ?? undefined,
-            billingZip: order.billingZip,
-            billingCity: order.billingCity,
-            paymentMethod: 'card',
-            items: emailItems,
-            subtotal: order.subtotal,
-            shippingCost: order.shippingCost,
-            total: order.total,
-            hasGiftCard,
+          sendEmail({
+            to: ADMIN_NOTIFICATION_RECIPIENT,
+            subject: orderNotificationSubject(order.id),
+            html: orderNotificationHtml({
+              orderId: order.id,
+              adminOrderUrl: `${baseUrl}/admin/rendeles/${order.id}`,
+              customerName: order.shippingName || 'Vásárlónk',
+              email: order.email,
+              phone: order.phone,
+              shippingMethod: derivedShippingMethod,
+              shippingAddress: derivedShippingMethod ? order.shippingAddress : undefined,
+              shippingZip: derivedShippingMethod ? order.shippingZip : undefined,
+              shippingCity: derivedShippingMethod ? order.shippingCity : undefined,
+              billingAddress: order.billingAddress ?? undefined,
+              billingZip: order.billingZip,
+              billingCity: order.billingCity,
+              paymentMethod: 'card',
+              items: emailItems,
+              subtotal: order.subtotal,
+              shippingCost: order.shippingCost,
+              total: order.total,
+              hasGiftCard,
+            }),
           }),
-        }).catch((err) => {
-          console.error('Admin notification email failed:', err);
-        });
+        ]);
 
-        await Promise.all([customerEmailPromise, adminEmailPromise]);
+        if (!customerResult.success) {
+          console.error('Customer confirmation email NOT sent', {
+            orderId: order.id,
+            to: order.email,
+            error: customerResult.error,
+          });
+        }
+        if (!adminResult.success) {
+          console.error('Admin notification email NOT sent', {
+            orderId: order.id,
+            to: ADMIN_NOTIFICATION_RECIPIENT,
+            error: adminResult.error,
+          });
+        }
       }
     }
   }

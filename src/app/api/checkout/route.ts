@@ -19,6 +19,99 @@ const SHIPPING_COSTS: Record<string, number> = {
   home: 2490,
 };
 
+/**
+ * Sends the customer confirmation and admin notification in parallel.
+ * sendEmail resolves even on Resend failures, so we inspect the return
+ * value explicitly and log delivery outcomes for both messages.
+ */
+async function sendOrderEmails(args: {
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  phone?: string | null;
+  shippingMethod?: string;
+  shippingAddress?: string;
+  shippingZip?: string;
+  shippingCity?: string;
+  billingZip?: string | null;
+  billingCity?: string | null;
+  billingAddress?: string | null;
+  paymentMethod: 'card' | 'transfer';
+  items: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    babyName?: string | null;
+    posterLayoutLabel?: string | null;
+  }>;
+  subtotal: number;
+  shippingCost: number;
+  total: number;
+  hasGiftCard: boolean;
+  hasInvoice: boolean;
+  baseUrl: string;
+}) {
+  const customerSend = sendEmail({
+    to: args.customerEmail,
+    subject: orderConfirmationSubject(),
+    html: orderConfirmationHtml({
+      customerName: args.customerName,
+      orderId: args.orderId,
+      orderUrl: `${args.baseUrl}/fiok#rendelesek`,
+      items: args.items,
+      subtotal: args.subtotal,
+      shippingCost: args.shippingCost,
+      total: args.total,
+      shippingMethod: args.shippingMethod,
+      paymentMethod: args.paymentMethod,
+      hasInvoice: args.hasInvoice,
+      hasGiftCard: args.hasGiftCard,
+    }),
+  });
+
+  const adminSend = sendEmail({
+    to: ADMIN_NOTIFICATION_RECIPIENT,
+    subject: orderNotificationSubject(args.orderId),
+    html: orderNotificationHtml({
+      orderId: args.orderId,
+      adminOrderUrl: `${args.baseUrl}/admin/rendeles/${args.orderId}`,
+      customerName: args.customerName,
+      email: args.customerEmail,
+      phone: args.phone ?? null,
+      shippingMethod: args.shippingMethod,
+      shippingAddress: args.shippingAddress,
+      shippingZip: args.shippingZip,
+      shippingCity: args.shippingCity,
+      billingAddress: args.billingAddress ?? undefined,
+      billingZip: args.billingZip ?? undefined,
+      billingCity: args.billingCity ?? undefined,
+      paymentMethod: args.paymentMethod,
+      items: args.items,
+      subtotal: args.subtotal,
+      shippingCost: args.shippingCost,
+      total: args.total,
+      hasGiftCard: args.hasGiftCard,
+    }),
+  });
+
+  const [customerResult, adminResult] = await Promise.all([customerSend, adminSend]);
+
+  if (!customerResult.success) {
+    console.error('Customer confirmation email NOT sent', {
+      orderId: args.orderId,
+      to: args.customerEmail,
+      error: customerResult.error,
+    });
+  }
+  if (!adminResult.success) {
+    console.error('Admin notification email NOT sent', {
+      orderId: args.orderId,
+      to: ADMIN_NOTIFICATION_RECIPIENT,
+      error: adminResult.error,
+    });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -242,64 +335,71 @@ export async function POST(request: NextRequest) {
       (item) => productMap.get(item.productId)?.category === 'giftcard',
     );
 
+    const emailItems = verifiedItems.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price,
+      babyName: item.babyName ?? null,
+      posterLayoutLabel: item.posterLayoutLabel ?? null,
+    }));
+
+    // ── Zero-total flow (100% discount / free item): skip Stripe, mark paid. ──
+    if (total === 0) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { status: 'paid' },
+      });
+
+      await sendOrderEmails({
+        orderId: order.id,
+        customerName: shippingData.shippingName || 'Vásárlónk',
+        customerEmail: shippingData.email,
+        phone: shippingData.phone,
+        shippingMethod: orderRequiresShipping ? shippingMethod : undefined,
+        shippingAddress: orderRequiresShipping ? shippingData.shippingAddress : undefined,
+        shippingZip: orderRequiresShipping ? shippingData.shippingZip : undefined,
+        shippingCity: orderRequiresShipping ? shippingData.shippingCity : undefined,
+        billingAddress: shippingData.billingAddress,
+        billingZip: shippingData.billingZip,
+        billingCity: shippingData.billingCity,
+        paymentMethod: payMethod,
+        items: emailItems,
+        subtotal,
+        shippingCost,
+        total,
+        hasGiftCard,
+        hasInvoice: false,
+        baseUrl,
+      });
+
+      return NextResponse.json({
+        url: `${baseUrl}/koszonjuk?order_id=${order.id}&free=1`,
+      });
+    }
+
     // ── Bank transfer flow: skip Stripe, send confirmation emails immediately. ──
     if (payMethod === 'transfer') {
-      const emailItems = verifiedItems.map((item) => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-        babyName: item.babyName ?? null,
-        posterLayoutLabel: item.posterLayoutLabel ?? null,
-      }));
-
-      const customerEmailPromise = sendEmail({
-        to: shippingData.email,
-        subject: orderConfirmationSubject(),
-        html: orderConfirmationHtml({
-          customerName: shippingData.shippingName || 'Vásárlónk',
-          orderId: order.id,
-          orderUrl: `${baseUrl}/fiok#rendelesek`,
-          items: emailItems,
-          subtotal,
-          shippingCost,
-          total,
-          shippingMethod: orderRequiresShipping ? shippingMethod : undefined,
-          paymentMethod: 'transfer',
-          hasInvoice: false,
-          hasGiftCard,
-        }),
-      }).catch((err) => {
-        console.error('Transfer order confirmation email failed:', err);
+      await sendOrderEmails({
+        orderId: order.id,
+        customerName: shippingData.shippingName || 'Vásárlónk',
+        customerEmail: shippingData.email,
+        phone: shippingData.phone,
+        shippingMethod: orderRequiresShipping ? shippingMethod : undefined,
+        shippingAddress: orderRequiresShipping ? shippingData.shippingAddress : undefined,
+        shippingZip: orderRequiresShipping ? shippingData.shippingZip : undefined,
+        shippingCity: orderRequiresShipping ? shippingData.shippingCity : undefined,
+        billingAddress: shippingData.billingAddress,
+        billingZip: shippingData.billingZip,
+        billingCity: shippingData.billingCity,
+        paymentMethod: 'transfer',
+        items: emailItems,
+        subtotal,
+        shippingCost,
+        total,
+        hasGiftCard,
+        hasInvoice: false,
+        baseUrl,
       });
-
-      const adminEmailPromise = sendEmail({
-        to: ADMIN_NOTIFICATION_RECIPIENT,
-        subject: orderNotificationSubject(order.id),
-        html: orderNotificationHtml({
-          orderId: order.id,
-          adminOrderUrl: `${baseUrl}/admin/rendeles/${order.id}`,
-          customerName: shippingData.shippingName || 'Vásárlónk',
-          email: shippingData.email,
-          phone: shippingData.phone ?? null,
-          shippingMethod: orderRequiresShipping ? shippingMethod : undefined,
-          shippingAddress: orderRequiresShipping ? shippingData.shippingAddress : undefined,
-          shippingZip: orderRequiresShipping ? shippingData.shippingZip : undefined,
-          shippingCity: orderRequiresShipping ? shippingData.shippingCity : undefined,
-          billingAddress: shippingData.billingAddress ?? undefined,
-          billingZip: shippingData.billingZip ?? undefined,
-          billingCity: shippingData.billingCity ?? undefined,
-          paymentMethod: 'transfer',
-          items: emailItems,
-          subtotal,
-          shippingCost,
-          total,
-          hasGiftCard,
-        }),
-      }).catch((err) => {
-        console.error('Transfer admin notification email failed:', err);
-      });
-
-      await Promise.all([customerEmailPromise, adminEmailPromise]);
 
       return NextResponse.json({
         url: `${baseUrl}/koszonjuk?order_id=${order.id}&payment=transfer`,

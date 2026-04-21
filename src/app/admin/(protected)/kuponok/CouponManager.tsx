@@ -22,19 +22,49 @@ type CouponRow = {
 
 type CatOption = { slug: string; name: string };
 
-const emptyForm = {
+type FormState = {
+  code: string;
+  description: string;
+  discountType: 'percent' | 'fixed';
+  discountValue: string;
+  minOrderAmount: string;
+  usageLimit: string;
+  categorySlugs: string[];
+  freeShippingOnParcel: boolean;
+  active: boolean;
+  startsAt: string;
+  endsAt: string;
+};
+
+const emptyForm: FormState = {
   code: '',
   description: '',
-  discountType: 'percent' as 'percent' | 'fixed',
+  discountType: 'percent',
   discountValue: '',
   minOrderAmount: '',
   usageLimit: '',
-  categorySlugs: [] as string[],
+  categorySlugs: [],
   freeShippingOnParcel: false,
   active: true,
   startsAt: new Date().toISOString().slice(0, 16),
   endsAt: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 16),
 };
+
+function couponToForm(c: CouponRow): FormState {
+  return {
+    code: c.code,
+    description: c.description,
+    discountType: c.discountType === 'fixed' ? 'fixed' : 'percent',
+    discountValue: String(c.discountValue),
+    minOrderAmount: c.minOrderAmount != null ? String(c.minOrderAmount) : '',
+    usageLimit: c.usageLimit != null ? String(c.usageLimit) : '',
+    categorySlugs: [...c.categorySlugs],
+    freeShippingOnParcel: c.freeShippingOnParcel,
+    active: c.active,
+    startsAt: new Date(c.startsAt).toISOString().slice(0, 16),
+    endsAt: new Date(c.endsAt).toISOString().slice(0, 16),
+  };
+}
 
 export default function CouponManager({
   initial,
@@ -45,10 +75,32 @@ export default function CouponManager({
 }) {
   const router = useRouter();
   const [coupons, setCoupons] = useState(initial);
-  const [adding, setAdding] = useState(false);
-  const [form, setForm] = useState(emptyForm);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  function openCreate() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setError('');
+    setFormOpen(true);
+  }
+
+  function openEdit(coupon: CouponRow) {
+    setEditingId(coupon.id);
+    setForm(couponToForm(coupon));
+    setError('');
+    setFormOpen(true);
+  }
+
+  function closeForm() {
+    setFormOpen(false);
+    setEditingId(null);
+    setForm(emptyForm);
+    setError('');
+  }
 
   async function toggleActive(coupon: CouponRow) {
     const newVal = !coupon.active;
@@ -75,22 +127,27 @@ export default function CouponManager({
     router.refresh();
   }
 
-  async function saveNew() {
+  async function save() {
     if (!form.code.trim()) {
       setError('Kód kötelező');
       return;
     }
     setSaving(true);
     setError('');
-    const res = await fetch('/api/admin/coupons', {
-      method: 'POST',
+    const payload = {
+      ...form,
+      discountValue: Number(form.discountValue) || 0,
+      minOrderAmount: form.minOrderAmount ? Number(form.minOrderAmount) : null,
+      usageLimit: form.usageLimit ? Number(form.usageLimit) : null,
+    };
+
+    const url = editingId ? `/api/admin/coupons/${editingId}` : '/api/admin/coupons';
+    const method = editingId ? 'PATCH' : 'POST';
+
+    const res = await fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...form,
-        discountValue: Number(form.discountValue) || 0,
-        minOrderAmount: form.minOrderAmount ? Number(form.minOrderAmount) : null,
-        usageLimit: form.usageLimit ? Number(form.usageLimit) : null,
-      }),
+      body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => ({}));
     setSaving(false);
@@ -98,18 +155,15 @@ export default function CouponManager({
       setError(data.error || 'Mentés sikertelen');
       return;
     }
-    setCoupons((prev) => [
-      {
-        ...data.coupon,
-        startsAt: data.coupon.startsAt,
-        endsAt: data.coupon.endsAt,
-        createdAt: data.coupon.createdAt,
-        updatedAt: data.coupon.updatedAt,
-      },
-      ...prev,
-    ]);
-    setAdding(false);
-    setForm(emptyForm);
+
+    if (editingId) {
+      setCoupons((prev) =>
+        prev.map((c) => (c.id === editingId ? { ...c, ...data.coupon } : c)),
+      );
+    } else {
+      setCoupons((prev) => [data.coupon, ...prev]);
+    }
+    closeForm();
     router.refresh();
   }
 
@@ -197,7 +251,14 @@ export default function CouponManager({
                       />
                     </button>
                   </td>
-                  <td className="p-4 text-right">
+                  <td className="p-4 text-right whitespace-nowrap">
+                    <button
+                      type="button"
+                      onClick={() => openEdit(c)}
+                      className="px-3 py-1 rounded-lg text-xs font-medium bg-surface-container text-on-surface/80 hover:bg-surface-container-high mr-2"
+                    >
+                      Szerkesztés
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleDelete(c)}
@@ -220,10 +281,12 @@ export default function CouponManager({
         </div>
       </div>
 
-      {/* New coupon form */}
-      {adding ? (
+      {/* Coupon form (create or edit) */}
+      {formOpen ? (
         <div className="bg-surface-container-lowest rounded-2xl p-6">
-          <h3 className="text-sm font-bold font-headline mb-4">Új kupon</h3>
+          <h3 className="text-sm font-bold font-headline mb-4">
+            {editingId ? `Kupon szerkesztése: ${form.code}` : 'Új kupon'}
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             <div>
               <label className={labelCls}>Kód *</label>
@@ -358,18 +421,15 @@ export default function CouponManager({
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={saveNew}
+              onClick={save}
               disabled={saving}
               className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary hover:opacity-90 disabled:opacity-50"
             >
-              {saving ? 'Mentés...' : 'Létrehozás'}
+              {saving ? 'Mentés...' : editingId ? 'Mentés' : 'Létrehozás'}
             </button>
             <button
               type="button"
-              onClick={() => {
-                setAdding(false);
-                setError('');
-              }}
+              onClick={closeForm}
               className="px-4 py-2 rounded-lg text-sm font-medium bg-surface-container hover:bg-surface-container-high"
             >
               Mégse
@@ -380,7 +440,7 @@ export default function CouponManager({
         <div>
           <button
             type="button"
-            onClick={() => setAdding(true)}
+            onClick={openCreate}
             className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
           >
             + Új kupon

@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminSession } from '@/lib/auth';
+import { isAdminRequest } from '@/lib/admin-auth';
 import { getFoxpostLabel } from '@/lib/foxpost';
 
 /** GET: Download Foxpost shipping label PDF */
 export async function GET(request: NextRequest) {
-  const session = await getAdminSession();
-  if (!session) {
+  if (!(await isAdminRequest())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
