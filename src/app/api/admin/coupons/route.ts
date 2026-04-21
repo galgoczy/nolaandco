@@ -45,6 +45,7 @@ export async function POST(req: Request) {
         usageLimit: typeof d.usageLimit === 'number' ? d.usageLimit : d.usageLimit ? Number(d.usageLimit) || null : null,
         productIds: arr(d.productIds),
         categorySlugs: arr(d.categorySlugs),
+        freeShippingOnParcel: d.freeShippingOnParcel === true,
         active: d.active !== false,
         startsAt,
         endsAt,

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cart';
 import { shippingSchema, homeDeliverySchema, type ShippingData } from '@/lib/validators';
 import { formatPrice } from '@/lib/utils';
+import { cartRequiresShipping } from '@/lib/shippingRules';
 import Input from '@/components/ui/Input';
 import FoxpostSelector from '@/components/checkout/FoxpostSelector';
 
@@ -15,6 +16,7 @@ type CouponData = {
   discountValue: number;
   minOrderAmount: number | null;
   description: string;
+  freeShippingOnParcel?: boolean;
 } | null;
 
 const SHIPPING_COSTS: Record<ShippingMethod, number> = {
@@ -112,7 +114,8 @@ export default function CheckoutPage() {
   if (!mounted || (items.length === 0 && !redirecting)) return null;
 
   const subtotal = total();
-  const shippingCost = SHIPPING_COSTS[shippingMethod];
+  const needsShipping = cartRequiresShipping(items);
+  const baseShippingCost = needsShipping ? SHIPPING_COSTS[shippingMethod] : 0;
 
   let discount = 0;
   if (coupon) {
@@ -123,6 +126,11 @@ export default function CheckoutPage() {
     }
     if (discount > subtotal) discount = subtotal;
   }
+
+  const freeShippingApplied = Boolean(
+    coupon?.freeShippingOnParcel && shippingMethod === 'parcel' && needsShipping,
+  );
+  const shippingCost = freeShippingApplied ? 0 : baseShippingCost;
 
   const grandTotal = subtotal - discount + shippingCost;
 
@@ -182,17 +190,17 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (shippingMethod === 'parcel' && !selectedLocker) {
+    if (needsShipping && shippingMethod === 'parcel' && !selectedLocker) {
       setErrors({ _form: 'Kérjük, válassz csomagautomatát a térkép segítségével.' });
       return;
     }
 
     // Copy shipping to billing if checkbox is on
-    const formToValidate = shippingSameAsBilling && shippingMethod === 'home'
+    const formToValidate = needsShipping && shippingSameAsBilling && shippingMethod === 'home'
       ? { ...form, billingZip: form.shippingZip, billingCity: form.shippingCity, billingAddress: form.shippingAddress }
       : form;
 
-    const schema = shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
+    const schema = needsShipping && shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
     const result = schema.safeParse(formToValidate);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -214,7 +222,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items,
           shipping: result.data,
-          shippingMethod,
+          shippingMethod: needsShipping ? shippingMethod : 'parcel',
           paymentMethod,
           couponCode: coupon?.code ?? null,
           saveData,
@@ -328,7 +336,8 @@ export default function CheckoutPage() {
               </div>
             </section>
 
-            {/* Step 3: Shipping method */}
+            {/* Step 3: Shipping method — hidden for fully digital orders */}
+            {needsShipping && (
             <section className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className={sectionTitle}>
                 <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#D5E8F0] text-[#4A4A4A] text-xs mr-2 font-semibold">3</span>
@@ -463,11 +472,12 @@ export default function CheckoutPage() {
                 </div>
               )}
             </section>
+            )}
 
-            {/* Step 4: Payment info */}
+            {/* Payment info (step 3 for digital-only orders, 4 otherwise) */}
             <section className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className={sectionTitle}>
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#D5E8F0] text-[#4A4A4A] text-xs mr-2 font-semibold">4</span>
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#D5E8F0] text-[#4A4A4A] text-xs mr-2 font-semibold">{needsShipping ? 4 : 3}</span>
                 Fizetés
               </h2>
 
@@ -647,10 +657,19 @@ export default function CheckoutPage() {
                     <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-[#4A4A4A]/70">
-                  <span>Szállítás ({shippingMethod === 'parcel' ? 'Csomagautomata' : 'Házhozszállítás'})</span>
-                  <span>{formatPrice(shippingCost)}</span>
-                </div>
+                {needsShipping && (
+                  <div className="flex justify-between text-[#4A4A4A]/70">
+                    <span>Szállítás ({shippingMethod === 'parcel' ? 'Csomagautomata' : 'Házhozszállítás'})</span>
+                    {freeShippingApplied ? (
+                      <span>
+                        <span className="line-through text-[#4A4A4A]/40 mr-2">{formatPrice(baseShippingCost)}</span>
+                        <span className="text-green-600">Ingyenes (kupon)</span>
+                      </span>
+                    ) : (
+                      <span>{formatPrice(shippingCost)}</span>
+                    )}
+                  </div>
+                )}
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-100 text-[#4A4A4A]">
                   <span>Összesen</span>
                   <span>{formatPrice(grandTotal)}</span>

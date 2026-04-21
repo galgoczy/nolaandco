@@ -14,6 +14,7 @@ type CouponRow = {
   usageCount: number;
   productIds: string[];
   categorySlugs: string[];
+  freeShippingOnParcel: boolean;
   active: boolean;
   startsAt: string;
   endsAt: string;
@@ -29,6 +30,7 @@ const emptyForm = {
   minOrderAmount: '',
   usageLimit: '',
   categorySlugs: [] as string[],
+  freeShippingOnParcel: false,
   active: true,
   startsAt: new Date().toISOString().slice(0, 16),
   endsAt: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 16),
@@ -159,6 +161,9 @@ export default function CouponManager({
                       <span className="block text-xs text-on-surface/50">
                         min. {c.minOrderAmount.toLocaleString('hu-HU')} Ft
                       </span>
+                    ) : null}
+                    {c.freeShippingOnParcel ? (
+                      <span className="block text-xs text-green-600">+ ingyen csomagautomata</span>
                     ) : null}
                   </td>
                   <td className="p-4 text-xs text-on-surface/70">
@@ -331,6 +336,22 @@ export default function CouponManager({
                   );
                 })}
               </div>
+            </div>
+            <div className="md:col-span-2 lg:col-span-3">
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.freeShippingOnParcel}
+                  onChange={(e) => setForm({ ...form, freeShippingOnParcel: e.target.checked })}
+                  className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/30"
+                />
+                <span className="text-sm">
+                  Csomagautomatás szállítás ingyenes
+                  <span className="block text-xs text-on-surface/60">
+                    Házhozszállításra nem vonatkozik, és csak akkor érvényesül, ha a rendelés fizikai terméket tartalmaz.
+                  </span>
+                </span>
+              </label>
             </div>
           </div>
           {error && <p className="text-xs text-red-600 mb-2">{error}</p>}

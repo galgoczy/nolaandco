@@ -19,6 +19,8 @@ export interface CartItemData {
   posterLayout?: string;
   /** Label of the chosen design for display, e.g. "Origin 1". */
   posterLayoutLabel?: string;
+  /** Chosen variant label (e.g. "Digitális", "Nyomtatott", giftcard option). */
+  variant?: string;
 }
 
 interface CartStore {

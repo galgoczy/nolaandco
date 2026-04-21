@@ -157,6 +157,8 @@ model Coupon {
   // Scope: empty arrays = applies to all products/categories
   productIds      String[] @default([])
   categorySlugs   String[] @default([])
+  // When true, parcel locker shipping is free; home delivery unaffected.
+  freeShippingOnParcel Boolean @default(false)
   active          Boolean  @default(true)
   startsAt        DateTime
   endsAt          DateTime

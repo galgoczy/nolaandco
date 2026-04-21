@@ -123,6 +123,7 @@ export default function AddToCartSection({
         birthWeight: '',
         birthHeight: '',
         customNote: `Ajándékkártya verzió: ${variant.label}`,
+        variant: variant.label,
       });
       setAdded(true);
       return;
@@ -151,6 +152,7 @@ export default function AddToCartSection({
       birthHeight: birthData.birthHeight,
       birthTime: birthData.birthTime,
       customNote: noteParts.join('\n'),
+      ...(variantLabel ? { variant: variantLabel } : {}),
       ...(posterLayout ? { posterLayout, posterLayoutLabel } : {}),
     });
 

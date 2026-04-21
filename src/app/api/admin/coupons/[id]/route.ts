@@ -26,6 +26,7 @@ export async function PATCH(
   if (d.usageLimit !== undefined) update.usageLimit = d.usageLimit ? Number(d.usageLimit) || null : null;
   if (Array.isArray(d.productIds)) update.productIds = d.productIds.filter((x: unknown): x is string => typeof x === 'string');
   if (Array.isArray(d.categorySlugs)) update.categorySlugs = d.categorySlugs.filter((x: unknown): x is string => typeof x === 'string');
+  if (typeof d.freeShippingOnParcel === 'boolean') update.freeShippingOnParcel = d.freeShippingOnParcel;
   if (typeof d.active === 'boolean') update.active = d.active;
   if (typeof d.startsAt === 'string') update.startsAt = new Date(d.startsAt);
   if (typeof d.endsAt === 'string') update.endsAt = new Date(d.endsAt);

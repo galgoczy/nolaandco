@@ -6,6 +6,7 @@ import { stripe } from '@/lib/stripe';
 import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
 import { sendEmail } from '@/lib/emails/send';
 import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
+import { cartItemRequiresShipping } from '@/lib/shippingRules';
 import type { CartItemData } from '@/store/cart';
 
 const SHIPPING_COSTS: Record<string, number> = {
@@ -27,12 +28,12 @@ export async function POST(request: NextRequest) {
 
     const payMethod: 'card' | 'transfer' = paymentMethod === 'transfer' ? 'transfer' : 'card';
 
-    // Validate shipping data — stricter for home delivery
+    // Validate shipping data — stricter for home delivery, laxer for digital-only orders
     const schema = shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
     const shippingResult = schema.safeParse(shipping);
     if (!shippingResult.success) {
       return NextResponse.json(
-        { error: 'Érvénytelen szállítási adatok.', details: shippingResult.error.flatten() },
+        { error: 'Érvénytelen számlázási / szállítási adatok.', details: shippingResult.error.flatten() },
         { status: 400 }
       );
     }
@@ -51,6 +52,15 @@ export async function POST(request: NextRequest) {
     });
 
     const productMap = new Map(products.map((p) => [p.id, p]));
+
+    const orderRequiresShipping = items.some((item) => {
+      const product = productMap.get(item.productId);
+      return cartItemRequiresShipping({
+        slug: item.slug,
+        variant: item.variant,
+        category: product?.category,
+      });
+    });
 
     let subtotal = 0;
     const verifiedItems: {
@@ -101,10 +111,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const shippingCost = SHIPPING_COSTS[shippingMethod] ?? 2490;
+    const baseShippingCost = orderRequiresShipping ? (SHIPPING_COSTS[shippingMethod] ?? 2490) : 0;
 
     // Apply coupon if provided
     let discount = 0;
+    let freeShippingApplied = false;
     if (couponCode) {
       const coupon = await prisma.coupon.findFirst({
         where: {
@@ -124,6 +135,11 @@ export async function POST(request: NextRequest) {
             }
             if (discount > subtotal) discount = subtotal;
 
+            // Free shipping modifier on parcel method only
+            if (coupon.freeShippingOnParcel && shippingMethod === 'parcel' && orderRequiresShipping) {
+              freeShippingApplied = true;
+            }
+
             // Increment usage
             await prisma.coupon.update({
               where: { id: coupon.id },
@@ -133,6 +149,8 @@ export async function POST(request: NextRequest) {
         }
       }
     }
+
+    const shippingCost = freeShippingApplied ? 0 : baseShippingCost;
 
     const total = subtotal - discount + shippingCost;
     const shippingData = shippingResult.data;
@@ -268,17 +286,19 @@ export async function POST(request: NextRequest) {
       quantity: item.quantity,
     }));
 
-    // Add shipping as a line item
-    lineItems.push({
-      price_data: {
-        currency: 'huf',
-        product_data: {
-          name: shippingMethod === 'parcel' ? 'Szállítás (Csomagautomata)' : 'Szállítás (Házhozszállítás)',
+    // Add shipping as a line item (omit for digital-only or free-shipping orders)
+    if (shippingCost > 0) {
+      lineItems.push({
+        price_data: {
+          currency: 'huf',
+          product_data: {
+            name: shippingMethod === 'parcel' ? 'Szállítás (Csomagautomata)' : 'Szállítás (Házhozszállítás)',
+          },
+          unit_amount: shippingCost * 100,
         },
-        unit_amount: shippingCost * 100,
-      },
-      quantity: 1,
-    });
+        quantity: 1,
+      });
+    }
 
     // Add discount as a negative line item description (Stripe handles via coupon)
     const stripeDiscounts: { coupon: string }[] = [];

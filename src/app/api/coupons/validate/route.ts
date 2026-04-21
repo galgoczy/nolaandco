@@ -40,6 +40,7 @@ export async function POST(req: Request) {
     minOrderAmount: coupon.minOrderAmount,
     productIds: coupon.productIds,
     categorySlugs: coupon.categorySlugs,
+    freeShippingOnParcel: coupon.freeShippingOnParcel,
     description: coupon.description,
   });
 }
