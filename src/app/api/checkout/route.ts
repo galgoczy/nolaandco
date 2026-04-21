@@ -6,6 +6,11 @@ import { stripe } from '@/lib/stripe';
 import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
 import { sendEmail } from '@/lib/emails/send';
 import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
+import {
+  ADMIN_NOTIFICATION_RECIPIENT,
+  orderNotificationHtml,
+  orderNotificationSubject,
+} from '@/lib/emails/order-notification';
 import { cartItemRequiresShipping } from '@/lib/shippingRules';
 import type { CartItemData } from '@/store/cart';
 
@@ -237,106 +242,170 @@ export async function POST(request: NextRequest) {
       (item) => productMap.get(item.productId)?.category === 'giftcard',
     );
 
-    // ── Bank transfer flow: skip Stripe, send confirmation email immediately. ──
+    // ── Bank transfer flow: skip Stripe, send confirmation emails immediately. ──
     if (payMethod === 'transfer') {
-      try {
-        const emailItems = verifiedItems.map((item) => ({
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          babyName: item.babyName ?? null,
-          posterLayoutLabel: item.posterLayoutLabel ?? null,
-        }));
-        await sendEmail({
-          to: shippingData.email,
-          subject: orderConfirmationSubject(),
-          html: orderConfirmationHtml({
-            customerName: shippingData.shippingName || 'Vásárlónk',
-            orderId: order.id,
-            orderUrl: `${baseUrl}/fiok#rendelesek`,
-            items: emailItems,
-            subtotal,
-            shippingCost,
-            total,
-            shippingMethod,
-            paymentMethod: 'transfer',
-            hasInvoice: false,
-            hasGiftCard,
-          }),
-        });
-      } catch (err) {
+      const emailItems = verifiedItems.map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        babyName: item.babyName ?? null,
+        posterLayoutLabel: item.posterLayoutLabel ?? null,
+      }));
+
+      const customerEmailPromise = sendEmail({
+        to: shippingData.email,
+        subject: orderConfirmationSubject(),
+        html: orderConfirmationHtml({
+          customerName: shippingData.shippingName || 'Vásárlónk',
+          orderId: order.id,
+          orderUrl: `${baseUrl}/fiok#rendelesek`,
+          items: emailItems,
+          subtotal,
+          shippingCost,
+          total,
+          shippingMethod: orderRequiresShipping ? shippingMethod : undefined,
+          paymentMethod: 'transfer',
+          hasInvoice: false,
+          hasGiftCard,
+        }),
+      }).catch((err) => {
         console.error('Transfer order confirmation email failed:', err);
-        // Don't block the order — admin can re-send if needed.
-      }
+      });
+
+      const adminEmailPromise = sendEmail({
+        to: ADMIN_NOTIFICATION_RECIPIENT,
+        subject: orderNotificationSubject(order.id),
+        html: orderNotificationHtml({
+          orderId: order.id,
+          adminOrderUrl: `${baseUrl}/admin/rendeles/${order.id}`,
+          customerName: shippingData.shippingName || 'Vásárlónk',
+          email: shippingData.email,
+          phone: shippingData.phone ?? null,
+          shippingMethod: orderRequiresShipping ? shippingMethod : undefined,
+          shippingAddress: orderRequiresShipping ? shippingData.shippingAddress : undefined,
+          shippingZip: orderRequiresShipping ? shippingData.shippingZip : undefined,
+          shippingCity: orderRequiresShipping ? shippingData.shippingCity : undefined,
+          billingAddress: shippingData.billingAddress ?? undefined,
+          billingZip: shippingData.billingZip ?? undefined,
+          billingCity: shippingData.billingCity ?? undefined,
+          paymentMethod: 'transfer',
+          items: emailItems,
+          subtotal,
+          shippingCost,
+          total,
+          hasGiftCard,
+        }),
+      }).catch((err) => {
+        console.error('Transfer admin notification email failed:', err);
+      });
+
+      await Promise.all([customerEmailPromise, adminEmailPromise]);
+
       return NextResponse.json({
         url: `${baseUrl}/koszonjuk?order_id=${order.id}&payment=transfer`,
       });
     }
 
-    // Create Stripe Checkout Session
-    const lineItems = verifiedItems.map((item) => ({
-      price_data: {
-        currency: 'huf',
-        product_data: {
-          name: item.name,
-          ...(item.babyName ? { description: `${item.babyName}${item.birthDate ? ` · ${item.birthDate}` : ''}` } : {}),
-        },
-        unit_amount: item.price * 100, // HUF is two-decimal in Stripe (1 Ft = 100)
-      },
-      quantity: item.quantity,
-    }));
-
-    // Add shipping as a line item (omit for digital-only or free-shipping orders)
-    if (shippingCost > 0) {
-      lineItems.push({
+    // ── Stripe Checkout Session ───────────────────────────────────────
+    try {
+      const lineItems = verifiedItems.map((item) => ({
         price_data: {
           currency: 'huf',
           product_data: {
-            name: shippingMethod === 'parcel' ? 'Szállítás (Csomagautomata)' : 'Szállítás (Házhozszállítás)',
+            name: item.name,
+            ...(item.babyName ? { description: `${item.babyName}${item.birthDate ? ` · ${item.birthDate}` : ''}` } : {}),
           },
-          unit_amount: shippingCost * 100,
+          unit_amount: item.price * 100, // HUF is two-decimal in Stripe (1 Ft = 100)
         },
-        quantity: 1,
-      });
-    }
+        quantity: item.quantity,
+      }));
 
-    // Add discount as a negative line item description (Stripe handles via coupon)
-    const stripeDiscounts: { coupon: string }[] = [];
-    if (discount > 0) {
-      // Create a one-time Stripe coupon for the discount
-      const stripeCoupon = await stripe.coupons.create({
-        amount_off: discount * 100,
-        currency: 'huf',
-        duration: 'once',
-        name: couponCode || 'Kedvezmény',
-      });
-      stripeDiscounts.push({ coupon: stripeCoupon.id });
-    }
+      // Add shipping as a line item (omit for digital-only or free-shipping orders)
+      if (shippingCost > 0) {
+        lineItems.push({
+          price_data: {
+            currency: 'huf',
+            product_data: {
+              name: shippingMethod === 'parcel' ? 'Szállítás (Csomagautomata)' : 'Szállítás (Házhozszállítás)',
+            },
+            unit_amount: shippingCost * 100,
+          },
+          quantity: 1,
+        });
+      }
 
-    const stripeSession = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      mode: 'payment',
-      locale: 'hu',
-      customer_email: shippingData.email,
-      line_items: lineItems,
-      ...(stripeDiscounts.length > 0 ? { discounts: stripeDiscounts } : {}),
-      metadata: {
+      // Stripe requires a minimum charge of 175 HUF. If the discounted total
+      // would fall below that, fail with a clear message instead of Stripe's
+      // generic rejection.
+      if (total > 0 && total < 175) {
+        return NextResponse.json(
+          {
+            error:
+              'A rendelés végösszege a Stripe minimum limit alatt van (175 Ft). Kérjük, csökkentsd a kupon mértékét vagy rendelj több terméket.',
+          },
+          { status: 400 },
+        );
+      }
+
+      // Add discount as a Stripe coupon
+      const stripeDiscounts: { coupon: string }[] = [];
+      if (discount > 0) {
+        try {
+          const stripeCoupon = await stripe.coupons.create({
+            amount_off: discount * 100,
+            currency: 'huf',
+            duration: 'once',
+            name: couponCode || 'Kedvezmény',
+          });
+          stripeDiscounts.push({ coupon: stripeCoupon.id });
+        } catch (err) {
+          console.error('Stripe coupon create failed:', err);
+          return NextResponse.json(
+            { error: 'Hiba történt a kupon beváltása során.' },
+            { status: 500 },
+          );
+        }
+      }
+
+      const stripeSession = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        mode: 'payment',
+        locale: 'hu',
+        customer_email: shippingData.email,
+        line_items: lineItems,
+        ...(stripeDiscounts.length > 0 ? { discounts: stripeDiscounts } : {}),
+        metadata: {
+          orderId: order.id,
+        },
+        success_url: `${baseUrl}/koszonjuk?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
+        cancel_url: `${baseUrl}/penztar`,
+      });
+
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { stripePaymentId: stripeSession.id },
+      });
+
+      return NextResponse.json({ url: stripeSession.url });
+    } catch (err) {
+      const stripeErr = err as { message?: string; type?: string; code?: string };
+      console.error('Stripe session create failed:', {
+        type: stripeErr.type,
+        code: stripeErr.code,
+        message: stripeErr.message,
         orderId: order.id,
-      },
-      success_url: `${baseUrl}/koszonjuk?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
-      cancel_url: `${baseUrl}/penztar`,
-    });
-
-    // Save Stripe session ID to order
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { stripePaymentId: stripeSession.id },
-    });
-
-    // Confirmation email is sent after successful payment (in webhook)
-    return NextResponse.json({ url: stripeSession.url });
+        discount,
+        shippingCost,
+        total,
+      });
+      return NextResponse.json(
+        { error: 'A fizetési kapcsolat létrehozása nem sikerült. Kérjük, próbáld újra.' },
+        { status: 502 },
+      );
+    }
   } catch (error) {
-    console.error('Checkout error:', error);
+    const e = error as { message?: string; name?: string; stack?: string };
+    console.error('Checkout error:', { name: e.name, message: e.message, stack: e.stack });
     return NextResponse.json(
       { error: 'Hiba történt a rendelés rögzítése során.' },
       { status: 500 }

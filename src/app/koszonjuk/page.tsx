@@ -6,6 +6,7 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import AnimatedCheck from './AnimatedCheck';
+import ClearCartOnSuccess from './ClearCartOnSuccess';
 
 interface Props {
   searchParams: Promise<{ order_id?: string; session_id?: string }>;
@@ -81,6 +82,7 @@ export default async function ThankYouPage({ searchParams }: Props) {
 
   return (
     <main className="min-h-screen bg-[#F7F3EE] py-12 px-4">
+      <ClearCartOnSuccess />
       <div className="max-w-2xl mx-auto">
         {/* Success header */}
         <div className="text-center mb-10">

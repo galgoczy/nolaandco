@@ -28,7 +28,6 @@ export default function CheckoutPage() {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
   const total = useCartStore((s) => s.total);
-  const clearCart = useCartStore((s) => s.clearCart);
 
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -237,8 +236,10 @@ export default function CheckoutPage() {
         return;
       }
 
+      // Cart is intentionally NOT cleared here: if the user backs out of
+      // Stripe, they return to /penztar and should see their items still
+      // in the cart. /koszonjuk clears the cart once the order succeeds.
       setRedirecting(true);
-      clearCart();
       window.location.href = data.url;
     } catch {
       setErrors({ _form: 'Hiba történt. Kérjük, próbáld újra.' });

@@ -4,6 +4,11 @@ import { prisma } from '@/lib/prisma';
 import { createSzamlazzInvoice } from '@/lib/szamlazz';
 import { sendEmail } from '@/lib/emails/send';
 import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
+import {
+  ADMIN_NOTIFICATION_RECIPIENT,
+  orderNotificationHtml,
+  orderNotificationSubject,
+} from '@/lib/emails/order-notification';
 import { findLayout } from '@/app/termekek/[slug]/posterData';
 import Stripe from 'stripe';
 
@@ -77,30 +82,61 @@ export async function POST(request: NextRequest) {
         }));
         const hasGiftCard = order.items.some((item) => item.product.category === 'giftcard');
 
-        try {
-          await sendEmail({
-            to: order.email,
-            subject: orderConfirmationSubject(),
-            html: orderConfirmationHtml({
-              customerName: order.shippingName || 'Vásárlónk',
-              orderId: order.id,
-              orderUrl: `${baseUrl}/fiok#rendelesek`,
-              items: emailItems,
-              subtotal: order.subtotal,
-              shippingCost: order.shippingCost,
-              total: order.total,
-              shippingMethod: order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home',
-              paymentMethod: 'card',
-              hasInvoice: !!invoicePdf,
-              hasGiftCard,
-            }),
-            attachments: invoicePdf
-              ? [{ filename: `szamla-${order.id.slice(-8).toUpperCase()}.pdf`, content: invoicePdf }]
-              : undefined,
-          });
-        } catch (err) {
+        const derivedShippingMethod = order.shippingCost > 0
+          ? (order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home')
+          : undefined;
+
+        const customerEmailPromise = sendEmail({
+          to: order.email,
+          subject: orderConfirmationSubject(),
+          html: orderConfirmationHtml({
+            customerName: order.shippingName || 'Vásárlónk',
+            orderId: order.id,
+            orderUrl: `${baseUrl}/fiok#rendelesek`,
+            items: emailItems,
+            subtotal: order.subtotal,
+            shippingCost: order.shippingCost,
+            total: order.total,
+            shippingMethod: derivedShippingMethod,
+            paymentMethod: 'card',
+            hasInvoice: !!invoicePdf,
+            hasGiftCard,
+          }),
+          attachments: invoicePdf
+            ? [{ filename: `szamla-${order.id.slice(-8).toUpperCase()}.pdf`, content: invoicePdf }]
+            : undefined,
+        }).catch((err) => {
           console.error('Order confirmation email failed:', err);
-        }
+        });
+
+        const adminEmailPromise = sendEmail({
+          to: ADMIN_NOTIFICATION_RECIPIENT,
+          subject: orderNotificationSubject(order.id),
+          html: orderNotificationHtml({
+            orderId: order.id,
+            adminOrderUrl: `${baseUrl}/admin/rendeles/${order.id}`,
+            customerName: order.shippingName || 'Vásárlónk',
+            email: order.email,
+            phone: order.phone,
+            shippingMethod: derivedShippingMethod,
+            shippingAddress: derivedShippingMethod ? order.shippingAddress : undefined,
+            shippingZip: derivedShippingMethod ? order.shippingZip : undefined,
+            shippingCity: derivedShippingMethod ? order.shippingCity : undefined,
+            billingAddress: order.billingAddress ?? undefined,
+            billingZip: order.billingZip,
+            billingCity: order.billingCity,
+            paymentMethod: 'card',
+            items: emailItems,
+            subtotal: order.subtotal,
+            shippingCost: order.shippingCost,
+            total: order.total,
+            hasGiftCard,
+          }),
+        }).catch((err) => {
+          console.error('Admin notification email failed:', err);
+        });
+
+        await Promise.all([customerEmailPromise, adminEmailPromise]);
       }
     }
   }
