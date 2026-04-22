@@ -107,6 +107,7 @@ export async function POST(request: NextRequest) {
           shippingCost: order.shippingCost,
           total: order.total,
           hasGiftCard,
+          couponCode: session.metadata?.couponCode ?? null,
         };
 
         const [customerResult, adminResult, telegramResult] = await Promise.all([

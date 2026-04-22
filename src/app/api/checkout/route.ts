@@ -52,6 +52,7 @@ async function sendOrderEmails(args: {
   hasGiftCard: boolean;
   hasInvoice: boolean;
   baseUrl: string;
+  couponCode?: string | null;
 }) {
   const customerSend = sendEmail({
     to: args.customerEmail,
@@ -90,6 +91,7 @@ async function sendOrderEmails(args: {
     shippingCost: args.shippingCost,
     total: args.total,
     hasGiftCard: args.hasGiftCard,
+    couponCode: args.couponCode ?? null,
   };
 
   const adminSend = sendEmail({
@@ -230,6 +232,7 @@ export async function POST(request: NextRequest) {
     // Apply coupon if provided
     let discount = 0;
     let freeShippingApplied = false;
+    let appliedCouponCode: string | null = null;
     if (couponCode) {
       const coupon = await prisma.coupon.findFirst({
         where: {
@@ -253,6 +256,8 @@ export async function POST(request: NextRequest) {
             if (coupon.freeShippingOnParcel && shippingMethod === 'parcel' && orderRequiresShipping) {
               freeShippingApplied = true;
             }
+
+            appliedCouponCode = coupon.code;
 
             // Increment usage
             await prisma.coupon.update({
@@ -386,6 +391,7 @@ export async function POST(request: NextRequest) {
         hasGiftCard,
         hasInvoice: false,
         baseUrl,
+        couponCode: appliedCouponCode,
       });
 
       return NextResponse.json({
@@ -415,6 +421,7 @@ export async function POST(request: NextRequest) {
         hasGiftCard,
         hasInvoice: false,
         baseUrl,
+        couponCode: appliedCouponCode,
       });
 
       return NextResponse.json({
@@ -492,6 +499,7 @@ export async function POST(request: NextRequest) {
         ...(stripeDiscounts.length > 0 ? { discounts: stripeDiscounts } : {}),
         metadata: {
           orderId: order.id,
+          ...(appliedCouponCode ? { couponCode: appliedCouponCode } : {}),
         },
         success_url: `${baseUrl}/koszonjuk?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
         cancel_url: `${baseUrl}/penztar`,

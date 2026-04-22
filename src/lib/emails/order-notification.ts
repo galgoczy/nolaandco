@@ -27,6 +27,7 @@ interface OrderNotificationData {
   shippingCost: number;
   total: number;
   hasGiftCard: boolean;
+  couponCode?: string | null;
 }
 
 function formatPrice(amount: number): string {
@@ -65,6 +66,15 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
         ? 'Szállítás (Házhozszállítás)'
         : null;
 
+  const couponRow = data.couponCode
+    ? `<tr>
+        <td style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#999;">Felhasznált kupon</td>
+        <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#999;white-space:nowrap;">
+          ${escapeHtml(data.couponCode)}
+        </td>
+      </tr>`
+    : '';
+
   const itemsHtml = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-top:2px solid #E8E6E1;">
       ${rows}
@@ -78,6 +88,7 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
       </tr>`
           : ''
       }
+      ${couponRow}
       <tr>
         <td style="padding:12px 0 0;font-size:16px;font-weight:600;color:#4A4A4A;">Összesen</td>
         <td align="right" style="padding:12px 0 0;font-size:16px;font-weight:600;color:#4A4A4A;white-space:nowrap;">
@@ -204,6 +215,9 @@ export function orderNotificationTelegramText(data: OrderNotificationData): stri
   if (data.shippingCost > 0) {
     lines.push(`Részösszeg: ${escapeHtml(formatPrice(data.subtotal))}`);
     lines.push(`Szállítás: ${escapeHtml(formatPrice(data.shippingCost))}`);
+  }
+  if (data.couponCode) {
+    lines.push(`Felhasznált kupon: <b>${escapeHtml(data.couponCode)}</b>`);
   }
   lines.push(`<b>Összesen: ${escapeHtml(formatPrice(data.total))}</b>`);
   lines.push('');
