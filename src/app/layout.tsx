@@ -4,6 +4,7 @@ import './globals.css';
 import Footer from '@/components/layout/Footer';
 import CookieConsent from '@/components/layout/CookieConsent';
 import Analytics from '@/components/layout/Analytics';
+import PublicChrome from '@/components/layout/PublicChrome';
 import SessionProviderWrapper from '@/components/providers/SessionProviderWrapper';
 
 const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
@@ -51,11 +52,15 @@ export default function RootLayout({
       </head>
       <body className="font-body">
         <SessionProviderWrapper>
-          <Navbar />
+          <PublicChrome>
+            <Navbar />
+          </PublicChrome>
           <main>{children}</main>
-          <Footer />
-          <CookieConsent />
-          <Analytics />
+          <PublicChrome>
+            <Footer />
+            <CookieConsent />
+            <Analytics />
+          </PublicChrome>
         </SessionProviderWrapper>
       </body>
     </html>
