@@ -45,6 +45,11 @@ async function sendOrderEmails(args: {
     price: number;
     babyName?: string | null;
     posterLayoutLabel?: string | null;
+    birthDate?: string | null;
+    birthWeight?: string | null;
+    birthHeight?: string | null;
+    birthTime?: string | null;
+    customNote?: string | null;
   }>;
   subtotal: number;
   shippingCost: number;
@@ -362,6 +367,11 @@ export async function POST(request: NextRequest) {
       price: item.price,
       babyName: item.babyName ?? null,
       posterLayoutLabel: item.posterLayoutLabel ?? null,
+      birthDate: item.birthDate ?? null,
+      birthWeight: item.birthWeight ?? null,
+      birthHeight: item.birthHeight ?? null,
+      birthTime: item.birthTime ?? null,
+      customNote: item.customNote ?? null,
     }));
 
     // ── Zero-total flow (100% discount / free item): skip Stripe, mark paid. ──

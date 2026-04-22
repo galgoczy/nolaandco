@@ -6,6 +6,11 @@ interface OrderItem {
   price: number;
   babyName?: string | null;
   posterLayoutLabel?: string | null;
+  birthDate?: string | null;
+  birthWeight?: string | null;
+  birthHeight?: string | null;
+  birthTime?: string | null;
+  customNote?: string | null;
 }
 
 interface OrderNotificationData {
@@ -44,19 +49,35 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
   const orderRef = `#${data.orderId.slice(-8).toUpperCase()}`;
 
   const rows = data.items
-    .map(
-      (item) => `
+    .map((item) => {
+      const detailParts: string[] = [];
+      if (item.babyName) detailParts.push(`<strong>${escapeHtml(item.babyName)}</strong>`);
+      if (item.birthDate) detailParts.push(`Születés: ${escapeHtml(item.birthDate)}`);
+      if (item.birthTime) detailParts.push(`Időpont: ${escapeHtml(item.birthTime)}`);
+      if (item.birthWeight) detailParts.push(`Súly: ${escapeHtml(item.birthWeight)}`);
+      if (item.birthHeight) detailParts.push(`Hossz: ${escapeHtml(item.birthHeight)}`);
+      if (item.posterLayoutLabel) detailParts.push(`Dizájn: ${escapeHtml(item.posterLayoutLabel)}`);
+
+      const detailsLine = detailParts.length
+        ? `<br/><span style="font-size:12px;color:#999;">${detailParts.join(' &middot; ')}</span>`
+        : '';
+
+      const noteLine = item.customNote
+        ? `<br/><span style="font-size:12px;color:#999;font-style:italic;">Megjegyzés: ${escapeHtml(item.customNote).replace(/\n/g, '<br/>')}</span>`
+        : '';
+
+      return `
       <tr>
         <td style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;">
-          ${item.name}${item.quantity > 1 ? ` <span style="color:#999;">&times;${item.quantity}</span>` : ''}
-          ${item.babyName ? `<br/><span style="font-size:12px;color:#999;">${item.babyName}</span>` : ''}
-          ${item.posterLayoutLabel ? `<br/><span style="font-size:12px;color:#999;">Dizájn: ${item.posterLayoutLabel}</span>` : ''}
+          ${escapeHtml(item.name)}${item.quantity > 1 ? ` <span style="color:#999;">&times;${item.quantity}</span>` : ''}
+          ${detailsLine}
+          ${noteLine}
         </td>
-        <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;white-space:nowrap;">
+        <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;white-space:nowrap;vertical-align:top;">
           ${formatPrice(item.price * item.quantity)}
         </td>
-      </tr>`,
-    )
+      </tr>`;
+    })
     .join('');
 
   const shippingLabel =
@@ -204,10 +225,21 @@ export function orderNotificationTelegramText(data: OrderNotificationData): stri
     const qty = item.quantity > 1 ? ` × ${item.quantity}` : '';
     lines.push(`• ${escapeHtml(item.name)}${qty} — ${escapeHtml(formatPrice(item.price * item.quantity))}`);
     if (item.babyName) {
-      lines.push(`    <i>${escapeHtml(item.babyName)}</i>`);
+      lines.push(`    <b>${escapeHtml(item.babyName)}</b>`);
+    }
+    const detailParts: string[] = [];
+    if (item.birthDate) detailParts.push(`Születés: ${escapeHtml(item.birthDate)}`);
+    if (item.birthTime) detailParts.push(`Időpont: ${escapeHtml(item.birthTime)}`);
+    if (item.birthWeight) detailParts.push(`Súly: ${escapeHtml(item.birthWeight)}`);
+    if (item.birthHeight) detailParts.push(`Hossz: ${escapeHtml(item.birthHeight)}`);
+    if (detailParts.length) {
+      lines.push(`    <i>${detailParts.join(' · ')}</i>`);
     }
     if (item.posterLayoutLabel) {
       lines.push(`    <i>Dizájn: ${escapeHtml(item.posterLayoutLabel)}</i>`);
+    }
+    if (item.customNote) {
+      lines.push(`    <i>Megjegyzés: ${escapeHtml(item.customNote).replace(/\n/g, ' ')}</i>`);
     }
   }
 

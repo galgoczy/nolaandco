@@ -81,6 +81,11 @@ export async function POST(request: NextRequest) {
           price: item.price,
           babyName: item.babyName,
           posterLayoutLabel: item.posterLayout ? findLayout(item.posterLayout).label : null,
+          birthDate: item.birthDate,
+          birthWeight: item.birthWeight,
+          birthHeight: item.birthHeight,
+          birthTime: item.birthTime,
+          customNote: item.customNote,
         }));
         const hasGiftCard = order.items.some((item) => item.product.category === 'giftcard');
 
