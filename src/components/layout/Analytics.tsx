@@ -75,7 +75,8 @@ export default function Analytics() {
         strategy="afterInteractive"
       />
 
-      {/* Meta Pixel — loaded with consent revoked until the user accepts. */}
+      {/* Meta Pixel — consent is revoked BEFORE init so no setup event
+          leaks out before the visitor has accepted cookies. */}
       <Script id="fb-pixel" strategy="afterInteractive">
         {`
           !function(f,b,e,v,n,t,s)
@@ -86,8 +87,8 @@ export default function Analytics() {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '${FB_PIXEL_ID}');
           fbq('consent', 'revoke');
+          fbq('init', '${FB_PIXEL_ID}');
         `}
       </Script>
     </>
