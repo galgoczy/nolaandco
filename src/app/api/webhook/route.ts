@@ -8,7 +8,9 @@ import {
   ADMIN_NOTIFICATION_RECIPIENT,
   orderNotificationHtml,
   orderNotificationSubject,
+  orderNotificationTelegramText,
 } from '@/lib/emails/order-notification';
+import { sendTelegramMessage } from '@/lib/telegram';
 import { findLayout } from '@/app/termekek/[slug]/posterData';
 import Stripe from 'stripe';
 
@@ -86,7 +88,28 @@ export async function POST(request: NextRequest) {
           ? (order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home')
           : undefined;
 
-        const [customerResult, adminResult] = await Promise.all([
+        const notificationData = {
+          orderId: order.id,
+          adminOrderUrl: `${baseUrl}/admin/rendeles/${order.id}`,
+          customerName: order.shippingName || 'Vásárlónk',
+          email: order.email,
+          phone: order.phone,
+          shippingMethod: derivedShippingMethod,
+          shippingAddress: derivedShippingMethod ? order.shippingAddress : undefined,
+          shippingZip: derivedShippingMethod ? order.shippingZip : undefined,
+          shippingCity: derivedShippingMethod ? order.shippingCity : undefined,
+          billingAddress: order.billingAddress ?? undefined,
+          billingZip: order.billingZip,
+          billingCity: order.billingCity,
+          paymentMethod: 'card' as const,
+          items: emailItems,
+          subtotal: order.subtotal,
+          shippingCost: order.shippingCost,
+          total: order.total,
+          hasGiftCard,
+        };
+
+        const [customerResult, adminResult, telegramResult] = await Promise.all([
           sendEmail({
             to: order.email,
             subject: orderConfirmationSubject(),
@@ -110,27 +133,9 @@ export async function POST(request: NextRequest) {
           sendEmail({
             to: ADMIN_NOTIFICATION_RECIPIENT,
             subject: orderNotificationSubject(order.id),
-            html: orderNotificationHtml({
-              orderId: order.id,
-              adminOrderUrl: `${baseUrl}/admin/rendeles/${order.id}`,
-              customerName: order.shippingName || 'Vásárlónk',
-              email: order.email,
-              phone: order.phone,
-              shippingMethod: derivedShippingMethod,
-              shippingAddress: derivedShippingMethod ? order.shippingAddress : undefined,
-              shippingZip: derivedShippingMethod ? order.shippingZip : undefined,
-              shippingCity: derivedShippingMethod ? order.shippingCity : undefined,
-              billingAddress: order.billingAddress ?? undefined,
-              billingZip: order.billingZip,
-              billingCity: order.billingCity,
-              paymentMethod: 'card',
-              items: emailItems,
-              subtotal: order.subtotal,
-              shippingCost: order.shippingCost,
-              total: order.total,
-              hasGiftCard,
-            }),
+            html: orderNotificationHtml(notificationData),
           }),
+          sendTelegramMessage(orderNotificationTelegramText(notificationData)),
         ]);
 
         if (!customerResult.success) {
@@ -145,6 +150,12 @@ export async function POST(request: NextRequest) {
             orderId: order.id,
             to: ADMIN_NOTIFICATION_RECIPIENT,
             error: adminResult.error,
+          });
+        }
+        if (!telegramResult.success) {
+          console.error('Admin Telegram notification NOT sent', {
+            orderId: order.id,
+            error: telegramResult.error,
           });
         }
       }

@@ -33,7 +33,7 @@ function formatPrice(amount: number): string {
   return amount.toLocaleString('hu-HU') + ' Ft';
 }
 
-export const ADMIN_NOTIFICATION_RECIPIENT = 'rendeles@nolaandco.hu';
+export const ADMIN_NOTIFICATION_RECIPIENT = 'hello@nolaandco.hu';
 
 export function orderNotificationSubject(orderId: string): string {
   return `Hurrá, új rendelés! #${orderId.slice(-8).toUpperCase()}`;
@@ -148,4 +148,66 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
       </tr>
     </table>`;
   return emailLayout(body);
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// Plain-text (HTML-parsed) order summary for Telegram. Uses the same shape
+// as orderNotificationHtml so both notifications stay in sync.
+export function orderNotificationTelegramText(data: OrderNotificationData): string {
+  const orderRef = `#${data.orderId.slice(-8).toUpperCase()}`;
+  const paymentLabel = data.paymentMethod === 'transfer' ? 'Banki átutalás' : 'Bankkártya (Stripe)';
+
+  const lines: string[] = [];
+  lines.push(`🎉 <b>Új rendelés!</b> ${escapeHtml(orderRef)}`);
+  if (data.hasGiftCard) {
+    lines.push(`⚠️ <b>Ajándékkártyát tartalmaz</b> — 24 órán belül küldeni kell.`);
+  }
+  lines.push('');
+  lines.push(`<b>Vevő:</b> ${escapeHtml(data.customerName)}`);
+  lines.push(`<b>E-mail:</b> ${escapeHtml(data.email)}`);
+  if (data.phone) lines.push(`<b>Telefon:</b> ${escapeHtml(data.phone)}`);
+  lines.push(`<b>Fizetés:</b> ${escapeHtml(paymentLabel)}`);
+
+  if (data.shippingMethod) {
+    const shippingLabel = data.shippingMethod === 'parcel' ? 'Csomagautomata' : 'Házhozszállítás';
+    lines.push(`<b>Szállítás:</b> ${escapeHtml(shippingLabel)}`);
+    if (data.shippingAddress) {
+      const addr = [data.shippingZip, data.shippingCity, data.shippingAddress].filter(Boolean).join(', ');
+      lines.push(`<b>Szállítási cím:</b> ${escapeHtml(addr)}`);
+    }
+  }
+  if (data.billingAddress) {
+    const addr = [data.billingZip, data.billingCity, data.billingAddress].filter(Boolean).join(', ');
+    lines.push(`<b>Számlázási cím:</b> ${escapeHtml(addr)}`);
+  }
+
+  lines.push('');
+  lines.push('<b>Tételek:</b>');
+  for (const item of data.items) {
+    const qty = item.quantity > 1 ? ` × ${item.quantity}` : '';
+    lines.push(`• ${escapeHtml(item.name)}${qty} — ${escapeHtml(formatPrice(item.price * item.quantity))}`);
+    if (item.babyName) {
+      lines.push(`    <i>${escapeHtml(item.babyName)}</i>`);
+    }
+    if (item.posterLayoutLabel) {
+      lines.push(`    <i>Dizájn: ${escapeHtml(item.posterLayoutLabel)}</i>`);
+    }
+  }
+
+  lines.push('');
+  if (data.shippingCost > 0) {
+    lines.push(`Részösszeg: ${escapeHtml(formatPrice(data.subtotal))}`);
+    lines.push(`Szállítás: ${escapeHtml(formatPrice(data.shippingCost))}`);
+  }
+  lines.push(`<b>Összesen: ${escapeHtml(formatPrice(data.total))}</b>`);
+  lines.push('');
+  lines.push(`<a href="${data.adminOrderUrl}">Megnyitás az adminban</a>`);
+
+  return lines.join('\n');
 }

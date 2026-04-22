@@ -10,7 +10,9 @@ import {
   ADMIN_NOTIFICATION_RECIPIENT,
   orderNotificationHtml,
   orderNotificationSubject,
+  orderNotificationTelegramText,
 } from '@/lib/emails/order-notification';
+import { sendTelegramMessage } from '@/lib/telegram';
 import { cartItemRequiresShipping } from '@/lib/shippingRules';
 import type { CartItemData } from '@/store/cart';
 
@@ -69,32 +71,40 @@ async function sendOrderEmails(args: {
     }),
   });
 
+  const notificationData = {
+    orderId: args.orderId,
+    adminOrderUrl: `${args.baseUrl}/admin/rendeles/${args.orderId}`,
+    customerName: args.customerName,
+    email: args.customerEmail,
+    phone: args.phone ?? null,
+    shippingMethod: args.shippingMethod,
+    shippingAddress: args.shippingAddress,
+    shippingZip: args.shippingZip,
+    shippingCity: args.shippingCity,
+    billingAddress: args.billingAddress ?? undefined,
+    billingZip: args.billingZip ?? undefined,
+    billingCity: args.billingCity ?? undefined,
+    paymentMethod: args.paymentMethod,
+    items: args.items,
+    subtotal: args.subtotal,
+    shippingCost: args.shippingCost,
+    total: args.total,
+    hasGiftCard: args.hasGiftCard,
+  };
+
   const adminSend = sendEmail({
     to: ADMIN_NOTIFICATION_RECIPIENT,
     subject: orderNotificationSubject(args.orderId),
-    html: orderNotificationHtml({
-      orderId: args.orderId,
-      adminOrderUrl: `${args.baseUrl}/admin/rendeles/${args.orderId}`,
-      customerName: args.customerName,
-      email: args.customerEmail,
-      phone: args.phone ?? null,
-      shippingMethod: args.shippingMethod,
-      shippingAddress: args.shippingAddress,
-      shippingZip: args.shippingZip,
-      shippingCity: args.shippingCity,
-      billingAddress: args.billingAddress ?? undefined,
-      billingZip: args.billingZip ?? undefined,
-      billingCity: args.billingCity ?? undefined,
-      paymentMethod: args.paymentMethod,
-      items: args.items,
-      subtotal: args.subtotal,
-      shippingCost: args.shippingCost,
-      total: args.total,
-      hasGiftCard: args.hasGiftCard,
-    }),
+    html: orderNotificationHtml(notificationData),
   });
 
-  const [customerResult, adminResult] = await Promise.all([customerSend, adminSend]);
+  const telegramSend = sendTelegramMessage(orderNotificationTelegramText(notificationData));
+
+  const [customerResult, adminResult, telegramResult] = await Promise.all([
+    customerSend,
+    adminSend,
+    telegramSend,
+  ]);
 
   if (!customerResult.success) {
     console.error('Customer confirmation email NOT sent', {
@@ -108,6 +118,12 @@ async function sendOrderEmails(args: {
       orderId: args.orderId,
       to: ADMIN_NOTIFICATION_RECIPIENT,
       error: adminResult.error,
+    });
+  }
+  if (!telegramResult.success) {
+    console.error('Admin Telegram notification NOT sent', {
+      orderId: args.orderId,
+      error: telegramResult.error,
     });
   }
 }
