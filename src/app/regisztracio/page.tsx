@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
+import { trackMetaEvent } from '@/lib/metaPixel';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -49,6 +50,10 @@ export default function RegisterPage() {
         setLoading(false);
         return;
       }
+      trackMetaEvent('CompleteRegistration', {
+        content_name: 'Account Registration',
+        status: 'completed',
+      });
       setSent(true);
     } catch {
       setError('Hálózati hiba. Kérjük, próbáld újra.');

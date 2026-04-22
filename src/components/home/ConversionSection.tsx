@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
+import { trackMetaEvent } from '@/lib/metaPixel';
 
 export default function ConversionSection() {
   const [email, setEmail] = useState('');
@@ -21,6 +22,10 @@ export default function ConversionSection() {
         body: JSON.stringify({ email, consent: true }),
       });
       if (res.ok) {
+        trackMetaEvent('Lead', {
+          content_name: 'Newsletter Signup',
+          content_category: 'homepage',
+        });
         setStatus('success');
         setEmail('');
         setConsent(false);

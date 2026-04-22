@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
+import { trackMetaEvent } from '@/lib/metaPixel';
 
 export default function HirlevelPage() {
   const [email, setEmail] = useState('');
@@ -34,6 +35,10 @@ export default function HirlevelPage() {
         throw new Error(data.error || 'Hiba történt a feliratkozás során.');
       }
 
+      trackMetaEvent('Lead', {
+        content_name: 'Newsletter Signup',
+        content_category: 'hirlevel',
+      });
       setStatus('success');
       setEmail('');
       setConsent(false);

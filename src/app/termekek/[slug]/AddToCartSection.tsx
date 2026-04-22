@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button';
 import { useCartStore } from '@/store/cart';
 import { useBirthDataStore } from '@/store/birthData';
 import { formatPrice } from '@/lib/utils';
+import { trackMetaEvent } from '@/lib/metaPixel';
 import type { BirthData } from '@/lib/validators';
 
 const giftCardVariants = [
@@ -125,6 +126,14 @@ export default function AddToCartSection({
         customNote: `Ajándékkártya verzió: ${variant.label}`,
         variant: variant.label,
       });
+      trackMetaEvent('AddToCart', {
+        content_ids: [product.id],
+        content_name: `${product.name} – ${variant.label}`,
+        content_type: product.category || 'product',
+        value: variant.price,
+        currency: 'HUF',
+        contents: [{ id: product.id, quantity: 1 }],
+      });
       setAdded(true);
       return;
     }
@@ -154,6 +163,15 @@ export default function AddToCartSection({
       customNote: noteParts.join('\n'),
       ...(variantLabel ? { variant: variantLabel } : {}),
       ...(posterLayout ? { posterLayout, posterLayoutLabel } : {}),
+    });
+
+    trackMetaEvent('AddToCart', {
+      content_ids: [product.id],
+      content_name: isPoster ? `${product.name} – ${variantLabel}` : product.name,
+      content_type: product.category || 'product',
+      value: finalPrice,
+      currency: 'HUF',
+      contents: [{ id: product.id, quantity: 1 }],
     });
 
     setAdded(true);

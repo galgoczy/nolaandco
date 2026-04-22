@@ -10,7 +10,7 @@ import {
 } from '@/lib/cookieConsent';
 
 const GA_ID = 'G-XQ02YFVB9M';
-const FB_PIXEL_ID = '1406749431210962';
+const FB_PIXEL_ID = '804236036083768';
 
 type FbqFunction = (...args: unknown[]) => void;
 

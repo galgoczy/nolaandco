@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cart';
 import { shippingSchema, homeDeliverySchema, type ShippingData } from '@/lib/validators';
 import { formatPrice } from '@/lib/utils';
 import { cartRequiresShipping } from '@/lib/shippingRules';
+import { trackMetaEvent } from '@/lib/metaPixel';
 import Input from '@/components/ui/Input';
 import FoxpostSelector from '@/components/checkout/FoxpostSelector';
 
@@ -110,6 +111,20 @@ export default function CheckoutPage() {
     }
   }, [mounted, items.length, redirecting, router]);
 
+  // Fire InitiateCheckout once per visit to /penztar with a non-empty cart.
+  const initiateCheckoutFired = useRef(false);
+  useEffect(() => {
+    if (!mounted || initiateCheckoutFired.current || items.length === 0) return;
+    initiateCheckoutFired.current = true;
+    trackMetaEvent('InitiateCheckout', {
+      value: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      currency: 'HUF',
+      content_ids: items.map((item) => item.productId),
+      contents: items.map((item) => ({ id: item.productId, quantity: item.quantity })),
+      num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+    });
+  }, [mounted, items]);
+
   if (!mounted || (items.length === 0 && !redirecting)) return null;
 
   const subtotal = total();
@@ -212,6 +227,15 @@ export default function CheckoutPage() {
       setErrors(fieldErrors);
       return;
     }
+
+    trackMetaEvent('AddPaymentInfo', {
+      value: grandTotal,
+      currency: 'HUF',
+      content_ids: items.map((item) => item.productId),
+      contents: items.map((item) => ({ id: item.productId, quantity: item.quantity })),
+      num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+      payment_method: paymentMethod,
+    });
 
     setLoading(true);
     try {

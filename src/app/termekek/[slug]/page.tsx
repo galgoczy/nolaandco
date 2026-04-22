@@ -8,6 +8,7 @@ import AddToCartSection from './AddToCartSection';
 import ProductGallery from './ProductGallery';
 import PillowVariants from './PillowVariants';
 import PosterClient from './PosterClient';
+import ViewContentTracker from './ViewContentTracker';
 import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
 
 const POSTER_DESIGNER_SLUG = 'poszter';
@@ -75,6 +76,12 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
 
     return (
       <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
+        <ViewContentTracker
+          productId={product.id}
+          productName={product.name}
+          price={effectivePrice}
+          category={product.category}
+        />
         <div className="max-w-7xl mx-auto px-8">
           <PosterClient
             product={{
@@ -113,6 +120,12 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
 
   return (
     <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
+      <ViewContentTracker
+        productId={product.id}
+        productName={product.name}
+        price={effectivePrice}
+        category={product.category}
+      />
       <div className="max-w-7xl mx-auto px-8">
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-x-16">
           {/* Left column: gallery + (desktop) long description */}
