@@ -16,7 +16,7 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
-  const ipLimit = rateLimit(`register:ip:${ip}`, 5, 15 * 60 * 1000);
+  const ipLimit = await rateLimit(`register:ip:${ip}`, 5, 15 * 60 * 1000);
   if (!ipLimit.allowed) {
     return NextResponse.json(
       { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   const email = parsed.data.email.toLowerCase().trim();
   const { password, name } = parsed.data;
 
-  const emailLimit = rateLimit(`register:email:${email}`, 3, 60 * 60 * 1000);
+  const emailLimit = await rateLimit(`register:email:${email}`, 3, 60 * 60 * 1000);
   if (!emailLimit.allowed) {
     return NextResponse.json(
       { error: 'Erre az e-mail címre már küldtünk megerősítő levelet. Várj legalább egy órát az újabb próbálkozás előtt.' },

@@ -11,7 +11,7 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
-  const ipLimit = rateLimit(`reset:ip:${ip}`, 10, 15 * 60 * 1000);
+  const ipLimit = await rateLimit(`reset:ip:${ip}`, 10, 15 * 60 * 1000);
   if (!ipLimit.allowed) {
     return NextResponse.json(
       { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },

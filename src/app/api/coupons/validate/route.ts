@@ -10,7 +10,7 @@ const INVALID = () =>
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
-  const ipLimit = rateLimit(`coupon-validate:ip:${ip}`, 20, 10 * 60 * 1000);
+  const ipLimit = await rateLimit(`coupon-validate:ip:${ip}`, 20, 10 * 60 * 1000);
   if (!ipLimit.allowed) {
     return NextResponse.json(
       { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },

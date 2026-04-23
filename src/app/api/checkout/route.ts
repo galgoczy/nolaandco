@@ -139,7 +139,7 @@ async function sendOrderEmails(args: {
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIp(request.headers);
-    const ipLimit = rateLimit(`checkout:ip:${ip}`, 10, 10 * 60 * 1000);
+    const ipLimit = await rateLimit(`checkout:ip:${ip}`, 10, 10 * 60 * 1000);
     if (!ipLimit.allowed) {
       return NextResponse.json(
         { error: 'Túl sok rendelési próbálkozás. Várj néhány percet.' },

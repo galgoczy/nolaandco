@@ -13,7 +13,7 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
-  const ipLimit = rateLimit(`forgot:ip:${ip}`, 5, 15 * 60 * 1000);
+  const ipLimit = await rateLimit(`forgot:ip:${ip}`, 5, 15 * 60 * 1000);
   if (!ipLimit.allowed) {
     return NextResponse.json(
       { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   const email = parsed.data.email.toLowerCase().trim();
 
-  const emailLimit = rateLimit(`forgot:email:${email}`, 3, 60 * 60 * 1000);
+  const emailLimit = await rateLimit(`forgot:email:${email}`, 3, 60 * 60 * 1000);
   if (!emailLimit.allowed) {
     return NextResponse.json({ ok: true });
   }

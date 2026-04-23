@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const ip = getClientIp(request.headers);
-    const ipLimit = rateLimit(`admin-login:ip:${ip}`, 5, 15 * 60 * 1000);
+    const ipLimit = await rateLimit(`admin-login:ip:${ip}`, 5, 15 * 60 * 1000);
     if (!ipLimit.allowed) {
       return NextResponse.json(
         { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const emailLimit = rateLimit(`admin-login:email:${String(email).toLowerCase()}`, 10, 60 * 60 * 1000);
+    const emailLimit = await rateLimit(`admin-login:email:${String(email).toLowerCase()}`, 10, 60 * 60 * 1000);
     if (!emailLimit.allowed) {
       return NextResponse.json(
         { error: 'Túl sok sikertelen próbálkozás. Kérjük, várj egy órát.' },

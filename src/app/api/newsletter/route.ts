@@ -7,7 +7,7 @@ import { rateLimit, getClientIp } from '@/lib/rateLimit';
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIp(request.headers);
-    const ipLimit = rateLimit(`newsletter:ip:${ip}`, 5, 10 * 60 * 1000);
+    const ipLimit = await rateLimit(`newsletter:ip:${ip}`, 5, 10 * 60 * 1000);
     if (!ipLimit.allowed) {
       return NextResponse.json(
         { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const emailLimit = rateLimit(`newsletter:email:${result.data.email}`, 2, 60 * 60 * 1000);
+    const emailLimit = await rateLimit(`newsletter:email:${result.data.email}`, 2, 60 * 60 * 1000);
     if (!emailLimit.allowed) {
       return NextResponse.json(
         { message: 'Sikeres feliratkozás!' },
