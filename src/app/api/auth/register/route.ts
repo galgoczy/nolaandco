@@ -49,37 +49,27 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Uniform response regardless of whether the email is admin, existing
+  // customer (verified or not), or new. Prevents email enumeration and
+  // account-hijack attempts via register (see C-3 in the security audit).
+  const uniformResponse = NextResponse.json({ ok: true });
+
   const admin = await prisma.adminUser.findUnique({ where: { email } });
-  if (admin) {
-    return NextResponse.json(
-      { error: 'Ez az e-mail cím már foglalt.' },
-      { status: 409 },
-    );
-  }
+  if (admin) return uniformResponse;
 
   const existing = await prisma.customer.findUnique({ where: { email } });
-  if (existing?.emailVerified && existing.passwordHash) {
-    return NextResponse.json(
-      { error: 'Ez az e-mail cím már regisztrálva van. Kérjük, jelentkezz be.' },
-      { status: 409 },
-    );
-  }
+  // If a customer already exists (verified, or Google-linked without
+  // password), do NOT overwrite their record from this path — quietly
+  // succeed. A legit user in this state should use "forgot password".
+  if (existing) return uniformResponse;
 
   const token = crypto.randomBytes(32).toString('hex');
   const expires = new Date(Date.now() + VERIFY_TTL_MS);
   const passwordHash = hashPassword(password);
 
-  await prisma.customer.upsert({
-    where: { email },
-    create: {
+  await prisma.customer.create({
+    data: {
       email,
-      name,
-      passwordHash,
-      emailVerified: false,
-      verificationToken: token,
-      verificationTokenExpires: expires,
-    },
-    update: {
       name,
       passwordHash,
       emailVerified: false,
@@ -95,5 +85,5 @@ export async function POST(req: NextRequest) {
     html: verificationEmailHtml(verifyUrl),
   });
 
-  return NextResponse.json({ ok: true });
+  return uniformResponse;
 }

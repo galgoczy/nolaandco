@@ -42,6 +42,18 @@ export async function POST(request: NextRequest) {
     const orderId = session.metadata?.orderId;
 
     if (orderId) {
+      // Idempotency: Stripe retries webhooks on non-200 responses and admins
+      // can manually resend events from the dashboard. Running the side
+      // effects twice would create a duplicate Számlázz.hu invoice
+      // (accounting problem) and send duplicate emails + Telegram pings.
+      const existing = await prisma.order.findUnique({
+        where: { id: orderId },
+        select: { status: true },
+      });
+      if (existing && existing.status !== 'pending') {
+        return NextResponse.json({ received: true, skipped: 'already processed' }, { status: 200 });
+      }
+
       await prisma.order.update({
         where: { id: orderId },
         data: {

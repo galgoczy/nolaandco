@@ -248,8 +248,22 @@ export async function POST(request: NextRequest) {
         },
       });
       if (coupon) {
-        if (!coupon.usageLimit || coupon.usageCount < coupon.usageLimit) {
-          if (!coupon.minOrderAmount || subtotal >= coupon.minOrderAmount) {
+        if (!coupon.minOrderAmount || subtotal >= coupon.minOrderAmount) {
+          // Atomic claim: only consume a slot if usageLimit is null OR we're
+          // still below it. updateMany returns count=0 if the WHERE filter
+          // matches zero rows, so two parallel checkouts can't both pass.
+          const claim = await prisma.coupon.updateMany({
+            where: {
+              id: coupon.id,
+              OR: [
+                { usageLimit: null },
+                { usageCount: { lt: coupon.usageLimit ?? 0 } },
+              ],
+            },
+            data: { usageCount: { increment: 1 } },
+          });
+
+          if (claim.count > 0) {
             if (coupon.discountType === 'percent') {
               discount = Math.round(subtotal * (coupon.discountValue / 100));
             } else {
@@ -263,12 +277,6 @@ export async function POST(request: NextRequest) {
             }
 
             appliedCouponCode = coupon.code;
-
-            // Increment usage
-            await prisma.coupon.update({
-              where: { id: coupon.id },
-              data: { usageCount: { increment: 1 } },
-            });
           }
         }
       }

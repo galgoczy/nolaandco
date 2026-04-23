@@ -47,6 +47,25 @@ export async function PATCH(
     trackingNumber?: string;
   };
 
+  const ALLOWED_STATUSES = [
+    'pending',
+    'paid',
+    'processing',
+    'shipped',
+    'delivered',
+    'cancelled',
+  ] as const;
+  type OrderStatus = (typeof ALLOWED_STATUSES)[number];
+  const isAllowedStatus = (v: string): v is OrderStatus =>
+    (ALLOWED_STATUSES as readonly string[]).includes(v);
+
+  if (status !== undefined && !isAllowedStatus(status)) {
+    return NextResponse.json(
+      { error: `Invalid status. Allowed: ${ALLOWED_STATUSES.join(', ')}` },
+      { status: 400 },
+    );
+  }
+
   const data: Record<string, string> = {};
   if (status) data.status = status;
   if (trackingNumber !== undefined) data.trackingNumber = trackingNumber;
