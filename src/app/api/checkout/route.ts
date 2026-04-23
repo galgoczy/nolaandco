@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
-import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
+import { shippingSchema, homeDeliverySchema, checkoutSchema } from '@/lib/validators';
 import { sendEmail } from '@/lib/emails/send';
 import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
 import {
@@ -14,7 +14,7 @@ import {
 } from '@/lib/emails/order-notification';
 import { sendTelegramMessage } from '@/lib/telegram';
 import { cartItemRequiresShipping } from '@/lib/shippingRules';
-import type { CartItemData } from '@/store/cart';
+import { resolveServerPrice } from '@/lib/variants';
 
 const SHIPPING_COSTS: Record<string, number> = {
   parcel: 1190,
@@ -137,15 +137,16 @@ async function sendOrderEmails(args: {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { items, shipping, shippingMethod, paymentMethod, couponCode, saveData } = body as {
-      items: CartItemData[];
-      shipping: Record<string, unknown>;
-      shippingMethod: string;
-      paymentMethod?: 'card' | 'transfer';
-      couponCode?: string | null;
-      saveData?: boolean;
-    };
+    const rawBody = await request.json().catch(() => null);
+    const checkoutParsed = checkoutSchema.safeParse(rawBody);
+    if (!checkoutParsed.success) {
+      return NextResponse.json(
+        { error: 'Érvénytelen kérés.', details: checkoutParsed.error.flatten() },
+        { status: 400 },
+      );
+    }
+    const { items, shipping, shippingMethod, paymentMethod, couponCode, saveData } =
+      checkoutParsed.data;
 
     const payMethod: 'card' | 'transfer' = paymentMethod === 'transfer' ? 'transfer' : 'card';
 
@@ -155,13 +156,6 @@ export async function POST(request: NextRequest) {
     if (!shippingResult.success) {
       return NextResponse.json(
         { error: 'Érvénytelen számlázási / szállítási adatok.', details: shippingResult.error.flatten() },
-        { status: 400 }
-      );
-    }
-
-    if (!items || items.length === 0) {
-      return NextResponse.json(
-        { error: 'A kosár üres.' },
         { status: 400 }
       );
     }
@@ -208,12 +202,22 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // For variant products (poster/giftcard), use the cart item price
-      // since the DB only stores the base price
-      const isVariant = product.category === 'poster' || product.category === 'giftcard';
-      const price = isVariant
-        ? item.price
-        : (product.onSale && product.salePrice ? product.salePrice : product.price);
+      // Price authority: never trust item.price from the cart. For plain
+      // products the DB row wins; for poster/giftcard variants we look up
+      // the price on the server from the variant label allowlist.
+      const price = resolveServerPrice({
+        category: product.category,
+        variant: item.variant,
+        basePrice: product.price,
+        salePrice: product.salePrice,
+        onSale: product.onSale,
+      });
+      if (price === null) {
+        return NextResponse.json(
+          { error: `A(z) "${item.name ?? product.name}" termék variáns nem érvényes.` },
+          { status: 400 },
+        );
+      }
       subtotal += price * item.quantity;
 
       verifiedItems.push({

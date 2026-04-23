@@ -29,6 +29,14 @@ function formatPrice(amount: number): string {
   return amount.toLocaleString('hu-HU') + ' Ft';
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 export function orderConfirmationSubject(): string {
   return 'Megkaptuk! Készül a Nola & Co emlékőrződ! 🦌';
 }
@@ -42,9 +50,9 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
         (item) => `
       <tr>
         <td style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;">
-          ${item.name}${item.quantity > 1 ? ` <span style="color:#999;">&times;${item.quantity}</span>` : ''}
-          ${item.babyName ? `<br/><span style="font-size:12px;color:#999;">${item.babyName}</span>` : ''}
-          ${item.posterLayoutLabel ? `<br/><span style="font-size:12px;color:#999;">Dizájn: ${item.posterLayoutLabel}</span>` : ''}
+          ${escapeHtml(item.name)}${item.quantity > 1 ? ` <span style="color:#999;">&times;${item.quantity}</span>` : ''}
+          ${item.babyName ? `<br/><span style="font-size:12px;color:#999;">${escapeHtml(item.babyName)}</span>` : ''}
+          ${item.posterLayoutLabel ? `<br/><span style="font-size:12px;color:#999;">Dizájn: ${escapeHtml(item.posterLayoutLabel)}</span>` : ''}
         </td>
         <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;white-space:nowrap;">
           ${formatPrice(item.price * item.quantity)}
@@ -141,7 +149,7 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
 
   const body = `
     <h1 style="margin:0 0 16px;font-size:22px;color:#4A4A4A;font-weight:500;">
-      Kedves ${data.customerName}!
+      Kedves ${escapeHtml(data.customerName)}!
     </h1>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4A4A4A;">
       Köszönjük a rendelésedet! Nagyon örülünk, hogy minket választottál, hogy megőrizzük a legelső pillanatok emlékét.

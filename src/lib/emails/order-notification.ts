@@ -142,14 +142,14 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
 
   const infoTable = `
     <table role="presentation" cellpadding="0" cellspacing="0" style="font-size:13px;color:#4A4A4A;line-height:1.8;margin:0 0 8px;">
-      <tr><td style="padding-right:14px;color:#999;">Vevő</td><td><strong>${data.customerName}</strong></td></tr>
-      <tr><td style="padding-right:14px;color:#999;">E-mail</td><td><a href="mailto:${data.email}" style="color:#C4A591;text-decoration:none;">${data.email}</a></td></tr>
-      ${data.phone ? `<tr><td style="padding-right:14px;color:#999;">Telefon</td><td>${data.phone}</td></tr>` : ''}
-      <tr><td style="padding-right:14px;color:#999;">Fizetés</td><td>${paymentLabel}</td></tr>
+      <tr><td style="padding-right:14px;color:#999;">Vevő</td><td><strong>${escapeHtml(data.customerName)}</strong></td></tr>
+      <tr><td style="padding-right:14px;color:#999;">E-mail</td><td><a href="mailto:${escapeHtml(data.email)}" style="color:#C4A591;text-decoration:none;">${escapeHtml(data.email)}</a></td></tr>
+      ${data.phone ? `<tr><td style="padding-right:14px;color:#999;">Telefon</td><td>${escapeHtml(data.phone)}</td></tr>` : ''}
+      <tr><td style="padding-right:14px;color:#999;">Fizetés</td><td>${escapeHtml(paymentLabel)}</td></tr>
       ${shippingInfoRows
         .map(
           ([label, value]) =>
-            `<tr><td style="padding-right:14px;color:#999;">${label}</td><td>${value}</td></tr>`,
+            `<tr><td style="padding-right:14px;color:#999;">${escapeHtml(label)}</td><td>${escapeHtml(value)}</td></tr>`,
         )
         .join('')}
     </table>`;
