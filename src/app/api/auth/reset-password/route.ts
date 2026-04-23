@@ -51,10 +51,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const newHash = await hashPassword(password);
   await prisma.customer.update({
     where: { id: customer.id },
     data: {
-      passwordHash: hashPassword(password),
+      passwordHash: newHash,
       passwordResetToken: null,
       passwordResetTokenExpires: null,
       // Access to the reset email implies email ownership, so mark verified.

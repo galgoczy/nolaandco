@@ -61,13 +61,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const valid = verifyPassword(password, admin.passwordHash);
+    const verification = await verifyPassword(password, admin.passwordHash);
 
-    if (!valid) {
+    if (!verification.valid) {
       return NextResponse.json(
         { error: 'Hibás e-mail cím vagy jelszó' },
         { status: 401 }
       );
+    }
+
+    // Lazy migration: replace legacy SHA-256 hash with bcrypt after a
+    // successful login so the DB gradually moves to the stronger format.
+    if (verification.needsUpgrade && verification.upgradedHash) {
+      await prisma.adminUser
+        .update({
+          where: { id: admin.id },
+          data: { passwordHash: verification.upgradedHash },
+        })
+        .catch((err) => console.error('Admin password hash upgrade failed:', err));
     }
 
     const token = createToken(admin.email);

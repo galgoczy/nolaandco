@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 
   const token = crypto.randomBytes(32).toString('hex');
   const expires = new Date(Date.now() + VERIFY_TTL_MS);
-  const passwordHash = hashPassword(password);
+  const passwordHash = await hashPassword(password);
 
   await prisma.customer.create({
     data: {

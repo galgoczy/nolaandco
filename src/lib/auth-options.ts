@@ -35,7 +35,21 @@ export const authOptions: NextAuthOptions = {
 
         const customer = await prisma.customer.findUnique({ where: { email } });
         if (!customer || !customer.passwordHash) return null;
-        if (!verifyPassword(password, customer.passwordHash)) return null;
+
+        const verification = await verifyPassword(password, customer.passwordHash);
+        if (!verification.valid) return null;
+
+        // Lazy migration: replace legacy SHA-256 hash with bcrypt after a
+        // successful login so the DB gradually moves to the stronger format.
+        if (verification.needsUpgrade && verification.upgradedHash) {
+          await prisma.customer
+            .update({
+              where: { id: customer.id },
+              data: { passwordHash: verification.upgradedHash },
+            })
+            .catch((err) => console.error('Customer password hash upgrade failed:', err));
+        }
+
         if (!customer.emailVerified) {
           throw new Error('EMAIL_NOT_VERIFIED');
         }
