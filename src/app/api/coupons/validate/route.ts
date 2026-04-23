@@ -1,35 +1,37 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
-export async function POST(req: Request) {
+// Uniform "not valid" response — do NOT distinguish between "unknown code",
+// "expired", "inactive", "usage limit reached" etc. Otherwise an attacker
+// can iterate short codes and learn the full inventory of coupons.
+const INVALID = () =>
+  NextResponse.json({ error: 'Érvénytelen vagy lejárt kuponkód' }, { status: 400 });
+
+export async function POST(req: NextRequest) {
+  const ip = getClientIp(req.headers);
+  const ipLimit = rateLimit(`coupon-validate:ip:${ip}`, 20, 10 * 60 * 1000);
+  if (!ipLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },
+      { status: 429 },
+    );
+  }
+
   const body = await req.json().catch(() => null);
   const code = typeof body?.code === 'string' ? body.code.trim().toUpperCase() : '';
-  if (!code) {
-    return NextResponse.json({ error: 'Kód megadása kötelező' }, { status: 400 });
+  if (!code || code.length > 40) {
+    return INVALID();
   }
 
   const now = new Date();
   const coupon = await prisma.coupon.findUnique({ where: { code } });
 
-  if (!coupon) {
-    return NextResponse.json({ error: 'Érvénytelen kuponkód' }, { status: 404 });
-  }
-
-  if (!coupon.active) {
-    return NextResponse.json({ error: 'Ez a kupon már nem aktív' }, { status: 410 });
-  }
-
-  if (coupon.startsAt > now) {
-    return NextResponse.json({ error: 'Ez a kupon még nem érvényes' }, { status: 422 });
-  }
-
-  if (coupon.endsAt < now) {
-    return NextResponse.json({ error: 'Ez a kupon lejárt' }, { status: 410 });
-  }
-
-  if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
-    return NextResponse.json({ error: 'Ez a kupon felhasználási limit elérte' }, { status: 410 });
-  }
+  if (!coupon) return INVALID();
+  if (!coupon.active) return INVALID();
+  if (coupon.startsAt > now) return INVALID();
+  if (coupon.endsAt < now) return INVALID();
+  if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) return INVALID();
 
   // Return safe coupon info to the client (no internal IDs or usage stats)
   return NextResponse.json({

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword, createToken } from '@/lib/auth';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,12 +24,29 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const ip = getClientIp(request.headers);
+    const ipLimit = rateLimit(`admin-login:ip:${ip}`, 5, 15 * 60 * 1000);
+    if (!ipLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },
+        { status: 429 },
+      );
+    }
+
     const { email, password } = await request.json();
 
     if (!email || !password) {
       return NextResponse.json(
         { error: 'E-mail cím és jelszó megadása kötelező' },
         { status: 400 }
+      );
+    }
+
+    const emailLimit = rateLimit(`admin-login:email:${String(email).toLowerCase()}`, 10, 60 * 60 * 1000);
+    if (!emailLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Túl sok sikertelen próbálkozás. Kérjük, várj egy órát.' },
+        { status: 429 },
       );
     }
 

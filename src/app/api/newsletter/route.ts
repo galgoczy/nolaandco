@@ -2,9 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { newsletterSchema } from '@/lib/validators';
 import { mailerliteSubscribe } from '@/lib/mailerlite';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request.headers);
+    const ipLimit = rateLimit(`newsletter:ip:${ip}`, 5, 10 * 60 * 1000);
+    if (!ipLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },
+        { status: 429 },
+      );
+    }
+
     const body = await request.json();
 
     const result = newsletterSchema.safeParse(body);
@@ -12,6 +22,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Érvényes e-mail cím szükséges.' },
         { status: 400 }
+      );
+    }
+
+    const emailLimit = rateLimit(`newsletter:email:${result.data.email}`, 2, 60 * 60 * 1000);
+    if (!emailLimit.allowed) {
+      return NextResponse.json(
+        { message: 'Sikeres feliratkozás!' },
       );
     }
 

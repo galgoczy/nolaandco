@@ -16,8 +16,21 @@ export function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password + ADMIN_SECRET).digest('hex');
 }
 
+function safeEqualHex(a: string, b: string): boolean {
+  // timingSafeEqual requires equal-length buffers; short-circuit length
+  // mismatch with a dummy compare to keep timing roughly constant.
+  const aBuf = Buffer.from(a, 'hex');
+  const bBuf = Buffer.from(b, 'hex');
+  if (aBuf.length !== bBuf.length) {
+    // Still do a compare to avoid early-return timing leak.
+    crypto.timingSafeEqual(aBuf, aBuf);
+    return false;
+  }
+  return crypto.timingSafeEqual(aBuf, bBuf);
+}
+
 export function verifyPassword(password: string, hash: string): boolean {
-  return hashPassword(password) === hash;
+  return safeEqualHex(hashPassword(password), hash);
 }
 
 export function createToken(email: string): string {
@@ -29,9 +42,10 @@ export function createToken(email: string): string {
 export function verifyToken(token: string): { email: string } | null {
   try {
     const [payloadB64, hmac] = token.split('.');
+    if (!payloadB64 || !hmac) return null;
     const payload = Buffer.from(payloadB64, 'base64').toString();
     const expected = crypto.createHmac('sha256', ADMIN_SECRET).update(payload).digest('hex');
-    if (hmac !== expected) return null;
+    if (!safeEqualHex(hmac, expected)) return null;
     const data = JSON.parse(payload);
     if (data.exp < Date.now()) return null;
     return { email: data.email };

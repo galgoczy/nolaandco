@@ -15,6 +15,7 @@ import {
 import { sendTelegramMessage } from '@/lib/telegram';
 import { cartItemRequiresShipping } from '@/lib/shippingRules';
 import { resolveServerPrice } from '@/lib/variants';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 const SHIPPING_COSTS: Record<string, number> = {
   parcel: 1190,
@@ -137,6 +138,15 @@ async function sendOrderEmails(args: {
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request.headers);
+    const ipLimit = rateLimit(`checkout:ip:${ip}`, 10, 10 * 60 * 1000);
+    if (!ipLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Túl sok rendelési próbálkozás. Várj néhány percet.' },
+        { status: 429 },
+      );
+    }
+
     const rawBody = await request.json().catch(() => null);
     const checkoutParsed = checkoutSchema.safeParse(rawBody);
     if (!checkoutParsed.success) {
