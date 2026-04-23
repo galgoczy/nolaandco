@@ -4,6 +4,17 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword } from '@/lib/auth';
 
+function requireSessionSecret(): string {
+  const value = process.env.NEXTAUTH_SECRET ?? process.env.ADMIN_SECRET;
+  if (!value) {
+    throw new Error(
+      'NEXTAUTH_SECRET (or ADMIN_SECRET as fallback) env var is not set. JWT sessions cannot be signed.',
+    );
+  }
+  return value;
+}
+const NEXTAUTH_SECRET = requireSessionSecret();
+
 export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
   providers: [
@@ -91,5 +102,5 @@ export const authOptions: NextAuthOptions = {
     signIn: '/bejelentkezes',
     error: '/bejelentkezes',
   },
-  secret: process.env.NEXTAUTH_SECRET || process.env.ADMIN_SECRET || 'nola-admin-secret-change-me',
+  secret: NEXTAUTH_SECRET,
 };

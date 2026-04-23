@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
+import { isAdminRequest } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +19,10 @@ function getClient() {
 const PROPERTY_ID = process.env.GA_PROPERTY_ID || ''; // numeric GA4 property ID
 
 export async function GET() {
+  if (!(await isAdminRequest())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const client = getClient();
   if (!client || !PROPERTY_ID) {
     return NextResponse.json(

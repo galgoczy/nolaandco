@@ -4,6 +4,27 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { mailerliteSubscribe, mailerliteUnsubscribe } from '@/lib/mailerlite';
 
+// Safe fields exposed to the client — never leak passwordHash or reset/verify tokens.
+const customerPublicSelect = {
+  id: true,
+  email: true,
+  name: true,
+  image: true,
+  phone: true,
+  shippingName: true,
+  shippingZip: true,
+  shippingCity: true,
+  shippingAddress: true,
+  shippingNote: true,
+  billingZip: true,
+  billingCity: true,
+  billingAddress: true,
+  newsletter: true,
+  emailVerified: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
@@ -12,6 +33,7 @@ export async function GET() {
 
   const customer = await prisma.customer.findUnique({
     where: { email: session.user.email },
+    select: customerPublicSelect,
   });
 
   return NextResponse.json({ customer });
@@ -78,6 +100,7 @@ export async function PATCH(req: Request) {
       billingAddress: str(billingAddress),
       newsletter: wantsNewsletter,
     },
+    select: customerPublicSelect,
   });
 
   // Sync newsletter status to MailerLite when the opt-in flag changed.

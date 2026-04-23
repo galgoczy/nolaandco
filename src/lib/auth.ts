@@ -1,7 +1,16 @@
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'nola-admin-secret-change-me';
+function requireAdminSecret(): string {
+  const value = process.env.ADMIN_SECRET;
+  if (!value) {
+    throw new Error(
+      'ADMIN_SECRET env var is not set. Admin tokens and password hashes cannot be generated safely without it.',
+    );
+  }
+  return value;
+}
+const ADMIN_SECRET = requireAdminSecret();
 
 export function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password + ADMIN_SECRET).digest('hex');
