@@ -40,7 +40,10 @@ function getClient() {
   return clientInstance;
 }
 
-export async function createSzamlazzInvoice(order: OrderWithItems) {
+export async function createSzamlazzInvoice(
+  order: OrderWithItems,
+  discount?: { amount: number; code?: string | null } | null,
+) {
   const client = getClient();
 
   const seller = new Seller({
@@ -88,6 +91,25 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
         unit: 'db',
         vat: 'AAM',
         grossUnitPrice: order.shippingCost,
+      })
+    );
+  }
+
+  // Coupon / discount line: Számlázz.hu renders this as a negative line
+  // item ("engedmény") that offsets the positive rows above. Using AAM
+  // (VAT-exempt) here matches the surrounding items so the totals
+  // reconcile correctly.
+  if (discount && discount.amount > 0) {
+    const label = discount.code
+      ? `Kedvezmény (${discount.code})`
+      : 'Kedvezmény';
+    items.push(
+      new Item({
+        label,
+        quantity: 1,
+        unit: 'db',
+        vat: 'AAM',
+        grossUnitPrice: -discount.amount,
       })
     );
   }

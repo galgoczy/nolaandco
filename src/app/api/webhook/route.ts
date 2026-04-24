@@ -73,12 +73,27 @@ export async function POST(request: NextRequest) {
       if (order) {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
 
+        // Derive the discount from the order totals: total = subtotal +
+        // shippingCost - discount, so discount = subtotal + shippingCost
+        // - total. The Order table doesn't store the discount explicitly;
+        // this reconstructs it without a schema change.
+        const discountAmount = Math.max(
+          0,
+          order.subtotal + order.shippingCost - order.total,
+        );
+        const couponCode = session.metadata?.couponCode ?? null;
+
         // Generate Számlázz.hu invoice (awaited so we can capture the PDF
         // and attach it to our confirmation email). If anything goes wrong
         // we still send the confirmation email without the invoice.
         let invoicePdf: Buffer | undefined;
         try {
-          const invoiceResult = await createSzamlazzInvoice(order);
+          const invoiceResult = await createSzamlazzInvoice(
+            order,
+            discountAmount > 0
+              ? { amount: discountAmount, code: couponCode }
+              : null,
+          );
           // The szamlazz.js client returns { pdf: Buffer } when
           // requestInvoiceDownload is enabled on the client.
           if (invoiceResult.pdf && Buffer.isBuffer(invoiceResult.pdf) && invoiceResult.pdf.length > 0) {
