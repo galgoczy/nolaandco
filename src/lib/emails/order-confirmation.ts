@@ -20,6 +20,11 @@ interface OrderConfirmationData {
   hasInvoice?: boolean;
   paymentMethod?: 'card' | 'transfer';
   hasGiftCard?: boolean;
+  /** Set true when this is the "transfer received, production starting"
+   *  email sent after the admin marks the bank-transfer order paid. The
+   *  intro sentence and the bank-transfer instruction box change; the rest
+   *  of the body stays the same. */
+  transferPaid?: boolean;
 }
 
 const BANK_ACCOUNT = '10918001-00000047-88110009';
@@ -125,10 +130,16 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
     </div>`
       : '';
 
+  // Once the transfer has arrived we use the same "we're already working
+  // on it" copy as a card-paid order, since production now actually starts.
   const trackingNote =
-    data.paymentMethod === 'transfer'
+    data.paymentMethod === 'transfer' && !data.transferPaid
       ? 'Amint az utalás beérkezett, megkezdjük a baba születési adatainak feldolgozását, és küldünk egy újabb értesítést a csomagod útnak indításáról.'
       : 'A rendelésedet rögzítettük, és műhelyünkben megkezdtük a baba születési adatainak feldolgozását. Amint az alkotás elkészült, küldünk egy újabb értesítést a csomagod útnak indításáról.';
+
+  const introSentence = data.transferPaid
+    ? 'Köszönjük, megérkezett az utalásod, készül a terméked!'
+    : 'Köszönjük a rendelésedet!';
 
   const giftCardBlock = data.hasGiftCard
     ? `
@@ -147,19 +158,23 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
     </div>`
     : '';
 
+  // Bank-transfer instruction box only on the initial pre-payment email,
+  // never on the post-payment confirmation.
+  const transferInstructions = data.transferPaid ? '' : transferBlock;
+
   const body = `
     <h1 style="margin:0 0 16px;font-size:22px;color:#4A4A4A;font-weight:500;">
       Kedves ${escapeHtml(data.customerName)}!
     </h1>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4A4A4A;">
-      Köszönjük a rendelésedet! Nagyon örülünk, hogy minket választottál, hogy megőrizzük a legelső pillanatok emlékét.
+      ${introSentence} Nagyon örülünk, hogy minket választottál, hogy megőrizzük a legelső pillanatok emlékét.
     </p>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4A4A4A;">
-      A rendelésed (<strong>${orderRef}</strong>) ${data.paymentMethod === 'transfer' ? 'rögzítve. ' : ''}${trackingNote}
+      A rendelésed (<strong>${orderRef}</strong>) ${data.paymentMethod === 'transfer' && !data.transferPaid ? 'rögzítve. ' : ''}${trackingNote}
     </p>
     ${itemsHtml}
     ${giftCardBlock}
-    ${transferBlock}
+    ${transferInstructions}
     ${invoiceNote}
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
       <tr>

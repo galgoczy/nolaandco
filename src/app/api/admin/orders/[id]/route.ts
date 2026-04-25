@@ -4,6 +4,9 @@ import { isAdminRequest } from '@/lib/admin-auth';
 import { sendEmail } from '@/lib/emails/send';
 import { shippingNotificationSubject, shippingNotificationHtml } from '@/lib/emails/shipping-notification';
 import { followUpSubject, followUpHtml } from '@/lib/emails/follow-up';
+import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
+import { createSzamlazzInvoice } from '@/lib/szamlazz';
+import { findLayout } from '@/app/termekek/[slug]/posterData';
 
 export async function GET(
   _request: NextRequest,
@@ -90,6 +93,100 @@ export async function PATCH(
         },
       },
     });
+
+    // Transfer paid: when admin marks a still-pending bank-transfer order
+    // as paid, generate the Számlázz invoice and send the customer a
+    // "köszönjük, megérkezett az utalásod" email with the invoice attached.
+    // We deliberately only fire on the pending → paid transition for
+    // transfer orders — admins can skip this side effect by jumping
+    // directly to processing/shipped/etc.
+    if (
+      status === 'paid' &&
+      prev?.status === 'pending' &&
+      order.paymentMethod === 'transfer'
+    ) {
+      // Fire-and-forget so the admin UI doesn't wait on Számlázz + Resend.
+      void (async () => {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
+
+        const discountAmount = Math.max(
+          0,
+          order.subtotal + order.shippingCost - order.total,
+        );
+
+        let invoicePdf: Buffer | undefined;
+        try {
+          const invoiceResult = await createSzamlazzInvoice(
+            order,
+            discountAmount > 0
+              ? { amount: discountAmount, code: null }
+              : null,
+          );
+          if (
+            invoiceResult.pdf &&
+            Buffer.isBuffer(invoiceResult.pdf) &&
+            invoiceResult.pdf.length > 0
+          ) {
+            invoicePdf = invoiceResult.pdf;
+          }
+        } catch (err) {
+          console.error('Számlázz.hu invoice error (transfer paid):', err);
+        }
+
+        const emailItems = order.items.map((item) => ({
+          name: item.product.name,
+          quantity: item.quantity,
+          price: item.price,
+          babyName: item.babyName,
+          posterLayoutLabel: item.posterLayout
+            ? findLayout(item.posterLayout).label
+            : null,
+        }));
+        const hasGiftCard = order.items.some(
+          (item) => item.product.category === 'giftcard',
+        );
+        const derivedShippingMethod =
+          order.shippingCost > 0
+            ? order.shippingAddress.toLowerCase().includes('csomagautomata')
+              ? 'parcel'
+              : 'home'
+            : undefined;
+
+        const result = await sendEmail({
+          to: order.email,
+          subject: orderConfirmationSubject(),
+          html: orderConfirmationHtml({
+            customerName: order.shippingName || 'Vásárlónk',
+            orderId: order.id,
+            orderUrl: `${baseUrl}/fiok#rendelesek`,
+            items: emailItems,
+            subtotal: order.subtotal,
+            shippingCost: order.shippingCost,
+            total: order.total,
+            shippingMethod: derivedShippingMethod,
+            paymentMethod: 'transfer',
+            hasInvoice: !!invoicePdf,
+            hasGiftCard,
+            transferPaid: true,
+          }),
+          attachments: invoicePdf
+            ? [
+                {
+                  filename: `szamla-${order.id.slice(-8).toUpperCase()}.pdf`,
+                  content: invoicePdf,
+                },
+              ]
+            : undefined,
+        });
+        if (!result.success) {
+          console.error('Transfer-paid email NOT sent', {
+            orderId: order.id,
+            to: order.email,
+            error: result.error,
+          });
+        }
+      })();
+    }
 
     // Send shipping notification when status changes to "shipped"
     if (status === 'shipped' && prev?.status !== 'shipped') {
