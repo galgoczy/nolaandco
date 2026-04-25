@@ -86,7 +86,7 @@ export default async function AdminDashboard() {
                       href={`/admin/rendeles/${order.id}`}
                       className="text-primary font-medium hover:underline"
                     >
-                      {order.id.slice(0, 8)}
+                      {order.id.slice(-8).toUpperCase()}
                     </Link>
                   </td>
                   <td className="py-3 text-on-surface/70">
