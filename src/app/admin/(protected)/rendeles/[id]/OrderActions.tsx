@@ -19,10 +19,12 @@ export default function OrderActions({
   orderId,
   currentStatus,
   currentTracking,
+  paymentMethod,
 }: {
   orderId: string;
   currentStatus: string;
   currentTracking: string;
+  paymentMethod: string;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState(currentStatus);
@@ -32,6 +34,11 @@ export default function OrderActions({
   const [foxpostLoading, setFoxpostLoading] = useState(false);
   const [foxpostSize, setFoxpostSize] = useState<string>('M');
   const [message, setMessage] = useState('');
+  const [reminderLoading, setReminderLoading] = useState(false);
+  const [reminderIncludeCard, setReminderIncludeCard] = useState(true);
+  const [reminderMessage, setReminderMessage] = useState('');
+
+  const showReminder = paymentMethod === 'transfer' && currentStatus === 'pending';
 
   const handleUpdate = async () => {
     setLoading(true);
@@ -76,6 +83,41 @@ export default function OrderActions({
       setMessage('Hálózati hiba');
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleSendReminder = async () => {
+    if (
+      !confirm(
+        reminderIncludeCard
+          ? 'Elküldjük a fizetési emlékeztetőt? A levél tartalmaz egy "Fizetés bankkártyával" gombot is, amit a vásárló használhat helyette.'
+          : 'Elküldjük a fizetési emlékeztetőt (csak utalási adatok, kártyás fizetési lehetőség nélkül)?',
+      )
+    ) {
+      return;
+    }
+    setReminderLoading(true);
+    setReminderMessage('');
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}/payment-reminder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ includeCardLink: reminderIncludeCard }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setReminderMessage(
+          data.payByCardLink
+            ? 'Emlékeztető elküldve (kártyás fizetési lehetőséggel).'
+            : 'Emlékeztető elküldve.',
+        );
+      } else {
+        setReminderMessage(data.error || 'Hiba történt az emlékeztető küldésekor.');
+      }
+    } catch {
+      setReminderMessage('Hálózati hiba');
+    } finally {
+      setReminderLoading(false);
     }
   };
 
@@ -156,6 +198,43 @@ export default function OrderActions({
           <p className="mt-3 text-sm text-primary font-medium">{message}</p>
         )}
       </div>
+
+      {/* Bank-transfer payment reminder (only for pending transfer orders) */}
+      {showReminder && (
+        <div className="bg-surface-container-lowest rounded-2xl p-6">
+          <h2 className="font-headline font-bold text-on-surface mb-2">
+            Fizetési emlékeztető
+          </h2>
+          <p className="text-sm text-on-surface/70 mb-4">
+            Kedves emlékeztető a vevőnek a banki utalásról. Tartalmazza a
+            rendelés részleteit és az utalási adatokat.
+          </p>
+          <label className="flex items-start gap-2 text-sm text-on-surface/80 mb-4 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={reminderIncludeCard}
+              onChange={(e) => setReminderIncludeCard(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded border-gray-300"
+            />
+            <span>
+              <strong>Bankkártyás fizetési lehetőség</strong> hozzáadása az emailhez
+              <span className="block text-xs text-on-surface/60">
+                Egy egykattintásos Stripe linkkel váltogathatja a fizetési módot.
+              </span>
+            </span>
+          </label>
+          <button
+            onClick={handleSendReminder}
+            disabled={reminderLoading}
+            className="bg-[#C4A591] text-white px-6 py-2.5 rounded-full text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {reminderLoading ? 'Küldés...' : 'Emlékeztető küldése'}
+          </button>
+          {reminderMessage && (
+            <p className="mt-3 text-sm text-primary font-medium">{reminderMessage}</p>
+          )}
+        </div>
+      )}
 
       {/* Foxpost shipping */}
       <div className="bg-surface-container-lowest rounded-2xl p-6">

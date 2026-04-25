@@ -57,11 +57,18 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true, skipped: 'already processed' }, { status: 200 });
       }
 
+      // If this Stripe session was created from a payment-reminder flow,
+      // the order is currently flagged as transfer in our DB. Flip it to
+      // card so the invoice + downstream logic reflect what actually
+      // happened.
+      const reminderPayment = session.metadata?.reminderPayment === 'true';
+
       await prisma.order.update({
         where: { id: orderId },
         data: {
           status: 'paid',
           stripePaymentId: session.id,
+          ...(reminderPayment ? { paymentMethod: 'card' } : {}),
         },
       });
 
