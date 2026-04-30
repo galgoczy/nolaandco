@@ -121,6 +121,39 @@ export default function OrderActions({
     }
   };
 
+  const handleFoxpostCancel = async () => {
+    if (
+      !confirm(
+        'Visszavonjuk a Foxpost csomagot? Ez csak akkor sikerül, ha a Foxpost ' +
+          'még nem vette át fizikailag (CREATE státusz). FIGYELEM: a vásárló már ' +
+          'kapott egy email-t a feladásról; ha most törlöd, érdemes neki külön ' +
+          'is jelezni. A státusz visszaáll "Fizetett"-re.',
+      )
+    ) {
+      return;
+    }
+    setFoxpostLoading(true);
+    setMessage('');
+    try {
+      const res = await fetch(`/api/admin/foxpost?orderId=${encodeURIComponent(orderId)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setTracking('');
+        setStatus('paid');
+        setMessage('Foxpost csomag visszavonva. Státusz visszaáll: Fizetett.');
+        router.refresh();
+      } else {
+        setMessage(data.error || 'Foxpost visszavonási hiba');
+      }
+    } catch {
+      setMessage('Hálózati hiba');
+    } finally {
+      setFoxpostLoading(false);
+    }
+  };
+
   const handleFoxpostShip = async () => {
     if (!confirm('Foxpost csomag feladása ezzel a rendeléssel?')) return;
     setFoxpostLoading(true);
@@ -277,6 +310,15 @@ export default function OrderActions({
             >
               Címke letöltése (PDF)
             </a>
+          )}
+          {currentTracking && (
+            <button
+              onClick={handleFoxpostCancel}
+              disabled={foxpostLoading}
+              className="bg-red-50 text-red-600 px-5 py-2.5 rounded-full text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+            >
+              {foxpostLoading ? 'Visszavonás...' : 'Foxpost visszavonása'}
+            </button>
           )}
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdminRequest } from '@/lib/admin-auth';
-import { createFoxpostParcel } from '@/lib/foxpost';
+import { createFoxpostParcel, deleteFoxpostParcel } from '@/lib/foxpost';
 import type { FoxpostSize } from '@/lib/foxpost';
 import { sendEmail } from '@/lib/emails/send';
 import {
@@ -149,4 +149,61 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * DELETE: cancel a Foxpost parcel for an order. Only works while the
+ * parcel is still in CREATE status on Foxpost's side (i.e. before the
+ * carrier physically picks it up). On success, clears the trackingNumber
+ * and resets the order status to `paid` so the admin can redo the
+ * feladás after fixing the underlying issue (wrong size, wrong locker,
+ * etc). Does NOT email the customer — they already received the ship
+ * notification, an apology/cancel mail is on the admin's discretion.
+ */
+export async function DELETE(request: NextRequest) {
+  if (!(await isAdminRequest())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const orderId = searchParams.get('orderId');
+  if (!orderId) {
+    return NextResponse.json({ error: 'Missing orderId' }, { status: 400 });
+  }
+
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!order) {
+    return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+  }
+  if (!order.trackingNumber) {
+    return NextResponse.json(
+      { error: 'Ehhez a rendeléshez nincs Foxpost csomag.' },
+      { status: 400 },
+    );
+  }
+
+  try {
+    await deleteFoxpostParcel(order.trackingNumber);
+  } catch (err) {
+    console.error('Foxpost delete parcel error:', err);
+    return NextResponse.json(
+      {
+        error:
+          err instanceof Error
+            ? err.message
+            : 'Foxpost a csomagot nem tudta törölni. Lehet hogy már elkérték.',
+      },
+      { status: 500 },
+    );
+  }
+
+  await prisma.order.update({
+    where: { id: orderId },
+    data: {
+      trackingNumber: null,
+      status: 'paid',
+    },
+  });
+
+  return NextResponse.json({ success: true });
 }
