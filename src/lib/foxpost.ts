@@ -98,7 +98,13 @@ export async function createFoxpostParcel(input: FoxpostParcelInput): Promise<Fo
     body.recipientStreet = input.recipientStreet ?? '';
   }
 
-  const res = await fetch(`${FOXPOST_API_URL}/v2/parcels`, {
+  // Foxpost WebAPI accepts a JSON array for batch creation; we always send
+  // a single-element array so this code path stays the same whether the
+  // caller wants one parcel or many.
+  // Endpoint confirmed via Foxpost docs / community integrations: `/api/parcel`
+  // (singular, no version prefix). Earlier we used `/api/v2/parcels` which
+  // returned 404 against the live server.
+  const res = await fetch(`${FOXPOST_API_URL}/parcel`, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify([body]),
@@ -117,7 +123,7 @@ export async function createFoxpostParcel(input: FoxpostParcelInput): Promise<Fo
 /** Get parcel status/details */
 export async function getFoxpostParcel(parcelId: string): Promise<FoxpostParcelResponse> {
   ensureFoxpostConfigured();
-  const res = await fetch(`${FOXPOST_API_URL}/v2/parcels/${parcelId}`, {
+  const res = await fetch(`${FOXPOST_API_URL}/parcel/${encodeURIComponent(parcelId)}`, {
     method: 'GET',
     headers: authHeaders(),
   });
@@ -133,7 +139,7 @@ export async function getFoxpostParcel(parcelId: string): Promise<FoxpostParcelR
 /** Download parcel label (PDF) as Buffer */
 export async function getFoxpostLabel(parcelId: string): Promise<Buffer> {
   ensureFoxpostConfigured();
-  const res = await fetch(`${FOXPOST_API_URL}/v2/parcels/${parcelId}/label`, {
+  const res = await fetch(`${FOXPOST_API_URL}/parcel/${encodeURIComponent(parcelId)}/label`, {
     method: 'GET',
     headers: {
       ...authHeaders(),
@@ -153,7 +159,7 @@ export async function getFoxpostLabel(parcelId: string): Promise<Buffer> {
 /** Delete a parcel (only if status is still CREATE) */
 export async function deleteFoxpostParcel(parcelId: string): Promise<void> {
   ensureFoxpostConfigured();
-  const res = await fetch(`${FOXPOST_API_URL}/v2/parcels/${parcelId}`, {
+  const res = await fetch(`${FOXPOST_API_URL}/parcel/${encodeURIComponent(parcelId)}`, {
     method: 'DELETE',
     headers: authHeaders(),
   });
