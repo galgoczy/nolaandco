@@ -134,8 +134,15 @@ export default function OrderActions({
       const data = await res.json();
       if (res.ok) {
         setTracking(data.trackingNumber || '');
-        setStatus('processing');
-        setMessage(`Foxpost csomag létrehozva! Azonosító: ${data.trackingNumber}`);
+        setStatus('shipped');
+        const notif = data.notifications ?? {};
+        const allOk = notif.customerEmail && notif.adminEmail && notif.telegram;
+        setMessage(
+          `Foxpost csomag létrehozva! Azonosító: ${data.trackingNumber}` +
+            (allOk
+              ? ' — vásárlói + admin email + Telegram értesítés kiküldve.'
+              : ' — figyelem, néhány értesítés nem ment ki, nézd a Vercel logokat.'),
+        );
         router.refresh();
       } else {
         setMessage(data.error || 'Foxpost hiba');
