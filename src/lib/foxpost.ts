@@ -238,21 +238,26 @@ export async function getFoxpostTracking(barcode: string): Promise<unknown> {
  * Download the printable shipping label PDF for one or more parcels.
  *
  * Foxpost's label endpoint is `POST /api/label/{pageSize}` and accepts a
- * JSON array of barcodes in the body. Returns a multi-page PDF.
- * Page size codes: a4, a5, a6 — a6 is the standard Foxpost label.
+ * JSON array of parcel ids (clFoxId or barcode) in the body. Returns a
+ * PDF (one page per parcel).
+ *
+ * Page size codes are **uppercase**: `A6`, `A7`, `_85X85`. A6 is the
+ * standard Foxpost label format. Lower-case page sizes return 400.
  */
 export async function getFoxpostLabel(
-  barcode: string,
-  pageSize: 'a4' | 'a5' | 'a6' = 'a6',
+  trackingId: string,
+  pageSize: 'A6' | 'A7' | '_85X85' = 'A6',
 ): Promise<Buffer> {
   ensureFoxpostConfigured();
   const res = await fetch(`${FOXPOST_API_URL}/label/${pageSize}`, {
     method: 'POST',
     headers: {
       ...authHeaders(),
-      'Accept': 'application/pdf',
+      // Foxpost expects Accept-Encoding (not Accept) — when set, error
+      // responses come back as JSON and successful ones as raw PDF.
+      'Accept-Encoding': 'application/pdf',
     },
-    body: JSON.stringify([barcode]),
+    body: JSON.stringify([trackingId]),
   });
 
   if (!res.ok) {
