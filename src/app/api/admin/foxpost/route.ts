@@ -12,16 +12,9 @@ import {
 import { ADMIN_NOTIFICATION_RECIPIENT } from '@/lib/emails/order-notification';
 import { sendTelegramMessage } from '@/lib/telegram';
 
-/**
- * Build the customer-facing Foxpost tracking URL. Foxpost's tracking page
- * URL pattern is not publicly documented; the email shows the tracking
- * number prominently in plain text so the customer can paste it on the
- * page even if the deep-link below doesn't preselect it. Adjust this
- * helper once we confirm the exact query parameter Foxpost accepts.
- */
+/** Foxpost's deep-link tracking URL — confirmed via the live page. */
 function foxpostTrackingUrl(trackingNumber: string): string {
-  const base = 'https://foxpost.hu/csomagkovetes/';
-  return `${base}?tracking_number=${encodeURIComponent(trackingNumber)}`;
+  return `https://www.foxpost.hu/csomagkovetes/?code=${encodeURIComponent(trackingNumber)}`;
 }
 
 /** POST: Create a Foxpost parcel for an order */
