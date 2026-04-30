@@ -94,10 +94,17 @@ interface FoxpostFieldError {
 }
 
 interface FoxpostCreatedPackage {
-  /** Foxpost-issued tracking barcode — what we save and show the customer. */
-  barcode?: string;
+  /** Foxpost-issued barcode — populated when the carrier prints the label.
+   *  May be null on the create response; fall back to clFoxId for tracking. */
+  barcode?: string | null;
+  /** Foxpost's internal CLFOX… id; this is what the customer pastes into
+   *  https://www.foxpost.hu/csomagkovetes/ and what we send as the tracking
+   *  number. Always present on a successful create. */
+  clFoxId?: string | null;
+  /** Foxpost's numeric order id, occasionally useful for support. */
+  orderId?: number | null;
   refCode?: string;
-  uniqueBarcode?: string;
+  uniqueBarcode?: string | null;
   errors?: FoxpostFieldError[];
 }
 
@@ -107,8 +114,10 @@ interface FoxpostCreateResponse {
 }
 
 export interface FoxpostParcelResponse {
-  /** The Foxpost barcode — used everywhere as the canonical tracking number. */
-  barcode: string;
+  /** Tracking identifier shown to the customer and saved on the order.
+   *  Foxpost returns `clFoxId` on create (CLFOX…) and fills `barcode` later
+   *  when the label is printed; we prefer whichever is available. */
+  trackingId: string;
   refCode?: string;
   /** Raw response in case the caller wants to log it. */
   raw: unknown;
@@ -196,11 +205,19 @@ export async function createFoxpostParcel(
     const fieldErrors = parcel.errors.map((e) => `${e.field}: ${e.message}`).join('; ');
     throw new Error(`Foxpost mező hiba: ${fieldErrors}`);
   }
-  if (!parcel.barcode) {
-    throw new Error('Foxpost válasz nem tartalmaz barcode-ot. Raw: ' + rawText.slice(0, 500));
+
+  // Foxpost issues `clFoxId` immediately on create; `barcode` is filled in
+  // later when the label is printed. Either is a valid tracking handle —
+  // the public tracking page accepts both.
+  const trackingId = parcel.clFoxId || parcel.barcode;
+  if (!trackingId) {
+    throw new Error(
+      'Foxpost válasz nem tartalmaz tracking azonosítót (sem clFoxId, sem barcode). Raw: ' +
+        rawText.slice(0, 500),
+    );
   }
 
-  return { barcode: parcel.barcode, refCode: parcel.refCode, raw: data };
+  return { trackingId, refCode: parcel.refCode, raw: data };
 }
 
 /** Tracking status for a parcel — `GET /api/tracking/{barcode}` */

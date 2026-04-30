@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       comment: order.items.map((it) => `${it.product.name} x${it.quantity}`).join(', '),
     });
 
-    const trackingNumber = result.barcode;
+    const trackingNumber = result.trackingId;
 
     // Mark the order shipped right away — the parcel is now in Foxpost's
     // hands. Status flip to 'shipped' here means the manual status PATCH
