@@ -212,6 +212,8 @@ export default async function OrderDetailPage({
         currentStatus={order.status}
         currentTracking={order.trackingNumber ?? ''}
         paymentMethod={order.paymentMethod}
+        shippingCost={order.shippingCost}
+        shippingAddress={order.shippingAddress}
       />
     </div>
   );

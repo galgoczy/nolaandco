@@ -20,11 +20,15 @@ export default function OrderActions({
   currentStatus,
   currentTracking,
   paymentMethod,
+  shippingCost,
+  shippingAddress,
 }: {
   orderId: string;
   currentStatus: string;
   currentTracking: string;
   paymentMethod: string;
+  shippingCost: number;
+  shippingAddress: string;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState(currentStatus);
@@ -39,6 +43,15 @@ export default function OrderActions({
   const [reminderMessage, setReminderMessage] = useState('');
 
   const showReminder = paymentMethod === 'transfer' && currentStatus === 'pending';
+
+  // Foxpost block visibility: hide on digital-only orders (no shipping
+  // booked / placeholder address), already-delivered, or cancelled.
+  const isDigitalOnly =
+    shippingCost === 0 &&
+    /^csomagautomata\s*\(/i.test(shippingAddress.trim());
+  const showFoxpost =
+    !isDigitalOnly && currentStatus !== 'delivered' && currentStatus !== 'cancelled';
+  const foxpostBlocked = currentStatus === 'pending';
 
   const handleUpdate = async () => {
     setLoading(true);
@@ -276,52 +289,60 @@ export default function OrderActions({
         </div>
       )}
 
-      {/* Foxpost shipping */}
-      <div className="bg-surface-container-lowest rounded-2xl p-6">
-        <h2 className="font-headline font-bold text-on-surface mb-4">
-          Foxpost szállítás
-        </h2>
-        <div className="flex flex-col sm:flex-row gap-4 items-end">
-          <div>
-            <label className="block text-sm text-on-surface/60 mb-1">Csomagméret</label>
-            <select
-              value={foxpostSize}
-              onChange={(e) => setFoxpostSize(e.target.value)}
-              className="rounded-xl border border-outline-variant bg-surface px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              {foxpostSizes.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
-          <button
-            onClick={handleFoxpostShip}
-            disabled={foxpostLoading || !!currentTracking}
-            className="bg-[#E8740C] text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-[#d16a0b] transition-colors disabled:opacity-50"
-          >
-            {foxpostLoading ? 'Feladás...' : 'Foxpost feladás'}
-          </button>
-          {currentTracking && (
-            <a
-              href={`/api/admin/foxpost/label?trackingId=${currentTracking}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-[#E8740C]/10 text-[#E8740C] px-5 py-2.5 rounded-full text-sm font-medium hover:bg-[#E8740C]/20 transition-colors"
-            >
-              Címke letöltése (PDF)
-            </a>
+      {/* Foxpost shipping — hidden for digital-only / cancelled / delivered orders */}
+      {showFoxpost && (
+        <div className="bg-surface-container-lowest rounded-2xl p-6">
+          <h2 className="font-headline font-bold text-on-surface mb-4">
+            Foxpost szállítás
+          </h2>
+          {foxpostBlocked && (
+            <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4">
+              A rendelés még függő státuszban van. Foxpost feladás csak kifizetett
+              rendelésekhez engedélyezett — előbb állítsd "Fizetett"-re.
+            </p>
           )}
-          {currentTracking && (
+          <div className="flex flex-col sm:flex-row gap-4 items-end">
+            <div>
+              <label className="block text-sm text-on-surface/60 mb-1">Csomagméret</label>
+              <select
+                value={foxpostSize}
+                onChange={(e) => setFoxpostSize(e.target.value)}
+                className="rounded-xl border border-outline-variant bg-surface px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {foxpostSizes.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
             <button
-              onClick={handleFoxpostCancel}
-              disabled={foxpostLoading}
-              className="bg-red-50 text-red-600 px-5 py-2.5 rounded-full text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+              onClick={handleFoxpostShip}
+              disabled={foxpostLoading || !!currentTracking || foxpostBlocked}
+              className="bg-[#E8740C] text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-[#d16a0b] transition-colors disabled:opacity-50"
             >
-              {foxpostLoading ? 'Visszavonás...' : 'Foxpost visszavonása'}
+              {foxpostLoading ? 'Feladás...' : 'Foxpost feladás'}
             </button>
-          )}
+            {currentTracking && (
+              <a
+                href={`/api/admin/foxpost/label?trackingId=${currentTracking}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#E8740C]/10 text-[#E8740C] px-5 py-2.5 rounded-full text-sm font-medium hover:bg-[#E8740C]/20 transition-colors"
+              >
+                Címke letöltése (PDF)
+              </a>
+            )}
+            {currentTracking && (
+              <button
+                onClick={handleFoxpostCancel}
+                disabled={foxpostLoading}
+                className="bg-red-50 text-red-600 px-5 py-2.5 rounded-full text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+              >
+                {foxpostLoading ? 'Visszavonás...' : 'Foxpost visszavonása'}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -37,6 +37,42 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Order not found' }, { status: 404 });
   }
 
+  // Block feladás for orders that haven't been paid yet — sending a parcel
+  // before the customer has paid (or before bank transfer arrived) is
+  // almost always a mistake. Cancelled / already-shipped / delivered are
+  // also non-starters.
+  if (order.status === 'pending') {
+    return NextResponse.json(
+      {
+        error:
+          'A rendelés még nincs kifizetve. Foxpost feladás csak kifizetett ' +
+            'rendelésekhez engedélyezett — előbb állítsd "Fizetett"-re.',
+      },
+      { status: 400 },
+    );
+  }
+  if (order.status === 'cancelled' || order.status === 'delivered') {
+    return NextResponse.json(
+      { error: `A rendelés státusza "${order.status}" — Foxpost feladás már nem értelmes.` },
+      { status: 400 },
+    );
+  }
+
+  // Foxpost requires a phone number for delivery (locker pickup code SMS,
+  // or courier contact for home delivery). Reject early with a clear
+  // message rather than a Foxpost API 400.
+  if (!order.phone || order.phone.trim().length === 0) {
+    return NextResponse.json(
+      {
+        error:
+          'A rendeléshez nincs telefonszám rögzítve. Foxpost feladáshoz ' +
+            'kötelező — vedd fel a vásárlóval a kapcsolatot, és add meg ' +
+            'kézzel az admin felületen.',
+      },
+      { status: 400 },
+    );
+  }
+
   const isAutomata = order.shippingAddress.toLowerCase().startsWith('foxpost:') ||
     order.shippingAddress.toLowerCase().includes('csomagautomata');
 

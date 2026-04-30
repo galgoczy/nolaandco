@@ -10,6 +10,22 @@ const FOXPOST_USERNAME = process.env.FOXPOST_USERNAME || '';
 const FOXPOST_PASSWORD = process.env.FOXPOST_PASSWORD || '';
 const FOXPOST_API_KEY = process.env.FOXPOST_API_KEY || '';
 
+class FoxpostNotConfiguredError extends Error {
+  constructor() {
+    super(
+      'Foxpost integráció nincs beállítva. A Vercel env vars-ban hiányzik a ' +
+        'FOXPOST_USERNAME, FOXPOST_PASSWORD vagy FOXPOST_API_KEY.',
+    );
+    this.name = 'FoxpostNotConfiguredError';
+  }
+}
+
+function ensureFoxpostConfigured(): void {
+  if (!FOXPOST_USERNAME || !FOXPOST_PASSWORD || !FOXPOST_API_KEY) {
+    throw new FoxpostNotConfiguredError();
+  }
+}
+
 function authHeaders(): Record<string, string> {
   const basic = Buffer.from(`${FOXPOST_USERNAME}:${FOXPOST_PASSWORD}`).toString('base64');
   return {
@@ -60,6 +76,8 @@ export interface FoxpostParcelResponse {
 
 /** Create a new parcel in Foxpost */
 export async function createFoxpostParcel(input: FoxpostParcelInput): Promise<FoxpostParcelResponse> {
+  ensureFoxpostConfigured();
+
   const body: Record<string, unknown> = {
     refCode: input.refCode,
     recipientName: input.recipientName,
@@ -98,6 +116,7 @@ export async function createFoxpostParcel(input: FoxpostParcelInput): Promise<Fo
 
 /** Get parcel status/details */
 export async function getFoxpostParcel(parcelId: string): Promise<FoxpostParcelResponse> {
+  ensureFoxpostConfigured();
   const res = await fetch(`${FOXPOST_API_URL}/v2/parcels/${parcelId}`, {
     method: 'GET',
     headers: authHeaders(),
@@ -113,6 +132,7 @@ export async function getFoxpostParcel(parcelId: string): Promise<FoxpostParcelR
 
 /** Download parcel label (PDF) as Buffer */
 export async function getFoxpostLabel(parcelId: string): Promise<Buffer> {
+  ensureFoxpostConfigured();
   const res = await fetch(`${FOXPOST_API_URL}/v2/parcels/${parcelId}/label`, {
     method: 'GET',
     headers: {
@@ -132,6 +152,7 @@ export async function getFoxpostLabel(parcelId: string): Promise<Buffer> {
 
 /** Delete a parcel (only if status is still CREATE) */
 export async function deleteFoxpostParcel(parcelId: string): Promise<void> {
+  ensureFoxpostConfigured();
   const res = await fetch(`${FOXPOST_API_URL}/v2/parcels/${parcelId}`, {
     method: 'DELETE',
     headers: authHeaders(),
