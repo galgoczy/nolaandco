@@ -39,6 +39,24 @@ function authHeaders(): Record<string, string> {
   };
 }
 
+/**
+ * Convert a user-supplied phone number (e.g. "06 20 468 0489", "0036…",
+ * "36…") into the E.164 form Foxpost requires: `+36XXXXXXXXX`. The
+ * Foxpost API rejects anything that doesn't match
+ * `^(\+36|36)(20|30|31|70|50|51)\d{7}$`, so we strip all separators and
+ * normalise the prefix. Returns the cleaned input unchanged if we can't
+ * recognise the leading country part — Foxpost will surface the field
+ * error in that case.
+ */
+export function normalizeHungarianPhone(phone: string): string {
+  const cleaned = phone.replace(/[\s\-().]/g, '');
+  if (cleaned.startsWith('+36')) return cleaned;
+  if (cleaned.startsWith('0036')) return `+${cleaned.slice(2)}`;
+  if (cleaned.startsWith('36')) return `+${cleaned}`;
+  if (cleaned.startsWith('06')) return `+36${cleaned.slice(2)}`;
+  return cleaned;
+}
+
 /** Parcel size codes (Foxpost expects lowercase). */
 export type FoxpostSize = 'xs' | 's' | 'm' | 'l' | 'xl';
 
@@ -113,7 +131,7 @@ export async function createFoxpostParcel(
   const body: Record<string, unknown> = {
     refCode: input.refCode,
     recipientName: input.recipientName,
-    recipientPhone: input.recipientPhone,
+    recipientPhone: normalizeHungarianPhone(input.recipientPhone),
     recipientEmail: input.recipientEmail,
     size: sizeLower,
     cod: input.codAmount ?? 0,
