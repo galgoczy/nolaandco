@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       recipientName: order.shippingName,
       recipientPhone: order.phone || '',
       recipientEmail: order.email,
-      size: size ?? 'M',
+      size: (size ?? 'M').toLowerCase(),
       deliveryMode: isAutomata ? 'automata' : 'home',
       destinationPlaceId: isAutomata ? (order.shippingNote ?? undefined) : undefined,
       recipientZip: !isAutomata ? order.shippingZip : undefined,
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       comment: order.items.map((it) => `${it.product.name} x${it.quantity}`).join(', '),
     });
 
-    const trackingNumber = result.foxpost_id || result.barcode || String(result.id);
+    const trackingNumber = result.barcode;
 
     // Mark the order shipped right away — the parcel is now in Foxpost's
     // hands. Status flip to 'shipped' here means the manual status PATCH

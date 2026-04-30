@@ -1,8 +1,12 @@
 /**
  * Foxpost WebAPI client
  *
- * API docs: https://webapi.foxpost.hu/swagger-ui/index.html
- * Auth: Basic Auth + Api-key header
+ * API base:    https://webapi.foxpost.hu/api
+ * API docs:    https://webapi.foxpost.hu/swagger-ui/index.html
+ * Auth:        Basic Auth + Api-key header
+ *
+ * Endpoint paths and body shapes confirmed against the OpenAPI spec
+ * (mirrored in @shopickup/adapters-foxpost).
  */
 
 const FOXPOST_API_URL = process.env.FOXPOST_API_URL || 'https://webapi.foxpost.hu/api';
@@ -35,14 +39,14 @@ function authHeaders(): Record<string, string> {
   };
 }
 
-/** Parcel size codes */
-export type FoxpostSize = 'XS' | 'S' | 'M' | 'L' | 'XL';
+/** Parcel size codes (Foxpost expects lowercase). */
+export type FoxpostSize = 'xs' | 's' | 'm' | 'l' | 'xl';
 
-/** Delivery mode */
+/** Delivery mode (used by callers to decide which body shape to send). */
 export type FoxpostDeliveryMode = 'automata' | 'home';
 
 export interface FoxpostParcelInput {
-  /** Internal reference (e.g. order ID) */
+  /** Internal reference (e.g. order ID short form) */
   refCode: string;
   /** Recipient full name */
   recipientName: string;
@@ -50,101 +54,170 @@ export interface FoxpostParcelInput {
   recipientPhone: string;
   /** Recipient email */
   recipientEmail: string;
-  /** Destination Foxpost place_id (for automata) or null (for home delivery) */
+  /** Destination Foxpost place_id (for automata) */
   destinationPlaceId?: string;
   /** Home delivery address fields */
   recipientZip?: string;
   recipientCity?: string;
   recipientStreet?: string;
-  /** Parcel size */
-  size: FoxpostSize;
-  /** Delivery mode */
+  /** Parcel size (any case accepted; we lowercase before sending). */
+  size: string;
+  /** Delivery mode chooses which body fields to populate. */
   deliveryMode: FoxpostDeliveryMode;
   /** COD amount in HUF (0 = no COD) */
   codAmount?: number;
-  /** Comment/note */
+  /** Comment / note */
   comment?: string;
 }
 
-export interface FoxpostParcelResponse {
-  id: number;
-  foxpost_id?: string;
+interface FoxpostFieldError {
+  field: string;
+  message: string;
+}
+
+interface FoxpostCreatedPackage {
+  /** Foxpost-issued tracking barcode — what we save and show the customer. */
   barcode?: string;
-  status?: string;
-  [key: string]: unknown;
+  refCode?: string;
+  uniqueBarcode?: string;
+  errors?: FoxpostFieldError[];
+}
+
+interface FoxpostCreateResponse {
+  valid: boolean;
+  parcels?: FoxpostCreatedPackage[];
+}
+
+export interface FoxpostParcelResponse {
+  /** The Foxpost barcode — used everywhere as the canonical tracking number. */
+  barcode: string;
+  refCode?: string;
+  /** Raw response in case the caller wants to log it. */
+  raw: unknown;
 }
 
 /** Create a new parcel in Foxpost */
-export async function createFoxpostParcel(input: FoxpostParcelInput): Promise<FoxpostParcelResponse> {
+export async function createFoxpostParcel(
+  input: FoxpostParcelInput,
+): Promise<FoxpostParcelResponse> {
   ensureFoxpostConfigured();
 
+  const sizeLower = input.size.toLowerCase();
+  const isAutomata = input.deliveryMode === 'automata';
+
+  // Body shape per Foxpost OpenAPI spec. The server decides between APM
+  // (locker) and HD (home delivery) based on which fields are present:
+  //   APM  → only `destination`
+  //   HD   → `recipientCity`, `recipientZip`, `recipientAddress` all set
+  // There is no explicit `deliveryMode` field on the wire.
   const body: Record<string, unknown> = {
     refCode: input.refCode,
     recipientName: input.recipientName,
     recipientPhone: input.recipientPhone,
     recipientEmail: input.recipientEmail,
-    size: input.size,
-    codAmount: input.codAmount ?? 0,
+    size: sizeLower,
+    cod: input.codAmount ?? 0,
     comment: input.comment ?? '',
   };
 
-  if (input.deliveryMode === 'automata' && input.destinationPlaceId) {
+  if (isAutomata) {
+    if (!input.destinationPlaceId) {
+      throw new Error('Foxpost APM feladás: hiányzik a place_id (destination).');
+    }
     body.destination = input.destinationPlaceId;
-    body.deliveryMode = 'automata';
   } else {
-    body.deliveryMode = 'home';
-    body.recipientZip = input.recipientZip ?? '';
-    body.recipientCity = input.recipientCity ?? '';
-    body.recipientStreet = input.recipientStreet ?? '';
+    if (!input.recipientZip || !input.recipientCity || !input.recipientStreet) {
+      throw new Error('Foxpost házhozszállítás: a teljes cím (irányítószám, város, utca) kötelező.');
+    }
+    body.recipientCity = input.recipientCity;
+    body.recipientZip = input.recipientZip;
+    body.recipientAddress = input.recipientStreet;
+    body.recipientCountry = 'HU';
   }
 
-  // Foxpost WebAPI accepts a JSON array for batch creation; we always send
-  // a single-element array so this code path stays the same whether the
-  // caller wants one parcel or many.
-  // Endpoint confirmed via Foxpost docs / community integrations: `/api/parcel`
-  // (singular, no version prefix). Earlier we used `/api/v2/parcels` which
-  // returned 404 against the live server.
-  const res = await fetch(`${FOXPOST_API_URL}/parcel`, {
+  // The create endpoint requires `isWeb` (treated as a web-shop submission)
+  // and `isRedirect` (lockout-locker redirect). Defaults: isWeb=true,
+  // isRedirect=false. Without these the call returns an empty/invalid
+  // response shape and the parcel is not created.
+  const url = `${FOXPOST_API_URL}/parcel?isWeb=true&isRedirect=false`;
+
+  const res = await fetch(url, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify([body]),
   });
 
+  const rawText = await res.text();
+
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Foxpost API error ${res.status}: ${text}`);
+    throw new Error(`Foxpost API error ${res.status}: ${rawText}`);
   }
 
-  const data = await res.json();
-  // API returns array for batch — take first
-  return Array.isArray(data) ? data[0] : data;
+  let data: FoxpostCreateResponse;
+  try {
+    data = JSON.parse(rawText) as FoxpostCreateResponse;
+  } catch {
+    throw new Error(`Foxpost API válasz nem érvényes JSON: ${rawText.slice(0, 500)}`);
+  }
+
+  console.log('Foxpost create parcel response:', rawText.slice(0, 1000));
+
+  if (!data.valid) {
+    const fieldErrors =
+      data.parcels?.[0]?.errors
+        ?.map((e) => `${e.field}: ${e.message}`)
+        .join('; ') ?? 'ismeretlen Foxpost hiba';
+    throw new Error(`Foxpost elutasította a feladást: ${fieldErrors}`);
+  }
+
+  const parcel = data.parcels?.[0];
+  if (!parcel) {
+    throw new Error('Foxpost válasz nem tartalmaz parcel-t. Raw: ' + rawText.slice(0, 500));
+  }
+  if (parcel.errors && parcel.errors.length > 0) {
+    const fieldErrors = parcel.errors.map((e) => `${e.field}: ${e.message}`).join('; ');
+    throw new Error(`Foxpost mező hiba: ${fieldErrors}`);
+  }
+  if (!parcel.barcode) {
+    throw new Error('Foxpost válasz nem tartalmaz barcode-ot. Raw: ' + rawText.slice(0, 500));
+  }
+
+  return { barcode: parcel.barcode, refCode: parcel.refCode, raw: data };
 }
 
-/** Get parcel status/details */
-export async function getFoxpostParcel(parcelId: string): Promise<FoxpostParcelResponse> {
+/** Tracking status for a parcel — `GET /api/tracking/{barcode}` */
+export async function getFoxpostTracking(barcode: string): Promise<unknown> {
   ensureFoxpostConfigured();
-  const res = await fetch(`${FOXPOST_API_URL}/parcel/${encodeURIComponent(parcelId)}`, {
-    method: 'GET',
-    headers: authHeaders(),
-  });
-
+  const res = await fetch(
+    `${FOXPOST_API_URL}/tracking/${encodeURIComponent(barcode)}`,
+    { method: 'GET', headers: authHeaders() },
+  );
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Foxpost API error ${res.status}: ${text}`);
+    throw new Error(`Foxpost tracking error ${res.status}: ${text}`);
   }
-
   return res.json();
 }
 
-/** Download parcel label (PDF) as Buffer */
-export async function getFoxpostLabel(parcelId: string): Promise<Buffer> {
+/**
+ * Download the printable shipping label PDF for one or more parcels.
+ *
+ * Foxpost's label endpoint is `POST /api/label/{pageSize}` and accepts a
+ * JSON array of barcodes in the body. Returns a multi-page PDF.
+ * Page size codes: a4, a5, a6 — a6 is the standard Foxpost label.
+ */
+export async function getFoxpostLabel(
+  barcode: string,
+  pageSize: 'a4' | 'a5' | 'a6' = 'a6',
+): Promise<Buffer> {
   ensureFoxpostConfigured();
-  const res = await fetch(`${FOXPOST_API_URL}/parcel/${encodeURIComponent(parcelId)}/label`, {
-    method: 'GET',
+  const res = await fetch(`${FOXPOST_API_URL}/label/${pageSize}`, {
+    method: 'POST',
     headers: {
       ...authHeaders(),
       'Accept': 'application/pdf',
     },
+    body: JSON.stringify([barcode]),
   });
 
   if (!res.ok) {
@@ -156,14 +229,18 @@ export async function getFoxpostLabel(parcelId: string): Promise<Buffer> {
   return Buffer.from(arrayBuffer);
 }
 
-/** Delete a parcel (only if status is still CREATE) */
-export async function deleteFoxpostParcel(parcelId: string): Promise<void> {
+/**
+ * Cancel a parcel that hasn't been picked up yet. Foxpost may not expose
+ * this on the public WebAPI in all environments — the call may 404 even
+ * though create works. Caller should treat failure as "ask Foxpost
+ * support to cancel manually".
+ */
+export async function deleteFoxpostParcel(barcode: string): Promise<void> {
   ensureFoxpostConfigured();
-  const res = await fetch(`${FOXPOST_API_URL}/parcel/${encodeURIComponent(parcelId)}`, {
-    method: 'DELETE',
-    headers: authHeaders(),
-  });
-
+  const res = await fetch(
+    `${FOXPOST_API_URL}/parcel/${encodeURIComponent(barcode)}`,
+    { method: 'DELETE', headers: authHeaders() },
+  );
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Foxpost delete error ${res.status}: ${text}`);
