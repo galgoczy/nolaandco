@@ -12,6 +12,8 @@ import {
 const GA_ID = 'G-XQ02YFVB9M';
 const FB_PIXEL_ID = '804236036083768';
 
+const INTERNAL_FLAG_KEY = 'nola_internal';
+
 type FbqFunction = (...args: unknown[]) => void;
 
 declare global {
@@ -25,9 +27,43 @@ declare global {
 
 export default function Analytics() {
   const [consent, setConsentState] = useState<ConsentState>(null);
+  const [isInternal, setIsInternal] = useState(false);
+  const [ready, setReady] = useState(false);
   const pathname = usePathname();
 
+  // First: detect & latch the internal-traffic flag. Visitors set it once
+  // by visiting `?internal=1`; we honour `?internal=0` to clear it. While
+  // the flag is on, GA + Meta Pixel scripts are never rendered, so no
+  // network requests or events go out from this browser.
   useEffect(() => {
+    try {
+      const url = new URL(window.location.href);
+      const param = url.searchParams.get('internal');
+      if (param === '1') {
+        window.localStorage.setItem(INTERNAL_FLAG_KEY, '1');
+        // eslint-disable-next-line no-console
+        console.log('[nola] internal traffic flag SET — analytics disabled in this browser');
+      } else if (param === '0') {
+        window.localStorage.removeItem(INTERNAL_FLAG_KEY);
+        // eslint-disable-next-line no-console
+        console.log('[nola] internal traffic flag CLEARED — analytics re-enabled');
+      }
+      const flag = window.localStorage.getItem(INTERNAL_FLAG_KEY) === '1';
+      setIsInternal(flag);
+      if (flag) {
+        // eslint-disable-next-line no-console
+        console.log('[nola] internal traffic — analytics skipped');
+      }
+    } catch {
+      // localStorage may be unavailable (privacy mode); fall through to
+      // the default behaviour and load analytics normally.
+    } finally {
+      setReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isInternal) return;
     const applyConsent = () => {
       const state = readConsent();
       setConsentState(state);
@@ -44,12 +80,18 @@ export default function Analytics() {
     applyConsent();
     window.addEventListener(COOKIE_CONSENT_EVENT, applyConsent);
     return () => window.removeEventListener(COOKIE_CONSENT_EVENT, applyConsent);
-  }, []);
+  }, [isInternal]);
 
   useEffect(() => {
+    if (isInternal) return;
     if (consent !== 'accepted') return;
     window.fbq?.('track', 'PageView');
-  }, [pathname, consent]);
+  }, [pathname, consent, isInternal]);
+
+  // Don't inject any analytics until we've checked the internal flag
+  // (avoids hydration mismatch and prevents firing on the first paint
+  // before the effect runs).
+  if (!ready || isInternal) return null;
 
   return (
     <>
