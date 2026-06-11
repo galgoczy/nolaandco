@@ -3,13 +3,22 @@
 import { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
 
+// Sequential hero playlist: the videos play one after another (cross-fading),
+// then start over. The original hero runs first.
+const VIDEOS = {
+  desktop: ['/scrollytelling/hero6-desktop.mp4', '/scrollytelling/nola_koppeny-desktop.mp4'],
+  mobile: ['/scrollytelling/hero6-mobile.mp4', '/scrollytelling/nola_koppeny-mobile.mp4'],
+};
+
 /**
- * BLOKK 1: Hero — 16:9 background video (autoplay, muted, loop) with a
+ * BLOKK 1: Hero — 16:9 background videos (autoplay, muted) with a
  * left-aligned text box + CTA pointing at the "Nagyoknak" collection.
  */
 export default function HomeHero() {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef0 = useRef<HTMLVideoElement>(null);
+  const videoRef1 = useRef<HTMLVideoElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [active, setActive] = useState(0);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 768px)');
@@ -20,28 +29,50 @@ export default function HomeHero() {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
+  // On viewport switch, reload both sources and restart from the first video.
   useEffect(() => {
-    const v = videoRef.current;
+    setActive(0);
+    [videoRef0, videoRef1].forEach((r) => r.current?.load());
+    const v = videoRef0.current;
     if (v) {
-      v.load();
+      v.currentTime = 0;
       v.play().catch(() => {});
     }
   }, [isMobile]);
 
+  // When the active video changes, start it from the beginning.
+  useEffect(() => {
+    const refs = [videoRef0, videoRef1];
+    const v = refs[active].current;
+    if (v) {
+      v.currentTime = 0;
+      v.play().catch(() => {});
+    }
+  }, [active]);
+
+  const sources = isMobile ? VIDEOS.mobile : VIDEOS.desktop;
+  const refs = [videoRef0, videoRef1];
+
   return (
     <section className="relative w-full overflow-hidden leading-[0]">
       <div className={`w-full relative ${isMobile ? 'h-[68vh]' : 'aspect-video'}`}>
-        <video
-          ref={videoRef}
-          key={isMobile ? 'mobile' : 'desktop'}
-          src={isMobile ? '/scrollytelling/hero6-mobile.mp4' : '/scrollytelling/hero6-desktop.mp4'}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        {sources.map((src, i) => (
+          <video
+            key={src}
+            ref={refs[i]}
+            src={src}
+            muted
+            playsInline
+            preload="auto"
+            autoPlay={i === 0}
+            onEnded={() => {
+              if (i === active) setActive((a) => (a + 1) % sources.length);
+            }}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+              active === i ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ))}
         <div className="absolute inset-0 flex pointer-events-none items-end justify-start px-8 md:px-20 lg:px-32 pb-[8vh] md:pb-[14vh] lg:pb-[16vh]">
           <div className="flex flex-col items-start gap-3 md:gap-6 max-w-[90%] md:max-w-[60%]">
             <p
