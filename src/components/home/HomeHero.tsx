@@ -71,6 +71,8 @@ export default function HomeHero() {
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
               active === i ? 'opacity-100' : 'opacity-0'
             }`}
+            // Mobilon az új (köpenyes) videó kivágása 20%-kal balra tolva.
+            style={{ objectPosition: isMobile && i === 1 ? '30% 50%' : '50% 50%' }}
           />
         ))}
         <div className="absolute inset-0 flex pointer-events-none items-end justify-start px-8 md:px-20 lg:px-32 pb-[8vh] md:pb-[14vh] lg:pb-[16vh]">
