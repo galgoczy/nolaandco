@@ -39,11 +39,26 @@ export const DESIGNER_FIELDS: DesignerField[] = [
   { key: 'betu-szin', label: 'Betű színe', options: ACCENT_COLORS },
 ];
 
+// Bundle (Szuperhős szett): cape + crown colour choice. The fantasy names map
+// to the three fixed colourways.
+const SET_COLORWAYS = ['Hero – acélkék', 'Stella – dusty rózsaszín', 'Crew – cappuccino'];
+
+export const BUNDLE_FIELDS: DesignerField[] = [
+  { key: 'kopeny-szin', label: 'Kalandköpeny színe', options: SET_COLORWAYS },
+  { key: 'korona-szin', label: 'Korona színe', options: SET_COLORWAYS },
+];
+
+/** Bundle: the cape-colour selections that come with an initial letter (Crew has the TESÓ shield instead). */
+export const BUNDLE_CAPE_FIELD_KEY = 'kopeny-szin';
+export const BUNDLE_INITIAL_CHOICES = ['Hero – acélkék', 'Stella – dusty rózsaszín'];
+
 export type CapeConfig = {
   /** Label of the required initial-letter text input; undefined = no input. */
   initialLabel?: string;
   /** Whether the product shows the 7 designer dropdowns. */
   designer: boolean;
+  /** Whether the product is the cape+crown bundle (2 colour dropdowns). */
+  bundle?: boolean;
 };
 
 const CAPE_CONFIGS: Record<string, CapeConfig> = {
@@ -51,6 +66,8 @@ const CAPE_CONFIGS: Record<string, CapeConfig> = {
   'nola-stella-kalandkopeny': { initialLabel: 'Választott kezdőbetű', designer: false },
   'nola-crew-kalandkopeny': { designer: false },
   'nola-kalandkopeny-egyedi-tervezo': { initialLabel: 'Kért kezdőbetű', designer: true },
+  // A kezdőbetű mező csak Hero/Stella köpeny választásakor jelenik meg.
+  'szuperhos-szett': { initialLabel: 'Választott kezdőbetű', designer: false, bundle: true },
 };
 
 export function getCapeConfig(slug: string): CapeConfig {

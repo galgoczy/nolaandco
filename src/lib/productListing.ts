@@ -95,8 +95,9 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
     if (cat === 'poster') return 1;
     if (cat === 'cape') return 2;
     if (cat === 'crown') return 3;
-    if (cat === 'giftcard') return 4;
-    return 5;
+    if (cat === 'bundle') return 4;
+    if (cat === 'giftcard') return 5;
+    return 6;
   };
 
   return [...productItems, ...aliasItems].sort((a, b) => {

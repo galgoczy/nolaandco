@@ -22,6 +22,7 @@ const tiles: CategoryTile[] = [
   {
     label: 'NOLA válogatások',
     imageUrl: '/images/home/kategoria-valogatasok.png',
+    href: '/termekek?category=bundle',
   },
 ];
 

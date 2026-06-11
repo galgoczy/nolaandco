@@ -18,33 +18,41 @@ export default function NektekPage() {
         <div className="space-y-8 text-[#4A4A4A] font-body text-base leading-relaxed mt-12">
           <RevealOnScroll>
             <p>
-              A Nola &amp; Co. termékeit azért hívtuk életre, hogy visszahozzuk azt a semmihez sem
-              fogható, törékeny érzést, amit egy újszülött érkezése, karunkban tartása ad.
+              A Nola &amp; Co darabjait azoknak a családoknak álmodtuk meg, akik szeretnék
+              kézzelfoghatóvá tenni a gyermekkor legfontosabb pillanatait &ndash; a legelső napok
+              csodájától egészen a varázslatos, közös kalandokig.
             </p>
           </RevealOnScroll>
 
           <RevealOnScroll>
-            <p className="font-medium">Szeretnénk ezt a pillanatot:</p>
             <ul className="space-y-3 mt-3">
               <li className="flex gap-3">
                 <span className="text-[#C4A591] mt-1">•</span>
                 <span>
-                  <strong className="font-semibold">Megőrizni</strong> azoknak a szülőknek, akiknek
-                  a kisbabái egy pillanat alatt megnőttek
+                  A <strong className="font-semibold">várandósoknak és szülőknek</strong>, hogy az
+                  első ölelés emléke ne halványuljon.
                 </span>
               </li>
               <li className="flex gap-3">
                 <span className="text-[#C4A591] mt-1">•</span>
                 <span>
-                  <strong className="font-semibold">Odaadni</strong> azoknak az örökbefogadó
-                  szülőknek, akik számára az első ölelés váratott magára
+                  A <strong className="font-semibold">nagytesóknak és a bővülő családoknak</strong>,
+                  hogy a kistestvér érkezésekor az ő új, fontos szerepük is méltó, kiemelt
+                  figyelmet kapjon.
                 </span>
               </li>
               <li className="flex gap-3">
                 <span className="text-[#C4A591] mt-1">•</span>
                 <span>
-                  <strong className="font-semibold">Megmutatni</strong> a korababák szüleinek, hogy
-                  büszkén tekinthessenek vissza, mekkora utat jártak be
+                  Az <strong className="font-semibold">örökbefogadóknak</strong>, akik számára az
+                  első találkozás váratott magára.
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-[#C4A591] mt-1">•</span>
+                <span>
+                  A <strong className="font-semibold">korababák szüleinek</strong>, hogy büszkén
+                  emlékezzenek vissza az útra, amit bejártak.
                 </span>
               </li>
             </ul>
@@ -52,9 +60,9 @@ export default function NektekPage() {
 
           <RevealOnScroll>
             <p className="italic">
-              Továbbá szívből szeretnénk segíteni a feldolgozásban azoknak a szülőknek, akiknek egy
-              angyalbaba emléke örökre a szívükbe égett – hogy a párna által egy kézzelfogható
-              emlékkel tarthassák őket közel magukhoz.
+              Ezen kívül szeretnénk segíteni az{' '}
+              <strong className="font-bold italic">angyalbaba-szülőknek</strong>, hogy szeretetben
+              őrizhessék meg azt az emléket, ami örökre a szívükbe égett.
             </p>
           </RevealOnScroll>
         </div>

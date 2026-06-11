@@ -18,8 +18,9 @@ export default function AboutSection() {
             </RevealOnScroll>
             <RevealOnScroll>
               <p className="text-carbon-light leading-relaxed mb-6 text-[15px]" style={thinText}>
-                A Nola párnákat azoknak a családoknak álmodtuk meg, akik szeretnék megőrizni a
-                legelső napok csodáját.
+                A Nola &amp; Co darabjait azoknak a családoknak álmodtuk meg, akik szeretnék
+                kézzelfoghatóvá tenni a gyermekkor legfontosabb pillanatait – a legelső napok
+                csodájától egészen a varázslatos, közös kalandokig.
               </p>
             </RevealOnScroll>
             <RevealOnScroll>
@@ -27,6 +28,10 @@ export default function AboutSection() {
                 <li className="text-carbon-light leading-relaxed" style={thinText}>
                   <span className="text-[#C4A591] mr-2">·</span>
                   A <strong className="font-medium">várandósoknak</strong> és <strong className="font-medium">szülőknek</strong>, hogy az első ölelés emléke ne halványuljon.
+                </li>
+                <li className="text-carbon-light leading-relaxed" style={thinText}>
+                  <span className="text-[#C4A591] mr-2">·</span>
+                  A <strong className="font-medium">nagytesóknak</strong> és a <strong className="font-medium">bővülő családoknak</strong>, hogy a kistestvér érkezésekor az ő új, fontos szerepük is méltó, kiemelt figyelmet kapjon.
                 </li>
                 <li className="text-carbon-light leading-relaxed" style={thinText}>
                   <span className="text-[#C4A591] mr-2">·</span>
@@ -76,14 +81,23 @@ export default function AboutSection() {
               <p className="text-carbon-light leading-relaxed mb-4 text-[15px]" style={thinText}>
                 A <strong className="font-medium">Nola &amp; Co.</strong> születését nem egyetlen pillanat, hanem a vágy inspirálta: alkotni
                 valamit, amely a leginkább képes megőrizni és visszaadni azt az érzést, amit egy
-                újszülött kisbaba karunkban tartása jelent.
+                újszülött kisbaba karunkban tartása jelent &ndash; és ami azután is velük marad,
+                ahogy egyre nagyobbra nőnek.
+              </p>
+            </RevealOnScroll>
+            <RevealOnScroll>
+              <p className="text-carbon-light leading-relaxed mb-4 text-[15px]" style={thinText}>
+                Termékeinkben számomra a <strong className="font-medium">szülői gondoskodás</strong>, a <strong className="font-medium">gyermeki fantázia</strong> és a <strong className="font-medium">letisztult design</strong> találkozik.
+                Legyen szó a kisbabák pontos méreteit őrző emlékpárnákról és poszterekről, vagy a
+                nagytesók önfeledt játékát kísérő prémium kalandköpenyekről és koronákról &ndash;
+                minden egyes darabot egyedi jellemzők alapján, gondos tervezéssel és kézimunkával
+                készítünk el.
               </p>
             </RevealOnScroll>
             <RevealOnScroll>
               <p className="text-carbon-light leading-relaxed mb-8 text-[15px]" style={thinText}>
-                Termékeinkben számomra a <strong className="font-medium">szülői gondoskodás</strong> és a <strong className="font-medium">design</strong> találkozik: minden párnát és
-                posztert egyedi jellemzők alapján, gondos tervezéssel készítünk el, hogy a
-                végeredmény ne csak egy tárgy legyen, hanem egy darabka a családotok történetéből.
+                Célunk, hogy a végeredmény ne csupán egy szép tárgy legyen a gyerekszobában, hanem
+                egy megfogható, örök darabka a családotok történetéből.
               </p>
             </RevealOnScroll>
             <RevealOnScroll>

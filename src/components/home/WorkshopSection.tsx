@@ -5,22 +5,22 @@ const features = [
   {
     title: 'Prémium alapanyagok',
     icon: '/images/31.png',
-    desc: 'Párnáink OEKO-TEX® Standard 100 minősítésű alapanyagból és tanúsított cérnával készülnek. Ez a minősítés garantálja, hogy az alapanyagokat káros anyagokra bevizsgálták, így bababőrrel érintkezve is biztonságos választást jelentenek.',
+    desc: 'Legyen szó a párnáink pihe-puha plüsséről, vagy az új termékeink pillekönnyű pamut duplagéz (muszlin) anyagáról, textíliáink és cérnáink kivétel nélkül OEKO-TEX® Standard 100 minősítésűek. Ez garantálja, hogy minden felhasznált anyagot káros anyagokra bevizsgáltak, így az újszülöttek és a nagyobb gyerekek érzékeny bőrével érintkezve is 100%-ig biztonságos választást jelentenek.',
   },
   {
     title: 'Tartós kidolgozás',
     icon: '/images/5.png',
-    desc: 'A töltet hipoallergén, mosható és formatartó – használat és mosás során sem csomósodik, így hosszú távon is megőrzi puhaságát és egyenletes tartását.',
+    desc: 'Termékeinket évekre tervezzük. A párnák töltete hipoallergén, mosható és formatartó (nem csomósodik), míg a kalandköpenyek és kiegészítők dupla rétegű anyagból, strapabíró varrással készülnek. Bármelyiket is választod, hosszú távon megőrzik puhaságukat és gyönyörű esésüket az emlékőrzés vagy a mindennapi játék során is.',
   },
   {
     title: 'Egyedi részletek',
     icon: '/images/9.png',
-    desc: 'A sziluettet és a születési adatokat modern, kopás- és mosásálló technológiával visszük fel az anyagra, amely a plüss szerkezetével együtt alkot harmonikus egységet.',
+    desc: 'Minden darab a tiétek. A párnákon lévő sziluetteket és születési adatokat modern, bőrbarát és mosásálló technológiával visszük fel az anyagra. A köpenyeken lévő kezdőbetűket és motívumokat pedig kézműves filcből, gondos kézi rátét-varrással (applikálással) rögzítjük, hogy tökéletes, térbeli harmóniát alkossanak.',
   },
   {
     title: 'Kézműves gondoskodás',
     icon: '/images/19.png',
-    desc: 'Minden darab gondosan, kis szériában készül, hogy a legkisebbek számára is megbízható, szerethető és tartós kiegészítő legyen.',
+    desc: 'Minden termékünk gondosan, egyedileg készül, hogy a legkisebb babák és a legnagyobb „csapatjátékosok" számára is megbízható, biztonságos és szerethető kiegészítő legyen.',
   },
 ];
 
@@ -63,8 +63,9 @@ export default function WorkshopSection() {
           </RevealOnScroll>
           <RevealOnScroll>
             <p className="text-[#FDFBF7]/85 leading-loose max-w-3xl mx-auto" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
-              A Nola &amp; Co. párnák nem sorozatgyártásban készülnek. Minden darab a Te megrendelésedre,
-              egyedi igények alapján születik meg budapesti műhelyünkben.
+              A Nola &amp; Co. darabjai nem sorozatgyártásban készülnek. Minden emlékőrző és
+              kiegészítő a te megrendelésedre, a ti egyedi történetetek alapján születik meg
+              budapesti műhelyünkben.
             </p>
           </RevealOnScroll>
         </div>

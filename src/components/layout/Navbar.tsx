@@ -17,6 +17,7 @@ const navItems: NavItem[] = [
   { label: 'FŐOLDAL', href: '/' },
   {
     label: 'KICSIKRŐL',
+    href: '/termekek?category=kicsiknek',
     children: [
       { label: 'Emlékpárnák', href: '/termekek?category=pillow' },
       { label: 'Születési poszterek', href: '/termekek?category=poster' },
@@ -24,12 +25,13 @@ const navItems: NavItem[] = [
   },
   {
     label: 'NAGYOKNAK',
+    href: '/termekek?category=nagyoknak',
     children: [
       { label: 'Kalandköpenyek', href: '/termekek?category=cape' },
       { label: 'Koronák', href: '/termekek?category=crown' },
     ],
   },
-  { label: 'NOLA VÁLOGATÁSOK' },
+  { label: 'VÁLOGATÁSOK', href: '/termekek?category=bundle' },
   { label: 'AJÁNDÉKKÁRTYA', href: '/termekek/nola-ajandekkartya' },
   { label: 'NEKTEK', href: '/nektek' },
   { label: 'RÓLUNK', href: '/rolunk' },
@@ -118,15 +120,27 @@ export default function Navbar() {
             {visibleItems.map((item) =>
               item.children ? (
                 <div key={item.label} className="relative group h-full flex items-center">
-                  <button
-                    type="button"
-                    className="nav-link text-[#C4A591] hover:text-[#4A4A4A] transition-colors duration-200 uppercase flex items-center gap-1"
-                  >
-                    {item.label}
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+                  {item.href ? (
+                    <Link
+                      href={item.href}
+                      className="nav-link text-[#C4A591] hover:text-[#4A4A4A] transition-colors duration-200 uppercase flex items-center gap-1"
+                    >
+                      {item.label}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      className="nav-link text-[#C4A591] hover:text-[#4A4A4A] transition-colors duration-200 uppercase flex items-center gap-1"
+                    >
+                      {item.label}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  )}
                   <div className="absolute left-1/2 -translate-x-1/2 top-full hidden group-hover:block group-focus-within:block">
                     <div className="bg-nav-beige glass-nav shadow-lg rounded-b py-2 min-w-[220px] normal-case">
                       {item.children.map((child) => (
@@ -201,7 +215,17 @@ export default function Navbar() {
               {visibleItems.map((item) =>
                 item.children ? (
                   <div key={item.label} className="py-1">
-                    <span className="block text-[#C4A591] py-1">{item.label}</span>
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        className="block text-[#C4A591] hover:text-[#4A4A4A] transition-colors duration-200 py-1"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span className="block text-[#C4A591] py-1">{item.label}</span>
+                    )}
                     <div className="flex flex-col border-l border-[#C4A591]/30 ml-1 pl-4 mt-1 normal-case">
                       {item.children.map((child) => (
                         <Link

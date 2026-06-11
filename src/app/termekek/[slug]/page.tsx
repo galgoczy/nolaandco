@@ -42,7 +42,8 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const isGiftCard = product.category === 'giftcard';
   const isPosterDesigner = product.slug === POSTER_DESIGNER_SLUG;
   const isPillow = product.category === 'pillow';
-  const isBigKidProduct = product.category === 'cape' || product.category === 'crown';
+  const isBigKidProduct =
+    product.category === 'cape' || product.category === 'crown' || product.category === 'bundle';
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
 
   const pillowVariants = isPillow

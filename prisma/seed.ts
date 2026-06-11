@@ -47,6 +47,27 @@ Tökéletes ajándék! Az ideális apróságot keresed a babalátogatóba a nagy
 100% Pamut (Duplagéz) a belső merevítő kivételével.
 30°C-os kímélő gépi programon, vagy kézzel mosható, finom nyomkodással (kicsavarni tilos). Szárítógépben nem szárítható. Fektetve, formára igazítva szárítandó.`;
 
+const bundleLongDescription = `A kisbabák az emlékeket, a nagyok a kalandokat kapják! A Szuperhős szettben a kifordítható Kalandköpeny és a hozzá színben tökéletesen passzoló kétoldalas korona együtt érkezik – kedvezményes szett áron.
+Legyen szó a világ megmentéséről a nappaliban, királyi teapartiról a kertben, egy családi fotózásról, vagy a kistesó büszke védelmezéséről – ez a páros évekig a legszebb kelléke lesz a gyermekkori varázslatnak.
+
+**Miért ez a legtökéletesebb ajándék?**
+
+**Kifordítható dizájn (2 az 1-ben):** A köpeny és a korona is kétoldalas! Két gyönyörű, harmonizáló földszín/pasztell árnyalat minden darabban: az egyik oldalon ott a vagány, egyedi logó a rohangáláshoz, kifordítva pedig letisztult, elegáns szettet kaptok az ünnepekre, fotózásokra, királyi eseményekre.
+
+**Személyre szabott varázslat:** A köpeny hátára puha filcből, gondos odafigyeléssel varrjuk fel a gyerek saját kezdőbetűjét vagy az egyedi "TESÓ" pajzsot.
+
+**Pillekönnyű és prémium:** Mindkét darab 100% OEKO-TEX® minősítésű pamut duplagézből (muszlinból) készül. Elképesztően puha, légáteresztő, és gyönyörűen, lágyan lobog a gyerekek után futás közben.
+
+**Maximális biztonság és kényelem:** A köpenyt biztonságos, prémium műanyag patentokkal láttuk el, amit a gyerekek is könnyen be tudnak kapcsolni, de ha beakadna valahova, azonnal szétpattan. A korona hátulján puha, duplagézzel bevont rugalmas "scrunchie" pánt található – nincs karcoló tépőzár, ami a hajba akadna.
+
+**Együtt nő a gyermekkel (One Size):** A köpeny kb. 65 cm-es hosszának köszönhetően egy 2 évesen még bokáig érő "varázslóköpeny", 6-7 éves korra pedig tökéletes "szuperhős" méretté válik. A korona a rugalmas pántnak köszönhetően kb. 2-től 7 éves korig kényelmesen illeszkedik.
+
+**Fontos információk az előrendeléshez:** Mivel minden szett egyedileg, a Ti kérésetek alapján, kézzel készül a műhelyünkben, a feldolgozási és varrási idő jelenleg **5-8 munkanap** a feladásig. Köszönjük a türelmeteket!
+
+**Anyagösszetétel és kezelés:**
+Alapanyag: 100% OEKO-TEX 100 minősítésű Pamut (Duplagéz) a díszítés és a korona belső merevítője kivételével.
+Mosás: 30°C-os kímélő gépi programon, vagy kézzel mosható. Szárítógépben nem szárítható. A hátsó filc díszítés nem vasalható, és a duplagéz anyagot sem javasoljuk vasalni. Fektetve, formára igazítva szárítandó.`;
+
 const products = [
   {
     name: 'ORIGIN Core',
@@ -251,6 +272,22 @@ const products = [
     imageUrl: '/images/products/nola-crew-korona.png',
     badge: 'ÚJDONSÁG',
   },
+  // --- Válogatások: bundle termékek ---
+  {
+    name: 'Szuperhős szett',
+    slug: 'szuperhos-szett',
+    description:
+      'A tökéletes páros a nagytesóknak: kifordítható, kétoldalas prémium duplagéz Kalandköpeny és a hozzá színben harmonizáló kétoldalas korona egy szettben, kedvezményes áron. Válaszd ki a köpeny és a korona színét, és mi kézzel, egyedileg készítjük el a műhelyünkben.',
+    longDescription: bundleLongDescription,
+    price: 14900,
+    onSale: true,
+    salePrice: 12800,
+    category: 'bundle',
+    series: 'nagyteso',
+    variant: 'bundle',
+    imageUrl: '/images/products/szuperhos-szett.png',
+    badge: 'ÚJDONSÁG',
+  },
 ];
 
 async function main() {
@@ -269,7 +306,8 @@ async function main() {
     { slug: 'poster', name: 'Poszterek', nameEn: 'ART PRINTS', sortOrder: 1, visibleOnHome: true },
     { slug: 'cape', name: 'Kalandköpeny', nameEn: 'ADVENTURE CAPES', sortOrder: 2, visibleOnHome: true },
     { slug: 'crown', name: 'Korona', nameEn: 'CROWNS', sortOrder: 3, visibleOnHome: true },
-    { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 4, visibleOnHome: true },
+    { slug: 'bundle', name: 'Válogatások', nameEn: 'BUNDLES', sortOrder: 4, visibleOnHome: true },
+    { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 5, visibleOnHome: true },
   ];
 
   for (const cat of categories) {

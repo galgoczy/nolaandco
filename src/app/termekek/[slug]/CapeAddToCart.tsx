@@ -4,7 +4,13 @@ import { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { useCartStore } from '@/store/cart';
-import { DESIGNER_FIELDS, type CapeConfig } from './capeData';
+import {
+  DESIGNER_FIELDS,
+  BUNDLE_FIELDS,
+  BUNDLE_CAPE_FIELD_KEY,
+  BUNDLE_INITIAL_CHOICES,
+  type CapeConfig,
+} from './capeData';
 
 interface Props {
   product: {
@@ -38,16 +44,24 @@ export default function CapeAddToCart({ product, config }: Props) {
     }
   }, [added]);
 
+  // Dropdown fields of the product (designer cape: 7, bundle: 2, otherwise none).
+  const fields = config.designer ? DESIGNER_FIELDS : config.bundle ? BUNDLE_FIELDS : [];
+
+  // The bundle only takes an initial letter when the chosen cape has one
+  // (Crew comes with the TESÓ shield instead).
+  const showInitial = Boolean(
+    config.initialLabel &&
+      (!config.bundle || BUNDLE_INITIAL_CHOICES.includes(selections[BUNDLE_CAPE_FIELD_KEY] ?? ''))
+  );
+
   const handleAddToCart = () => {
     const newErrors: Record<string, string> = {};
 
-    if (config.initialLabel && !initial.trim()) {
+    if (showInitial && !initial.trim()) {
       newErrors.initial = 'Kötelező mező';
     }
-    if (config.designer) {
-      for (const field of DESIGNER_FIELDS) {
-        if (!selections[field.key]) newErrors[field.key] = 'Kérlek válassz!';
-      }
+    for (const field of fields) {
+      if (!selections[field.key]) newErrors[field.key] = 'Kérlek válassz!';
     }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -56,12 +70,10 @@ export default function CapeAddToCart({ product, config }: Props) {
     setErrors({});
 
     const noteParts: string[] = [];
-    if (config.designer) {
-      for (const field of DESIGNER_FIELDS) {
-        noteParts.push(`${field.label}: ${selections[field.key]}`);
-      }
+    for (const field of fields) {
+      noteParts.push(`${field.label}: ${selections[field.key]}`);
     }
-    if (config.initialLabel) {
+    if (showInitial && config.initialLabel) {
       noteParts.push(`${config.initialLabel}: ${initial.trim().toUpperCase()}`);
     }
 
@@ -106,10 +118,12 @@ export default function CapeAddToCart({ product, config }: Props) {
 
   return (
     <div className="space-y-6">
-      {config.designer && (
+      {fields.length > 0 && (
         <div className="bg-[#faf6f1] rounded-2xl p-6 shadow-sm space-y-4">
-          <h3 className="text-lg font-bold text-carbon">Tervezd meg a köpenyed</h3>
-          {DESIGNER_FIELDS.map((field) => (
+          <h3 className="text-lg font-bold text-carbon">
+            {config.bundle ? 'Állítsd össze a szetted' : 'Tervezd meg a köpenyed'}
+          </h3>
+          {fields.map((field) => (
             <div key={field.key} className="flex flex-col gap-1">
               <label htmlFor={`cape-${field.key}`} className="text-carbon-light text-sm font-body">
                 {field.label} *
@@ -142,9 +156,9 @@ export default function CapeAddToCart({ product, config }: Props) {
         </div>
       )}
 
-      {config.initialLabel && (
-        <div className={config.designer ? '' : 'bg-[#faf6f1] rounded-2xl p-6 shadow-sm'}>
-          {!config.designer && (
+      {showInitial && (
+        <div className={fields.length > 0 ? '' : 'bg-[#faf6f1] rounded-2xl p-6 shadow-sm'}>
+          {fields.length === 0 && (
             <h3 className="text-lg font-bold text-carbon mb-3">Személyre szabás</h3>
           )}
           <Input
