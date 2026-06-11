@@ -26,18 +26,32 @@ const CATEGORY_GROUPS: Record<string, string[]> = {
   nagyoknak: ['cape', 'crown'],
 };
 
+/**
+ * Categories whose pages show hidden products too. Main and preview share one
+ * database, so the new collection is hidden (hiddenFromListing) to keep it off
+ * the live site, while staying testable on its own category pages here.
+ * Remove this exception at launch, when the products are un-hidden.
+ */
+const SHOW_HIDDEN_IN_CATEGORY = new Set(['cape', 'crown', 'bundle']);
+
 /** Fetch all products visible in listings + all active aliases, merged. */
 export async function getListingItems(opts?: { category?: string }): Promise<ListingItem[]> {
   const categoryFilter = opts?.category
     ? CATEGORY_GROUPS[opts.category] ?? [opts.category]
     : undefined;
 
+  const hiddenExemptCategories =
+    categoryFilter?.filter((c) => SHOW_HIDDEN_IN_CATEGORY.has(c)) ?? [];
+
   const [products, aliases] = await Promise.all([
     prisma.product.findMany({
       where: {
         active: true,
-        hiddenFromListing: false,
         ...(categoryFilter ? { category: { in: categoryFilter } } : {}),
+        OR: [
+          { hiddenFromListing: false },
+          { category: { in: hiddenExemptCategories } },
+        ],
       },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
     }),
