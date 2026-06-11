@@ -13,57 +13,68 @@ const iconProps = {
 
 const badges = [
   {
-    title: 'Egyedi tervezés',
-    desc: 'A baba pontos születési méretétől a nagytesó kezdőbetűjéig mindent egyedileg, nektek készítünk',
-    // vonalzó
+    title: 'Kézműves gondoskodás',
+    desc: 'Minden darabot egyedileg, szeretettel varrunk budapesti műhelyünkben.',
+    // varrótű + cérna
     icon: (
       <svg {...iconProps} className={iconCls}>
-        <path d="M3.5 16.5 16.5 3.5l4 4L7.5 20.5l-4-4Z" />
-        <path d="m7 13 1.5 1.5M10 10l1.5 1.5M13 7l1.5 1.5" />
+        <path d="M19.5 4.5c1 1 1 2.5 0 3.5L8 19.5l-4 .5.5-4L16 4.5c1-1 2.5-1 3.5 0Z" />
+        <path d="M17.8 9.2 14.8 6.2" />
+        <path d="M4.5 16c2 .5 3.5 2 4 4" strokeDasharray="1.5 2" />
       </svg>
     ),
   },
   {
     title: 'Prémium puhaság',
-    desc: 'OEKO-TEX® plüss és duplagéz: a legtisztább, bőrbarát érintések a legkisebbeknek',
-    // levél a tenyérben
+    desc: 'OEKO-TEX® plüss és 100% pamut duplagéz: a legtisztább érintés a legkisebbeknek.',
+    // levél / növény
     icon: (
       <svg {...iconProps} className={iconCls}>
-        <path d="M12 13c0-3.5 2.5-6 6.5-6 0 4-2.5 6.5-6.5 6Z" />
-        <path d="M12 13v3" />
-        <path d="M4 17.5c1.5-1.5 3.5-1.5 5 0l1.5 1c1 .7 2.5.7 3.5 0l4-2.5" />
+        <path d="M12 20c0-6 2.5-11 8-13 0 7-3 11.5-8 13Z" />
+        <path d="M12 20c-.5-4-2.5-7-6.5-8 .5 4.5 3 7.5 6.5 8Z" />
+        <path d="M12 20v1.5" />
       </svg>
     ),
   },
   {
-    title: 'Emléktől a kalandig',
-    desc: 'A legelső pillanatok megőrzésétől a varázslatos gyermekkori játékokig végig kísérjük a családot',
-    // csillag-ösvény
+    title: 'Személyre szabott csodák',
+    desc: 'A baba pontos születési méretétől a nagytesó kezdőbetűjéig mindent nektek készítünk.',
+    // csillag / szikra
     icon: (
       <svg {...iconProps} className={iconCls}>
-        <path d="M12 3.5l1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L6.2 7.7l4-.6L12 3.5Z" />
-        <path d="M5 20.5c4.5 0 9.5 0 14 0" strokeDasharray="2 3" />
+        <path d="M12 3c.6 3.8 2.8 6 6.5 6.5C14.8 10.1 12.6 12.3 12 16c-.6-3.7-2.8-5.9-6.5-6.5C9.2 9 11.4 6.8 12 3Z" />
+        <path d="M18.5 15.5c.3 1.6 1.2 2.5 2.5 2.8-1.3.3-2.2 1.2-2.5 2.7-.3-1.5-1.2-2.4-2.5-2.7 1.3-.3 2.2-1.2 2.5-2.8Z" />
       </svg>
     ),
   },
   {
-    title: 'Itthon készült, szeretettel',
-    desc: 'Minden Nola & Co darabot gondos odafigyeléssel, kézzel varrunk budapesti manufaktúránkban',
-    // ház szívvel
+    title: 'Emlékből kaland',
+    desc: 'A legelső pillanatoktól a gyermekkori varázslatos játékokig végigkísérjük a családot.',
+    // papírrepülő
     icon: (
       <svg {...iconProps} className={iconCls}>
-        <path d="M4 10.5 12 4l8 6.5V20H4v-9.5Z" />
-        <path d="M12 16.5s-2.6-1.7-2.6-3.4c0-1 .8-1.7 1.6-1.7.5 0 .8.2 1 .5.2-.3.5-.5 1-.5.8 0 1.6.7 1.6 1.7 0 1.7-2.6 3.4-2.6 3.4Z" />
+        <path d="M21 4 3.5 11l5.5 2.5L11.5 19 15 14M21 4l-12 9.5M21 4l-6 10" />
+        <path d="M4 19.5c2 0 3.5-.8 4.5-2" strokeDasharray="1.5 2" />
       </svg>
     ),
   },
 ];
 
-/** BLOKK 4: Bizalmi ikonok — 4 badge, mobilon 2x2 rácsban. */
+/** BLOKK 5: Bizalmi ikon-sáv — teljes szélességű, halvány zsályazöld háttérrel. */
 export default function TrustBadges() {
   return (
-    <section className="py-12 md:py-16 bg-surface">
+    <section className="py-14 md:py-20 bg-[#eef1e8]">
       <div className="max-w-6xl mx-auto px-6 md:px-8">
+        <RevealOnScroll>
+          <h2
+            className="text-2xl md:text-3xl lg:text-4xl text-carbon text-center mb-10 md:mb-14 tracking-[0.04em] leading-snug"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
+          >
+            Több, mint egy tárgy.
+            <br className="hidden md:block" />{' '}
+            Egy darabka a családotok történetéből.
+          </h2>
+        </RevealOnScroll>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 md:gap-8">
           {badges.map((b, i) => (
             <RevealOnScroll key={b.title} delay={i * 100}>
