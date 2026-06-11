@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCartStore } from '@/store/cart';
 import AccountMenu from './AccountMenu';
 import SearchModal from './SearchModal';
@@ -48,6 +49,12 @@ export default function Navbar() {
   const [showBanner, setShowBanner] = useState(true);
   const [mounted, setMounted] = useState(false);
   const count = useCartStore((s) => s.count());
+  const pathname = usePathname();
+
+  // A Főoldal menüpont a főoldalon felesleges — csak aloldalakon jelenik meg.
+  const visibleItems = navItems.filter(
+    (item) => !(item.href === '/' && pathname === '/')
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -108,7 +115,7 @@ export default function Navbar() {
 
           {/* Center: Nav links (hidden on mobile) */}
           <div className="hidden md:flex gap-6 items-center justify-center self-stretch font-manrope text-sm tracking-wide uppercase font-medium">
-            {navItems.map((item) =>
+            {visibleItems.map((item) =>
               item.children ? (
                 <div key={item.label} className="relative group h-full flex items-center">
                   <button
@@ -121,7 +128,7 @@ export default function Navbar() {
                     </svg>
                   </button>
                   <div className="absolute left-1/2 -translate-x-1/2 top-full hidden group-hover:block group-focus-within:block">
-                    <div className="bg-nav-beige glass-nav shadow-lg rounded-b-xl py-2 min-w-[220px] normal-case">
+                    <div className="bg-nav-beige glass-nav shadow-lg rounded-b py-2 min-w-[220px] normal-case">
                       {item.children.map((child) => (
                         <Link
                           key={child.label}
@@ -191,7 +198,7 @@ export default function Navbar() {
         {mobileOpen && (
           <div className="md:hidden bg-nav-beige border-t border-outline-variant/20 px-6 pb-6">
             <div className="flex flex-col gap-2 pt-4 font-manrope text-sm tracking-wide uppercase font-medium">
-              {navItems.map((item) =>
+              {visibleItems.map((item) =>
                 item.children ? (
                   <div key={item.label} className="py-1">
                     <span className="block text-[#C4A591] py-1">{item.label}</span>
