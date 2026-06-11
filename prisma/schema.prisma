@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  description     String
+  longDescription String?
+  price           Int      // price in HUF (fillér-free)
+  category        String   // "pillow" | "poster"
+  series          String   // "origin" | "nova"
+  variant         String   // "core" | "linea" | "atelier"
+  imageUrl        String
+  images          String[] @default([])
+  sortOrder       Int      @default(0)
+  badge           String?  // "Core Series" | "Limited Edition" | null
+  active          Boolean  @default(true)
+  hiddenFromListing Boolean @default(false)
+  onSale          Boolean  @default(false)
+  salePrice       Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  orderItems OrderItem[]
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  status          String   @default("pending") // pending | paid | processing | shipped | delivered | cancelled
+  email           String
+  phone           String?
+  shippingName    String
+  shippingZip     String
+  shippingCity    String
+  shippingAddress String
+  shippingNote    String?
+  billingZip      String?
+  billingCity     String?
+  billingAddress  String?
+  subtotal        Int
+  shippingCost    Int      @default(0)
+  total           Int
+  paymentMethod   String   @default("card") // "card" | "transfer"
+  stripePaymentId String?
+  trackingNumber  String?
+  customerId      String?
+  customer        Customer? @relation(fields: [customerId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  quantity  Int
+  price     Int
+  // Personalization: birth data for pillow/poster
+  babyName      String?
+  birthDate     String?
+  birthWeight   String?
+  birthHeight   String?
+  birthTime     String?
+  customNote    String?
+  posterLayout  String?  // chosen poster design variant (e.g. "origin-1")
+
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Customer {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String?
+  image           String?
+  phone           String?
+  passwordHash    String?
+  emailVerified   Boolean  @default(false)
+  verificationToken        String?
+  verificationTokenExpires DateTime?
+  passwordResetToken        String?
+  passwordResetTokenExpires DateTime?
+  shippingName    String?
+  shippingZip     String?
+  shippingCity    String?
+  shippingAddress String?
+  shippingNote    String?
+  billingZip      String?
+  billingCity     String?
+  billingAddress  String?
+  newsletter      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  orders Order[]
+
+  @@index([verificationToken])
+  @@index([passwordResetToken])
+}
+
+model Category {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String   // Hungarian display name: "Párnák"
+  nameEn        String?  // English display name for fancy header: "KEEPSAKES"
+  sortOrder     Int      @default(0)
+  visibleOnHome Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  text      String
+  textColor String   @default("#FFFFFF")
+  bgColor   String   @default("#4A4A4A")
+  href      String?  // optional link
+  bold      Boolean  @default(false)
+  active    Boolean  @default(false)
+  endsAt    DateTime? // auto-deactivate (null = manual only)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Coupon {
+  id              String   @id @default(cuid())
+  code            String   @unique
+  description     String   @default("")
+  discountType    String   // "percent" | "fixed"
+  discountValue   Int      // percent (1-100) or fixed HUF amount
+  minOrderAmount  Int?     // minimum order value in HUF (optional)
+  usageLimit      Int?     // max total uses (null = unlimited)
+  usageCount      Int      @default(0)
+  // Scope: empty arrays = applies to all products/categories
+  productIds      String[] @default([])
+  categorySlugs   String[] @default([])
+  // When true, parcel locker shipping is free; home delivery unaffected.
+  freeShippingOnParcel Boolean @default(false)
+  active          Boolean  @default(true)
+  startsAt        DateTime
+  endsAt          DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+/// A "landing card" that points at a real Product. Used for posters so the
+/// homepage/listing can show ORIGIN poszter + NOVA poszter as separate cards
+/// while all orders/cart/stats go against one canonical Product ("poszter").
+model ProductAlias {
+  id                String   @id @default(cuid())
+  slug              String   @unique // URL slug, e.g. "origin-poszter"
+  name              String            // Display name, e.g. "ORIGIN poszter"
+  imageUrl          String            // Card image
+  badge             String?
+  targetProductSlug String            // Canonical Product.slug the alias points to
+  defaultLayoutId   String            // Preselected layout id (e.g. "origin-1")
+  sortOrder         Int      @default(0)
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

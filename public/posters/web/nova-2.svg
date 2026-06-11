@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 560" width="400" height="560">
+  <g opacity="0.55">
+    <rect x="40" y="40" width="320" height="480" fill="none" stroke="#4A4A4A" stroke-width="2" stroke-dasharray="6 4" rx="16"/>
+    <text x="200" y="275" text-anchor="middle" font-family="'Montserrat', sans-serif" font-size="28" font-weight="300" fill="#4A4A4A" letter-spacing="4">NOVA 2</text>
+    <text x="200" y="305" text-anchor="middle" font-family="'Montserrat', sans-serif" font-size="11" font-weight="200" fill="#4A4A4A" letter-spacing="2">placeholder</text>
+  </g>
+</svg>
