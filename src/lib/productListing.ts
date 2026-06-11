@@ -17,14 +17,27 @@ export type ListingItem = {
   isAlias: boolean;
 };
 
+/**
+ * Umbrella "collection" filters used by the main nav: they expand to several
+ * real product categories.
+ */
+const CATEGORY_GROUPS: Record<string, string[]> = {
+  kicsiknek: ['pillow', 'poster'],
+  nagyoknak: ['cape', 'crown'],
+};
+
 /** Fetch all products visible in listings + all active aliases, merged. */
 export async function getListingItems(opts?: { category?: string }): Promise<ListingItem[]> {
+  const categoryFilter = opts?.category
+    ? CATEGORY_GROUPS[opts.category] ?? [opts.category]
+    : undefined;
+
   const [products, aliases] = await Promise.all([
     prisma.product.findMany({
       where: {
         active: true,
         hiddenFromListing: false,
-        ...(opts?.category ? { category: opts.category } : {}),
+        ...(categoryFilter ? { category: { in: categoryFilter } } : {}),
       },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
     }),
@@ -58,7 +71,7 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
     .map((a): ListingItem | null => {
       const canonical = canonicalBySlug.get(a.targetProductSlug);
       if (!canonical) return null; // orphan alias — skip
-      if (opts?.category && canonical.category !== opts.category) return null;
+      if (categoryFilter && !categoryFilter.includes(canonical.category)) return null;
       return {
         id: `alias:${a.id}`,
         name: a.name,
@@ -74,13 +87,16 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
     })
     .filter((x): x is ListingItem => x !== null);
 
-  // Homepage/listing order: pillows → posters (aliases appear here) → giftcards.
-  // Within each bucket we keep the item's own sortOrder (then createdAt via fetch order).
+  // Homepage/listing order: pillows → posters (aliases appear here) → capes →
+  // crowns → giftcards. Within each bucket we keep the item's own sortOrder
+  // (then createdAt via fetch order).
   const bucketRank = (cat: string | null) => {
     if (cat === 'pillow') return 0;
     if (cat === 'poster') return 1;
-    if (cat === 'giftcard') return 2;
-    return 3;
+    if (cat === 'cape') return 2;
+    if (cat === 'crown') return 3;
+    if (cat === 'giftcard') return 4;
+    return 5;
   };
 
   return [...productItems, ...aliasItems].sort((a, b) => {

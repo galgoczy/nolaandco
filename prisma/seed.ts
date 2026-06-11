@@ -3,6 +3,50 @@ import { hashPassword } from '../src/lib/auth';
 
 const prisma = new PrismaClient();
 
+const capeLongDescription = `A kisbabák az emlékeket, a nagyok a kalandokat kapják!
+Amikor egy kistestvér érkezik a családba, minden figyelem rá irányul. A Nola & Co Kalandköpenyt azért álmodtuk meg, hogy a nagyobb testvérek is megkapják a saját, személyre szabott "szupererejüket".
+Legyen szó a világ megmentéséről a nappaliban, királyi teapartiról a kertben, egy családi fotózásról, vagy a kistesó büszke védelmezéséről – ez a pillekönnyű, prémium köpeny évekig a legszebb kelléke lesz a gyermekkori varázslatnak.
+
+**Miért ez a legtökéletesebb ajándék?**
+
+**Kifordítható dizájn (2 az 1-ben):** Két gyönyörű, harmonizáló földszín/pasztell árnyalat egy köpenyben. Az egyik oldalán ott a vagány, egyedi logó a rohangáláshoz, ha pedig kifordítjátok, egy letisztult, elegáns, egyszínű köpenyt kaptok az ünnepekre vagy fotózásokra, királyi eseményekre.
+
+**Személyre szabott varázslat:** A köpeny hátára puha filcből, gondos odafigyeléssel varrjuk fel a gyerek saját kezdőbetűjét vagy az egyedi "TESÓ" pajzsot.
+
+**Pillekönnyű és prémium:** 100% OEKO-TEX® minősítésű pamut duplagézből (muszlinból) készül. Elképesztően puha, légáteresztő, és gyönyörűen, lágyan lobog a gyerekek után futás közben.
+
+**Maximális biztonság és kényelem:** Felejtsd el a karcoló, hajba ragadó tépőzárakat vagy a veszélyes megkötőket! A köpenyt biztonságos és prémium műanyag patentokkal láttuk el, amit a gyerekek is könnyen be tudnak kapcsolni, de ha beakadna valahova, azonnal szétpattan.
+
+**Együtt nő a gyermekkel (One Size):** A kb. 65 cm-es hossznak köszönhetően egy 2 évesen még bokáig érő "varázslóköpeny", 6-7 éves korra pedig tökéletes "szuperhős" méretté válik.
+
+(Tipp: Tedd teljessé a varázslatot! Keresd a köpenyhez színben passzoló kétoldalas koronáinkat, és szerezd be őket szettben, kedvezményes áron!)
+
+**Fontos információk az előrendeléshez:** Mivel minden köpeny egyedileg, a Ti kérésetek alapján, kézzel készül a műhelyünkben, a feldolgozási és varrási idő jelenleg **5-8 munkanap** a feladásig. Köszönjük a türelmeteket!
+
+**Anyagösszetétel és kezelés:**
+Alapanyag: 100% OEKO-TEX 100 minősítésű Pamut (Duplagéz) a díszítés kivételével.
+Mosás: 30°C-os kímélő gépi programon, vagy kézzel mosható. Szárítógépben nem szárítható. Figyelem: A hátsó filc díszítés egyáltalán nem vasalható, illetve a duplagéz anyagot jellegéből adódóan szintén nem javasoljuk vasalni. Fektetve, formára igazítva szárítandó.`;
+
+const crownLongDescription = `Legyen szó egy különleges születésnapi fotózásról, egy királyi teadélutánról, vagy a kistestvér védelmezéséről – a Nola & Co puha koronája a legszebb kiegészítő a kicsik nagy pillanataihoz.
+Felejtsd el a karcoló műanyagokat, a szoros pántokat és az egyszer használatos papírkoronákat! Ezt a koronát úgy terveztük, hogy a gyerekek észre se vegyék, hogy viselik, a fotókon pedig prémium, letisztult skandináv hangulatot sugározzon.
+
+**Miért fogjátok imádni?**
+
+**Kifordítható dizájn (2 az 1-ben):** A korona kétoldalas! Két harmonizáló, gyönyörű földszín/pasztell árnyalatból áll, így egyetlen mozdulattal a napi öltözékhez vagy a fotózás hangulatához igazíthatjátok.
+
+**Zéró karcolás, maximális kényelem:** Nincs tépőzár, ami a hajba akadna! A korona hátulján egy puha, duplagézzel bevont rugalmas "scrunchie" pánt található, ami kényelmesen, nyomás nélkül tartja a koronát a fejen.
+
+**Prémium alapanyagok:** Kívül-belül 100% OEKO-TEX® minősítésű, pihe-puha pamut duplagézből (muszlinból) készült. Belsejében egy filc textilmerevítő gondoskodik arról, hogy a csúcsok büszkén megálljanak, miközben az anyag lágy marad.
+
+**Együtt nő a gyermekkel (One Size):** A rugalmas hátsó pántnak köszönhetően kb. 2-től 7 éves korig tökéletesen és kényelmesen illeszkedik.
+
+Tökéletes ajándék! Az ideális apróságot keresed a babalátogatóba a nagytesónak, vagy egy szülinapi bulira? Ezzel az örök darabbal garantált a mosoly.
+(Tipp: Keresd a webshopban a koronához színben tökéletesen passzoló Kalandköpenyeinket, és szerezd be őket kedvezményes szett áron!)
+
+**Anyagösszetétel és Kezelés:**
+100% Pamut (Duplagéz) a belső merevítő kivételével.
+30°C-os kímélő gépi programon, vagy kézzel mosható, finom nyomkodással (kicsavarni tilos). Szárítógépben nem szárítható. Fektetve, formára igazítva szárítandó.`;
+
 const products = [
   {
     name: 'ORIGIN Core',
@@ -100,6 +144,113 @@ const products = [
     imageUrl: '/images/products/nola-ajandekkartya.jpg',
     badge: 'Ajándék',
   },
+  // --- Nagytesó kollekció: Kalandköpenyek ---
+  {
+    name: 'NOLA Hero – A Védelmező Kalandköpeny',
+    slug: 'nola-hero-kalandkopeny',
+    description:
+      'A kisbabák az emlékeket, a nagyok a kalandokat kapják! Kifordítható, kétoldalas prémium duplagéz köpeny a kistesó büszke védelmezőinek. A hátára puha filcből varrjuk fel a gyermek választott kezdőbetűjét – így lesz igazán az övé a szupererő.',
+    longDescription: capeLongDescription,
+    price: 12900,
+    onSale: true,
+    salePrice: 10900,
+    category: 'cape',
+    series: 'nagyteso',
+    variant: 'hero',
+    imageUrl: '/images/products/nola-hero-kalandkopeny.png',
+    badge: 'ELŐRENDELÉS',
+  },
+  {
+    name: 'NOLA Stella – Az Álmodozó Kalandköpeny',
+    slug: 'nola-stella-kalandkopeny',
+    description:
+      'A kisbabák az emlékeket, a nagyok a kalandokat kapják! Kifordítható, kétoldalas prémium duplagéz köpeny a kis álmodozóknak. A hátára puha filcből varrjuk fel a gyermek választott kezdőbetűjét – így lesz igazán az övé a varázslat.',
+    longDescription: capeLongDescription,
+    price: 12900,
+    onSale: true,
+    salePrice: 10900,
+    category: 'cape',
+    series: 'nagyteso',
+    variant: 'stella',
+    imageUrl: '/images/products/nola-stella-kalandkopeny.png',
+    badge: 'ELŐRENDELÉS',
+  },
+  {
+    name: 'NOLA Crew – A Csapatjátékos Kalandköpeny',
+    slug: 'nola-crew-kalandkopeny',
+    description:
+      'A kisbabák az emlékeket, a nagyok a kalandokat kapják! Kifordítható, kétoldalas prémium duplagéz köpeny, hátán az egyedi "TESÓ" pajzzsal – a csapat legifjabb hőseinek.',
+    longDescription: capeLongDescription,
+    price: 12900,
+    onSale: true,
+    salePrice: 10900,
+    category: 'cape',
+    series: 'nagyteso',
+    variant: 'crew',
+    imageUrl: '/images/products/nola-crew-kalandkopeny.png',
+    badge: 'ELŐRENDELÉS',
+  },
+  {
+    name: 'NOLA Kalandköpeny – Prémium Egyedi Tervező',
+    slug: 'nola-kalandkopeny-egyedi-tervezo',
+    description:
+      'Tervezd meg a saját Kalandköpenyed! Itt minden a Ti döntésetek: a külső és belső oldal színe, két motívum és azok színei, valamint a hátára kerülő kezdőbetű színe is. Egyedi, csak nektek készülő prémium duplagéz köpeny.',
+    longDescription: capeLongDescription,
+    price: 13900,
+    onSale: true,
+    salePrice: 11900,
+    category: 'cape',
+    series: 'nagyteso',
+    variant: 'custom',
+    imageUrl: '/images/products/nola-kalandkopeny-egyedi-tervezo.png',
+    badge: 'ELŐRENDELÉS',
+  },
+  // --- Nagytesó kollekció: Koronák ---
+  {
+    name: 'NOLA Hero Kétoldalas Korona',
+    slug: 'nola-hero-korona',
+    description:
+      'Puha, kétoldalas duplagéz korona a kicsik nagy pillanataihoz – a Hero köpenyhez harmonizáló színekben. Rugalmas "scrunchie" pánttal, karcoló tépőzár nélkül.',
+    longDescription: crownLongDescription,
+    price: 3900,
+    onSale: true,
+    salePrice: 2900,
+    category: 'crown',
+    series: 'nagyteso',
+    variant: 'hero',
+    imageUrl: '/images/products/nola-hero-korona.png',
+    badge: 'ÚJDONSÁG',
+  },
+  {
+    name: 'NOLA Stella Kétoldalas Korona',
+    slug: 'nola-stella-korona',
+    description:
+      'Puha, kétoldalas duplagéz korona a kicsik nagy pillanataihoz – a Stella köpenyhez harmonizáló színekben. Rugalmas "scrunchie" pánttal, karcoló tépőzár nélkül.',
+    longDescription: crownLongDescription,
+    price: 3900,
+    onSale: true,
+    salePrice: 2900,
+    category: 'crown',
+    series: 'nagyteso',
+    variant: 'stella',
+    imageUrl: '/images/products/nola-stella-korona.png',
+    badge: 'ÚJDONSÁG',
+  },
+  {
+    name: 'NOLA Crew Kétoldalas Korona',
+    slug: 'nola-crew-korona',
+    description:
+      'Puha, kétoldalas duplagéz korona a kicsik nagy pillanataihoz – a Crew köpenyhez harmonizáló színekben. Rugalmas "scrunchie" pánttal, karcoló tépőzár nélkül.',
+    longDescription: crownLongDescription,
+    price: 3900,
+    onSale: true,
+    salePrice: 2900,
+    category: 'crown',
+    series: 'nagyteso',
+    variant: 'crew',
+    imageUrl: '/images/products/nola-crew-korona.png',
+    badge: 'ÚJDONSÁG',
+  },
 ];
 
 async function main() {
@@ -116,7 +267,9 @@ async function main() {
   const categories = [
     { slug: 'pillow', name: 'Párnák', nameEn: 'KEEPSAKES', sortOrder: 0, visibleOnHome: true },
     { slug: 'poster', name: 'Poszterek', nameEn: 'ART PRINTS', sortOrder: 1, visibleOnHome: true },
-    { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 2, visibleOnHome: true },
+    { slug: 'cape', name: 'Kalandköpeny', nameEn: 'ADVENTURE CAPES', sortOrder: 2, visibleOnHome: true },
+    { slug: 'crown', name: 'Korona', nameEn: 'CROWNS', sortOrder: 3, visibleOnHome: true },
+    { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 4, visibleOnHome: true },
   ];
 
   for (const cat of categories) {

@@ -6,13 +6,32 @@ import { useCartStore } from '@/store/cart';
 import AccountMenu from './AccountMenu';
 import SearchModal from './SearchModal';
 
-const navLinks = [
+type NavItem = {
+  label: string;
+  href?: string; // no href = placeholder item (not clickable yet)
+  children?: { label: string; href: string }[];
+};
+
+const navItems: NavItem[] = [
   { label: 'FŐOLDAL', href: '/' },
-  { label: 'RÓLUNK', href: '/rolunk' },
-  { label: 'NEKTEK', href: '/nektek' },
-  { label: 'PÁRNA', href: '/termekek?category=pillow' },
-  { label: 'POSZTER', href: '/termekek?category=poster' },
+  {
+    label: 'KICSIKRŐL',
+    children: [
+      { label: 'Emlékpárnák', href: '/termekek?category=pillow' },
+      { label: 'Születési poszterek', href: '/termekek?category=poster' },
+    ],
+  },
+  {
+    label: 'NAGYOKNAK',
+    children: [
+      { label: 'Kalandköpenyek', href: '/termekek?category=cape' },
+      { label: 'Koronák', href: '/termekek?category=crown' },
+    ],
+  },
+  { label: 'NOLA VÁLOGATÁSOK' },
   { label: 'AJÁNDÉKKÁRTYA', href: '/termekek/nola-ajandekkartya' },
+  { label: 'NEKTEK', href: '/nektek' },
+  { label: 'RÓLUNK', href: '/rolunk' },
 ];
 
 type BannerData = {
@@ -88,16 +107,47 @@ export default function Navbar() {
           </div>
 
           {/* Center: Nav links (hidden on mobile) */}
-          <div className="hidden md:flex gap-6 items-center justify-center font-manrope text-sm tracking-wide uppercase font-medium">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="nav-link text-[#C4A591] hover:text-[#4A4A4A] transition-colors duration-200"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="hidden md:flex gap-6 items-center justify-center self-stretch font-manrope text-sm tracking-wide uppercase font-medium">
+            {navItems.map((item) =>
+              item.children ? (
+                <div key={item.label} className="relative group h-full flex items-center">
+                  <button
+                    type="button"
+                    className="nav-link text-[#C4A591] hover:text-[#4A4A4A] transition-colors duration-200 uppercase flex items-center gap-1"
+                  >
+                    {item.label}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full hidden group-hover:block group-focus-within:block">
+                    <div className="bg-nav-beige glass-nav shadow-lg rounded-b-xl py-2 min-w-[220px] normal-case">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.label}
+                          href={child.href}
+                          className="block px-5 py-2.5 text-[#C4A591] hover:text-[#4A4A4A] hover:bg-black/5 transition-colors duration-200 whitespace-nowrap"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : item.href ? (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="nav-link text-[#C4A591] hover:text-[#4A4A4A] transition-colors duration-200"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <span key={item.label} className="nav-link text-[#C4A591]/60 cursor-default">
+                  {item.label}
+                </span>
+              )
+            )}
           </div>
 
           {/* Right: Icons */}
@@ -140,17 +190,39 @@ export default function Navbar() {
         {/* Mobile menu */}
         {mobileOpen && (
           <div className="md:hidden bg-nav-beige border-t border-outline-variant/20 px-6 pb-6">
-            <div className="flex flex-col gap-4 pt-4 font-manrope text-sm tracking-wide uppercase font-medium">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="nav-link text-[#C4A591] hover:text-[#4A4A4A] transition-colors duration-200 py-2"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
+            <div className="flex flex-col gap-2 pt-4 font-manrope text-sm tracking-wide uppercase font-medium">
+              {navItems.map((item) =>
+                item.children ? (
+                  <div key={item.label} className="py-1">
+                    <span className="block text-[#C4A591] py-1">{item.label}</span>
+                    <div className="flex flex-col border-l border-[#C4A591]/30 ml-1 pl-4 mt-1 normal-case">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.label}
+                          href={child.href}
+                          className="nav-link text-[#C4A591] hover:text-[#4A4A4A] transition-colors duration-200 py-2"
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : item.href ? (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="nav-link text-[#C4A591] hover:text-[#4A4A4A] transition-colors duration-200 py-2"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <span key={item.label} className="text-[#C4A591]/60 py-2">
+                    {item.label}
+                  </span>
+                )
+              )}
             </div>
           </div>
         )}

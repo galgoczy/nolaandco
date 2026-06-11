@@ -1,23 +1,20 @@
-export const dynamic = 'force-dynamic';
+import HomeHero from '@/components/home/HomeHero';
+import CategoryGrid from '@/components/home/CategoryGrid';
+import FeaturedCapes from '@/components/home/FeaturedCapes';
+import TrustBadges from '@/components/home/TrustBadges';
 
-import HeroSection from '@/components/home/HeroSection';
-import FeatureHighlights from '@/components/home/FeatureHighlights';
-import ProductGrid from '@/components/home/ProductGrid';
-import AboutSection from '@/components/home/AboutSection';
-import WorkshopSection from '@/components/home/WorkshopSection';
-import TestimonialsSection from '@/components/home/TestimonialsSection';
-import ConversionSection from '@/components/home/ConversionSection';
-
+// Evergreen home structure:
+//   1. Hero (video) → Nagyoknak kollekció
+//   2. Vásárolj kategória szerint (3 oszlopos rács)
+//   3. Kiemelt újdonság sáv (Kalandköpenyek)
+//   4. Bizalmi ikonok
 export default function HomePage() {
   return (
     <main>
-      <HeroSection />
-      <FeatureHighlights />
-      <ProductGrid />
-      <AboutSection />
-      <WorkshopSection />
-      <TestimonialsSection />
-      <ConversionSection />
+      <HomeHero />
+      <CategoryGrid />
+      <FeaturedCapes />
+      <TrustBadges />
     </main>
   );
 }
