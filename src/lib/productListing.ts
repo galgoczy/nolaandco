@@ -9,6 +9,7 @@ export type ListingItem = {
   name: string;
   slug: string;              // the URL slug users click
   price: number;             // price to display
+  originalPrice: number | null; // compare-at price when on sale
   imageUrl: string;
   badge: string | null;
   category: string | null;
@@ -73,6 +74,7 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
     name: p.name,
     slug: p.slug,
     price: p.onSale && p.salePrice ? p.salePrice : p.price,
+    originalPrice: p.onSale && p.salePrice ? p.price : null,
     imageUrl: p.imageUrl,
     badge: p.badge,
     category: p.category ?? null,
@@ -91,6 +93,7 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
         name: a.name,
         slug: a.slug,
         price: canonical.onSale && canonical.salePrice ? canonical.salePrice : canonical.price,
+        originalPrice: canonical.onSale && canonical.salePrice ? canonical.price : null,
         imageUrl: a.imageUrl,
         badge: a.badge ?? canonical.badge,
         category: canonical.category ?? null,

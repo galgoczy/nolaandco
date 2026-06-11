@@ -80,7 +80,10 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
 
           {badge && (
             <div className="absolute top-4 right-4 z-10">
-              <span className="badge-shimmer px-3 py-1 rounded-lg glass-nav text-[10px] font-bold uppercase tracking-widest text-primary shadow-sm">
+              <span
+                className="badge-shimmer px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white shadow-sm"
+                style={{ backgroundColor: '#D55850' }}
+              >
                 {badge}
               </span>
             </div>

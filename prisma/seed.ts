@@ -179,7 +179,7 @@ const products = [
     series: 'nagyteso',
     variant: 'hero',
     imageUrl: '/images/products/nola-hero-kalandkopeny.png',
-    badge: 'ELŐRENDELÉS',
+    badge: 'ÚJDONSÁG',
   },
   {
     name: 'NOLA Stella – Az Álmodozó Kalandköpeny',
@@ -194,7 +194,7 @@ const products = [
     series: 'nagyteso',
     variant: 'stella',
     imageUrl: '/images/products/nola-stella-kalandkopeny.png',
-    badge: 'ELŐRENDELÉS',
+    badge: 'ÚJDONSÁG',
   },
   {
     name: 'NOLA Crew – A Csapatjátékos Kalandköpeny',
@@ -209,7 +209,7 @@ const products = [
     series: 'nagyteso',
     variant: 'crew',
     imageUrl: '/images/products/nola-crew-kalandkopeny.png',
-    badge: 'ELŐRENDELÉS',
+    badge: 'ÚJDONSÁG',
   },
   {
     name: 'NOLA Kalandköpeny – Prémium Egyedi Tervező',
@@ -224,7 +224,7 @@ const products = [
     series: 'nagyteso',
     variant: 'custom',
     imageUrl: '/images/products/nola-kalandkopeny-egyedi-tervezo.png',
-    badge: 'ELŐRENDELÉS',
+    badge: 'ÚJDONSÁG',
   },
   // --- Nagytesó kollekció: Koronák ---
   {
@@ -297,6 +297,13 @@ async function main() {
     await prisma.product.deleteMany({ where: { slug } });
   }
   console.log('Cleaned up old gift card variants.');
+
+  // One-off rename: the capes originally shipped with an ELŐRENDELÉS badge.
+  const renamed = await prisma.product.updateMany({
+    where: { badge: 'ELŐRENDELÉS' },
+    data: { badge: 'ÚJDONSÁG' },
+  });
+  if (renamed.count > 0) console.log(`Renamed ${renamed.count} ELŐRENDELÉS badge(s) to ÚJDONSÁG.`);
 
   // --- Categories ---
   console.log('Seeding categories...');
