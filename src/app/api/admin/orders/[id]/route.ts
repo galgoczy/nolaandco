@@ -4,6 +4,7 @@ import { isAdminRequest } from '@/lib/admin-auth';
 import { sendEmail } from '@/lib/emails/send';
 import { shippingNotificationSubject, shippingNotificationHtml } from '@/lib/emails/shipping-notification';
 import { followUpSubject, followUpHtml } from '@/lib/emails/follow-up';
+import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
 
 export async function GET(
   _request: NextRequest,
@@ -71,6 +72,14 @@ export async function PATCH(
         },
       },
     });
+
+    // Digital gift cards: when a (typically bank-transfer) order is marked
+    // paid, generate the coupon code(s) and email them. Idempotent.
+    if (status === 'paid' && prev?.status !== 'paid') {
+      fulfillGiftCardsForOrder(order.id).catch((err) =>
+        console.error('Gift card fulfillment error:', err)
+      );
+    }
 
     // Send shipping notification when status changes to "shipped"
     if (status === 'shipped' && prev?.status !== 'shipped') {

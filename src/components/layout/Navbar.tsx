@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
     ],
   },
   { label: 'VÁLOGATÁSOK', href: '/termekek?category=bundle' },
-  { label: 'AJÁNDÉKKÁRTYA', href: '/termekek/nola-ajandekkartya' },
+  { label: 'AJÁNDÉKKÁRTYA', href: '/termekek/nola-digitalis-ajandekkartya' },
   { label: 'NEKTEK', href: '/nektek' },
   { label: 'RÓLUNK', href: '/rolunk' },
 ];

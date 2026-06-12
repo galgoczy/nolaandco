@@ -154,15 +154,29 @@ const products = [
     badge: null,
   },
   {
-    name: 'Nola & Co ajándékkártya',
-    slug: 'nola-ajandekkartya',
-    description:
-      'Digitális ajándékkártya – tökéletes ajándék várandós vagy friss szülő ismerősöknek! A megajándékozott szabadon választhat a Nola & Co. termékpalettájáról, amikor már ismeri a baba születési adatait. Válassz öt verzió közül: Digitális poszter (6.000 Ft), Print poszter + szállítás (14.000 Ft), Párna + szállítás (24.000 Ft), Nola Duet – digital (27.000 Ft), vagy Nola Duet – print (33.000 Ft).',
-    price: 6000,
+    name: 'Nola Digitális Ajándékkártya',
+    slug: 'nola-digitalis-ajandekkartya',
+    description: `**A legtökéletesebb ajándék: a választás szabadsága**
+
+Babaváró buliba, keresztelőre vagy születésnapra mész, de bizonytalan vagy a részletekben? Nem tudod pontosan a születési adatokat, a gyerkőc kedvenc színét, vagy hogy épp minek örülnének a legjobban a babaszobában?
+
+Vedd le a terhet a saját válladról, és add meg a legszebb ajándékot a családnak: a választás és a tervezés örömét!
+
+A Nola & Co. Digitális Ajándékkártyával az ünnepelt szülők és gyerkőcök maguk választhatják ki a számukra legkedvesebb darabokat. Legyen szó a baba legelső pillanatait megőrző, személyre szabott emlékekről, a mindennapokat körbeölelő puha textíliákról, vagy a nagyobbak varázslatos kiegészítőiről – a döntés az ő kezükben van!`,
+    longDescription: `**Hogyan működik?**
+
+**1.** Válaszd ki a legördülő menüből a kívánt összeget!
+
+**2.** A vásárlás után az ajándékkártyát (és a hozzá tartozó egyedi kuponkódot) azonnal, e-mailben küldjük el neked.
+
+**3.** Ezt az e-mailt egyszerűen továbbíthatod a megajándékozottnak, vagy ki is nyomtathatod, hogy egy szép borítékban, személyesen adhasd át!
+
+Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a webshopunkban található összes termékre (beleértve a szállítási díjat is) felhasználható.`,
+    price: 10000,
     category: 'giftcard',
     series: 'nola',
     variant: 'giftcard',
-    imageUrl: '/images/products/nola-ajandekkartya.jpg',
+    imageUrl: '/images/products/nola-digitalis-ajandekkartya.png',
     badge: 'Ajándék',
   },
   // --- Nagytesó kollekció: Kalandköpenyek ---
@@ -348,6 +362,24 @@ async function main() {
       await prisma.product.create({ data: product });
       console.log(`  Created: ${product.name}`);
     }
+  }
+
+  // --- Legacy multi-package gift card → renamed, hidden, inactive. The new
+  // fixed-amount digital gift card (nola-digitalis-ajandekkartya) replaces it;
+  // /termekek/nola-ajandekkartya 301-redirects to the new product.
+  const legacyGiftCard = await prisma.product.findUnique({
+    where: { slug: 'nola-ajandekkartya' },
+  });
+  if (legacyGiftCard && legacyGiftCard.active) {
+    await prisma.product.update({
+      where: { slug: 'nola-ajandekkartya' },
+      data: {
+        name: 'Nola & Co ajándékkártya (archív)',
+        hiddenFromListing: true,
+        active: false,
+      },
+    });
+    console.log('  Archived legacy gift card: nola-ajandekkartya');
   }
 
   // --- Legacy poster products → hide from listings. They remain in the DB so

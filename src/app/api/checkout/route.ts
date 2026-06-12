@@ -12,6 +12,7 @@ import {
   orderNotificationSubject,
 } from '@/lib/emails/order-notification';
 import { cartItemRequiresShipping } from '@/lib/shippingRules';
+import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
 import type { CartItemData } from '@/store/cart';
 
 const SHIPPING_COSTS: Record<string, number> = {
@@ -349,6 +350,13 @@ export async function POST(request: NextRequest) {
         where: { id: order.id },
         data: { status: 'paid' },
       });
+
+      // Digital gift cards: generate the coupon code(s) and email them.
+      try {
+        await fulfillGiftCardsForOrder(order.id);
+      } catch (err) {
+        console.error('Gift card fulfillment error:', err);
+      }
 
       await sendOrderEmails({
         orderId: order.id,
