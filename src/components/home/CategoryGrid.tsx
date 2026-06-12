@@ -11,17 +11,17 @@ type CategoryTile = {
 const tiles: CategoryTile[] = [
   {
     label: 'Kicsikről',
-    imageUrl: '/images/home/kategoria-kicsikrol.png',
+    imageUrl: '/images/home/kategoria-kicsikrol.jpg',
     href: '/termekek?category=kicsiknek',
   },
   {
     label: 'Nagyoknak',
-    imageUrl: '/images/home/kategoria-nagyoknak.png',
+    imageUrl: '/images/home/kategoria-nagyoknak.jpg',
     href: '/termekek?category=nagyoknak',
   },
   {
     label: 'NOLA válogatások',
-    imageUrl: '/images/home/kategoria-valogatasok.png',
+    imageUrl: '/images/home/kategoria-valogatasok.jpg',
     href: '/termekek?category=bundle',
   },
 ];
