@@ -101,9 +101,9 @@ export default function WorkshopSection() {
         {/* 3 Workshop photos */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
           {[
-            { src: '/images/bal.jpeg', alt: 'Szabás' },
-            { src: '/images/kozep.jpeg', alt: 'Hőpréselés' },
-            { src: '/images/jobb.jpeg', alt: 'Címke & varrás' },
+            { src: '/images/home/artofcrafting-1.jpg', alt: 'Szabás' },
+            { src: '/images/home/artofcrafting-2.jpg', alt: 'Kézi applikálás' },
+            { src: '/images/home/artofcrafting-3.jpg', alt: 'Varrás' },
           ].map((img, i) => (
             <RevealOnScroll key={i} delay={i * 120}>
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#FDFBF7]/10">
