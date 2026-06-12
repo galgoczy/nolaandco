@@ -47,7 +47,7 @@ export default function CategoryGrid() {
                     sizes="(max-width: 768px) 90vw, 30vw"
                   />
                 </div>
-                <p className="text-center text-base md:text-lg tracking-[0.08em] text-carbon">
+                <p className="text-center text-base md:text-lg tracking-[0.08em] text-carbon uppercase">
                   {tile.label}
                 </p>
               </>
