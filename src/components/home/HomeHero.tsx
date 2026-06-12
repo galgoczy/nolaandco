@@ -157,12 +157,16 @@ export default function HomeHero() {
               <Link
                 href={slide.ctaHref}
                 tabIndex={active === i ? 0 : -1}
-                className="pointer-events-auto bg-[#C4A591] text-white rounded-2xl px-8 md:px-12 py-3.5 md:py-4 text-xs md:text-sm btn-anim shadow-xl cursor-pointer hero-cta-pulse"
+                aria-hidden={active !== i}
+                className="bg-[#C4A591] text-white rounded-2xl px-8 md:px-12 py-3.5 md:py-4 text-xs md:text-sm btn-anim shadow-xl cursor-pointer hero-cta-pulse"
                 style={{
                   fontFamily: heroFont,
                   fontWeight: 600,
                   letterSpacing: '0.128em',
                   textTransform: 'uppercase',
+                  // Csak az aktív dia gombja kattintható — az inaktív, átlátszó
+                  // gomb különben elfogná a kattintást a látható gomb elől.
+                  pointerEvents: active === i ? 'auto' : 'none',
                 }}
               >
                 {slide.ctaLabel}
