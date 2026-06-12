@@ -20,7 +20,7 @@ const SLIDES: HeroSlide[] = [
   {
     desktopSrc: '/scrollytelling/nola_koppeny-desktop.mp4',
     mobileSrc: '/scrollytelling/nola_koppeny-mobile.mp4',
-    mobileObjectPosition: '30% 50%',
+    mobileObjectPosition: '70% 50%',
     eyebrow: 'EMLÉKEK A KICSIKNEK, KALANDOK A NAGYOKNAK',
     title: (
       <>
