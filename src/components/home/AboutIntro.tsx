@@ -12,7 +12,7 @@ export default function AboutIntro() {
           <RevealOnScroll className="w-full md:w-1/2">
             <div className="relative aspect-[3/4] max-w-md mx-auto rounded-2xl overflow-hidden bg-surface-container">
               <Image
-                src="/images/tőlünk2.png"
+                src="/images/home/tolunk-uj.jpg"
                 alt="Tőlünk, Nektek – Nola & Co."
                 fill
                 className="object-cover"

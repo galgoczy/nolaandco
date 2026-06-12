@@ -12,9 +12,9 @@ export default function FeaturedCapes() {
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
             {/* Left: product photo */}
             <div className="w-full md:w-1/2">
-              <div className="relative aspect-[4/5] rounded-sm overflow-hidden bg-surface-container-low ghost-border">
+              <div className="relative aspect-square rounded-sm overflow-hidden bg-surface-container-low ghost-border">
                 <Image
-                  src="/images/home/kalandkopeny-kiemelt.png"
+                  src="/images/home/kalandkopeny-kiemelt.jpg"
                   alt="NOLA Kalandköpeny"
                   fill
                   className="object-cover"
