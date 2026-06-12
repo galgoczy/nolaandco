@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { createSzamlazzInvoice } from '@/lib/szamlazz';
 import { sendEmail } from '@/lib/emails/send';
 import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
+import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
 import {
   ADMIN_NOTIFICATION_RECIPIENT,
   orderNotificationHtml,
@@ -55,6 +56,13 @@ export async function POST(request: NextRequest) {
 
       if (order) {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
+
+        // Digital gift cards: generate the coupon code(s) and email them.
+        try {
+          await fulfillGiftCardsForOrder(order.id);
+        } catch (err) {
+          console.error('Gift card fulfillment error:', err);
+        }
 
         // Generate Számlázz.hu invoice (awaited so we can capture the PDF
         // and attach it to our confirmation email). If anything goes wrong

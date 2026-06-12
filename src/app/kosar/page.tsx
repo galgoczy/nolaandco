@@ -78,9 +78,15 @@ export default function KosarPage() {
                 >
                   {item.name}
                 </Link>
-                <p className="text-sm text-carbon-light mt-0.5">
-                  {item.babyName} &middot; {item.birthDate}
-                </p>
+                {item.babyName ? (
+                  <p className="text-sm text-carbon-light mt-0.5">
+                    {item.babyName} &middot; {item.birthDate}
+                  </p>
+                ) : item.customNote ? (
+                  <p className="text-xs text-carbon-light mt-0.5 whitespace-pre-line">
+                    {item.customNote}
+                  </p>
+                ) : null}
                 {item.posterLayoutLabel && (
                   <p className="text-xs text-carbon-light/80 mt-0.5">
                     Dizájn: {item.posterLayoutLabel}

@@ -9,12 +9,13 @@ import { useBirthDataStore } from '@/store/birthData';
 import { formatPrice } from '@/lib/utils';
 import type { BirthData } from '@/lib/validators';
 
+// Fix összegű digitális ajándékkártya címletek.
 const giftCardVariants = [
-  { label: 'Digitális poszter', price: 6000, description: 'emailben kiküldve, tetszőleges méretben nyomtatható' },
-  { label: 'Print poszter + szállítás', price: 14000, description: 'nyomtatott poszter 50 x 70 cm + csomagautomatás szállítás' },
-  { label: 'Párna + szállítás', price: 24000, description: 'választott párna + csomagautomatás szállítás' },
-  { label: 'Nola Duet – digital', price: 27000, description: 'digitális poszter + párna + csomagautomatás szállítás' },
-  { label: 'Nola Duet – print', price: 33000, description: 'nyomtatott poszter 50 x 70 cm + párna + csomagautomatás szállítás' },
+  { label: '10.000 Ft', price: 10000 },
+  { label: '15.000 Ft', price: 15000 },
+  { label: '20.000 Ft', price: 20000 },
+  { label: '25.000 Ft', price: 25000 },
+  { label: '35.000 Ft', price: 35000 },
 ];
 
 const posterVariants = [
@@ -122,7 +123,7 @@ export default function AddToCartSection({
         birthDate: '',
         birthWeight: '',
         birthHeight: '',
-        customNote: `Ajándékkártya verzió: ${variant.label}`,
+        customNote: `Ajándékkártya értéke: ${variant.label}`,
         variant: variant.label,
       });
       setAdded(true);
@@ -200,29 +201,24 @@ export default function AddToCartSection({
 
     return (
       <div className="space-y-6">
-        <h3 className="text-lg font-bold text-carbon">Válassz verziót</h3>
-        <div className="space-y-3">
-          {giftCardVariants.map((variant, i) => (
-            <button
-              key={i}
-              onClick={() => setSelectedVariant(i)}
-              className={`w-full text-left rounded-2xl p-5 transition-all border-2 ${
-                selectedVariant === i
-                  ? 'border-[#C4A591] bg-[#faf6f1]'
-                  : 'border-transparent bg-surface-container hover:bg-surface-container-low'
-              }`}
+        <div className="bg-[#faf6f1] rounded-2xl p-6 shadow-sm">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="giftcard-amount" className="text-carbon-light text-sm font-body">
+              Választható érték *
+            </label>
+            <select
+              id="giftcard-amount"
+              value={selectedVariant}
+              onChange={(e) => setSelectedVariant(Number(e.target.value))}
+              className="bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="font-medium text-carbon">{variant.label}</span>
-                  <p className="text-sm text-carbon-light mt-0.5">{variant.description}</p>
-                </div>
-                <span className="text-lg font-bold text-carbon whitespace-nowrap ml-4">
-                  {formatPrice(variant.price)}
-                </span>
-              </div>
-            </button>
-          ))}
+              {giftCardVariants.map((variant, i) => (
+                <option key={variant.label} value={i}>
+                  {variant.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <Button variant="secondary" onClick={handleAddToCart} className="w-full">
           Kosárba – {formatPrice(giftCardVariants[selectedVariant].price)}

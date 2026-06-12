@@ -1,211 +1,12 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../src/lib/prisma';
 import { hashPassword } from '../src/lib/auth';
-
-const prisma = new PrismaClient();
-
-const products = [
-  {
-    name: 'ORIGIN Core',
-    slug: 'origin-core',
-    description:
-      'Az ORIGIN Core babapárna a klasszikus elegancia megtestesítője. Prémium minőségű, OEKO-TEX tanúsítvánnyal rendelkező anyagból készül, és személyre szabható a baba születési adataival: név, dátum, súly, hossz és időpont. Tökéletes emlék az első napokról.',
-    price: 22900,
-    category: 'pillow',
-    series: 'origin',
-    variant: 'core',
-    imageUrl: '/images/products/origin-core.jpg',
-    badge: null,
-  },
-  {
-    name: 'ORIGIN Linea',
-    slug: 'origin-linea',
-    description:
-      'Az ORIGIN Linea babapárna finom vonalvezetésű mintázatával egyedi hangulatot teremt. Hipoallergén töltete és puha huzata ideális az érzékeny bababőrnek. Személyre szabható a kicsi születési adataival, hogy örök emlék legyen.',
-    price: 22900,
-    category: 'pillow',
-    series: 'origin',
-    variant: 'linea',
-    imageUrl: '/images/products/origin-linea.jpg',
-    badge: null,
-  },
-  {
-    name: 'ORIGIN Atelier',
-    slug: 'origin-atelier',
-    description:
-      'Az ORIGIN Atelier babapárna a kézműves igényesség csúcsa. Egyedi, művészi mintázattal és prémium anyagokkal készül. A baba születési adataival személyre szabva különleges ajándék és gyönyörű emlék.',
-    price: 22900,
-    category: 'pillow',
-    series: 'origin',
-    variant: 'atelier',
-    imageUrl: '/images/products/origin-atelier.jpg',
-    badge: null,
-  },
-  {
-    name: 'NOVA Core',
-    slug: 'nova-core',
-    description:
-      'A NOVA Core babapárna modern, letisztult dizájnjával a skandináv stílus jegyében készül. Személyre szabható a baba születési adataival: név, dátum, súly, hossz és időpont. Prémium anyagok, hipoallergén töltés.',
-    price: 22900,
-    category: 'pillow',
-    series: 'nova',
-    variant: 'core',
-    imageUrl: '/images/products/nova-core.jpg',
-    badge: null,
-  },
-  {
-    name: 'NOVA Linea',
-    slug: 'nova-linea',
-    description:
-      'A NOVA Linea babapárna a modern vonalak és a puha texturák harmóniája. OEKO-TEX minősített anyagokból készül, és a baba születési adataival személyre szabható. Stílusos emlék, ami dísze lesz a babaszobának.',
-    price: 22900,
-    category: 'pillow',
-    series: 'nova',
-    variant: 'linea',
-    imageUrl: '/images/products/nova-linea.jpg',
-    badge: null,
-  },
-  {
-    name: 'NOVA Atelier',
-    slug: 'nova-atelier',
-    description:
-      'A NOVA Atelier babapárna a kortárs művészet és a bababútor találkozása. Kézzel készített, egyedi mintázatú darab, amely a baba születési adataival válik igazán személyessé. Exkluzív ajándék és dekoráció.',
-    price: 22900,
-    category: 'pillow',
-    series: 'nova',
-    variant: 'atelier',
-    imageUrl: '/images/products/nova-atelier.jpg',
-    badge: null,
-  },
-  {
-    name: 'Poszter',
-    slug: 'poszter',
-    description:
-      'Személyre szabható emlékposzter a baba születési adataival. Válassz a hat grafikus dizájn és hat háttérszín közül — az elrendezést valós időben alakíthatod a tervezőben. Prémium papírra nyomtatva vagy digitális fájlként.',
-    price: 5900,
-    category: 'poster',
-    series: 'nola',
-    variant: 'core',
-    imageUrl: '/images/products/origin-poszter.jpg',
-    badge: null,
-  },
-  {
-    name: 'Nola & Co ajándékkártya',
-    slug: 'nola-ajandekkartya',
-    description:
-      'Digitális ajándékkártya – tökéletes ajándék várandós vagy friss szülő ismerősöknek! A megajándékozott szabadon választhat a Nola & Co. termékpalettájáról, amikor már ismeri a baba születési adatait. Válassz öt verzió közül: Digitális poszter (6.000 Ft), Print poszter + szállítás (14.000 Ft), Párna + szállítás (24.000 Ft), Nola Duet – digital (27.000 Ft), vagy Nola Duet – print (33.000 Ft).',
-    price: 6000,
-    category: 'giftcard',
-    series: 'nola',
-    variant: 'giftcard',
-    imageUrl: '/images/products/nola-ajandekkartya.jpg',
-    badge: 'Ajándék',
-  },
-];
+import { syncCatalog } from '../src/lib/catalogSync';
 
 async function main() {
-  // Clean up old gift card variants that were replaced by a single product
-  const oldGiftCardSlugs = ['nola-ajandekkartya-8900', 'nola-ajandekkartya-22900', 'nola-ajandekkartya-29900'];
-  for (const slug of oldGiftCardSlugs) {
-    await prisma.product.deleteMany({ where: { slug } });
-  }
-  console.log('Cleaned up old gift card variants.');
-
-  // --- Categories ---
-  console.log('Seeding categories...');
-
-  const categories = [
-    { slug: 'pillow', name: 'Párnák', nameEn: 'KEEPSAKES', sortOrder: 0, visibleOnHome: true },
-    { slug: 'poster', name: 'Poszterek', nameEn: 'ART PRINTS', sortOrder: 1, visibleOnHome: true },
-    { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 2, visibleOnHome: true },
-  ];
-
-  for (const cat of categories) {
-    await prisma.category.upsert({
-      where: { slug: cat.slug },
-      update: { name: cat.name, nameEn: cat.nameEn, sortOrder: cat.sortOrder, visibleOnHome: cat.visibleOnHome },
-      create: cat,
-    });
-    console.log(`  Upserted category: ${cat.name}`);
-  }
-
-  console.log('Seeding products...');
-
-  for (const product of products) {
-    const existing = await prisma.product.findUnique({ where: { slug: product.slug } });
-    if (existing) {
-      // On re-seed, only sync the "structural" fields that aren't editable in
-      // the admin UI. Admin-editable content (name, description, longDescription,
-      // price, badge, imageUrl, images, active, onSale, salePrice) is left
-      // untouched so saved edits survive deploys.
-      await prisma.product.update({
-        where: { slug: product.slug },
-        data: {
-          category: product.category,
-          series: product.series,
-          variant: product.variant,
-        },
-      });
-      console.log(`  Updated (kept admin-edited fields): ${existing.name}`);
-    } else {
-      await prisma.product.create({ data: product });
-      console.log(`  Created: ${product.name}`);
-    }
-  }
-
-  // --- Legacy poster products → hide from listings. They remain in the DB so
-  // historical OrderItem FKs stay valid, but the two aliases below replace
-  // them as the visible landing cards.
-  const legacyPosterSlugs = ['origin-poszter', 'nova-poszter'];
-  for (const slug of legacyPosterSlugs) {
-    const legacy = await prisma.product.findUnique({ where: { slug } });
-    if (legacy) {
-      await prisma.product.update({
-        where: { slug },
-        data: { hiddenFromListing: true, active: false },
-      });
-      console.log(`  Hid legacy poster product: ${slug}`);
-    }
-  }
-
-  // --- Product aliases: "landing cards" for the canonical poszter product ---
-  console.log('Seeding product aliases...');
-
-  const aliases = [
-    {
-      slug: 'origin-poszter',
-      name: 'ORIGIN poszter',
-      imageUrl: '/images/products/origin-poszter.jpg',
-      targetProductSlug: 'poszter',
-      defaultLayoutId: 'origin-1',
-      sortOrder: 0,
-    },
-    {
-      slug: 'nova-poszter',
-      name: 'NOVA poszter',
-      imageUrl: '/images/products/nova-poszter.jpg',
-      targetProductSlug: 'poszter',
-      defaultLayoutId: 'nova-1',
-      sortOrder: 1,
-    },
-  ];
-
-  for (const a of aliases) {
-    const existing = await prisma.productAlias.findUnique({ where: { slug: a.slug } });
-    if (existing) {
-      // Keep admin-edited name & imageUrl; only sync routing-structural fields.
-      await prisma.productAlias.update({
-        where: { slug: a.slug },
-        data: {
-          targetProductSlug: a.targetProductSlug,
-          defaultLayoutId: a.defaultLayoutId,
-        },
-      });
-      console.log(`  Updated alias (kept name/image): ${a.slug}`);
-    } else {
-      await prisma.productAlias.create({ data: a });
-      console.log(`  Created alias: ${a.slug}`);
-    }
-  }
+  // Catalog (categories, products, aliases) — shared with the admin
+  // "Katalógus frissítés" button.
+  const log = await syncCatalog();
+  for (const line of log) console.log(`  ${line}`);
 
   console.log('Seeding admin users...');
 
@@ -215,14 +16,17 @@ async function main() {
     { email: 'galgoczy.gergely@gmail.com', password: 'google-auth-only' },
   ];
 
+  // Create-only: existing admin accounts (and their passwords) are never
+  // touched on re-seed, so a catalog refresh can't reset anyone's login.
   for (const admin of adminUsers) {
+    const existing = await prisma.adminUser.findUnique({ where: { email: admin.email } });
+    if (existing) {
+      console.log(`  Admin exists, skipped: ${admin.email}`);
+      continue;
+    }
     const passwordHash = hashPassword(admin.password);
-    await prisma.adminUser.upsert({
-      where: { email: admin.email },
-      update: { passwordHash },
-      create: { email: admin.email, passwordHash },
-    });
-    console.log(`  Upserted admin: ${admin.email}`);
+    await prisma.adminUser.create({ data: { email: admin.email, passwordHash } });
+    console.log(`  Created admin: ${admin.email}`);
   }
 
   console.log('Seeding complete!');

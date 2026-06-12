@@ -5,10 +5,12 @@ import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import { renderRichText } from '@/lib/richText';
 import AddToCartSection from './AddToCartSection';
+import CapeAddToCart from './CapeAddToCart';
 import ProductGallery from './ProductGallery';
 import PillowVariants from './PillowVariants';
 import PosterClient from './PosterClient';
 import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
+import { getCapeConfig } from './capeData';
 
 const POSTER_DESIGNER_SLUG = 'poszter';
 
@@ -40,6 +42,8 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const isGiftCard = product.category === 'giftcard';
   const isPosterDesigner = product.slug === POSTER_DESIGNER_SLUG;
   const isPillow = product.category === 'pillow';
+  const isBigKidProduct =
+    product.category === 'cape' || product.category === 'crown' || product.category === 'bundle';
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
 
   const pillowVariants = isPillow
@@ -136,7 +140,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
 
           {/* Right column: product details */}
           <div className="w-full lg:w-1/2 flex flex-col justify-center space-y-6 mt-12 lg:mt-0">
-            {!isGiftCard && product.series && (
+            {!isGiftCard && !isBigKidProduct && product.series && (
               <span className="inline-block self-start px-3 py-1 rounded-full bg-surface-container text-xs font-medium uppercase tracking-wider text-carbon-light">
                 {product.series} series
               </span>
@@ -193,16 +197,29 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
             )}
 
             <div className="pt-4">
-              <AddToCartSection
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  slug: product.slug,
-                  price: effectivePrice,
-                  imageUrl: product.imageUrl,
-                  category: product.category,
-                }}
-              />
+              {isBigKidProduct ? (
+                <CapeAddToCart
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    price: effectivePrice,
+                    imageUrl: product.imageUrl,
+                  }}
+                  config={getCapeConfig(product.slug)}
+                />
+              ) : (
+                <AddToCartSection
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    price: effectivePrice,
+                    imageUrl: product.imageUrl,
+                    category: product.category,
+                  }}
+                />
+              )}
             </div>
           </div>
 
