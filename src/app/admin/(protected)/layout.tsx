@@ -12,6 +12,7 @@ const navItems = [
   { label: 'Termék aliasok', href: '/admin/termek-aliasok' },
   { label: 'Kategóriák', href: '/admin/kategoriak' },
   { label: 'Kuponok', href: '/admin/kuponok' },
+  { label: 'Katalógus frissítés', href: '/admin/katalogus' },
   { label: 'Statisztikák', href: '/admin/statisztikak' },
   { label: 'Szalagcím', href: '/admin/szalagcim' },
 ];
