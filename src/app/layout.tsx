@@ -12,7 +12,7 @@ const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nolaandco.hu'),
-  title: 'Nola & Co | Születési emlékpárnák & poszterek',
+  title: 'Nola & Co | Emlékek & kalandok',
   description:
     'Személyre szabott babapárnák és poszterek. Prémium minőségű, OEKO-TEX tanúsítvánnyal rendelkező anyagokból.',
   openGraph: {
@@ -20,13 +20,13 @@ export const metadata: Metadata = {
     locale: 'hu_HU',
     url: 'https://nolaandco.hu',
     siteName: 'Nola & Co.',
-    title: 'Nola & Co. | Születési emlékpárnák és poszterek',
+    title: 'Nola & Co. | Emlékek & kalandok',
     description:
       'Az emlékek, amik pontosan akkorák, mint ő volt. 1:1 méretarányú, egyedi születési párnák és poszterek.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nola & Co. | Születési emlékpárnák és poszterek',
+    title: 'Nola & Co. | Emlékek & kalandok',
     description:
       'Az emlékek, amik pontosan akkorák, mint ő volt. 1:1 méretarányú, egyedi születési párnák és poszterek.',
   },
