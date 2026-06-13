@@ -3,11 +3,14 @@ import Image from 'next/image';
 import CookiePreferencesLink from './CookiePreferencesLink';
 
 const quickLinks = [
-  { label: 'Rólunk', href: '/rolunk' },
+  { label: 'Emlékpárnák', href: '/termekek?category=pillow' },
+  { label: 'Születési poszterek', href: '/termekek?category=poster' },
+  { label: 'Kalandköpenyek', href: '/termekek?category=cape' },
+  { label: 'Koronák', href: '/termekek?category=crown' },
+  { label: 'Válogatások', href: '/termekek?category=bundle' },
+  { label: 'Ajándékkártya', href: '/termekek/nola-digitalis-ajandekkartya' },
   { label: 'Nektek', href: '/nektek' },
-  { label: 'Párna', href: '/termekek?category=pillow' },
-  { label: 'Poszter', href: '/termekek?category=poster' },
-  { label: 'Ajándékkártya', href: '/termekek?category=giftcard' },
+  { label: 'Rólunk', href: '/rolunk' },
 ];
 
 const infoLinks = [
