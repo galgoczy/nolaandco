@@ -30,6 +30,20 @@ export default function VisszakuldesPage() {
           </RevealOnScroll>
 
           <RevealOnScroll>
+            <p>
+              A Nola & Co. termékeinek többsége perszonalizált (a baba születési adatai, a gyermek
+              kezdőbetűje vagy egyedi színválasztás alapján készül), így ezekre a fenti irányelv
+              vonatkozik. Kivételt képeznek a nem perszonalizált, raktárról vagy előre meghatározott
+              kivitelben kapható termékeink &ndash; jelenleg a <strong>NOLA Crew Kalandköpeny</strong>{' '}
+              és a <strong>koronák</strong> &ndash;, amelyekre a távollévők között kötött
+              szerződésekre irányadó fogyasztóvédelmi szabályok (a 45/2014. (II. 26.) Korm. rendelet)
+              szerinti <strong>14 napos, indokolás nélküli elállási jog</strong> érvényes. Ebben az
+              esetben a terméket sértetlen, eredeti állapotában, a kézhezvételtől számított 14 napon
+              belül küldheted vissza.
+            </p>
+          </RevealOnScroll>
+
+          <RevealOnScroll>
             <div className="bg-surface-container-lowest rounded-xl p-6 ghost-border">
               <p>
                 Természetesen, ha a gyártás során hiba történt, keress minket azonnal a{' '}

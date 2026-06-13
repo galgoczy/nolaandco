@@ -65,6 +65,36 @@ const faqItems: FaqItem[] = [
       'Kérjük, ne tedd szárítógépbe! A magas hőfok tönkre teheti a plüss anyagot és a minta épségét is. A levegőn, fektetve történő szárítás a legjobb megoldás.',
   },
   {
+    question: 'Milyen méretben kapható a Kalandköpeny?',
+    answer:
+      'Egy méret (One Size), kb. 65 cm hosszú: 2 évesen bokáig érő „varázslóköpeny", 7-8 éves korra tökéletes „szuperhős" hossz. Vagyis évekig hordható, együtt „nő" a gyerekkel.',
+  },
+  {
+    question: 'Hogyan rögzíthető a köpeny? Biztonságos?',
+    answer:
+      'Karcoló, hajba akadó tépőzár és veszélyes megkötő helyett prémium műanyag patentokkal; a gyerek is könnyen kapcsolja, beakadáskor pedig azonnal szétpattan.',
+  },
+  {
+    question: 'Mit jelent a „kifordítható, kétoldalas" dizájn?',
+    answer:
+      'Két harmonizáló szín egy köpenyben: egyik oldalon a vagány egyedi logó/motívum, kifordítva letisztult, egyszínű köpeny ünnepekre, fotózásra.',
+  },
+  {
+    question: 'Mit lehet rátenni a köpenyre (személyre szabás)?',
+    answer:
+      'A hátára puha filcből a gyermek nevének kezdőbetűjét vagy az egyedi „TESÓ" pajzsot varrjuk fel. A Hero (kék) és a Stella (rózsaszín) modelleknél kötelező a kezdőbetű megadása, a Crew (bézs) modellen alapból a „TESÓ" pajzs van.',
+  },
+  {
+    question: 'Miből készül a köpeny, mosható?',
+    answer:
+      '100% OEKO-TEX® pamut duplagéz; 30 °C-on kímélő programon vagy kézzel mosható, szárítógép tilos, fektetve szárítandó. Fontos: a hátsó filc díszítés egyáltalán nem vasalható, a duplagéz anyagot pedig jellegéből adódóan nem javasoljuk vasalni.',
+  },
+  {
+    question: 'Milyen korosztálynak jó a korona?',
+    answer:
+      'A rugalmas (scrunchie) pántnak köszönhetően kb. 2-8 éves korig kényelmesen illeszkedik (One Size).',
+  },
+  {
     question: 'Milyen szállítási módok közül választhatok?',
     answer:
       'Kényelmes csomagautomatás átvétel (Foxpost/Packeta) vagy házhozszállítás.',
