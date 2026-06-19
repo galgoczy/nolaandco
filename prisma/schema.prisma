@@ -25,6 +25,9 @@ model Product {
   hiddenFromListing Boolean @default(false)
   onSale          Boolean  @default(false)
   salePrice       Int?
+  // True only for non-personalised goods that carry the 14-day right of
+  // withdrawal (e.g. NOLA Crew cape, crowns). Personalised products are exempt.
+  withdrawalEligible Boolean @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -50,12 +53,17 @@ model Order {
   paymentMethod   String   @default("card") // "card" | "transfer"
   stripePaymentId String?
   trackingNumber  String?
+  // Timestamps of fulfilment status transitions — the 14-day withdrawal
+  // window is measured from delivery (deliveredAt).
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
   customerId      String?
   customer        Customer? @relation(fields: [customerId], references: [id])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   items OrderItem[]
+  withdrawals WithdrawalRequest[]
 }
 
 model OrderItem {
@@ -181,4 +189,41 @@ model ProductAlias {
   active            Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+/// An online right-of-withdrawal declaration ("elállás a szerződéstől"), as
+/// required by 45/2014. (II. 26.) Korm. rendelet. Stores a durable snapshot of
+/// the declaration so it can serve as proof; the acknowledgment email carries
+/// the same content plus the send timestamp.
+model WithdrawalRequest {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id])
+  // Declared by the consumer in the form.
+  declaredName  String
+  contactEmail  String
+  // "received" | "acknowledged" | "refunded" | "rejected"
+  status        String   @default("received")
+  // Total value of the withdrawn items at time of declaration (HUF).
+  refundAmount  Int      @default(0)
+  adminNote     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  items WithdrawalItem[]
+
+  @@index([orderId])
+}
+
+model WithdrawalItem {
+  id            String   @id @default(cuid())
+  withdrawalId  String
+  withdrawal    WithdrawalRequest @relation(fields: [withdrawalId], references: [id], onDelete: Cascade)
+  orderItemId   String
+  // Snapshot fields (kept even if the product later changes).
+  productName   String
+  quantity      Int
+  unitPrice     Int
+
+  @@index([withdrawalId])
 }
