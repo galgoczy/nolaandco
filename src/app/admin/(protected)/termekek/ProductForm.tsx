@@ -19,6 +19,7 @@ export type ProductFormValues = {
   badge: string;
   active: boolean;
   hiddenFromListing: boolean;
+  withdrawalEligible: boolean;
   onSale: boolean;
   salePrice: number | '';
 };
@@ -37,6 +38,7 @@ export const emptyProduct: ProductFormValues = {
   badge: '',
   active: true,
   hiddenFromListing: false,
+  withdrawalEligible: false,
   onSale: false,
   salePrice: '',
 };
@@ -386,6 +388,21 @@ export default function ProductForm({
             Elrejtés a listázásokból (főoldal + termékek oldal)
             <span className="block text-xs text-on-surface/60 mt-0.5">
               A termékoldal elérhető marad direkt linken keresztül (pl. aliasok).
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-2 text-sm font-body cursor-pointer">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={values.withdrawalEligible}
+            onChange={(e) => update('withdrawalEligible', e.target.checked)}
+          />
+          <span>
+            Elállásra jogosult (14 napos elállási jog)
+            <span className="block text-xs text-on-surface/60 mt-0.5">
+              Csak nem személyre szabott termékeknél kapcsold be. Ekkor a vásárló online
+              kezdeményezheti az elállást a fiókjából és a rendelésnél.
             </span>
           </span>
         </label>

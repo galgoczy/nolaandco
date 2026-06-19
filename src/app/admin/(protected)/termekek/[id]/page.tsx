@@ -49,6 +49,7 @@ export default async function EditProductPage({
           badge: product.badge ?? '',
           active: product.active,
           hiddenFromListing: product.hiddenFromListing,
+          withdrawalEligible: product.withdrawalEligible,
           onSale: product.onSale,
           salePrice: product.salePrice ?? '',
         }}
