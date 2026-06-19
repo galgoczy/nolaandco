@@ -39,8 +39,30 @@ export default function VisszakuldesPage() {
               szerződésekre irányadó fogyasztóvédelmi szabályok (a 45/2014. (II. 26.) Korm. rendelet)
               szerinti <strong>14 napos, indokolás nélküli elállási jog</strong> érvényes. Ebben az
               esetben a terméket sértetlen, eredeti állapotában, a kézhezvételtől számított 14 napon
-              belül küldheted vissza.
+              belül küldheted vissza. Ennek költsége minden esetben téged terhel.
             </p>
+          </RevealOnScroll>
+
+          <RevealOnScroll>
+            <div className="bg-surface-container-lowest rounded-xl p-6 ghost-border text-center">
+              <p className="mb-5">
+                A nem személyre szabott termékek (NOLA Crew Kalandköpeny, koronák) esetében az
+                elállási jogodat online, néhány kattintással gyakorolhatod:
+              </p>
+              <a
+                href="/elallas"
+                className="inline-block bg-carbon text-white px-7 py-3 rounded-full text-sm font-medium hover:opacity-90 transition-colors"
+              >
+                Elállás a szerződéstől
+              </a>
+              <p className="text-sm text-carbon-light/80 mt-4">
+                Bejelentkezett vásárlóként a{' '}
+                <a href="/fiok#rendelesek" className="text-[#C4A591] underline underline-offset-2 hover:text-[#4A4A4A] transition-colors">
+                  Fiókom
+                </a>{' '}
+                oldalon, közvetlenül a rendelésednél is elindíthatod.
+              </p>
+            </div>
           </RevealOnScroll>
 
           <RevealOnScroll>

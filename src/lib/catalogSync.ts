@@ -232,6 +232,7 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
     variant: 'crew',
     imageUrl: '/images/products/nola-crew-kalandkopeny.png',
     badge: 'ÚJDONSÁG',
+    withdrawalEligible: true,
   },
   {
     name: 'NOLA Kalandköpeny – Prémium Egyedi Tervező',
@@ -263,6 +264,7 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
     variant: 'hero',
     imageUrl: '/images/products/nola-hero-korona.png',
     badge: 'ÚJDONSÁG',
+    withdrawalEligible: true,
   },
   {
     name: 'NOLA Stella Kétoldalas Korona',
@@ -278,6 +280,7 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
     variant: 'stella',
     imageUrl: '/images/products/nola-stella-korona.png',
     badge: 'ÚJDONSÁG',
+    withdrawalEligible: true,
   },
   {
     name: 'NOLA Crew Kétoldalas Korona',
@@ -293,6 +296,7 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
     variant: 'crew',
     imageUrl: '/images/products/nola-crew-korona.png',
     badge: 'ÚJDONSÁG',
+    withdrawalEligible: true,
   },
   // --- Válogatások: bundle termékek ---
   {
@@ -321,6 +325,23 @@ export async function syncCatalog(): Promise<string[]> {
     await prisma.product.deleteMany({ where: { slug } });
   }
   log.push('Régi ajándékkártya-variánsok eltakarítva.');
+
+  // Ensure the non-personalised goods carry the 14-day withdrawal right.
+  // (Existing rows aren't touched by the structural sync below, so set it here.
+  // Admins can still enable the flag for any future non-personalised product.)
+  const withdrawalEligibleSlugs = [
+    'nola-crew-kalandkopeny',
+    'nola-hero-korona',
+    'nola-stella-korona',
+    'nola-crew-korona',
+  ];
+  const eligibleUpdate = await prisma.product.updateMany({
+    where: { slug: { in: withdrawalEligibleSlugs }, withdrawalEligible: false },
+    data: { withdrawalEligible: true },
+  });
+  if (eligibleUpdate.count > 0) {
+    log.push(`${eligibleUpdate.count} termék elállásra jogosultként beállítva.`);
+  }
 
   // One-off rename: the capes originally shipped with an ELŐRENDELÉS badge.
   const renamed = await prisma.product.updateMany({

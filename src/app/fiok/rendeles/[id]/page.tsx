@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
+import { isWithdrawalEligibleProduct, isWithdrawalOpen } from '@/lib/withdrawal';
+import WithdrawalForm from '@/components/withdrawal/WithdrawalForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,6 +56,18 @@ export default async function CustomerOrderDetailPage({
   ) {
     notFound();
   }
+
+  const withdrawalOpen = isWithdrawalOpen(order);
+  const withdrawalItems = withdrawalOpen
+    ? order.items
+        .filter((it) => isWithdrawalEligibleProduct(it.product))
+        .map((it) => ({
+          orderItemId: it.id,
+          productName: it.product.name,
+          quantity: it.quantity,
+          unitPrice: it.price,
+        }))
+    : [];
 
   return (
     <div className="min-h-[calc(100vh-200px)] bg-[#F7F3EE] py-12 px-4">
@@ -189,6 +203,18 @@ export default async function CustomerOrderDetailPage({
             </div>
           </div>
         </div>
+
+        {withdrawalItems.length > 0 && (
+          <div id="elallas" className="mb-8 scroll-mt-24">
+            <WithdrawalForm
+              orderId={order.id}
+              orderNumber={order.id.slice(-8).toUpperCase()}
+              defaultName={order.shippingName}
+              defaultEmail={order.email}
+              items={withdrawalItems}
+            />
+          </div>
+        )}
 
         <div className="text-center">
           <Link

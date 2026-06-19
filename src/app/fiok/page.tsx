@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
+import { isWithdrawalOpen } from '@/lib/withdrawal';
 import ProfileForm from './ProfileForm';
 
 export const dynamic = 'force-dynamic';
@@ -162,6 +163,14 @@ export default async function AccountPage() {
                     </div>
                   </div>
                   </Link>
+                  {isWithdrawalOpen(order) && (
+                    <Link
+                      href={`/fiok/rendeles/${order.id}#elallas`}
+                      className="inline-block mt-2 text-xs text-[#C4A591] underline underline-offset-2 hover:text-[#4A4A4A] transition-colors"
+                    >
+                      Elállás a szerződéstől
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

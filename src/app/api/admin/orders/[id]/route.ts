@@ -48,7 +48,7 @@ export async function PATCH(
     trackingNumber?: string;
   };
 
-  const data: Record<string, string> = {};
+  const data: Record<string, string | Date> = {};
   if (status) data.status = status;
   if (trackingNumber !== undefined) data.trackingNumber = trackingNumber;
 
@@ -61,7 +61,15 @@ export async function PATCH(
 
   try {
     // Get previous status to detect transitions
-    const prev = await prisma.order.findUnique({ where: { id }, select: { status: true } });
+    const prev = await prisma.order.findUnique({
+      where: { id },
+      select: { status: true, shippedAt: true, deliveredAt: true },
+    });
+
+    // Stamp fulfilment timestamps on first transition — the withdrawal window
+    // is measured from delivery.
+    if (status === 'shipped' && !prev?.shippedAt) data.shippedAt = new Date();
+    if (status === 'delivered' && !prev?.deliveredAt) data.deliveredAt = new Date();
 
     const order = await prisma.order.update({
       where: { id },
