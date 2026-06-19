@@ -39,7 +39,7 @@ export default function VisszakuldesPage() {
               szerződésekre irányadó fogyasztóvédelmi szabályok (a 45/2014. (II. 26.) Korm. rendelet)
               szerinti <strong>14 napos, indokolás nélküli elállási jog</strong> érvényes. Ebben az
               esetben a terméket sértetlen, eredeti állapotában, a kézhezvételtől számított 14 napon
-              belül küldheted vissza.
+              belül küldheted vissza. Ennek költsége minden esetben téged terhel.
             </p>
           </RevealOnScroll>
 
