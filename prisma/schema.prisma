@@ -50,6 +50,9 @@ model Order {
   subtotal        Int
   shippingCost    Int      @default(0)
   total           Int
+  // Applied coupon (if any) — persisted so notifications/admin can show it.
+  couponCode      String?
+  discount        Int      @default(0)
   paymentMethod   String   @default("card") // "card" | "transfer"
   stripePaymentId String?
   trackingNumber  String?
