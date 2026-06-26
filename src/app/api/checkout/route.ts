@@ -13,6 +13,7 @@ import {
 } from '@/lib/emails/order-notification';
 import { cartItemRequiresShipping } from '@/lib/shippingRules';
 import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
+import { notifyNewOrderTelegram } from '@/lib/telegram';
 import type { CartItemData } from '@/store/cart';
 
 const SHIPPING_COSTS: Record<string, number> = {
@@ -283,6 +284,8 @@ export async function POST(request: NextRequest) {
         subtotal,
         shippingCost,
         total,
+        discount,
+        couponCode: discount > 0 ? couponCode || null : null,
         items: {
           create: verifiedItems.map((item) => ({
             productId: item.productId,
@@ -380,6 +383,10 @@ export async function POST(request: NextRequest) {
         baseUrl,
       });
 
+      notifyNewOrderTelegram(order.id).catch((err) =>
+        console.error('Telegram notification error:', err)
+      );
+
       return NextResponse.json({
         url: `${baseUrl}/koszonjuk?order_id=${order.id}&free=1`,
       });
@@ -408,6 +415,10 @@ export async function POST(request: NextRequest) {
         hasInvoice: false,
         baseUrl,
       });
+
+      notifyNewOrderTelegram(order.id).catch((err) =>
+        console.error('Telegram notification error:', err)
+      );
 
       return NextResponse.json({
         url: `${baseUrl}/koszonjuk?order_id=${order.id}&payment=transfer`,

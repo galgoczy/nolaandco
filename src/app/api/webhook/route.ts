@@ -5,6 +5,7 @@ import { createSzamlazzInvoice } from '@/lib/szamlazz';
 import { sendEmail } from '@/lib/emails/send';
 import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
 import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
+import { notifyNewOrderTelegram } from '@/lib/telegram';
 import {
   ADMIN_NOTIFICATION_RECIPIENT,
   orderNotificationHtml,
@@ -63,6 +64,11 @@ export async function POST(request: NextRequest) {
         } catch (err) {
           console.error('Gift card fulfillment error:', err);
         }
+
+        // Telegram notification (fire-and-forget; never block the webhook).
+        notifyNewOrderTelegram(order.id).catch((err) =>
+          console.error('Telegram notification error:', err)
+        );
 
         // Generate Számlázz.hu invoice (awaited so we can capture the PDF
         // and attach it to our confirmation email). If anything goes wrong
