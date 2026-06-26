@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
+import TelegramTestButton from './TelegramTestButton';
 
 export default async function AdminDashboard() {
   const [
@@ -58,6 +59,8 @@ export default async function AdminDashboard() {
           </div>
         ))}
       </div>
+
+      <TelegramTestButton />
 
       <div className="bg-surface-container-lowest rounded-2xl p-6">
         <h2 className="text-lg font-headline font-bold text-on-surface mb-4">
