@@ -15,10 +15,13 @@ type CouponRow = {
   productIds: string[];
   categorySlugs: string[];
   freeShippingOnParcel: boolean;
+  source: string | null;
   active: boolean;
   startsAt: string;
   endsAt: string;
 };
+
+const NEWSLETTER_SOURCE = 'newsletter';
 
 type CatOption = { slug: string; name: string };
 
@@ -183,30 +186,42 @@ export default function CouponManager({
     'w-full px-3 py-2 rounded-lg border border-outline-variant bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/30';
   const labelCls = 'block text-xs text-on-surface/60 mb-1';
 
-  return (
-    <div className="flex flex-col gap-6 max-w-5xl">
-      {/* List */}
-      <div className="bg-surface-container-lowest rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm font-body">
-            <thead>
-              <tr className="border-b border-outline-variant text-left bg-surface-container-low">
-                <th className="p-4 text-on-surface/60 font-medium">Kód</th>
-                <th className="p-4 text-on-surface/60 font-medium">Kedvezmény</th>
-                <th className="p-4 text-on-surface/60 font-medium">Hatálya</th>
-                <th className="p-4 text-on-surface/60 font-medium">Érvényesség</th>
-                <th className="p-4 text-on-surface/60 font-medium text-center">Használat</th>
-                <th className="p-4 text-on-surface/60 font-medium text-center">Aktív</th>
-                <th className="p-4 text-on-surface/60 font-medium text-right">Műveletek</th>
-              </tr>
-            </thead>
-            <tbody>
-              {coupons.map((c) => (
-                <tr
-                  key={c.id}
-                  className={`border-b border-outline-variant/40 last:border-none ${isExpired(c) ? 'opacity-50' : ''}`}
-                >
-                  <td className="p-4 font-mono font-semibold tracking-wider">{c.code}</td>
+  const renderTable = (
+    title: string,
+    list: CouponRow[],
+    opts?: { newsletter?: boolean; emptyText?: string },
+  ) => (
+    <div className="bg-surface-container-lowest rounded-2xl overflow-hidden">
+      <h2 className="text-sm font-bold font-headline px-4 pt-4 pb-2 text-on-surface/80">
+        {title} <span className="text-on-surface/40 font-normal">({list.length})</span>
+      </h2>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm font-body">
+          <thead>
+            <tr className="border-b border-outline-variant text-left bg-surface-container-low">
+              <th className="p-4 text-on-surface/60 font-medium">Kód</th>
+              <th className="p-4 text-on-surface/60 font-medium">
+                {opts?.newsletter ? 'Címzett (e-mail)' : 'Kedvezmény'}
+              </th>
+              <th className="p-4 text-on-surface/60 font-medium">
+                {opts?.newsletter ? 'Kedvezmény' : 'Hatálya'}
+              </th>
+              <th className="p-4 text-on-surface/60 font-medium">Érvényesség</th>
+              <th className="p-4 text-on-surface/60 font-medium text-center">Használat</th>
+              <th className="p-4 text-on-surface/60 font-medium text-center">Aktív</th>
+              <th className="p-4 text-on-surface/60 font-medium text-right">Műveletek</th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map((c) => (
+              <tr
+                key={c.id}
+                className={`border-b border-outline-variant/40 last:border-none ${isExpired(c) ? 'opacity-50' : ''}`}
+              >
+                <td className="p-4 font-mono font-semibold tracking-wider">{c.code}</td>
+                {opts?.newsletter ? (
+                  <td className="p-4 text-xs text-on-surface/70 break-all">{c.description || '—'}</td>
+                ) : (
                   <td className="p-4">
                     {c.discountType === 'percent'
                       ? `${c.discountValue}%`
@@ -220,6 +235,10 @@ export default function CouponManager({
                       <span className="block text-xs text-green-600">+ ingyen csomagautomata</span>
                     ) : null}
                   </td>
+                )}
+                {opts?.newsletter ? (
+                  <td className="p-4 text-xs text-green-600">Ingyen csomagautomata</td>
+                ) : (
                   <td className="p-4 text-xs text-on-surface/70">
                     {c.categorySlugs.length > 0 ? (
                       <span>
@@ -229,57 +248,70 @@ export default function CouponManager({
                       <span className="text-on-surface/50">Minden termékre</span>
                     )}
                   </td>
-                  <td className="p-4 text-xs text-on-surface/70">
-                    {fmtDate(c.startsAt)} – {fmtDate(c.endsAt)}
-                  </td>
-                  <td className="p-4 text-center text-on-surface/70">
-                    {c.usageCount}
-                    {c.usageLimit ? ` / ${c.usageLimit}` : ''}
-                  </td>
-                  <td className="p-4 text-center">
-                    <button
-                      type="button"
-                      onClick={() => toggleActive(c)}
-                      className={`w-9 h-5 rounded-full relative transition-colors ${
-                        c.active ? 'bg-green-500' : 'bg-gray-300'
+                )}
+                <td className="p-4 text-xs text-on-surface/70">
+                  {fmtDate(c.startsAt)} – {fmtDate(c.endsAt)}
+                </td>
+                <td className="p-4 text-center text-on-surface/70">
+                  {c.usageCount}
+                  {c.usageLimit ? ` / ${c.usageLimit}` : ''}
+                </td>
+                <td className="p-4 text-center">
+                  <button
+                    type="button"
+                    onClick={() => toggleActive(c)}
+                    className={`w-9 h-5 rounded-full relative transition-colors ${
+                      c.active ? 'bg-green-500' : 'bg-gray-300'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                        c.active ? 'left-[18px]' : 'left-0.5'
                       }`}
-                    >
-                      <span
-                        className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                          c.active ? 'left-[18px]' : 'left-0.5'
-                        }`}
-                      />
-                    </button>
-                  </td>
-                  <td className="p-4 text-right whitespace-nowrap">
-                    <button
-                      type="button"
-                      onClick={() => openEdit(c)}
-                      className="px-3 py-1 rounded-lg text-xs font-medium bg-surface-container text-on-surface/80 hover:bg-surface-container-high mr-2"
-                    >
-                      Szerkesztés
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(c)}
-                      className="px-3 py-1 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100"
-                    >
-                      Törlés
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {coupons.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="p-8 text-center text-on-surface/60">
-                    Még nincs kupon. Kattints az &ldquo;Új kupon&rdquo; gombra.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                    />
+                  </button>
+                </td>
+                <td className="p-4 text-right whitespace-nowrap">
+                  <button
+                    type="button"
+                    onClick={() => openEdit(c)}
+                    className="px-3 py-1 rounded-lg text-xs font-medium bg-surface-container text-on-surface/80 hover:bg-surface-container-high mr-2"
+                  >
+                    Szerkesztés
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(c)}
+                    className="px-3 py-1 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100"
+                  >
+                    Törlés
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {list.length === 0 && (
+              <tr>
+                <td colSpan={7} className="p-8 text-center text-on-surface/60">
+                  {opts?.emptyText ?? 'Még nincs kupon. Kattints az „Új kupon” gombra.'}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
+    </div>
+  );
+
+  const newsletterCoupons = coupons.filter((c) => c.source === NEWSLETTER_SOURCE);
+  const normalCoupons = coupons.filter((c) => c.source !== NEWSLETTER_SOURCE);
+
+  return (
+    <div className="flex flex-col gap-6 max-w-5xl">
+      {renderTable('Kuponok', normalCoupons)}
+      {renderTable('Hírlevél kuponok', newsletterCoupons, {
+        newsletter: true,
+        emptyText: 'Még nincs hírlevél kupon. Ezek automatikusan jönnek létre feliratkozáskor.',
+      })}
 
       {/* Coupon form (create or edit) */}
       {formOpen ? (

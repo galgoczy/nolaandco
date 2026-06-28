@@ -170,6 +170,9 @@ model Coupon {
   categorySlugs   String[] @default([])
   // When true, parcel locker shipping is free; home delivery unaffected.
   freeShippingOnParcel Boolean @default(false)
+  // Origin tag for grouping in admin, e.g. "newsletter" for auto-generated
+  // welcome coupons (their description holds the subscriber's e-mail).
+  source          String?
   active          Boolean  @default(true)
   startsAt        DateTime
   endsAt          DateTime
