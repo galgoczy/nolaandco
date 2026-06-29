@@ -18,20 +18,6 @@ type HeroSlide = {
 // then start over. Each slide carries its own overlay copy + CTA.
 const SLIDES: HeroSlide[] = [
   {
-    desktopSrc: '/scrollytelling/nola_koppeny-desktop.mp4',
-    mobileSrc: '/scrollytelling/nola_koppeny-mobile.mp4',
-    mobileObjectPosition: '70% 50%',
-    eyebrow: 'EMLÉKEK A KICSIKNEK, KALANDOK A NAGYOKNAK',
-    title: (
-      <>
-        Megérkezett
-        <br />a Nagytesó kollekció
-      </>
-    ),
-    ctaLabel: 'Megnézem az újdonságokat',
-    ctaHref: '/termekek?category=nagyoknak',
-  },
-  {
     desktopSrc: '/scrollytelling/hero6-desktop.mp4',
     mobileSrc: '/scrollytelling/hero6-mobile.mp4',
     eyebrow: 'EMLÉKEK, AMIK PONTOSAN AKKORÁK, MINT Ő VOLT',
@@ -46,6 +32,20 @@ const SLIDES: HeroSlide[] = [
     ),
     ctaLabel: 'Megnézem a kollekciót',
     ctaHref: '/termekek?category=kicsiknek',
+  },
+  {
+    desktopSrc: '/scrollytelling/nola_koppeny-desktop.mp4',
+    mobileSrc: '/scrollytelling/nola_koppeny-mobile.mp4',
+    mobileObjectPosition: '70% 50%',
+    eyebrow: 'EMLÉKEK A KICSIKNEK, KALANDOK A NAGYOKNAK',
+    title: (
+      <>
+        Megérkezett
+        <br />a Nagytesó kollekció
+      </>
+    ),
+    ctaLabel: 'Megnézem az újdonságokat',
+    ctaHref: '/termekek?category=nagyoknak',
   },
 ];
 
