@@ -27,35 +27,53 @@ export type NewsletterCoupon = { code: string; endsAt: Date; isNew: boolean };
  * isNew=false (so the caller can skip re-sending the welcome mail). Returns
  * null on failure.
  */
-export async function createNewsletterCoupon(email: string): Promise<NewsletterCoupon | null> {
+export async function createNewsletterCoupon(
+  email: string,
+  opts?: { code?: string },
+): Promise<NewsletterCoupon | null> {
   const normalizedEmail = email.trim().toLowerCase();
 
-  // Dedup: one welcome coupon per subscriber.
+  const startsAt = new Date();
+  const endsAt = new Date(startsAt);
+  endsAt.setMonth(endsAt.getMonth() + NEWSLETTER_COUPON_MONTHS);
+
+  const baseData = {
+    description: normalizedEmail,
+    discountType: 'fixed',
+    discountValue: 0, // value is in the free shipping, not a price cut
+    freeShippingOnParcel: true,
+    usageLimit: 1,
+    source: NEWSLETTER_COUPON_SOURCE,
+    active: true,
+    startsAt,
+    endsAt,
+  };
+
+  // Explicit code (admin-created, e.g. a code already e-mailed by hand): use it
+  // exactly; fail on collision so the admin can pick another.
+  if (opts?.code) {
+    try {
+      const coupon = await prisma.coupon.create({
+        data: { ...baseData, code: opts.code.trim().toUpperCase() },
+        select: { code: true, endsAt: true },
+      });
+      return { ...coupon, isNew: true };
+    } catch {
+      return null;
+    }
+  }
+
+  // Auto path: one welcome coupon per subscriber (dedup), random unique code.
   const existing = await prisma.coupon.findFirst({
     where: { source: NEWSLETTER_COUPON_SOURCE, description: normalizedEmail },
     select: { code: true, endsAt: true },
   });
   if (existing) return { ...existing, isNew: false };
 
-  const startsAt = new Date();
-  const endsAt = new Date(startsAt);
-  endsAt.setMonth(endsAt.getMonth() + NEWSLETTER_COUPON_MONTHS);
-
   for (let attempt = 0; attempt < 6; attempt++) {
     try {
       const coupon = await prisma.coupon.create({
-        data: {
-          code: randomCode(8),
-          description: normalizedEmail,
-          discountType: 'fixed',
-          discountValue: 0, // value is in the free shipping, not a price cut
-          freeShippingOnParcel: true,
-          usageLimit: 1,
-          source: NEWSLETTER_COUPON_SOURCE,
-          active: true,
-          startsAt,
-          endsAt,
-        },
+        data: { ...baseData, code: randomCode(8) },
         select: { code: true, endsAt: true },
       });
       return { ...coupon, isNew: true };

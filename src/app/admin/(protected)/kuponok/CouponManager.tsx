@@ -105,6 +105,37 @@ export default function CouponManager({
     setError('');
   }
 
+  // --- Manual newsletter coupon creation (e.g. to back a hand-sent code) ---
+  const [nlOpen, setNlOpen] = useState(false);
+  const [nlEmail, setNlEmail] = useState('');
+  const [nlCode, setNlCode] = useState('');
+  const [nlSaving, setNlSaving] = useState(false);
+  const [nlError, setNlError] = useState('');
+
+  async function createNewsletterCoupon() {
+    setNlError('');
+    if (!nlEmail.trim()) {
+      setNlError('E-mail cím kötelező');
+      return;
+    }
+    setNlSaving(true);
+    const res = await fetch('/api/admin/coupons/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: nlEmail.trim(), code: nlCode.trim() || undefined }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setNlSaving(false);
+    if (!res.ok) {
+      setNlError(data.error || 'Sikertelen létrehozás');
+      return;
+    }
+    setNlOpen(false);
+    setNlEmail('');
+    setNlCode('');
+    router.refresh();
+  }
+
   async function toggleActive(coupon: CouponRow) {
     const newVal = !coupon.active;
     setCoupons((prev) =>
@@ -312,6 +343,66 @@ export default function CouponManager({
         newsletter: true,
         emptyText: 'Még nincs hírlevél kupon. Ezek automatikusan jönnek létre feliratkozáskor.',
       })}
+
+      {/* Manual newsletter coupon (e.g. for a hand-sent code) */}
+      {nlOpen ? (
+        <div className="bg-surface-container-lowest rounded-2xl p-6">
+          <h3 className="text-sm font-bold font-headline mb-1">Új hírlevél kupon</h3>
+          <p className="text-xs text-on-surface/60 mb-4">
+            Ingyenes csomagautomatás szállítás, egyszer használható, 3 hónapig érvényes. A kódot
+            üresen hagyva automatikus 8 karakteres kódot generálunk.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className={labelCls}>Címzett e-mail címe *</label>
+              <input
+                className={inputCls}
+                type="email"
+                value={nlEmail}
+                onChange={(e) => setNlEmail(e.target.value)}
+                placeholder="vevo@example.com"
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Egyedi kód (opcionális)</label>
+              <input
+                className={inputCls}
+                value={nlCode}
+                onChange={(e) => setNlCode(e.target.value.toUpperCase())}
+                placeholder="Automatikus, ha üres"
+              />
+            </div>
+          </div>
+          {nlError && <p className="text-xs text-red-600 mb-2">{nlError}</p>}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={createNewsletterCoupon}
+              disabled={nlSaving}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary hover:opacity-90 disabled:opacity-50"
+            >
+              {nlSaving ? 'Létrehozás...' : 'Létrehozás'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setNlOpen(false); setNlError(''); }}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-surface-container hover:bg-surface-container-high"
+            >
+              Mégse
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <button
+            type="button"
+            onClick={() => setNlOpen(true)}
+            className="bg-surface-container text-on-surface/80 px-4 py-2 rounded-lg text-sm font-medium hover:bg-surface-container-high transition-colors"
+          >
+            + Új hírlevél kupon (kézi)
+          </button>
+        </div>
+      )}
 
       {/* Coupon form (create or edit) */}
       {formOpen ? (
