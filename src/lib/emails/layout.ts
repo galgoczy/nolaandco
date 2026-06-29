@@ -17,7 +17,7 @@ export function emailLayout(body: string): string {
           <!-- Header -->
           <tr>
             <td align="center" style="padding:32px 32px 24px;border-bottom:1px solid #E8E6E1;">
-              <img src="https://nolaandco.hu/images/logo-wide.svg" alt="Nola & Co." width="140" style="display:block;" />
+              <img src="https://nolaandco.hu/images/logo-email.png" alt="Nola & Co." width="180" height="23" style="display:block;width:180px;height:auto;" />
             </td>
           </tr>
           <!-- Body -->
