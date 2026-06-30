@@ -344,11 +344,13 @@ export default function CheckoutPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className="text-carbon-light text-sm font-body block mb-1">Ország</label>
+                  <label className="text-carbon-light/50 text-xs font-body block mb-1">
+                    Ország (számlázáshoz)
+                  </label>
                   <select
                     value={form.billingCountry || 'HU'}
                     onChange={(e) => setForm((prev) => ({ ...prev, billingCountry: e.target.value }))}
-                    className="w-full bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full sm:w-64 bg-surface-container/60 border border-gray-200 rounded-[0.75rem] px-3 py-2 text-sm text-carbon-light font-body outline-none focus:ring-2 focus:ring-primary/30"
                   >
                     {BILLING_COUNTRIES.map((c) => (
                       <option key={c.code} value={c.code}>{c.name}</option>
