@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdminRequest } from '@/lib/admin-auth';
-import { createFoxpostParcel, getFoxpostLabel } from '@/lib/foxpost';
+import { createFoxpostParcel } from '@/lib/foxpost';
 import type { FoxpostSize } from '@/lib/foxpost';
+import { createPacketaParcel } from '@/lib/packeta';
 
 /** POST: Create a Foxpost parcel for an order */
 export async function POST(request: NextRequest) {
@@ -24,27 +25,48 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Order not found' }, { status: 404 });
   }
 
-  const isAutomata = order.shippingAddress.toLowerCase().startsWith('foxpost:') ||
-    order.shippingAddress.toLowerCase().includes('csomagautomata');
+  // Structured pickup-point id (new orders) with a fallback to the legacy
+  // shippingNote (older Foxpost orders stored the place_id there).
+  const pickupPointId = order.pickupPointId || order.shippingNote || undefined;
+  const refCode = order.id.slice(-8).toUpperCase();
+  const comment = order.items.map((it) => `${it.product.name} x${it.quantity}`).join(', ');
 
   try {
-    const result = await createFoxpostParcel({
-      refCode: order.id.slice(-8).toUpperCase(),
-      recipientName: order.shippingName,
-      recipientPhone: order.phone || '',
-      recipientEmail: order.email,
-      size: size ?? 'M',
-      deliveryMode: isAutomata ? 'automata' : 'home',
-      destinationPlaceId: isAutomata ? (order.shippingNote ?? undefined) : undefined,
-      recipientZip: !isAutomata ? order.shippingZip : undefined,
-      recipientCity: !isAutomata ? order.shippingCity : undefined,
-      recipientStreet: !isAutomata ? order.shippingAddress : undefined,
-      codAmount: 0,
-      comment: order.items.map((it) => `${it.product.name} x${it.quantity}`).join(', '),
-    });
+    let trackingId: string;
 
-    // Save Foxpost tracking ID to the order
-    const trackingId = result.foxpost_id || result.barcode || String(result.id);
+    if (order.shippingCarrier === 'packeta') {
+      // Cross-border: Packeta pickup point.
+      const result = await createPacketaParcel({
+        orderRef: refCode,
+        recipientName: order.shippingName,
+        recipientEmail: order.email,
+        recipientPhone: order.phone || '',
+        pointId: pickupPointId ?? '',
+        value: order.total,
+      });
+      trackingId = result.barcode || result.packetId;
+    } else {
+      // Domestic: Foxpost automata or home delivery.
+      const isAutomata =
+        order.shippingAddress.toLowerCase().startsWith('foxpost:') ||
+        order.shippingAddress.toLowerCase().includes('csomagautomata');
+      const result = await createFoxpostParcel({
+        refCode,
+        recipientName: order.shippingName,
+        recipientPhone: order.phone || '',
+        recipientEmail: order.email,
+        size: size ?? 'M',
+        deliveryMode: isAutomata ? 'automata' : 'home',
+        destinationPlaceId: isAutomata ? pickupPointId : undefined,
+        recipientZip: !isAutomata ? order.shippingZip : undefined,
+        recipientCity: !isAutomata ? order.shippingCity : undefined,
+        recipientStreet: !isAutomata ? order.shippingAddress : undefined,
+        codAmount: 0,
+        comment,
+      });
+      trackingId = result.foxpost_id || result.barcode || String(result.id);
+    }
+
     await prisma.order.update({
       where: { id: orderId },
       data: {
@@ -53,11 +75,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, foxpost: result, trackingNumber: trackingId });
+    return NextResponse.json({ success: true, trackingNumber: trackingId });
   } catch (err) {
-    console.error('Foxpost create parcel error:', err);
+    console.error('Parcel create error:', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Foxpost hiba' },
+      { error: err instanceof Error ? err.message : 'Csomagfeladási hiba' },
       { status: 500 }
     );
   }

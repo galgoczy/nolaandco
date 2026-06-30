@@ -29,6 +29,23 @@ export const homeDeliverySchema = shippingSchema.extend({
   shippingAddress: z.string().min(5, 'Cím megadása kötelező'),
 });
 
+/**
+ * Relaxed billing validation for foreign (Packeta) orders: zip formats vary by
+ * country, so we don't enforce the Hungarian 4-digit pattern.
+ */
+export const foreignShippingSchema = z.object({
+  email: z.string().email('Érvényes e-mail cím szükséges'),
+  phone: z.string().optional(),
+  shippingName: z.string().min(3, 'Név megadása kötelező'),
+  shippingZip: z.string().optional().default(''),
+  shippingCity: z.string().optional().default(''),
+  shippingAddress: z.string().optional().default(''),
+  shippingNote: z.string().max(500).optional(),
+  billingZip: z.string().min(3, 'Irányítószám megadása kötelező'),
+  billingCity: z.string().min(2, 'Város megadása kötelező'),
+  billingAddress: z.string().min(5, 'Utca, házszám megadása kötelező'),
+});
+
 export const newsletterSchema = z.object({
   email: z.string().email('Érvényes e-mail cím szükséges'),
   consent: z.literal(true, {
