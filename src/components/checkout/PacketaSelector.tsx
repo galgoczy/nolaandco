@@ -94,7 +94,7 @@ export default function PacketaSelector({ country, selected, onSelect }: Props) 
             });
           }
         },
-        { country: country.toLowerCase() },
+        { language: 'hu', country: country.toLowerCase() },
       );
     } catch {
       setError('Nem sikerült betölteni a Packeta térképet. Kérjük, próbáld újra.');
