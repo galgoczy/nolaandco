@@ -19,11 +19,15 @@ export default function OrderActions({
   orderId,
   currentStatus,
   currentTracking,
+  carrier = 'foxpost',
 }: {
   orderId: string;
   currentStatus: string;
   currentTracking: string;
+  carrier?: string;
 }) {
+  const isPacketa = carrier === 'packeta';
+  const carrierName = isPacketa ? 'Packeta' : 'Foxpost';
   const router = useRouter();
   const [status, setStatus] = useState(currentStatus);
   const [tracking, setTracking] = useState(currentTracking);
@@ -80,7 +84,7 @@ export default function OrderActions({
   };
 
   const handleFoxpostShip = async () => {
-    if (!confirm('Foxpost csomag feladása ezzel a rendeléssel?')) return;
+    if (!confirm(`${carrierName} csomag feladása ezzel a rendeléssel?`)) return;
     setFoxpostLoading(true);
     setMessage('');
     try {
@@ -93,7 +97,7 @@ export default function OrderActions({
       if (res.ok) {
         setTracking(data.trackingNumber || '');
         setStatus('processing');
-        setMessage(`Foxpost csomag létrehozva! Azonosító: ${data.trackingNumber}`);
+        setMessage(`${carrierName} csomag létrehozva! Azonosító: ${data.trackingNumber}`);
         router.refresh();
       } else {
         setMessage(data.error || 'Foxpost hiba');
@@ -157,34 +161,36 @@ export default function OrderActions({
         )}
       </div>
 
-      {/* Foxpost shipping */}
+      {/* Carrier shipping (Foxpost domestic / Packeta cross-border) */}
       <div className="bg-surface-container-lowest rounded-2xl p-6">
         <h2 className="font-headline font-bold text-on-surface mb-4">
-          Foxpost szállítás
+          {carrierName} szállítás
         </h2>
         <div className="flex flex-col sm:flex-row gap-4 items-end">
-          <div>
-            <label className="block text-sm text-on-surface/60 mb-1">Csomagméret</label>
-            <select
-              value={foxpostSize}
-              onChange={(e) => setFoxpostSize(e.target.value)}
-              className="rounded-xl border border-outline-variant bg-surface px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              {foxpostSizes.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
+          {!isPacketa && (
+            <div>
+              <label className="block text-sm text-on-surface/60 mb-1">Csomagméret</label>
+              <select
+                value={foxpostSize}
+                onChange={(e) => setFoxpostSize(e.target.value)}
+                className="rounded-xl border border-outline-variant bg-surface px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {foxpostSizes.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <button
             onClick={handleFoxpostShip}
             disabled={foxpostLoading || !!currentTracking}
             className="bg-[#E8740C] text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-[#d16a0b] transition-colors disabled:opacity-50"
           >
-            {foxpostLoading ? 'Feladás...' : 'Foxpost feladás'}
+            {foxpostLoading ? 'Feladás...' : `${carrierName} feladás`}
           </button>
           {currentTracking && (
             <a
-              href={`/api/admin/foxpost/label?trackingId=${currentTracking}`}
+              href={`/api/admin/foxpost/label?orderId=${orderId}`}
               target="_blank"
               rel="noopener noreferrer"
               className="bg-[#E8740C]/10 text-[#E8740C] px-5 py-2.5 rounded-full text-sm font-medium hover:bg-[#E8740C]/20 transition-colors"

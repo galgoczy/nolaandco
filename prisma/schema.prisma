@@ -47,6 +47,7 @@ model Order {
   billingZip      String?
   billingCity     String?
   billingAddress  String?
+  billingCountry  String   @default("HU") // invoice country (ISO-2)
   subtotal        Int
   shippingCost    Int      @default(0)
   total           Int
@@ -60,6 +61,12 @@ model Order {
   // window is measured from delivery (deliveredAt).
   shippedAt       DateTime?
   deliveredAt     DateTime?
+  // Shipping routing: HU → Foxpost; the 7 neighbouring countries → Packeta.
+  shippingCountry String   @default("HU") // ISO-2, e.g. "HU", "SK", "RO"
+  shippingCarrier String   @default("foxpost") // "foxpost" | "packeta"
+  // Structured pickup-point id (Foxpost place_id or Packeta point id).
+  // Replaces the legacy overloading of shippingNote.
+  pickupPointId   String?
   customerId      String?
   customer        Customer? @relation(fields: [customerId], references: [id])
   createdAt       DateTime @default(now())

@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
-import { shippingSchema, homeDeliverySchema } from '@/lib/validators';
+import { shippingSchema, homeDeliverySchema, foreignShippingSchema } from '@/lib/validators';
 import { sendEmail } from '@/lib/emails/send';
 import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
 import {
@@ -14,12 +14,8 @@ import {
 import { cartItemRequiresShipping } from '@/lib/shippingRules';
 import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
 import { notifyNewOrderTelegram } from '@/lib/telegram';
+import { getShippingCost, carrierForCountry, getCountryConfig } from '@/lib/shipping';
 import type { CartItemData } from '@/store/cart';
-
-const SHIPPING_COSTS: Record<string, number> = {
-  parcel: 1190,
-  home: 2490,
-};
 
 /**
  * Sends the customer confirmation and admin notification in parallel.
@@ -117,10 +113,12 @@ async function sendOrderEmails(args: {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { items, shipping, shippingMethod, paymentMethod, couponCode, saveData } = body as {
+    const { items, shipping, shippingMethod, shippingCountry, pickupPointId, paymentMethod, couponCode, saveData } = body as {
       items: CartItemData[];
       shipping: Record<string, unknown>;
       shippingMethod: string;
+      shippingCountry?: string;
+      pickupPointId?: string | null;
       paymentMethod?: 'card' | 'transfer';
       couponCode?: string | null;
       saveData?: boolean;
@@ -128,8 +126,22 @@ export async function POST(request: NextRequest) {
 
     const payMethod: 'card' | 'transfer' = paymentMethod === 'transfer' ? 'transfer' : 'card';
 
-    // Validate shipping data — stricter for home delivery, laxer for digital-only orders
-    const schema = shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
+    // Resolve shipping country & carrier. Packeta countries always ship to a
+    // pickup point ('parcel'); HU keeps Foxpost parcel/home.
+    const country = getCountryConfig(shippingCountry).code;
+    const carrier = carrierForCountry(country);
+    const effectiveMethod: 'parcel' | 'home' =
+      carrier === 'packeta' ? 'parcel' : shippingMethod === 'home' ? 'home' : 'parcel';
+
+    // Validate shipping data. Relaxed billing (no HU 4-digit zip) when shipping
+    // abroad OR the invoice country is not Hungary; HU home delivery is stricter.
+    const billingCountryRaw = typeof shipping?.billingCountry === 'string' ? shipping.billingCountry : 'HU';
+    const relaxedBilling = country !== 'HU' || billingCountryRaw !== 'HU';
+    const schema = relaxedBilling
+      ? foreignShippingSchema
+      : effectiveMethod === 'home'
+        ? homeDeliverySchema
+        : shippingSchema;
     const shippingResult = schema.safeParse(shipping);
     if (!shippingResult.success) {
       return NextResponse.json(
@@ -211,7 +223,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const baseShippingCost = orderRequiresShipping ? (SHIPPING_COSTS[shippingMethod] ?? 2490) : 0;
+    const baseShippingCost = orderRequiresShipping ? getShippingCost(country, effectiveMethod) : 0;
 
     // Apply coupon if provided
     let discount = 0;
@@ -235,8 +247,14 @@ export async function POST(request: NextRequest) {
             }
             if (discount > subtotal) discount = subtotal;
 
-            // Free shipping modifier on parcel method only
-            if (coupon.freeShippingOnParcel && shippingMethod === 'parcel' && orderRequiresShipping) {
+            // Free shipping modifier: domestic (HU) parcel only — never on the
+            // Packeta cross-border destinations.
+            if (
+              coupon.freeShippingOnParcel &&
+              country === 'HU' &&
+              effectiveMethod === 'parcel' &&
+              orderRequiresShipping
+            ) {
               freeShippingApplied = true;
             }
 
@@ -276,11 +294,15 @@ export async function POST(request: NextRequest) {
         shippingName: shippingData.shippingName || 'Csomagautomata',
         shippingZip: shippingData.shippingZip || '',
         shippingCity: shippingData.shippingCity || '',
-        shippingAddress: shippingData.shippingAddress || `Csomagautomata (${shippingMethod})`,
+        shippingAddress: shippingData.shippingAddress || `Csomagautomata (${effectiveMethod})`,
         shippingNote: shippingData.shippingNote || null,
         billingZip: shippingData.billingZip || null,
         billingCity: shippingData.billingCity || null,
         billingAddress: shippingData.billingAddress || null,
+        billingCountry: shippingData.billingCountry || 'HU',
+        shippingCountry: country,
+        shippingCarrier: carrier,
+        pickupPointId: pickupPointId || null,
         subtotal,
         shippingCost,
         total,
@@ -366,7 +388,7 @@ export async function POST(request: NextRequest) {
         customerName: shippingData.shippingName || 'Vásárlónk',
         customerEmail: shippingData.email,
         phone: shippingData.phone,
-        shippingMethod: orderRequiresShipping ? shippingMethod : undefined,
+        shippingMethod: orderRequiresShipping ? effectiveMethod : undefined,
         shippingAddress: orderRequiresShipping ? shippingData.shippingAddress : undefined,
         shippingZip: orderRequiresShipping ? shippingData.shippingZip : undefined,
         shippingCity: orderRequiresShipping ? shippingData.shippingCity : undefined,
@@ -399,7 +421,7 @@ export async function POST(request: NextRequest) {
         customerName: shippingData.shippingName || 'Vásárlónk',
         customerEmail: shippingData.email,
         phone: shippingData.phone,
-        shippingMethod: orderRequiresShipping ? shippingMethod : undefined,
+        shippingMethod: orderRequiresShipping ? effectiveMethod : undefined,
         shippingAddress: orderRequiresShipping ? shippingData.shippingAddress : undefined,
         shippingZip: orderRequiresShipping ? shippingData.shippingZip : undefined,
         shippingCity: orderRequiresShipping ? shippingData.shippingCity : undefined,
@@ -445,7 +467,7 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: 'huf',
             product_data: {
-              name: shippingMethod === 'parcel' ? 'Szállítás (Csomagautomata)' : 'Szállítás (Házhozszállítás)',
+              name: effectiveMethod === 'parcel' ? 'Szállítás (Csomagautomata)' : 'Szállítás (Házhozszállítás)',
             },
             unit_amount: shippingCost * 100,
           },

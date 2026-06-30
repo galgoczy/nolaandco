@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { getCountryConfig } from './shipping';
 
 /**
  * Telegram order notifications. Mirrors the admin e-mail: fired on each new
@@ -79,6 +80,12 @@ export function buildNewOrderMessage(order: OrderWithItems): string {
   lines.push(`<b>E-mail:</b> ${esc(order.email)}`);
   if (order.phone) lines.push(`<b>Telefon:</b> ${esc(order.phone)}`);
   lines.push(`<b>Fizetés:</b> ${order.paymentMethod === 'transfer' ? 'Banki átutalás' : 'Bankkártya'}`);
+
+  // Cross-border orders ship with Packeta — flag the country & carrier so the
+  // admin knows which label to print.
+  if (order.shippingCountry && order.shippingCountry !== 'HU') {
+    lines.push(`<b>Ország:</b> ${esc(getCountryConfig(order.shippingCountry).name)} (Packeta)`);
+  }
 
   const ship = shippingLabel(order);
   if (ship) lines.push(`<b>Szállítás:</b> ${ship}`);

@@ -3,11 +3,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cart';
-import { shippingSchema, homeDeliverySchema, type ShippingData } from '@/lib/validators';
+import { shippingSchema, homeDeliverySchema, foreignShippingSchema, type ShippingData } from '@/lib/validators';
 import { formatPrice } from '@/lib/utils';
 import { cartRequiresShipping } from '@/lib/shippingRules';
+import { ALL_COUNTRIES, BILLING_COUNTRIES, getShippingCost, isPacketaCountry } from '@/lib/shipping';
 import Input from '@/components/ui/Input';
 import FoxpostSelector from '@/components/checkout/FoxpostSelector';
+import PacketaSelector, { type PacketaPointData } from '@/components/checkout/PacketaSelector';
 
 type ShippingMethod = 'parcel' | 'home';
 type CouponData = {
@@ -18,11 +20,6 @@ type CouponData = {
   description: string;
   freeShippingOnParcel?: boolean;
 } | null;
-
-const SHIPPING_COSTS: Record<ShippingMethod, number> = {
-  parcel: 1190,
-  home: 2490,
-};
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -51,6 +48,7 @@ export default function CheckoutPage() {
     billingZip: '',
     billingCity: '',
     billingAddress: '',
+    billingCountry: 'HU',
   });
 
   // Foxpost locker selection
@@ -60,11 +58,29 @@ export default function CheckoutPage() {
     address: string;
   } | null>(null);
 
+  // Shipping country (HU default; geo may preselect a Packeta country)
+  const [shippingCountry, setShippingCountry] = useState('HU');
+  const [geoDetected, setGeoDetected] = useState(false);
+  const [packetaPoint, setPacketaPoint] = useState<PacketaPointData | null>(null);
+
   // Coupon
   const [couponCode, setCouponCode] = useState('');
   const [coupon, setCoupon] = useState<CouponData>(null);
   const [couponError, setCouponError] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
+
+  useEffect(() => {
+    // Preselect shipping country from the visitor's geo (HU/unknown → HU).
+    fetch('/api/geo')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.country && d.country !== 'HU') {
+          setShippingCountry(d.country);
+          setGeoDetected(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -114,7 +130,10 @@ export default function CheckoutPage() {
 
   const subtotal = total();
   const needsShipping = cartRequiresShipping(items);
-  const baseShippingCost = needsShipping ? SHIPPING_COSTS[shippingMethod] : 0;
+  const isForeign = isPacketaCountry(shippingCountry);
+  // Foreign (Packeta) orders always ship to a pickup point.
+  const effectiveMethod: ShippingMethod = isForeign ? 'parcel' : shippingMethod;
+  const baseShippingCost = needsShipping ? getShippingCost(shippingCountry, effectiveMethod) : 0;
 
   let discount = 0;
   if (coupon) {
@@ -126,8 +145,9 @@ export default function CheckoutPage() {
     if (discount > subtotal) discount = subtotal;
   }
 
+  // Free-shipping coupon applies to domestic (HU) parcel only.
   const freeShippingApplied = Boolean(
-    coupon?.freeShippingOnParcel && shippingMethod === 'parcel' && needsShipping,
+    coupon?.freeShippingOnParcel && !isForeign && effectiveMethod === 'parcel' && needsShipping,
   );
   const shippingCost = freeShippingApplied ? 0 : baseShippingCost;
 
@@ -189,17 +209,29 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (needsShipping && shippingMethod === 'parcel' && !selectedLocker) {
+    if (needsShipping && isForeign && !packetaPoint) {
+      setErrors({ _form: 'Kérjük, válassz Packeta átvevőpontot a térkép segítségével.' });
+      return;
+    }
+
+    if (needsShipping && !isForeign && shippingMethod === 'parcel' && !selectedLocker) {
       setErrors({ _form: 'Kérjük, válassz csomagautomatát a térkép segítségével.' });
       return;
     }
 
     // Copy shipping to billing if checkbox is on
-    const formToValidate = needsShipping && shippingSameAsBilling && shippingMethod === 'home'
+    const formToValidate = needsShipping && !isForeign && shippingSameAsBilling && shippingMethod === 'home'
       ? { ...form, billingZip: form.shippingZip, billingCity: form.shippingCity, billingAddress: form.shippingAddress }
       : form;
 
-    const schema = needsShipping && shippingMethod === 'home' ? homeDeliverySchema : shippingSchema;
+    // Relaxed billing (no HU 4-digit zip) when shipping abroad OR the invoice
+    // country is not Hungary.
+    const relaxedBilling = isForeign || (form.billingCountry || 'HU') !== 'HU';
+    const schema = relaxedBilling
+      ? foreignShippingSchema
+      : needsShipping && shippingMethod === 'home'
+        ? homeDeliverySchema
+        : shippingSchema;
     const result = schema.safeParse(formToValidate);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -221,7 +253,9 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items,
           shipping: result.data,
-          shippingMethod: needsShipping ? shippingMethod : 'parcel',
+          shippingMethod: needsShipping ? effectiveMethod : 'parcel',
+          shippingCountry,
+          pickupPointId: isForeign ? packetaPoint?.pointId : selectedLocker?.place_id ?? null,
           paymentMethod,
           couponCode: coupon?.code ?? null,
           saveData,
@@ -309,14 +343,28 @@ export default function CheckoutPage() {
                 Számlázási cím
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="text-carbon-light/50 text-xs font-body block mb-1">
+                    Ország (számlázáshoz)
+                  </label>
+                  <select
+                    value={form.billingCountry || 'HU'}
+                    onChange={(e) => setForm((prev) => ({ ...prev, billingCountry: e.target.value }))}
+                    className="w-full sm:w-64 bg-surface-container/60 border border-gray-200 rounded-[0.75rem] px-3 py-2 text-sm text-carbon-light font-body outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    {BILLING_COUNTRIES.map((c) => (
+                      <option key={c.code} value={c.code}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
                 <Input
                   label="Irányítószám"
                   name="billingZip"
                   value={form.billingZip}
                   onChange={handleChange}
                   error={errors.billingZip}
-                  maxLength={4}
-                  inputMode="numeric"
+                  maxLength={(form.billingCountry || 'HU') === 'HU' ? 4 : 12}
+                  inputMode={(form.billingCountry || 'HU') === 'HU' ? 'numeric' : 'text'}
                 />
                 <Input
                   label="Város"
@@ -344,6 +392,57 @@ export default function CheckoutPage() {
                 <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#D5E8F0] text-[#4A4A4A] text-xs mr-2 font-semibold">3</span>
                 Szállítási mód
               </h2>
+
+              {/* Country selector — subtle for HU (the 99% case), the chosen
+                  Packeta country otherwise. */}
+              <div className="mb-4">
+                <label className={`block text-xs mb-1 ${geoDetected ? 'text-[#4A4A4A]' : 'text-[#4A4A4A]/50'}`}>
+                  Szállítási ország
+                </label>
+                <select
+                  value={shippingCountry}
+                  onChange={(e) => {
+                    setShippingCountry(e.target.value);
+                    setPacketaPoint(null);
+                    setSelectedLocker(null);
+                  }}
+                  className={`w-full sm:w-72 px-3 py-2 rounded-lg border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#C4A591]/30 ${
+                    geoDetected ? 'border-[#C4A591]' : 'border-gray-200 text-[#4A4A4A]/80'
+                  }`}
+                >
+                  {ALL_COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {isForeign && (
+                <div>
+                  <div className="p-4 rounded-xl border-2 border-[#C4A591] bg-[#C4A591]/5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-sm text-[#4A4A4A]">Packeta átvevőpont</div>
+                        <div className="text-xs text-[#4A4A4A]/60">Csomagautomata / csomagpont</div>
+                      </div>
+                      <div className="font-semibold text-sm text-[#4A4A4A]">
+                        {formatPrice(baseShippingCost)}
+                      </div>
+                    </div>
+                  </div>
+                  <PacketaSelector
+                    country={shippingCountry}
+                    selected={packetaPoint}
+                    onSelect={(point) => {
+                      setPacketaPoint(point);
+                      setForm((prev) => ({ ...prev, shippingAddress: `Packeta: ${point.name}` }));
+                    }}
+                  />
+                </div>
+              )}
+
+              {!isForeign && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                 <button
                   type="button"
@@ -368,7 +467,7 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                   <div className="mt-2 text-right font-semibold text-sm text-[#4A4A4A]">
-                    {formatPrice(SHIPPING_COSTS.parcel)}
+                    {formatPrice(getShippingCost('HU', 'parcel'))}
                   </div>
                 </button>
 
@@ -395,12 +494,13 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                   <div className="mt-2 text-right font-semibold text-sm text-[#4A4A4A]">
-                    {formatPrice(SHIPPING_COSTS.home)}
+                    {formatPrice(getShippingCost('HU', 'home'))}
                   </div>
                 </button>
               </div>
+              )}
 
-              {shippingMethod === 'parcel' && (
+              {!isForeign && shippingMethod === 'parcel' && (
                 <FoxpostSelector
                   selected={selectedLocker}
                   onSelect={(locker) => {
@@ -408,13 +508,12 @@ export default function CheckoutPage() {
                     setForm((prev) => ({
                       ...prev,
                       shippingAddress: `Foxpost: ${locker.name}`,
-                      shippingNote: locker.place_id,
                     }));
                   }}
                 />
               )}
 
-              {shippingMethod === 'home' && (
+              {!isForeign && shippingMethod === 'home' && (
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     label="Irányítószám"
@@ -660,7 +759,7 @@ export default function CheckoutPage() {
                 )}
                 {needsShipping && (
                   <div className="flex justify-between text-[#4A4A4A]/70">
-                    <span>Szállítás ({shippingMethod === 'parcel' ? 'Csomagautomata' : 'Házhozszállítás'})</span>
+                    <span>Szállítás ({effectiveMethod === 'home' ? 'Házhozszállítás' : isForeign ? 'Packeta átvevőpont' : 'Csomagautomata'})</span>
                     {freeShippingApplied ? (
                       <span>
                         <span className="line-through text-[#4A4A4A]/40 mr-2">{formatPrice(baseShippingCost)}</span>
