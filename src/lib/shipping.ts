@@ -27,8 +27,10 @@ export const HU_HOME_COST = 2490;
 export const PACKETA_COUNTRIES: CountryConfig[] = [
   { code: 'SK', name: 'Szlovákia – Z-Box', carrier: 'packeta', parcelCost: 2650 },
   { code: 'RO', name: 'Románia – Z-Box', carrier: 'packeta', parcelCost: 3650 },
-  { code: 'HR', name: 'Horvátország – Box Now', carrier: 'packeta', parcelCost: 4650 },
-  { code: 'SI', name: 'Szlovénia – Post Box', carrier: 'packeta', parcelCost: 5000 },
+  // HR (Box Now) és SI (Post Box) külső partnerhálózat — a Packeta-fiók
+  // vendor-engedélye után visszavehető (4650 / 5000 Ft):
+  // { code: 'HR', name: 'Horvátország – Box Now', carrier: 'packeta', parcelCost: 4650 },
+  // { code: 'SI', name: 'Szlovénia – Post Box', carrier: 'packeta', parcelCost: 5000 },
 ];
 
 /** Billing (invoice) country options — defaults to Hungary. */
