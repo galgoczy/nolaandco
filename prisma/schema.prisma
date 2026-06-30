@@ -47,6 +47,7 @@ model Order {
   billingZip      String?
   billingCity     String?
   billingAddress  String?
+  billingCountry  String   @default("HU") // invoice country (ISO-2)
   subtotal        Int
   shippingCost    Int      @default(0)
   total           Int

@@ -10,6 +10,7 @@ type OrderWithItems = {
   billingZip?: string | null;
   billingCity?: string | null;
   billingAddress?: string | null;
+  billingCountry?: string | null;
   subtotal: number;
   shippingCost: number;
   total: number;
@@ -58,6 +59,7 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
 
   const buyer = new Buyer({
     name: order.shippingName,
+    country: order.billingCountry || 'Magyarország',
     zip: order.billingZip || order.shippingZip,
     city: order.billingCity || order.shippingCity,
     address: order.billingAddress || order.shippingAddress,

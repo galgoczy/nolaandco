@@ -25,13 +25,21 @@ export const HU_HOME_COST = 2490;
  * they are a uniform 4500 Ft (to be refined later).
  */
 export const PACKETA_COUNTRIES: CountryConfig[] = [
-  { code: 'SK', name: 'Szlovákia', carrier: 'packeta', parcelCost: 4500 },
-  { code: 'RO', name: 'Románia', carrier: 'packeta', parcelCost: 4500 },
-  { code: 'AT', name: 'Ausztria', carrier: 'packeta', parcelCost: 4500 },
-  { code: 'HR', name: 'Horvátország', carrier: 'packeta', parcelCost: 4500 },
-  { code: 'SI', name: 'Szlovénia', carrier: 'packeta', parcelCost: 4500 },
-  { code: 'RS', name: 'Szerbia', carrier: 'packeta', parcelCost: 4500 },
-  { code: 'UA', name: 'Ukrajna', carrier: 'packeta', parcelCost: 4500 },
+  { code: 'SK', name: 'Szlovákia – Z-Box', carrier: 'packeta', parcelCost: 2650 },
+  { code: 'RO', name: 'Románia – Z-Box', carrier: 'packeta', parcelCost: 3650 },
+  { code: 'HR', name: 'Horvátország – Box Now', carrier: 'packeta', parcelCost: 4650 },
+  { code: 'SI', name: 'Szlovénia – Post Box', carrier: 'packeta', parcelCost: 5000 },
+];
+
+/** Billing (invoice) country options — defaults to Hungary. */
+export const BILLING_COUNTRIES: { code: string; name: string }[] = [
+  { code: 'HU', name: 'Magyarország' },
+  { code: 'SK', name: 'Szlovákia' },
+  { code: 'RO', name: 'Románia' },
+  { code: 'HR', name: 'Horvátország' },
+  { code: 'SI', name: 'Szlovénia' },
+  { code: 'AT', name: 'Ausztria' },
+  { code: 'DE', name: 'Németország' },
 ];
 
 export const HU_COUNTRY: CountryConfig = {

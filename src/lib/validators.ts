@@ -20,6 +20,7 @@ export const shippingSchema = z.object({
   billingZip: z.string().regex(/^\d{4}$/, 'Érvényes irányítószám (4 számjegy)'),
   billingCity: z.string().min(2, 'Város megadása kötelező'),
   billingAddress: z.string().min(5, 'Utca, házszám megadása kötelező'),
+  billingCountry: z.string().optional().default('HU'),
 });
 
 export const homeDeliverySchema = shippingSchema.extend({
@@ -44,6 +45,7 @@ export const foreignShippingSchema = z.object({
   billingZip: z.string().min(3, 'Irányítószám megadása kötelező'),
   billingCity: z.string().min(2, 'Város megadása kötelező'),
   billingAddress: z.string().min(5, 'Utca, házszám megadása kötelező'),
+  billingCountry: z.string().optional().default('HU'),
 });
 
 export const newsletterSchema = z.object({

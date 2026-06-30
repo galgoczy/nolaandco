@@ -6,7 +6,7 @@ import { useCartStore } from '@/store/cart';
 import { shippingSchema, homeDeliverySchema, foreignShippingSchema, type ShippingData } from '@/lib/validators';
 import { formatPrice } from '@/lib/utils';
 import { cartRequiresShipping } from '@/lib/shippingRules';
-import { ALL_COUNTRIES, getShippingCost, isPacketaCountry } from '@/lib/shipping';
+import { ALL_COUNTRIES, BILLING_COUNTRIES, getShippingCost, isPacketaCountry } from '@/lib/shipping';
 import Input from '@/components/ui/Input';
 import FoxpostSelector from '@/components/checkout/FoxpostSelector';
 import PacketaSelector, { type PacketaPointData } from '@/components/checkout/PacketaSelector';
@@ -48,6 +48,7 @@ export default function CheckoutPage() {
     billingZip: '',
     billingCity: '',
     billingAddress: '',
+    billingCountry: 'HU',
   });
 
   // Foxpost locker selection
@@ -223,7 +224,10 @@ export default function CheckoutPage() {
       ? { ...form, billingZip: form.shippingZip, billingCity: form.shippingCity, billingAddress: form.shippingAddress }
       : form;
 
-    const schema = isForeign
+    // Relaxed billing (no HU 4-digit zip) when shipping abroad OR the invoice
+    // country is not Hungary.
+    const relaxedBilling = isForeign || (form.billingCountry || 'HU') !== 'HU';
+    const schema = relaxedBilling
       ? foreignShippingSchema
       : needsShipping && shippingMethod === 'home'
         ? homeDeliverySchema
@@ -339,14 +343,26 @@ export default function CheckoutPage() {
                 Számlázási cím
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="text-carbon-light text-sm font-body block mb-1">Ország</label>
+                  <select
+                    value={form.billingCountry || 'HU'}
+                    onChange={(e) => setForm((prev) => ({ ...prev, billingCountry: e.target.value }))}
+                    className="w-full bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    {BILLING_COUNTRIES.map((c) => (
+                      <option key={c.code} value={c.code}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
                 <Input
                   label="Irányítószám"
                   name="billingZip"
                   value={form.billingZip}
                   onChange={handleChange}
                   error={errors.billingZip}
-                  maxLength={4}
-                  inputMode="numeric"
+                  maxLength={(form.billingCountry || 'HU') === 'HU' ? 4 : 12}
+                  inputMode={(form.billingCountry || 'HU') === 'HU' ? 'numeric' : 'text'}
                 />
                 <Input
                   label="Város"

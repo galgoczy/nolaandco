@@ -133,14 +133,15 @@ export async function POST(request: NextRequest) {
     const effectiveMethod: 'parcel' | 'home' =
       carrier === 'packeta' ? 'parcel' : shippingMethod === 'home' ? 'home' : 'parcel';
 
-    // Validate shipping data. Foreign (Packeta) orders use a relaxed billing
-    // schema (zip formats vary); HU home delivery is stricter.
-    const schema =
-      country !== 'HU'
-        ? foreignShippingSchema
-        : effectiveMethod === 'home'
-          ? homeDeliverySchema
-          : shippingSchema;
+    // Validate shipping data. Relaxed billing (no HU 4-digit zip) when shipping
+    // abroad OR the invoice country is not Hungary; HU home delivery is stricter.
+    const billingCountryRaw = typeof shipping?.billingCountry === 'string' ? shipping.billingCountry : 'HU';
+    const relaxedBilling = country !== 'HU' || billingCountryRaw !== 'HU';
+    const schema = relaxedBilling
+      ? foreignShippingSchema
+      : effectiveMethod === 'home'
+        ? homeDeliverySchema
+        : shippingSchema;
     const shippingResult = schema.safeParse(shipping);
     if (!shippingResult.success) {
       return NextResponse.json(
@@ -298,6 +299,7 @@ export async function POST(request: NextRequest) {
         billingZip: shippingData.billingZip || null,
         billingCity: shippingData.billingCity || null,
         billingAddress: shippingData.billingAddress || null,
+        billingCountry: shippingData.billingCountry || 'HU',
         shippingCountry: country,
         shippingCarrier: carrier,
         pickupPointId: pickupPointId || null,
