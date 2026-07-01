@@ -15,7 +15,9 @@ export default async function AdminDashboard() {
     newsletterCount,
     recentOrders,
   ] = await Promise.all([
-    prisma.order.count(),
+    // Csak a fizetett (és utána következő) rendeléseket számoljuk — a pending
+    // (kifizetetlen kártyás/átutalásos) és a törölt rendelések nem valós rendelések.
+    prisma.order.count({ where: { status: { in: ['paid', 'processing', 'shipped', 'delivered'] } } }),
     prisma.order.count({ where: { status: 'paid' } }),
     prisma.order.count({ where: { status: 'processing' } }),
     prisma.order.count({ where: { status: 'shipped' } }),
