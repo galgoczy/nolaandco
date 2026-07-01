@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import TelegramTestButton from './TelegramTestButton';
+import MonthlyTurnover from './MonthlyTurnover';
 
 export default async function AdminDashboard() {
   const [
@@ -62,7 +63,7 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      <TelegramTestButton />
+      <MonthlyTurnover />
 
       <div className="bg-surface-container-lowest rounded-2xl p-6">
         <h2 className="text-lg font-headline font-bold text-on-surface mb-4">
@@ -91,7 +92,7 @@ export default async function AdminDashboard() {
                       href={`/admin/rendeles/${order.id}`}
                       className="text-primary font-medium hover:underline"
                     >
-                      {order.id.slice(0, 8)}
+                      #{order.id.slice(-8).toUpperCase()}
                     </Link>
                   </td>
                   <td className="py-3 text-on-surface/70">
@@ -109,6 +110,10 @@ export default async function AdminDashboard() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <TelegramTestButton />
       </div>
     </div>
   );

@@ -96,6 +96,9 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
 
   const now = new Date();
 
+  // Same short, human-facing order number as the site/emails/Telegram.
+  const orderNumber = order.id.slice(-8).toUpperCase();
+
   const invoice = new Invoice({
     paymentMethod: PaymentMethods.CreditCard,
     currency: Currencies.Ft,
@@ -104,11 +107,11 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
     buyer,
     items,
     paid: true,
-    orderNumber: order.id,
+    orderNumber,
     issueDate: now,
     fulfillmentDate: now,
     dueDate: now,
-    comment: `Rendelés: ${order.id}`,
+    comment: `Rendelés: #${orderNumber}`,
   });
 
   const result = await client.issueInvoice(invoice);

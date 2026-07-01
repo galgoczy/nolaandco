@@ -25,6 +25,8 @@ interface OrderNotificationData {
   items: OrderItem[];
   subtotal: number;
   shippingCost: number;
+  discount?: number;
+  couponCode?: string | null;
   total: number;
   hasGiftCard: boolean;
 }
@@ -75,6 +77,14 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
         <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#999;white-space:nowrap;">
           ${data.shippingCost === 0 ? 'Ingyenes' : formatPrice(data.shippingCost)}
         </td>
+      </tr>`
+          : ''
+      }
+      ${
+        data.discount && data.discount > 0
+          ? `<tr>
+        <td style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A7c59;">Kedvezmény${data.couponCode ? ` (${data.couponCode})` : ''}</td>
+        <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A7c59;white-space:nowrap;">-${formatPrice(data.discount)}</td>
       </tr>`
           : ''
       }
