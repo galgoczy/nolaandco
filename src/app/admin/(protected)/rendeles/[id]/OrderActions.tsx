@@ -35,7 +35,23 @@ export default function OrderActions({
   const [deleting, setDeleting] = useState(false);
   const [foxpostLoading, setFoxpostLoading] = useState(false);
   const [foxpostSize, setFoxpostSize] = useState<string>('M');
+  const [reminderLoading, setReminderLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  const sendPaymentReminder = async () => {
+    if (!confirm('Fizetési emlékeztető küldése a vásárlónak?')) return;
+    setReminderLoading(true);
+    setMessage('');
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}/payment-reminder`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      setMessage(res.ok ? 'Fizetési emlékeztető elküldve!' : data.error || 'Hiba történt');
+    } catch {
+      setMessage('Hálózati hiba');
+    } finally {
+      setReminderLoading(false);
+    }
+  };
 
   const handleUpdate = async () => {
     setLoading(true);
@@ -156,6 +172,21 @@ export default function OrderActions({
             </button>
           </div>
         </div>
+        {status === 'pending' && (
+          <div className="mt-4 pt-4 border-t border-outline-variant/40">
+            <p className="text-sm text-on-surface/60 mb-2">
+              Fizetésre váró rendelés — küldhetsz a vásárlónak egy emlékeztetőt egykattintásos
+              bankkártyás fizetési linkkel (kártyás és átutalásos pendingnél is).
+            </p>
+            <button
+              onClick={sendPaymentReminder}
+              disabled={reminderLoading}
+              className="bg-[#D5E8F0] text-[#4A4A4A] px-5 py-2.5 rounded-full text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {reminderLoading ? 'Küldés...' : 'Fizetési emlékeztető küldése'}
+            </button>
+          </div>
+        )}
         {message && (
           <p className="mt-3 text-sm text-primary font-medium">{message}</p>
         )}
