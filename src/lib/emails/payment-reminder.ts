@@ -46,9 +46,12 @@ export function paymentReminderHtml(data: PaymentReminderData): string {
       Kedves ${data.customerName}!
     </h1>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4A4A4A;">
-      Köszönjük, hogy nálunk rendeltél! Azt vettük észre, hogy a
-      <strong>#${data.orderNumber}</strong> rendelésed fizetése még nem fejeződött be, ezért a
-      terméke(i)d gyártását még nem indítottuk el.
+      Köszönjük a rendelésedet! Nagyon örülünk, hogy minket választottál, hogy megőrizzük a
+      legelső pillanatok emlékét.
+    </p>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4A4A4A;">
+      Azt vettük észre, hogy a <strong>#${data.orderNumber}</strong> rendelésed fizetése még nem
+      fejeződött be, ezért a terméke(i)d gyártását még nem indítottuk el.
     </p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-top:2px solid #E8E6E1;">

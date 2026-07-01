@@ -44,6 +44,8 @@ async function sendOrderEmails(args: {
   }>;
   subtotal: number;
   shippingCost: number;
+  discount?: number;
+  couponCode?: string | null;
   total: number;
   hasGiftCard: boolean;
   hasInvoice: boolean;
@@ -59,6 +61,8 @@ async function sendOrderEmails(args: {
       items: args.items,
       subtotal: args.subtotal,
       shippingCost: args.shippingCost,
+      discount: args.discount,
+      couponCode: args.couponCode,
       total: args.total,
       shippingMethod: args.shippingMethod,
       paymentMethod: args.paymentMethod,
@@ -399,6 +403,8 @@ export async function POST(request: NextRequest) {
         items: emailItems,
         subtotal,
         shippingCost,
+        discount,
+        couponCode: discount > 0 ? couponCode || null : null,
         total,
         hasGiftCard,
         hasInvoice: false,
@@ -432,6 +438,8 @@ export async function POST(request: NextRequest) {
         items: emailItems,
         subtotal,
         shippingCost,
+        discount,
+        couponCode: discount > 0 ? couponCode || null : null,
         total,
         hasGiftCard,
         hasInvoice: false,

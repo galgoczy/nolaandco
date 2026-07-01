@@ -15,6 +15,8 @@ interface OrderConfirmationData {
   items?: OrderItem[];
   subtotal?: number;
   shippingCost?: number;
+  discount?: number;
+  couponCode?: string | null;
   total?: number;
   shippingMethod?: string;
   hasInvoice?: boolean;
@@ -60,9 +62,22 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
           ? 'Szállítás (Házhozszállítás)'
           : null;
 
+    const discountRow =
+      data.discount && data.discount > 0
+        ? `<tr>
+        <td style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A7c59;">
+          Kedvezmény${data.couponCode ? ` (${data.couponCode})` : ''}
+        </td>
+        <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A7c59;white-space:nowrap;">
+          -${formatPrice(data.discount)}
+        </td>
+      </tr>`
+        : '';
+
     itemsHtml = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-top:2px solid #E8E6E1;">
       ${rows}
+      ${discountRow}
       ${
         shippingLabel && data.shippingCost != null
           ? `<tr>

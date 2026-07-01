@@ -197,6 +197,14 @@ export default async function OrderDetailPage({
             <span className="text-on-surface/60">Szállítás:</span>
             <span className="font-medium">{formatPrice(order.shippingCost)}</span>
           </div>
+          {order.discount > 0 && (
+            <div className="flex gap-8 text-green-700">
+              <span>
+                Kedvezmény{order.couponCode ? ` (${order.couponCode})` : ''}:
+              </span>
+              <span className="font-medium">-{formatPrice(order.discount)}</span>
+            </div>
+          )}
           <div className="flex gap-8 text-base">
             <span className="font-bold text-on-surface">Összesen:</span>
             <span className="font-bold text-on-surface">

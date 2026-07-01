@@ -111,6 +111,8 @@ export async function POST(request: NextRequest) {
               items: emailItems,
               subtotal: order.subtotal,
               shippingCost: order.shippingCost,
+              discount: order.discount,
+              couponCode: order.couponCode,
               total: order.total,
               shippingMethod: derivedShippingMethod,
               paymentMethod: 'card',
