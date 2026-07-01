@@ -46,7 +46,7 @@ export default async function OrderDetailPage({
     <div className="max-w-4xl">
       <div className="flex items-center gap-4 mb-6">
         <h1 className="text-2xl font-headline font-bold text-on-surface">
-          Rendelés #{order.id.slice(0, 8)}
+          Rendelés #{order.id.slice(-8).toUpperCase()}
         </h1>
         <span
           className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusStyles[order.status] ?? 'bg-gray-100 text-gray-800'}`}

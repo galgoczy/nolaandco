@@ -180,9 +180,11 @@ function Chart({
   showCount: boolean;
   showRevenue: boolean;
 }) {
+  const [hover, setHover] = useState<number | null>(null);
+
   const W = 760;
-  const H = 280;
-  const pad = { top: 16, right: 12, bottom: 26, left: 12 };
+  const H = 300;
+  const pad = { top: 16, right: 64, bottom: 26, left: 48 };
   const innerW = W - pad.left - pad.right;
   const innerH = H - pad.top - pad.bottom;
   const n = days.length;
@@ -202,50 +204,85 @@ function Chart({
   const countPoints = days.map((d, i) => `${x(i)},${yCount(d.count)}`).join(' ');
   const revenuePoints = days.map((d, i) => `${x(i)},${yRevenue(d.revenue)}`).join(' ');
 
-  // Label roughly every ~5 days plus the last.
   const step = Math.max(1, Math.ceil(n / 8));
+  const compact = (v: number) => (v >= 1000 ? `${Math.round(v / 1000)}e` : String(v));
+
+  // Map a mouse position to the nearest day index (viewBox coords).
+  const handleMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = ((e.clientX - rect.left) / rect.width) * W;
+    const i = Math.round(((px - pad.left) / innerW) * (n - 1));
+    setHover(Math.min(n - 1, Math.max(0, i)));
+  };
+
+  const hv = hover != null ? days[hover] : null;
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img">
-      {/* baseline */}
-      <line x1={pad.left} y1={pad.top + innerH} x2={pad.left + innerW} y2={pad.top + innerH} stroke="#E5E1DA" strokeWidth={1} />
+    <div className="relative">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full h-auto"
+        role="img"
+        onMouseMove={handleMove}
+        onMouseLeave={() => setHover(null)}
+      >
+        {/* baseline */}
+        <line x1={pad.left} y1={pad.top + innerH} x2={pad.left + innerW} y2={pad.top + innerH} stroke="#E5E1DA" strokeWidth={1} />
 
-      {showRevenue && (
-        <>
-          <polyline points={revenuePoints} fill="none" stroke={REVENUE_COLOR} strokeWidth={2} />
-          {days.map((d, i) => (
-            <circle key={`r${i}`} cx={x(i)} cy={yRevenue(d.revenue)} r={2.5} fill={REVENUE_COLOR}>
-              <title>{`${d.day}. — ${d.revenue.toLocaleString('hu-HU')} Ft`}</title>
-            </circle>
-          ))}
-        </>
-      )}
-      {showCount && (
-        <>
-          <polyline points={countPoints} fill="none" stroke={COUNT_COLOR} strokeWidth={2} />
-          {days.map((d, i) => (
-            <circle key={`c${i}`} cx={x(i)} cy={yCount(d.count)} r={2.5} fill={COUNT_COLOR}>
-              <title>{`${d.day}. — ${d.count} rendelés`}</title>
-            </circle>
-          ))}
-        </>
-      )}
+        {/* Left axis (order count) */}
+        <text x={pad.left - 6} y={pad.top + 4} textAnchor="end" fontSize={10} fill={COUNT_COLOR}>{maxCount}</text>
+        <text x={pad.left - 6} y={pad.top + innerH} textAnchor="end" fontSize={10} fill={COUNT_COLOR}>0</text>
+        {/* Right axis (revenue) */}
+        <text x={pad.left + innerW + 6} y={pad.top + 4} textAnchor="start" fontSize={10} fill="#8a6f58">{compact(maxRevenue)}</text>
+        <text x={pad.left + innerW + 6} y={pad.top + innerH} textAnchor="start" fontSize={10} fill="#8a6f58">0</text>
 
-      {/* x-axis day labels */}
-      {days.map((d, i) =>
-        i % step === 0 || i === n - 1 ? (
-          <text
-            key={`x${i}`}
-            x={x(i)}
-            y={H - 8}
-            textAnchor="middle"
-            fontSize={10}
-            fill="#999"
-          >
-            {d.day}
-          </text>
-        ) : null,
+        {/* Crosshair on hover */}
+        {hv && (
+          <line x1={x(hover!)} y1={pad.top} x2={x(hover!)} y2={pad.top + innerH} stroke="#00000022" strokeWidth={1} />
+        )}
+
+        {showRevenue && (
+          <>
+            <polyline points={revenuePoints} fill="none" stroke={REVENUE_COLOR} strokeWidth={2} />
+            {days.map((d, i) => (
+              <circle key={`r${i}`} cx={x(i)} cy={yRevenue(d.revenue)} r={hover === i ? 4.5 : 2.5} fill={REVENUE_COLOR} />
+            ))}
+          </>
+        )}
+        {showCount && (
+          <>
+            <polyline points={countPoints} fill="none" stroke={COUNT_COLOR} strokeWidth={2} />
+            {days.map((d, i) => (
+              <circle key={`c${i}`} cx={x(i)} cy={yCount(d.count)} r={hover === i ? 4.5 : 2.5} fill={COUNT_COLOR} />
+            ))}
+          </>
+        )}
+
+        {/* x-axis day labels */}
+        {days.map((d, i) =>
+          i % step === 0 || i === n - 1 ? (
+            <text key={`x${i}`} x={x(i)} y={H - 8} textAnchor="middle" fontSize={10} fill="#999">
+              {d.day}
+            </text>
+          ) : null,
+        )}
+      </svg>
+
+      {/* Hover tooltip */}
+      {hv && (
+        <div
+          className="pointer-events-none absolute -translate-x-1/2 bg-white rounded-lg shadow-lg border border-black/5 px-3 py-2 text-xs whitespace-nowrap"
+          style={{ left: `${(x(hover!) / W) * 100}%`, top: 0 }}
+        >
+          <div className="font-semibold text-carbon mb-1">{hv.day}. nap</div>
+          {showCount && (
+            <div style={{ color: COUNT_COLOR }}>Rendelés: <strong>{hv.count}</strong></div>
+          )}
+          {showRevenue && (
+            <div style={{ color: '#8a6f58' }}>Bevétel: <strong>{hv.revenue.toLocaleString('hu-HU')} Ft</strong></div>
+          )}
+        </div>
       )}
-    </svg>
+    </div>
   );
 }

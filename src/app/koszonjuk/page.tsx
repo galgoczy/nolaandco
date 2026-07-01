@@ -102,7 +102,7 @@ export default async function ThankYouPage({ searchParams }: Props) {
         <div className="bg-white rounded-2xl p-6 shadow-sm space-y-6">
           <div>
             <p className="text-sm text-[#4A4A4A]/60">Rendelés azonosító</p>
-            <p className="font-bold font-mono text-[#4A4A4A]">{order.id.slice(0, 8).toUpperCase()}</p>
+            <p className="font-bold font-mono text-[#4A4A4A]">{order.id.slice(-8).toUpperCase()}</p>
           </div>
 
           <div>
