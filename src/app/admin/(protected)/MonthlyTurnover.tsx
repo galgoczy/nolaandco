@@ -183,7 +183,7 @@ function Chart({
   const [hover, setHover] = useState<number | null>(null);
 
   const W = 760;
-  const H = 300;
+  const H = 150;
   const pad = { top: 16, right: 64, bottom: 26, left: 48 };
   const innerW = W - pad.left - pad.right;
   const innerH = H - pad.top - pad.bottom;
