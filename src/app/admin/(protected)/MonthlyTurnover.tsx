@@ -165,7 +165,7 @@ export default function MonthlyTurnover() {
           Betöltés…
         </div>
       ) : (
-        <Chart days={data?.days ?? []} showCount={showCount} showRevenue={showRevenue} />
+        <Chart key={`${year}-${month}`} days={data?.days ?? []} showCount={showCount} showRevenue={showRevenue} />
       )}
     </div>
   );
@@ -197,8 +197,10 @@ function Chart({
 
   const maxCount = Math.max(1, ...days.map((d) => d.count));
   const maxRevenue = Math.max(1, ...days.map((d) => d.revenue));
+  // Order count uses a smaller vertical band so the two series don't overlap.
+  const COUNT_SCALE = 0.6;
   const x = (i: number) => pad.left + (n <= 1 ? innerW / 2 : (i / (n - 1)) * innerW);
-  const yCount = (v: number) => pad.top + innerH - (v / maxCount) * innerH;
+  const yCount = (v: number) => pad.top + innerH - (v / maxCount) * innerH * COUNT_SCALE;
   const yRevenue = (v: number) => pad.top + innerH - (v / maxRevenue) * innerH;
 
   const countPoints = days.map((d, i) => `${x(i)},${yCount(d.count)}`).join(' ');
@@ -229,8 +231,8 @@ function Chart({
         {/* baseline */}
         <line x1={pad.left} y1={pad.top + innerH} x2={pad.left + innerW} y2={pad.top + innerH} stroke="#E5E1DA" strokeWidth={1} />
 
-        {/* Left axis (order count) */}
-        <text x={pad.left - 6} y={pad.top + 4} textAnchor="end" fontSize={10} fill={COUNT_COLOR}>{maxCount}</text>
+        {/* Left axis (order count) — smaller band */}
+        <text x={pad.left - 6} y={yCount(maxCount) + 3} textAnchor="end" fontSize={10} fill={COUNT_COLOR}>{maxCount}</text>
         <text x={pad.left - 6} y={pad.top + innerH} textAnchor="end" fontSize={10} fill={COUNT_COLOR}>0</text>
         {/* Right axis (revenue) */}
         <text x={pad.left + innerW + 6} y={pad.top + 4} textAnchor="start" fontSize={10} fill="#8a6f58">{compact(maxRevenue)}</text>
@@ -243,18 +245,22 @@ function Chart({
 
         {showRevenue && (
           <>
-            <polyline points={revenuePoints} fill="none" stroke={REVENUE_COLOR} strokeWidth={2} />
-            {days.map((d, i) => (
-              <circle key={`r${i}`} cx={x(i)} cy={yRevenue(d.revenue)} r={hover === i ? 4.5 : 2.5} fill={REVENUE_COLOR} />
-            ))}
+            <polyline className="chart-line" pathLength={1} points={revenuePoints} fill="none" stroke={REVENUE_COLOR} strokeWidth={2} />
+            <g className="chart-dots">
+              {days.map((d, i) => (
+                <circle key={`r${i}`} cx={x(i)} cy={yRevenue(d.revenue)} r={hover === i ? 4.5 : 2.5} fill={REVENUE_COLOR} />
+              ))}
+            </g>
           </>
         )}
         {showCount && (
           <>
-            <polyline points={countPoints} fill="none" stroke={COUNT_COLOR} strokeWidth={2} />
-            {days.map((d, i) => (
-              <circle key={`c${i}`} cx={x(i)} cy={yCount(d.count)} r={hover === i ? 4.5 : 2.5} fill={COUNT_COLOR} />
-            ))}
+            <polyline className="chart-line" pathLength={1} points={countPoints} fill="none" stroke={COUNT_COLOR} strokeWidth={2} />
+            <g className="chart-dots">
+              {days.map((d, i) => (
+                <circle key={`c${i}`} cx={x(i)} cy={yCount(d.count)} r={hover === i ? 4.5 : 2.5} fill={COUNT_COLOR} />
+              ))}
+            </g>
           </>
         )}
 
