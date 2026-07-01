@@ -91,6 +91,8 @@ async function sendOrderEmails(args: {
       items: args.items,
       subtotal: args.subtotal,
       shippingCost: args.shippingCost,
+      discount: args.discount,
+      couponCode: args.couponCode,
       total: args.total,
       hasGiftCard: args.hasGiftCard,
     }),

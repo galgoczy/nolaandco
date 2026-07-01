@@ -47,6 +47,8 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
         quantity: it.quantity,
         price: it.price,
       })),
+      discount: order.discount,
+      couponCode: order.couponCode,
       total: order.total,
     }),
   });
