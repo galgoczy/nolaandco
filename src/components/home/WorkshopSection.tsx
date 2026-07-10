@@ -41,7 +41,7 @@ const steps = [
     num: '03',
     title: 'Add meg a születési adatokat és rendelj',
     subtitle: 'NÉV, SZÜLETÉSI DÁTUM ÉS IDŐ, SÚLY, HOSSZ',
-    desc: 'Ezt követően mi 5-8 munkanap alatt elkészítjük a párnát és postázzuk neked.',
+    desc: 'Ezt követően mi kb. 2 hét alatt elkészítjük a párnát és postázzuk neked.',
   },
 ];
 
