@@ -112,7 +112,7 @@ const faqItems: FaqItem[] = [
   {
     question: 'Mikor kapom meg a rendelésemet?',
     answer:
-      'Mivel minden Nola termék egyedileg, az általad megadott születési adatok alapján készül, a gyártási időnk 5-8 munkanap. Amint a termék elkészült, azonnal átadjuk a futárnak, amiről e-mailben értesítünk. (Kiemelt időszakokban előfordulhat, hogy pár napos csúszással kell számolni a gyártásban, de erről előre tájékoztatunk.)',
+      'Mivel minden Nola termék egyedileg, sok esetben az általad megadott adatok alapján készül, a gyártási időnk kb. 2 hét. Amint a termék elkészült, azonnal átadjuk a futárnak, amiről e-mailben értesítünk. (Kiemelt időszakokban előfordulhat, hogy pár napos csúszással kell számolni a gyártásban, de erről előre tájékoztatunk.)',
   },
   {
     question: 'Tudok ajándékba venni párnát vagy posztert, ha még nem született meg a baba?',
