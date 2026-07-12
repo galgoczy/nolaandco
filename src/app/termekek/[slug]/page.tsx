@@ -205,6 +205,8 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                     slug: product.slug,
                     price: effectivePrice,
                     imageUrl: product.imageUrl,
+                    category: product.category,
+                    noShipping: product.noShipping,
                   }}
                   config={getCapeConfig(product.slug)}
                 />
@@ -217,6 +219,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                     price: effectivePrice,
                     imageUrl: product.imageUrl,
                     category: product.category,
+                    noShipping: product.noShipping,
                   }}
                   oneClickAdd
                 />

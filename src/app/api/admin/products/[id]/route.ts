@@ -46,6 +46,7 @@ export async function PATCH(
   if (data.active !== undefined) update.active = Boolean(data.active);
   if (data.hiddenFromListing !== undefined) update.hiddenFromListing = Boolean(data.hiddenFromListing);
   if (data.withdrawalEligible !== undefined) update.withdrawalEligible = Boolean(data.withdrawalEligible);
+  if (data.noShipping !== undefined) update.noShipping = Boolean(data.noShipping);
   if (data.onSale !== undefined) update.onSale = Boolean(data.onSale);
   if (data.salePrice !== undefined) {
     update.salePrice = data.salePrice === null || data.salePrice === '' ? null : num(data.salePrice);

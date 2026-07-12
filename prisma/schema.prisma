@@ -28,6 +28,9 @@ model Product {
   // True only for non-personalised goods that carry the 14-day right of
   // withdrawal (e.g. NOLA Crew cape, crowns). Personalised products are exempt.
   withdrawalEligible Boolean @default(false)
+  // True for digital / no-ship goods (e.g. digital gift card, digital poster):
+  // checkout charges no shipping, and a cart of only such items ships free.
+  noShipping      Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

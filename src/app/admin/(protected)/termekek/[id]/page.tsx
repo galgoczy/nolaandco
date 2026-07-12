@@ -50,6 +50,7 @@ export default async function EditProductPage({
           active: product.active,
           hiddenFromListing: product.hiddenFromListing,
           withdrawalEligible: product.withdrawalEligible,
+          noShipping: product.noShipping,
           onSale: product.onSale,
           salePrice: product.salePrice ?? '',
         }}

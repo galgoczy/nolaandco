@@ -21,6 +21,8 @@ interface Props {
     slug: string;
     price: number;
     imageUrl: string;
+    category?: string | null;
+    noShipping?: boolean;
   };
   config: CapeConfig;
 }
@@ -91,6 +93,8 @@ export default function CapeAddToCart({ product, config }: Props) {
       birthWeight: '',
       birthHeight: '',
       customNote: noteParts.join('\n'),
+      category: product.category,
+      noShipping: product.noShipping,
     });
     setAdded(true);
   };

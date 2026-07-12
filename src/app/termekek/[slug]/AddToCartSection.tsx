@@ -34,6 +34,7 @@ interface Props {
     price: number;
     imageUrl: string;
     category?: string | null;
+    noShipping?: boolean;
   };
   onBirthDataChange?: (data: BirthData | null) => void;
   onVariantChange?: (variantIdx: number) => void;
@@ -137,6 +138,8 @@ export default function AddToCartSection({
         birthHeight: '',
         customNote: `Ajándékkártya értéke: ${variant.label}`,
         variant: variant.label,
+        category: product.category,
+        noShipping: product.noShipping,
       });
       setAdded(true);
       return;
@@ -166,6 +169,8 @@ export default function AddToCartSection({
       birthHeight: effective.birthHeight,
       birthTime: effective.birthTime,
       customNote: noteParts.join('\n'),
+      category: product.category,
+      noShipping: product.noShipping,
       ...(variantLabel ? { variant: variantLabel } : {}),
       ...(posterLayout ? { posterLayout, posterLayoutLabel } : {}),
     });

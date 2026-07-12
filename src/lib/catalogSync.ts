@@ -343,6 +343,17 @@ export async function syncCatalog(): Promise<string[]> {
     log.push(`${eligibleUpdate.count} termék elállásra jogosultként beállítva.`);
   }
 
+  // Digital / no-ship products: the fixed-amount digital gift card carries no
+  // shipping cost. (One-off backfill; admins can toggle the flag afterwards.)
+  const noShippingSlugs = ['nola-digitalis-ajandekkartya'];
+  const noShipUpdate = await prisma.product.updateMany({
+    where: { slug: { in: noShippingSlugs }, noShipping: false },
+    data: { noShipping: true },
+  });
+  if (noShipUpdate.count > 0) {
+    log.push(`${noShipUpdate.count} termék szállításmentesként beállítva.`);
+  }
+
   // One-off rename: the capes originally shipped with an ELŐRENDELÉS badge.
   const renamed = await prisma.product.updateMany({
     where: { badge: 'ELŐRENDELÉS' },

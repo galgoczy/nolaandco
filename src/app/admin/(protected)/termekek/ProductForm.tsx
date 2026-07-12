@@ -20,6 +20,7 @@ export type ProductFormValues = {
   active: boolean;
   hiddenFromListing: boolean;
   withdrawalEligible: boolean;
+  noShipping: boolean;
   onSale: boolean;
   salePrice: number | '';
 };
@@ -39,6 +40,7 @@ export const emptyProduct: ProductFormValues = {
   active: true,
   hiddenFromListing: false,
   withdrawalEligible: false,
+  noShipping: false,
   onSale: false,
   salePrice: '',
 };
@@ -403,6 +405,21 @@ export default function ProductForm({
             <span className="block text-xs text-on-surface/60 mt-0.5">
               Csak nem személyre szabott termékeknél kapcsold be. Ekkor a vásárló online
               kezdeményezheti az elállást a fiókjából és a rendelésnél.
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-2 text-sm font-body cursor-pointer">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={values.noShipping}
+            onChange={(e) => update('noShipping', e.target.checked)}
+          />
+          <span>
+            Nincs szállítási költség (digitális termék)
+            <span className="block text-xs text-on-surface/60 mt-0.5">
+              Pl. digitális ajándékkártya vagy letölthető poszter. A pénztár nem számol rá
+              szállítási díjat; ha a kosárban csak ilyen termékek vannak, a szállítás ingyenes.
             </span>
           </span>
         </label>
