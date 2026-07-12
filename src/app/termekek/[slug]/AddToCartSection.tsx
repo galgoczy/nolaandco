@@ -233,7 +233,7 @@ export default function AddToCartSection({
             </select>
           </div>
         </div>
-        <Button variant="secondary" onClick={handleAddToCart} className="w-full">
+        <Button variant="secondary" onClick={() => handleAddToCart()} className="w-full">
           Kosárba – {formatPrice(giftCardVariants[selectedVariant].price)}
         </Button>
       </div>
