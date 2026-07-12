@@ -10,7 +10,7 @@ type CategoryTile = {
 
 const tiles: CategoryTile[] = [
   {
-    label: 'Kicsikről',
+    label: 'Kicsiknek',
     imageUrl: '/images/home/kategoria-kicsikrol.jpg',
     href: '/termekek?category=kicsiknek',
   },

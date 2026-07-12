@@ -218,6 +218,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                     imageUrl: product.imageUrl,
                     category: product.category,
                   }}
+                  oneClickAdd
                 />
               )}
             </div>

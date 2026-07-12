@@ -150,7 +150,7 @@ export default function WorkshopSection() {
           <div className="text-center">
             <a
               href="/termekek"
-              className="inline-block bg-[#FDFBF7] text-[#C4A591] px-10 py-4 rounded-full text-sm tracking-wide btn-anim shadow-xl" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
+              className="inline-block bg-cta text-white hover:bg-cta-hover px-10 py-4 rounded-full text-sm tracking-wide btn-anim shadow-xl" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
             >
               Kezdd el a tervezést!
             </a>

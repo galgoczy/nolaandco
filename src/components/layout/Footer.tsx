@@ -108,6 +108,10 @@ export default function Footer() {
           <p className="text-[#B48D76] text-sm font-light tracking-wide">
             &copy; 2026 Nola &amp; Co. | hello@nolaandco.hu
           </p>
+          <p className="text-[#B48D76]/70 text-xs font-light text-center leading-relaxed max-w-2xl">
+            Üzemeltető: Galgóczy Krisztina EV · Székhely: 1135 Budapest, Reitter Ferenc utca 35–37. 5/1. ·
+            Adószám: 91306353-1-41 · Nyilvántartási szám: 60843867 · hello@nolaandco.hu
+          </p>
         </div>
       </div>
     </footer>

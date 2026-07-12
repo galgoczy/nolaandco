@@ -11,6 +11,8 @@ const config: Config = {
       colors: {
         'brand-blue': '#D5E8F0',
         'brand-red': '#D55850',
+        cta: '#A9502E',
+        'cta-hover': '#8F4224',
         primary: '#584232',
         'primary-container': '#725948',
         tertiary: '#C4A591',

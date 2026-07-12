@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import TrustBar from '@/components/products/TrustBar';
+import { formatPrice } from '@/lib/utils';
 import { useCartStore } from '@/store/cart';
 import {
   DESIGNER_FIELDS,
@@ -177,8 +179,9 @@ export default function CapeAddToCart({ product, config }: Props) {
       )}
 
       <Button variant="secondary" onClick={handleAddToCart} className="w-full">
-        Kosárba
+        Kosárba teszem – {formatPrice(product.price)}
       </Button>
+      <TrustBar className="justify-center" />
     </div>
   );
 }

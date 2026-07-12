@@ -16,7 +16,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: 'FŐOLDAL', href: '/' },
   {
-    label: 'KICSIKRŐL',
+    label: 'KICSIKNEK',
     href: '/termekek?category=kicsiknek',
     children: [
       { label: 'Emlékpárnák', href: '/termekek?category=pillow' },
