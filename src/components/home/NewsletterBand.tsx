@@ -70,7 +70,7 @@ export default function NewsletterBand() {
                 <button
                   type="submit"
                   disabled={status === 'loading' || !consent}
-                  className="bg-[#FDFBF7] text-[#C4A591] px-8 py-3.5 rounded-full text-sm font-bold uppercase tracking-[0.1em] btn-anim whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="bg-cta hover:bg-cta-hover text-white px-8 py-3.5 rounded-full text-sm font-bold uppercase tracking-[0.1em] btn-anim whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {status === 'loading' ? '...' : 'Feliratkozom'}
                 </button>

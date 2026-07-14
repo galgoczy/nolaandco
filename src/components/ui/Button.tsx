@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 
 const variants = {
-  primary: 'bg-primary text-on-primary rounded-full px-8 py-3 uppercase tracking-[0.15em] btn-anim',
+  primary: 'bg-cta text-white rounded-full px-8 py-3 uppercase tracking-[0.15em] btn-anim hover:bg-cta-hover',
   secondary: 'bg-cta text-white rounded-full px-8 py-3 uppercase tracking-[0.15em] btn-anim hover:bg-cta-hover',
   outline: 'border border-outline-variant text-carbon rounded-full px-8 py-3 uppercase tracking-[0.15em] btn-anim',
 } as const;

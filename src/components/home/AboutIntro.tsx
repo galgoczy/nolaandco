@@ -42,7 +42,7 @@ export default function AboutIntro() {
             <RevealOnScroll>
               <Link
                 href="/rolunk"
-                className="inline-block bg-[#C4A591] text-white px-8 py-3.5 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em] shadow-md"
+                className="inline-block bg-cta hover:bg-cta-hover text-white px-8 py-3.5 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em] shadow-md"
               >
                 Ismerd meg a történetünket
               </Link>

@@ -465,7 +465,7 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
                 type="button"
                 onClick={() => setAddToCartSignal((s) => s + 1)}
                 aria-label="Kosárba"
-                className="lg:hidden absolute bottom-4 right-4 w-14 h-14 rounded-full bg-[#D5E8F0] text-carbon shadow-xl flex items-center justify-center cart-attention"
+                className="lg:hidden absolute bottom-4 right-4 w-14 h-14 rounded-full bg-cta text-white shadow-xl flex items-center justify-center cart-attention"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

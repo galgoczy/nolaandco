@@ -65,7 +65,7 @@ export default function ConversionSection() {
             <RevealOnScroll>
               <Link
                 href="/termekek"
-                className="inline-block bg-[#FDFBF7] text-[#C4A591] px-10 py-4 rounded-full text-sm font-bold tracking-[0.15em] uppercase btn-anim shadow-xl"
+                className="inline-block bg-cta hover:bg-cta-hover text-white px-10 py-4 rounded-full text-sm font-bold tracking-[0.15em] uppercase btn-anim shadow-xl"
               >
                 Megnézem a termékeket
               </Link>
@@ -92,7 +92,7 @@ export default function ConversionSection() {
                     <button
                       type="submit"
                       disabled={status === 'loading' || !consent}
-                      className="bg-[#FDFBF7] text-[#C4A591] px-6 py-3 rounded-full text-sm font-medium btn-anim whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="bg-cta hover:bg-cta-hover text-white px-6 py-3 rounded-full text-sm font-medium btn-anim whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {status === 'loading' ? '...' : 'Feliratkozom'}
                     </button>

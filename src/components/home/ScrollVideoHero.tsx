@@ -67,7 +67,7 @@ export default function ScrollVideoHero() {
         <div className="absolute inset-0 flex items-start md:items-center justify-center md:justify-end pt-[20vh] md:pt-0 px-8 md:px-32 z-10">
           <Link
             href="/termekek"
-            className="bg-[#D5E8F0] text-carbon rounded-full px-14 py-5 text-lg font-bold tracking-wide btn-anim shadow-xl"
+            className="bg-cta hover:bg-cta-hover text-white rounded-full px-14 py-5 text-lg font-bold tracking-wide btn-anim shadow-xl"
           >
             Fedezd fel a kollekciókat!
           </Link>
