@@ -38,7 +38,7 @@ export default function FeaturedCapes() {
                 kollekciót exkluzív bevezető áron.
               </p>
               <Button variant="secondary" href="/termekek?category=cape">
-                Irány az Előrendelés
+                Megnézem a kollekciót
               </Button>
             </div>
           </div>

@@ -10,7 +10,7 @@ type HeroSlide = {
   mobileObjectPosition?: string;
   eyebrow: string;
   title: ReactNode;
-  ctaLabel: string;
+  ctaLabel: ReactNode;
   ctaHref: string;
 };
 
@@ -30,7 +30,13 @@ const SLIDES: HeroSlide[] = [
         &amp; poszterek
       </>
     ),
-    ctaLabel: 'Megnézem a kollekciót',
+    // Desktopon egy sor, mobilon szépen két sorba tör ("Megtervezem a saját" /
+    // "emlékpárnámat"), így nem lesz túl széles vagy háromsoros.
+    ctaLabel: (
+      <>
+        Megtervezem a saját<br className="md:hidden" /> emlékpárnámat
+      </>
+    ),
     ctaHref: '/termekek?category=kicsiknek',
   },
   {
