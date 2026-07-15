@@ -63,7 +63,7 @@ const badges = [
 /** BLOKK 5: Bizalmi ikon-sáv — teljes szélességű, halvány zsályazöld háttérrel. */
 export default function TrustBadges() {
   return (
-    <section className="py-14 md:py-20 bg-[#eef1e8]">
+    <section className="py-10 md:py-16 bg-[#eef1e8]">
       <div className="max-w-6xl mx-auto px-6 md:px-8">
         <RevealOnScroll>
           <h2

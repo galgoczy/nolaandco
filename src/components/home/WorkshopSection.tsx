@@ -26,17 +26,17 @@ const features = [
 
 export default function WorkshopSection() {
   return (
-    <section className="py-24 md:py-32 bg-[#C4A591] overflow-hidden">
+    <section className="py-16 md:py-24 bg-[#C4A591] overflow-hidden">
       <div className="max-w-7xl mx-auto px-8">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
           <RevealOnScroll>
             <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl text-[#FDFBF7] mb-4 leading-tight tracking-[0.2em] uppercase" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>
               THE ART OF CRAFTING
             </h2>
           </RevealOnScroll>
           <RevealOnScroll>
-            <h3 className="text-base md:text-lg text-[#FDFBF7]/90 mb-8" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, letterSpacing: '0.08em' }}>
+            <h3 className="text-base md:text-lg text-[#FDFBF7]/90 mb-6" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, letterSpacing: '0.08em' }}>
               A műhely titkai
             </h3>
           </RevealOnScroll>
@@ -50,7 +50,7 @@ export default function WorkshopSection() {
         </div>
 
         {/* 4 Feature bullets */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20 stagger-children">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 stagger-children">
           {features.map((f, i) => (
             <RevealOnScroll key={i} delay={i * 120}>
               <div className="flex gap-4 items-start">
@@ -78,7 +78,7 @@ export default function WorkshopSection() {
         </div>
 
         {/* 3 Workshop photos */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { src: '/images/home/artofcrafting-1.jpg', alt: 'Szabás' },
             { src: '/images/home/artofcrafting-2.jpg', alt: 'Kézi applikálás' },

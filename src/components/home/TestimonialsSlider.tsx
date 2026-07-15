@@ -38,7 +38,7 @@ export default function TestimonialsSlider() {
   }, [paused]);
 
   return (
-    <section className="py-16 md:py-24 bg-[#eef1e8]">
+    <section className="py-10 md:py-16 bg-[#eef1e8]">
       <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
         <RevealOnScroll>
           <h2

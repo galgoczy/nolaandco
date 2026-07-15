@@ -27,7 +27,7 @@ const steps = [
  */
 export default function PillowSteps() {
   return (
-    <section className="py-20 md:py-28 bg-[#C4A591] overflow-hidden">
+    <section className="py-16 md:py-24 bg-[#C4A591] overflow-hidden">
       <div className="max-w-7xl mx-auto px-8">
         <div className="text-center mb-12">
           <RevealOnScroll>
@@ -42,7 +42,7 @@ export default function PillowSteps() {
           </RevealOnScroll>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16 stagger-children">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-10 stagger-children">
           {steps.map((s, i) => (
             <RevealOnScroll key={i} delay={i * 150}>
               <div className="text-center">

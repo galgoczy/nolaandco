@@ -33,7 +33,7 @@ export default function NewsletterBand() {
   };
 
   return (
-    <section className="py-16 md:py-20 bg-[#C4A591]">
+    <section className="py-10 md:py-16 bg-[#C4A591]">
       <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
         <RevealOnScroll>
           <h2
