@@ -3,6 +3,7 @@ import CategoryGrid from '@/components/home/CategoryGrid';
 import FeaturedCapes from '@/components/home/FeaturedCapes';
 import TrustBadges from '@/components/home/TrustBadges';
 import AboutIntro from '@/components/home/AboutIntro';
+import WorkshopSection from '@/components/home/WorkshopSection';
 import TestimonialsSlider from '@/components/home/TestimonialsSlider';
 import InstagramGrid from '@/components/home/InstagramGrid';
 import NewsletterBand from '@/components/home/NewsletterBand';
@@ -24,6 +25,7 @@ export default function HomePage() {
       <FeaturedCapes />
       <TrustBadges />
       <AboutIntro />
+      <WorkshopSection />
       <TestimonialsSlider />
       <InstagramGrid />
       <NewsletterBand />

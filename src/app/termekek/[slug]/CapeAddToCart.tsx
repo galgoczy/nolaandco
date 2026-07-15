@@ -185,7 +185,7 @@ export default function CapeAddToCart({ product, config }: Props) {
       <Button variant="secondary" onClick={handleAddToCart} className="w-full">
         Kosárba teszem – {formatPrice(product.price)}
       </Button>
-      <TrustBar className="justify-center" />
+      <TrustBar category={product.category} className="justify-center" />
     </div>
   );
 }

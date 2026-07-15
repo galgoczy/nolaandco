@@ -284,7 +284,7 @@ export default function AddToCartSection({
             onSubmit={handleBirthDataSubmit}
             submitLabel={oneClickAdd ? `Kosárba teszem – ${formatPrice(product.price)}` : undefined}
           />
-          {!isPoster && <TrustBar className="mt-4 justify-center" />}
+          <TrustBar category={product.category} className="mt-4 justify-center" />
         </>
       ) : !added ? (
         <div ref={addToCartRef} className="space-y-4">
@@ -325,7 +325,7 @@ export default function AddToCartSection({
           <Button variant="secondary" onClick={() => handleAddToCart()} className="w-full">
             Kosárba teszem – {formatPrice(isPoster ? posterVariants[selectedVariant].price : product.price)}
           </Button>
-          {!isPoster && <TrustBar className="justify-center" />}
+          <TrustBar category={product.category} className="justify-center" />
         </div>
       ) : (
         <div
