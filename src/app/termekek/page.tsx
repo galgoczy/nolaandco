@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import ProductCard from '@/components/home/ProductCard';
+import WorkshopSection from '@/components/home/WorkshopSection';
 import { getListingItems } from '@/lib/productListing';
 
 interface Props {
@@ -32,6 +33,9 @@ export default async function TermekekPage({ searchParams }: Props) {
           </div>
         )}
       </div>
+
+      {/* Emlékpárnák kategóriaoldal: a rács után a "Így készül el..." blokk. */}
+      {category === 'pillow' && <WorkshopSection />}
     </section>
   );
 }

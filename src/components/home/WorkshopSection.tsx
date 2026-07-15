@@ -123,7 +123,7 @@ export default function WorkshopSection() {
         <div className="text-center mb-12">
           <RevealOnScroll>
             <h3 className="text-2xl md:text-3xl text-[#FDFBF7] mb-4 tracking-[0.15em] uppercase" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>
-              RENDELÉS MENETE
+              Így készül el a saját emlékpárnád
             </h3>
           </RevealOnScroll>
           <RevealOnScroll>
@@ -149,10 +149,10 @@ export default function WorkshopSection() {
         <RevealOnScroll>
           <div className="text-center">
             <a
-              href="/termekek"
+              href="/termekek?category=pillow"
               className="inline-block bg-cta text-white hover:bg-cta-hover px-10 py-4 rounded-full text-sm tracking-wide btn-anim shadow-xl" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}
             >
-              Kezdd el a tervezést!
+              Megtervezem a saját emlékpárnámat
             </a>
           </div>
         </RevealOnScroll>
