@@ -91,7 +91,7 @@ export default function ElallasClient({ initialOrderNumber }: { initialOrderNumb
       <button
         type="submit"
         disabled={status === 'loading'}
-        className="w-full bg-[#C4A591] text-white px-6 py-3.5 rounded-full text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-cta text-white px-6 py-3.5 rounded-full text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {status === 'loading' ? 'Keresés…' : 'Rendelés betöltése'}
       </button>

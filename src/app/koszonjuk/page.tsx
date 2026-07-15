@@ -216,7 +216,7 @@ export default async function ThankYouPage({ searchParams }: Props) {
           {isLoggedIn && (
             <Link
               href="/fiok#rendelesek"
-              className="inline-block bg-[#C4A591] text-white px-8 py-3 rounded-xl font-medium text-sm hover:bg-[#B8957F] transition-colors"
+              className="inline-block bg-cta text-white px-8 py-3 rounded-xl font-medium text-sm hover:bg-cta-hover transition-colors"
             >
               Rendeléseim
             </Link>

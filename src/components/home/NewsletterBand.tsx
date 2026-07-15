@@ -33,7 +33,7 @@ export default function NewsletterBand() {
   };
 
   return (
-    <section className="py-16 md:py-20 bg-[#C4A591]">
+    <section className="py-10 md:py-16 bg-[#C4A591]">
       <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
         <RevealOnScroll>
           <h2
@@ -70,7 +70,7 @@ export default function NewsletterBand() {
                 <button
                   type="submit"
                   disabled={status === 'loading' || !consent}
-                  className="bg-[#FDFBF7] text-[#C4A591] px-8 py-3.5 rounded-full text-sm font-bold uppercase tracking-[0.1em] btn-anim whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="bg-cta hover:bg-cta-hover text-white px-8 py-3.5 rounded-full text-sm font-bold uppercase tracking-[0.1em] btn-anim whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {status === 'loading' ? '...' : 'Feliratkozom'}
                 </button>

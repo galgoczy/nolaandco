@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 /** BLOKK 3: Kiemelt újdonság sáv — a Kalandköpeny kollekció bemutatása. */
 export default function FeaturedCapes() {
   return (
-    <section className="py-12 md:py-20 bg-[#f5f0e8]">
+    <section className="py-10 md:py-16 bg-[#f5f0e8]">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <RevealOnScroll>
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
@@ -38,7 +38,7 @@ export default function FeaturedCapes() {
                 kollekciót exkluzív bevezető áron.
               </p>
               <Button variant="secondary" href="/termekek?category=cape">
-                Irány az Előrendelés
+                Megnézem a kollekciót
               </Button>
             </div>
           </div>

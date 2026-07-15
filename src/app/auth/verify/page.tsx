@@ -88,7 +88,7 @@ function VerifyContent() {
         {(status === 'success' || status === 'already') && (
           <Link
             href="/bejelentkezes"
-            className="inline-block bg-[#C4A591] text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+            className="inline-block bg-cta text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
           >
             Bejelentkezés
           </Link>
@@ -97,7 +97,7 @@ function VerifyContent() {
           <div className="flex flex-col items-center gap-3">
             <Link
               href="/bejelentkezes"
-              className="inline-block bg-[#C4A591] text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+              className="inline-block bg-cta text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
             >
               Bejelentkezés
             </Link>

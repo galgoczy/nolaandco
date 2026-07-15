@@ -4,6 +4,7 @@ import type { CartItemData } from '@/store/cart';
  * Returns true when a single cart line needs physical shipping.
  *
  * Rules (keep in sync with server-side verification in /api/checkout):
+ * - product flagged noShipping (admin) → never ships (digital / no-ship good)
  * - giftcard category → never ships (digital delivery or shipping baked into price)
  * - poster category + "Digitális" variant → digital file, no shipping
  * - everything else → ships
@@ -12,11 +13,15 @@ export function cartItemRequiresShipping(item: {
   slug?: string;
   variant?: string;
   category?: string | null;
+  noShipping?: boolean;
 }): boolean {
+  // Authoritative admin flag.
+  if (item.noShipping) return false;
+
   const category = (item.category ?? '').toLowerCase();
   const variant = (item.variant ?? '').toLowerCase();
 
-  if (category === 'giftcard' || item.slug === 'nola-ajandekkartya') {
+  if (category === 'giftcard' || item.slug === 'nola-digitalis-ajandekkartya' || item.slug === 'nola-ajandekkartya') {
     return false;
   }
   if ((category === 'poster' || item.slug === 'poszter') && variant.startsWith('digit')) {
@@ -27,7 +32,7 @@ export function cartItemRequiresShipping(item: {
 
 /** True if at least one line in the cart requires shipping. */
 export function cartRequiresShipping(
-  items: Array<Pick<CartItemData, 'slug' | 'variant'> & { category?: string | null }>,
+  items: Array<Pick<CartItemData, 'slug' | 'variant'> & { category?: string | null; noShipping?: boolean }>,
 ): boolean {
   return items.some((i) => cartItemRequiresShipping(i));
 }

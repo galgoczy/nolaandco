@@ -10,7 +10,7 @@ type CategoryTile = {
 
 const tiles: CategoryTile[] = [
   {
-    label: 'Kicsikről',
+    label: 'Kicsiknek',
     imageUrl: '/images/home/kategoria-kicsikrol.jpg',
     href: '/termekek?category=kicsiknek',
   },
@@ -29,7 +29,7 @@ const tiles: CategoryTile[] = [
 /** BLOKK 2: Vásárolj kategória szerint — 3 oszlopos, 1:1 képes rács. */
 export default function CategoryGrid() {
   return (
-    <section className="py-12 md:py-20 bg-surface">
+    <section className="py-10 md:py-16 bg-surface">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <h2 className="text-2xl md:text-4xl text-carbon text-center mb-8 md:mb-12 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
           Vásárolj kategória szerint

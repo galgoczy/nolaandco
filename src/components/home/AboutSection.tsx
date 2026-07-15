@@ -52,7 +52,7 @@ export default function AboutSection() {
             <RevealOnScroll>
               <Link
                 href="/termekek"
-                className="inline-block bg-[#D5E8F0] text-carbon px-8 py-3 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em]"
+                className="inline-block bg-cta hover:bg-cta-hover text-white px-8 py-3 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em]"
               >
                 Megnézem a párnákat
               </Link>
@@ -103,7 +103,7 @@ export default function AboutSection() {
             <RevealOnScroll>
               <Link
                 href="/rolunk"
-                className="inline-block bg-[#D5E8F0] text-carbon px-8 py-3 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em]"
+                className="inline-block bg-cta hover:bg-cta-hover text-white px-8 py-3 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em]"
               >
                 Ismerj meg minket
               </Link>

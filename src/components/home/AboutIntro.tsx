@@ -5,7 +5,7 @@ import RevealOnScroll from '@/components/ui/RevealOnScroll';
 /** BLOKK 6: Rólunk szekció bevezetője — 50-50% kép + szöveg. */
 export default function AboutIntro() {
   return (
-    <section className="py-14 md:py-24 bg-surface">
+    <section className="py-12 md:py-[72px] bg-surface">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
           {/* Left: portrait photo */}
@@ -42,7 +42,7 @@ export default function AboutIntro() {
             <RevealOnScroll>
               <Link
                 href="/rolunk"
-                className="inline-block bg-[#C4A591] text-white px-8 py-3.5 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em] shadow-md"
+                className="inline-block bg-cta hover:bg-cta-hover text-white px-8 py-3.5 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em] shadow-md"
               >
                 Ismerd meg a történetünket
               </Link>

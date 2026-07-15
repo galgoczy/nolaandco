@@ -177,6 +177,7 @@ export async function POST(request: NextRequest) {
         slug: item.slug,
         variant: item.variant,
         category: product?.category,
+        noShipping: product?.noShipping,
       });
     });
 

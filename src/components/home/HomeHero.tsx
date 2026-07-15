@@ -10,7 +10,7 @@ type HeroSlide = {
   mobileObjectPosition?: string;
   eyebrow: string;
   title: ReactNode;
-  ctaLabel: string;
+  ctaLabel: ReactNode;
   ctaHref: string;
 };
 
@@ -30,7 +30,13 @@ const SLIDES: HeroSlide[] = [
         &amp; poszterek
       </>
     ),
-    ctaLabel: 'Megnézem a kollekciót',
+    // Desktopon egy sor, mobilon szépen két sorba tör ("Megtervezem a saját" /
+    // "emlékpárnámat"), így nem lesz túl széles vagy háromsoros.
+    ctaLabel: (
+      <>
+        Megtervezem a saját<br className="md:hidden" /> emlékpárnámat
+      </>
+    ),
     ctaHref: '/termekek?category=kicsiknek',
   },
   {
@@ -158,7 +164,7 @@ export default function HomeHero() {
                 href={slide.ctaHref}
                 tabIndex={active === i ? 0 : -1}
                 aria-hidden={active !== i}
-                className="bg-[#C4A591] text-white rounded-2xl px-8 md:px-12 py-3.5 md:py-4 text-xs md:text-sm btn-anim shadow-xl cursor-pointer hero-cta-pulse"
+                className="bg-cta hover:bg-cta-hover text-white rounded-2xl px-8 md:px-12 py-3.5 md:py-4 text-xs md:text-sm btn-anim shadow-xl cursor-pointer hero-cta-pulse"
                 style={{
                   fontFamily: heroFont,
                   fontWeight: 600,

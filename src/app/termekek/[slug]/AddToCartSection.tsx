@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import BirthDataForm from '@/components/products/BirthDataForm';
+import TrustBar from '@/components/products/TrustBar';
 import Button from '@/components/ui/Button';
 import { useCartStore } from '@/store/cart';
 import { useBirthDataStore } from '@/store/birthData';
@@ -33,6 +34,7 @@ interface Props {
     price: number;
     imageUrl: string;
     category?: string | null;
+    noShipping?: boolean;
   };
   onBirthDataChange?: (data: BirthData | null) => void;
   onVariantChange?: (variantIdx: number) => void;
@@ -45,6 +47,10 @@ interface Props {
   posterLayout?: string;
   /** Human-readable label for the poster layout, e.g. "Origin 1". */
   posterLayoutLabel?: string;
+  /** When true, submitting the personalization form adds straight to cart
+   *  (single, clearly labelled "Kosárba teszem – [ár]" action). Used on the
+   *  standard pillow page; the poster designer keeps its own two-step flow. */
+  oneClickAdd?: boolean;
 }
 
 export default function AddToCartSection({
@@ -57,6 +63,7 @@ export default function AddToCartSection({
   addToCartSignal,
   posterLayout,
   posterLayoutLabel,
+  oneClickAdd,
 }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const storedBirthData = useBirthDataStore((s) => s.data);
@@ -98,6 +105,12 @@ export default function AddToCartSection({
     setStoredBirthData(data);
     setIsEditing(false);
     onBirthDataChange?.(data);
+    // Standard pillow flow: the form's button is the single "Kosárba teszem"
+    // action — add straight to cart with the just-submitted data.
+    if (oneClickAdd) {
+      handleAddToCart(data);
+      return;
+    }
     if (disableAutoScroll) return;
     // Scroll so the "Kosárba" button is visible with some breathing room below
     setTimeout(() => {
@@ -109,7 +122,7 @@ export default function AddToCartSection({
     }, 100);
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (bd?: BirthData) => {
     if (isGiftCard) {
       const variant = giftCardVariants[selectedVariant];
       addItem({
@@ -125,19 +138,22 @@ export default function AddToCartSection({
         birthHeight: '',
         customNote: `Ajándékkártya értéke: ${variant.label}`,
         variant: variant.label,
+        category: product.category,
+        noShipping: product.noShipping,
       });
       setAdded(true);
       return;
     }
 
-    if (!birthData) return;
+    const effective = bd ?? birthData;
+    if (!effective) return;
 
     const finalPrice = isPoster ? posterVariants[selectedVariant].price : product.price;
     const variantLabel = isPoster ? posterVariants[selectedVariant].label : undefined;
 
     const noteParts = [
       extraNote,
-      isPoster ? `Poszter verzió: ${variantLabel}` : birthData.customNote,
+      isPoster ? `Poszter verzió: ${variantLabel}` : effective.customNote,
     ].filter(Boolean);
 
     addItem({
@@ -147,12 +163,14 @@ export default function AddToCartSection({
       price: finalPrice,
       imageUrl: product.imageUrl,
       quantity: 1,
-      babyName: birthData.babyName,
-      birthDate: birthData.birthDate,
-      birthWeight: birthData.birthWeight,
-      birthHeight: birthData.birthHeight,
-      birthTime: birthData.birthTime,
+      babyName: effective.babyName,
+      birthDate: effective.birthDate,
+      birthWeight: effective.birthWeight,
+      birthHeight: effective.birthHeight,
+      birthTime: effective.birthTime,
       customNote: noteParts.join('\n'),
+      category: product.category,
+      noShipping: product.noShipping,
       ...(variantLabel ? { variant: variantLabel } : {}),
       ...(posterLayout ? { posterLayout, posterLayoutLabel } : {}),
     });
@@ -220,7 +238,7 @@ export default function AddToCartSection({
             </select>
           </div>
         </div>
-        <Button variant="secondary" onClick={handleAddToCart} className="w-full">
+        <Button variant="secondary" onClick={() => handleAddToCart()} className="w-full">
           Kosárba – {formatPrice(giftCardVariants[selectedVariant].price)}
         </Button>
       </div>
@@ -260,10 +278,14 @@ export default function AddToCartSection({
         </div>
       )}
       {!birthData || isEditing ? (
-        <BirthDataForm
-          initialValue={isEditing ? birthData : null}
-          onSubmit={handleBirthDataSubmit}
-        />
+        <>
+          <BirthDataForm
+            initialValue={isEditing ? birthData : null}
+            onSubmit={handleBirthDataSubmit}
+            submitLabel={oneClickAdd ? `Kosárba teszem – ${formatPrice(product.price)}` : undefined}
+          />
+          <TrustBar category={product.category} className="mt-4 justify-center" />
+        </>
       ) : !added ? (
         <div ref={addToCartRef} className="space-y-4">
           <div className="bg-[#faf6f1] rounded-2xl p-6 shadow-sm">
@@ -300,9 +322,10 @@ export default function AddToCartSection({
             </button>
           </div>
 
-          <Button variant="secondary" onClick={handleAddToCart} className="w-full">
-            Kosárba{isPoster ? ` – ${formatPrice(posterVariants[selectedVariant].price)}` : ''}
+          <Button variant="secondary" onClick={() => handleAddToCart()} className="w-full">
+            Kosárba teszem – {formatPrice(isPoster ? posterVariants[selectedVariant].price : product.price)}
           </Button>
+          <TrustBar category={product.category} className="justify-center" />
         </div>
       ) : (
         <div

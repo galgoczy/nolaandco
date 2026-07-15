@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#C4A591] text-white py-3 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full bg-cta text-white py-3 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {loading ? 'Küldés...' : 'Visszaállító link küldése'}
           </button>

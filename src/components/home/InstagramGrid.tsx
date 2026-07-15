@@ -14,7 +14,7 @@ const images = [
 /** BLOKK 8: Instagram-rács — a profilra mutató képes ráccsal. */
 export default function InstagramGrid() {
   return (
-    <section className="py-16 md:py-24 bg-surface">
+    <section className="py-10 md:py-16 bg-surface">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <RevealOnScroll>
           <h2

@@ -71,7 +71,7 @@ export default function HeroSection() {
             </h1>
             <button
               onClick={scrollToProducts}
-              className="pointer-events-auto bg-[#C4A591] text-white rounded-2xl px-8 md:px-12 py-3.5 md:py-4 text-xs md:text-sm btn-anim shadow-xl cursor-pointer hero-cta-pulse"
+              className="pointer-events-auto bg-cta hover:bg-cta-hover text-white rounded-2xl px-8 md:px-12 py-3.5 md:py-4 text-xs md:text-sm btn-anim shadow-xl cursor-pointer hero-cta-pulse"
               style={{
                 fontFamily: "'Gilroy', 'Inter', 'Montserrat', sans-serif",
                 fontWeight: 600,

@@ -34,7 +34,7 @@ export default function CheckoutPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [saveData, setSaveData] = useState(false);
   const [shippingSameAsBilling, setShippingSameAsBilling] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(true);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'transfer'>('card');
   const [altPaymentOpen, setAltPaymentOpen] = useState(false);
   const [form, setForm] = useState<ShippingData>({

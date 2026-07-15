@@ -58,6 +58,7 @@ export async function POST(req: Request) {
         active: data.active === undefined ? true : bool(data.active),
         hiddenFromListing: bool(data.hiddenFromListing),
         withdrawalEligible: bool(data.withdrawalEligible),
+        noShipping: bool(data.noShipping),
         onSale: bool(data.onSale),
         salePrice: data.salePrice ? num(data.salePrice) : null,
       },

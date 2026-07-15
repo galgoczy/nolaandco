@@ -166,6 +166,9 @@ function PosterPickers({
           style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}
         >
           Elrendezés
+          <span className="normal-case tracking-normal text-carbon font-medium ml-2">
+            {POSTER_LAYOUTS.find((l) => l.id === layoutId)?.label}
+          </span>
         </div>
         <div className="flex gap-2.5 flex-wrap">
           {POSTER_LAYOUTS.map((l) => {
@@ -176,6 +179,7 @@ function PosterPickers({
                 type="button"
                 onClick={() => onLayoutChange(l.id)}
                 aria-label={l.label}
+                title={l.label}
                 className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
                   active
                     ? 'border-[#C4A591] shadow-sm scale-105'
@@ -214,6 +218,9 @@ function PosterPickers({
           style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}
         >
           Háttérszín
+          <span className="normal-case tracking-normal text-carbon font-medium ml-2">
+            {POSTER_COLORS.find((c) => c.id === colorId)?.label}
+          </span>
         </div>
         <div className="flex gap-2.5 flex-wrap">
           {POSTER_COLORS.map((c) => {
@@ -458,7 +465,7 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
                 type="button"
                 onClick={() => setAddToCartSignal((s) => s + 1)}
                 aria-label="Kosárba"
-                className="lg:hidden absolute bottom-4 right-4 w-14 h-14 rounded-full bg-[#D5E8F0] text-carbon shadow-xl flex items-center justify-center cart-attention"
+                className="lg:hidden absolute bottom-4 right-4 w-14 h-14 rounded-full bg-cta text-white shadow-xl flex items-center justify-center cart-attention"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

@@ -6,6 +6,8 @@ import { birthDataSchema, BirthData } from '@/lib/validators';
 interface BirthDataFormProps {
   initialValue?: BirthData | null;
   onSubmit: (data: BirthData) => void;
+  /** A beküldő gomb felirata (pl. "Kosárba teszem – 22 900 Ft"). */
+  submitLabel?: string;
 }
 
 function formatDateEU(iso: string): string {
@@ -51,7 +53,7 @@ function clampTime(value: string): string {
   return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
 }
 
-export default function BirthDataForm({ initialValue, onSubmit }: BirthDataFormProps) {
+export default function BirthDataForm({ initialValue, onSubmit, submitLabel = 'Mentés' }: BirthDataFormProps) {
   const dateInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     babyName: initialValue?.babyName ?? '',
@@ -296,9 +298,9 @@ export default function BirthDataForm({ initialValue, onSubmit }: BirthDataFormP
 
       <button
         type="submit"
-        className="w-full bg-[#D5E8F0] text-[#4A4A4A] rounded-full px-8 py-3 font-bold btn-anim transition-all hover:shadow-md"
+        className="w-full bg-cta text-white rounded-full px-8 py-3 font-bold btn-anim transition-all hover:bg-cta-hover hover:shadow-md"
       >
-        Mentés
+        {submitLabel}
       </button>
     </form>
   );

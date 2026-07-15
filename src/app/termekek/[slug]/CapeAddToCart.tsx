@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import TrustBar from '@/components/products/TrustBar';
+import { formatPrice } from '@/lib/utils';
 import { useCartStore } from '@/store/cart';
 import {
   DESIGNER_FIELDS,
@@ -19,6 +21,8 @@ interface Props {
     slug: string;
     price: number;
     imageUrl: string;
+    category?: string | null;
+    noShipping?: boolean;
   };
   config: CapeConfig;
 }
@@ -89,6 +93,8 @@ export default function CapeAddToCart({ product, config }: Props) {
       birthWeight: '',
       birthHeight: '',
       customNote: noteParts.join('\n'),
+      category: product.category,
+      noShipping: product.noShipping,
     });
     setAdded(true);
   };
@@ -177,8 +183,9 @@ export default function CapeAddToCart({ product, config }: Props) {
       )}
 
       <Button variant="secondary" onClick={handleAddToCart} className="w-full">
-        Kosárba
+        Kosárba teszem – {formatPrice(product.price)}
       </Button>
+      <TrustBar category={product.category} className="justify-center" />
     </div>
   );
 }
