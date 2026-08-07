@@ -67,7 +67,7 @@ export async function syncProductVariants(productId: string, variants: VariantIn
     variants.map((v) => v.id).filter((id): id is string => !!id && existingIds.has(id)),
   );
 
-  const removed = [...existingIds].filter((id) => !keptIds.has(id));
+  const removed = existing.map((v) => v.id).filter((id) => !keptIds.has(id));
   if (removed.length > 0) {
     await prisma.productVariant.deleteMany({ where: { id: { in: removed } } });
   }
