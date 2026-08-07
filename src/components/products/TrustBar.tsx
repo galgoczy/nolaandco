@@ -14,6 +14,7 @@ const BY_CATEGORY: Record<string, string[]> = {
   cape: HANDMADE,
   crown: HANDMADE,
   bundle: HANDMADE,
+  babytextile: HANDMADE,
   poster: [
     '200 g-os silk felületű művészi papír',
     '50×70 cm-es méret',
@@ -24,12 +25,16 @@ const BY_CATEGORY: Record<string, string[]> = {
 
 export default function TrustBar({
   category,
+  items: custom,
   className = '',
 }: {
   category?: string | null;
+  /** Termékenként adminból szerkesztett sorok; üres tömb = kategória-alapértelmezés. */
+  items?: string[] | null;
   className?: string;
 }) {
-  const items = (category && BY_CATEGORY[category]) || HANDMADE;
+  const items =
+    custom && custom.length > 0 ? custom : (category && BY_CATEGORY[category]) || HANDMADE;
   return (
     <ul
       className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-carbon-light/80 font-body ${className}`}

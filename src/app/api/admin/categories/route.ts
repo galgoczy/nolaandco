@@ -38,6 +38,7 @@ export async function POST(req: Request) {
         nameEn: typeof data.nameEn === 'string' ? data.nameEn.trim() || null : null,
         sortOrder: nextOrder,
         visibleOnHome: data.visibleOnHome !== false,
+        parent: typeof data.parent === 'string' && data.parent.trim() ? data.parent.trim() : null,
       },
     });
     return NextResponse.json({ category });

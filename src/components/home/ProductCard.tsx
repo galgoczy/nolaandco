@@ -21,13 +21,20 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/termekek/${product.slug}`} className="group cursor-pointer card-hover block">
       <div className="relative aspect-[2/3] rounded-sm overflow-hidden bg-surface-container-low mb-3 ghost-border">
-        <Image
-          src={product.imageUrl}
-          alt={product.name}
-          fill
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 768px) 85vw, (max-width: 1024px) 42vw, 28vw"
-        />
+        {product.imageUrl ? (
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            fill
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 768px) 85vw, (max-width: 1024px) 42vw, 28vw"
+          />
+        ) : (
+          // Fotó nélküli (még feltöltés alatt lévő) termék — semleges felület.
+          <div className="absolute inset-0 flex items-center justify-center bg-[#EFEAE2] text-carbon-light/50 text-[10px] tracking-[0.2em] uppercase text-center px-4">
+            Fotó hamarosan
+          </div>
+        )}
         {product.badge && (
           <div className="absolute top-4 right-4">
             <span

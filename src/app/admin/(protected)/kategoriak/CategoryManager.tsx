@@ -2,12 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ImageUpload from '../termekek/ImageUpload';
 
 type Cat = {
   id: string;
   slug: string;
   name: string;
   nameEn: string;
+  imageUrl: string;
+  parent: string;
   sortOrder: number;
   visibleOnHome: boolean;
   productCount: number;
@@ -49,6 +52,17 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ visibleOnHome: newVal }),
+    });
+    router.refresh();
+  }
+
+  // --- Category card image ---
+  async function saveImage(cat: Cat, url: string) {
+    setCats((prev) => prev.map((c) => (c.id === cat.id ? { ...c, imageUrl: url } : c)));
+    await fetch(`/api/admin/categories/${cat.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageUrl: url }),
     });
     router.refresh();
   }
@@ -114,7 +128,16 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
       setError(data.error || 'Mentés sikertelen');
       return;
     }
-    setCats((prev) => [...prev, { ...data.category, nameEn: data.category.nameEn ?? '', productCount: 0 }]);
+    setCats((prev) => [
+      ...prev,
+      {
+        ...data.category,
+        nameEn: data.category.nameEn ?? '',
+        imageUrl: data.category.imageUrl ?? '',
+        parent: data.category.parent ?? '',
+        productCount: 0,
+      },
+    ]);
     setAdding(false);
     router.refresh();
   }
@@ -142,6 +165,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
           <thead>
             <tr className="border-b border-outline-variant text-left bg-surface-container-low">
               <th className="p-4 text-on-surface/60 font-medium w-10">Sorrend</th>
+              <th className="p-4 text-on-surface/60 font-medium">Kép</th>
               <th className="p-4 text-on-surface/60 font-medium">Slug</th>
               <th className="p-4 text-on-surface/60 font-medium">Magyar név</th>
               <th className="p-4 text-on-surface/60 font-medium">Angol név</th>
@@ -173,6 +197,34 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
                     >
                       ▼
                     </button>
+                  </div>
+                </td>
+
+                <td className="p-4">
+                  <div className="flex flex-col items-start gap-1">
+                    {cat.imageUrl ? (
+                      <div className="relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={cat.imageUrl}
+                          alt=""
+                          className="w-14 h-14 rounded-lg object-cover bg-gray-100 border border-outline-variant"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => saveImage(cat, '')}
+                          className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600"
+                          aria-label="Kép törlése"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-14 h-14 rounded-lg bg-surface-container border border-dashed border-outline-variant flex items-center justify-center text-[10px] text-on-surface/40 text-center px-1">
+                        Nincs kép
+                      </div>
+                    )}
+                    <ImageUpload label="Feltöltés" onUploaded={(url) => saveImage(cat, url)} />
                   </div>
                 </td>
 

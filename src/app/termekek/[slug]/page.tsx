@@ -9,6 +9,8 @@ import CapeAddToCart from './CapeAddToCart';
 import ProductGallery from './ProductGallery';
 import PillowVariants from './PillowVariants';
 import PosterClient from './PosterClient';
+import TextileClient from './TextileClient';
+import ProductSpecs from '@/components/products/ProductSpecs';
 import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
 import { getCapeConfig } from './capeData';
 
@@ -44,6 +46,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const isPillow = product.category === 'pillow';
   const isBigKidProduct =
     product.category === 'cape' || product.category === 'crown' || product.category === 'bundle';
+  const isTextile = product.category === 'babytextile';
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
 
   const pillowVariants = isPillow
@@ -97,6 +100,56 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
               images: product.images ?? [],
             }}
             initialLayoutId={initialLayoutId}
+          />
+        </div>
+      </section>
+    );
+  }
+
+  if (isTextile) {
+    const variants = await prisma.productVariant.findMany({
+      where: { productId: product.id, active: true },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    });
+    // A NOLA Cloud kétoldalas párosításokkal érkezik — ott "színpárosítás" a felirat.
+    const variantLabel = variants.some((v) => v.colorHex2)
+      ? 'Válassz színpárosítást'
+      : 'Válassz színt';
+
+    return (
+      <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
+        <div className="max-w-7xl mx-auto px-8">
+          <TextileClient
+            product={{
+              id: product.id,
+              name: product.name,
+              slug: product.slug,
+              price: effectivePrice,
+              originalPrice: product.onSale && product.salePrice ? product.price : null,
+              imageUrl: product.imageUrl,
+              images: product.images ?? [],
+              category: product.category,
+              description: product.description,
+              longDescription: product.longDescription,
+              badge: product.badge,
+              stock: product.stock,
+              features: product.features ?? [],
+              material: product.material,
+              size: product.size,
+              productionTime: product.productionTime,
+              careInfo: product.careInfo,
+              noShipping: product.noShipping,
+            }}
+            variants={variants.map((v) => ({
+              id: v.id,
+              name: v.name,
+              colorHex: v.colorHex,
+              colorHex2: v.colorHex2,
+              stock: v.stock,
+              images: v.images ?? [],
+              priceDiff: v.priceDiff,
+            }))}
+            variantLabel={variantLabel}
           />
         </div>
       </section>
@@ -207,6 +260,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                     imageUrl: product.imageUrl,
                     category: product.category,
                     noShipping: product.noShipping,
+                    features: product.features ?? [],
                   }}
                   config={getCapeConfig(product.slug)}
                 />
@@ -220,11 +274,22 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                     imageUrl: product.imageUrl,
                     category: product.category,
                     noShipping: product.noShipping,
+                    features: product.features ?? [],
                   }}
                   oneClickAdd
                 />
               )}
             </div>
+
+            {/* Adminból szerkeszthető termékadat-lap (üres mezők kimaradnak). */}
+            <ProductSpecs
+              specs={{
+                material: product.material,
+                size: product.size,
+                productionTime: product.productionTime,
+                careInfo: product.careInfo,
+              }}
+            />
           </div>
 
           {/* Mobile-only long description, at the very bottom */}

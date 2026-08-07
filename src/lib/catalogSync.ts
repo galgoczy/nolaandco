@@ -76,6 +76,40 @@ Legyen szó a világ megmentéséről a nappaliban, királyi teapartiról a kert
 Alapanyag: 100% OEKO-TEX 100 minősítésű Pamut (Duplagéz) a díszítés és a korona belső merevítője kivételével.
 Mosás: 30°C-os kímélő gépi programon, vagy kézzel mosható. Szárítógépben nem szárítható. A hátsó filc díszítés nem vasalható, és a duplagéz anyagot sem javasoljuk vasalni. Fektetve, formára igazítva szárítandó.`;
 
+const hushLongDescription = `A patentos kialakításnak köszönhetően magát a kendőt is rögzítheted, vagy cumit, rágókát és más kedves apróságot kapcsolhatsz hozzá. Két réteg duplagézből, kézzel varrjuk őket; méretük 30 × 30 cm. Hat gyönyörű, egymással harmonizáló árnyalatban készülnek, hogy minden kis kéz megtalálhassa a saját kedvencét.
+
+**Miért szeretik a babák és a szülők?**
+
+**Minimal kialakítás:** semmilyen csörgő vagy túlságosan stimuláló részlet nem vonja el a baba figyelmét az alvásról.
+
+**Éppen elég inger:** a csomó és a két puha zsinór kellemes taktilis élményt ad a kis kezeknek, fogzáskor is jól jöhet.
+
+**Patentos rögzítés:** magát a kendőt is rögzítheted, vagy cumit, rágókát, kis kiegészítőt kapcsolhatsz hozzá.
+
+**Kézzel varrott, prémium anyag:** két réteg OEKO-TEX® minősítésű pamut duplagéz.`;
+
+const cloudLongDescription = `Különösen szerethető társ a tavaszi és őszi időszakban, amikor jól esik egy finom, légies plusz réteg. Három gondosan összeválogatott, kétoldalas színpárosításban készülnek, a Nola & Co letisztult világához illően.
+
+**Miért szeretik a babák és a szülők?**
+
+**Két oldal, két hangulat:** kétoldalas kialakítás, két harmonizáló árnyalattal — egyetlen mozdulattal más karakter.
+
+**Pillekönnyű, mégis ölelő:** két réteg duplagéz, ami légáteresztő és puha marad mosásról mosásra.
+
+**Sokoldalú méret:** a 75 × 90 cm ideális a babakocsiba, hordozóba, a délutáni szundikhoz vagy az otthoni összebújáshoz.
+
+**Kézzel készül:** minden takarót a budapesti műhelyünkben varrunk.`;
+
+const pixieLongDescription = `Az OEKO-TEX® pamut anyagból készülő óriás pillangó könnyed szárnyaival, kedves részleteivel és finom pasztellszíneivel játékos, mégis letisztult hangulatot teremt a kiságy vagy a babakuckó fölött, akár a falra rögzítve is.
+
+**Jó tudni**
+
+**Méret:** körülbelül 30 cm széles, az akasztóval együtt körülbelül 70 cm hosszú.
+
+**Elhelyezés:** függő dekoráció gyerekszobába, kiságy vagy babakuckó fölé, vagy falra rögzítve.
+
+**Alapanyag:** OEKO-TEX® minősítésű pamut.`;
+
 const products = [
   {
     name: 'ORIGIN Core',
@@ -314,7 +348,110 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
     imageUrl: '/images/products/szuperhos-szett.png',
     badge: 'ÚJDONSÁG',
   },
+  // --- Baba textilek & dekorációk ---
+  // Képek és végleges árak adminból kerülnek fel; addig a termékek rejtve
+  // maradnak a listázásokból (a saját kategóriaoldalukon láthatók).
+  {
+    name: 'NOLA Hush – Minimal szundikendő',
+    slug: 'nola-hush-szundikendo',
+    description:
+      'Pihe-puha társ a legelső összebújásokhoz és a nagy kalandok utáni megnyugváshoz. A minimal kialakítás célja, hogy semmilyen csörgő vagy túlságosan stimuláló részlet ne vonja el a baba figyelmét az alvásról — közben a csomó és a két puha zsinór éppen elegendő taktilis ingert nyújt a kis kezeknek, és fogzáskor is jól jöhet.',
+    longDescription: hushLongDescription,
+    price: 4900,
+    category: 'babytextile',
+    series: 'nola',
+    variant: 'hush',
+    imageUrl: '',
+    badge: 'ÚJDONSÁG',
+    withdrawalEligible: true,
+    hiddenFromListing: true,
+    material: '100% OEKO-TEX® minősítésű pamut duplagéz (két réteg)',
+    size: '30 × 30 cm',
+    productionTime: 'kb. 2 hét',
+    careInfo:
+      '30°C-os kímélő gépi programon vagy kézzel mosható. Szárítógépben nem szárítható. A duplagéz anyagot jellegéből adódóan nem javasoljuk vasalni. Fektetve, formára igazítva szárítandó.',
+    features: [
+      'OEKO-TEX alapanyagok',
+      'Kézzel készült magyar termék',
+      'Gyártási idő: kb. 2 hét',
+      'Biztonságos kártyás fizetés',
+    ],
+  },
+  {
+    name: 'NOLA Cloud – Kétoldalas dupla géz takaró',
+    slug: 'nola-cloud-takaro',
+    description:
+      'Két oldal, két finom hangulat, egyetlen puha ölelés. Két réteg duplagézből, kézzel készülő takaróink pillekönnyűek, mégis kellemesen körbeölelnek. A 75 × 90 cm-es méret ideális a babakocsiba, hordozóba, a délutáni szundikhoz vagy az otthoni összebújáshoz.',
+    longDescription: cloudLongDescription,
+    price: 14900,
+    category: 'babytextile',
+    series: 'nola',
+    variant: 'cloud',
+    imageUrl: '',
+    badge: 'ÚJDONSÁG',
+    withdrawalEligible: true,
+    hiddenFromListing: true,
+    material: '100% OEKO-TEX® minősítésű pamut duplagéz (két réteg)',
+    size: '75 × 90 cm',
+    productionTime: 'kb. 2 hét',
+    careInfo:
+      '30°C-os kímélő gépi programon vagy kézzel mosható. Szárítógépben nem szárítható. A duplagéz anyagot jellegéből adódóan nem javasoljuk vasalni. Fektetve, formára igazítva szárítandó.',
+    features: [
+      'OEKO-TEX alapanyagok',
+      'Kézzel készült magyar termék',
+      'Gyártási idő: kb. 2 hét',
+      'Biztonságos kártyás fizetés',
+    ],
+  },
+  {
+    name: 'NOLA Pixie – Óriás pillangó függő',
+    slug: 'nola-pixie-pillango-fuggo',
+    description:
+      'Egy puha, lebegő kis csoda a gyerekszobába. Az OEKO-TEX® pamut anyagból készülő óriás pillangó könnyed szárnyaival, kedves részleteivel és finom pasztellszíneivel játékos, mégis letisztult hangulatot teremt a kiságy, kuckó fölött, vagy akár a falra rögzítve. Körülbelül 30 cm széles, az akasztóval együtt pedig 70 cm hosszú — egy apró varázslat, amely nap mint nap megmozgatja a fantáziát és mesevilággá változtat bármilyen szobát.',
+    longDescription: pixieLongDescription,
+    price: 9900,
+    category: 'babytextile',
+    series: 'nola',
+    variant: 'pixie',
+    imageUrl: '',
+    badge: 'ÚJDONSÁG',
+    withdrawalEligible: true,
+    hiddenFromListing: true,
+    material: 'OEKO-TEX® minősítésű pamut',
+    size: 'kb. 30 cm széles, akasztóval együtt kb. 70 cm hosszú',
+    productionTime: 'kb. 2 hét',
+    careInfo:
+      'Kézzel, kímélően tisztítható. Szárítógépben nem szárítható, fektetve, formára igazítva szárítandó.',
+    features: [
+      'OEKO-TEX alapanyagok',
+      'Kézzel készült magyar termék',
+      'Gyártási idő: kb. 2 hét',
+      'Biztonságos kártyás fizetés',
+    ],
+  },
 ];
+
+/**
+ * Seed variants for the new textile products. Only applied when a product has
+ * no variants at all, so admin-side edits (renames, extra colours, per-variant
+ * images and stock) are never overwritten on re-sync.
+ */
+const seedVariants: Record<string, { name: string; colorHex: string; colorHex2?: string }[]> = {
+  'nola-hush-szundikendo': [
+    { name: 'Bézs', colorHex: '#E5D9C7' },
+    { name: 'Cappuccino', colorHex: '#C4A591' },
+    { name: 'Pasztell rózsaszín', colorHex: '#F0D9D6' },
+    { name: 'Dusty rózsaszín', colorHex: '#D3A9A4' },
+    { name: 'Kékesszürke', colorHex: '#B7C2C9' },
+    { name: 'Acélkék', colorHex: '#7E96A8' },
+  ],
+  'nola-cloud-takaro': [
+    { name: 'Bézs – Cappuccino', colorHex: '#E5D9C7', colorHex2: '#C4A591' },
+    { name: 'Pasztell rózsaszín – Dusty rózsaszín', colorHex: '#F0D9D6', colorHex2: '#D3A9A4' },
+    { name: 'Kékesszürke – Acélkék', colorHex: '#B7C2C9', colorHex2: '#7E96A8' },
+  ],
+  // NOLA Pixie: a szín-/mintaváltozatokat az admin veszi fel.
+};
 
 export async function syncCatalog(): Promise<string[]> {
   const log: string[] = [];
@@ -334,6 +471,10 @@ export async function syncCatalog(): Promise<string[]> {
     'nola-hero-korona',
     'nola-stella-korona',
     'nola-crew-korona',
+    // Baba textilek & dekorációk — nem személyre szabott, standard termékek.
+    'nola-hush-szundikendo',
+    'nola-cloud-takaro',
+    'nola-pixie-pillango-fuggo',
   ];
   const eligibleUpdate = await prisma.product.updateMany({
     where: { slug: { in: withdrawalEligibleSlugs }, withdrawalEligible: false },
@@ -362,20 +503,35 @@ export async function syncCatalog(): Promise<string[]> {
   if (renamed.count > 0) log.push(`${renamed.count} ELŐRENDELÉS badge átnevezve ÚJDONSÁG-ra.`);
 
   // --- Categories ---
-  const categories = [
-    { slug: 'pillow', name: 'Párnák', nameEn: 'KEEPSAKES', sortOrder: 0, visibleOnHome: true },
-    { slug: 'poster', name: 'Poszterek', nameEn: 'ART PRINTS', sortOrder: 1, visibleOnHome: true },
-    { slug: 'cape', name: 'Kalandköpeny', nameEn: 'ADVENTURE CAPES', sortOrder: 2, visibleOnHome: true },
-    { slug: 'crown', name: 'Korona', nameEn: 'CROWNS', sortOrder: 3, visibleOnHome: true },
-    { slug: 'bundle', name: 'Válogatások', nameEn: 'BUNDLES', sortOrder: 4, visibleOnHome: true },
-    { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 5, visibleOnHome: true },
+  const categories: {
+    slug: string;
+    name: string;
+    nameEn: string;
+    sortOrder: number;
+    visibleOnHome: boolean;
+    parent?: string;
+  }[] = [
+    { slug: 'pillow', name: 'Párnák', nameEn: 'KEEPSAKES', sortOrder: 0, visibleOnHome: true, parent: 'kicsiknek' },
+    { slug: 'poster', name: 'Poszterek', nameEn: 'ART PRINTS', sortOrder: 1, visibleOnHome: true, parent: 'kicsiknek' },
+    { slug: 'babytextile', name: 'Baba textilek & dekorációk', nameEn: 'BABY TEXTILES', sortOrder: 2, visibleOnHome: false, parent: 'kicsiknek' },
+    { slug: 'cape', name: 'Kalandköpeny', nameEn: 'ADVENTURE CAPES', sortOrder: 3, visibleOnHome: true, parent: 'nagyoknak' },
+    { slug: 'crown', name: 'Korona', nameEn: 'CROWNS', sortOrder: 4, visibleOnHome: true, parent: 'nagyoknak' },
+    { slug: 'bundle', name: 'Válogatások', nameEn: 'BUNDLES', sortOrder: 5, visibleOnHome: true },
+    { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 6, visibleOnHome: true },
   ];
 
   for (const cat of categories) {
     await prisma.category.upsert({
       where: { slug: cat.slug },
-      update: { name: cat.name, nameEn: cat.nameEn, sortOrder: cat.sortOrder, visibleOnHome: cat.visibleOnHome },
-      create: cat,
+      // A kategóriakép (imageUrl) adminból tölthető fel, ezért soha nem írjuk felül.
+      update: {
+        name: cat.name,
+        nameEn: cat.nameEn,
+        sortOrder: cat.sortOrder,
+        visibleOnHome: cat.visibleOnHome,
+        parent: cat.parent ?? null,
+      },
+      create: { ...cat, parent: cat.parent ?? null },
     });
     log.push(`Kategória rendben: ${cat.name}`);
   }
@@ -400,6 +556,24 @@ export async function syncCatalog(): Promise<string[]> {
       await prisma.product.create({ data: product });
       log.push(`Termék létrehozva: ${product.name}`);
     }
+  }
+
+  // --- Termékvariánsok (szín-swatch választó) ---
+  for (const [slug, variants] of Object.entries(seedVariants)) {
+    const parent = await prisma.product.findUnique({ where: { slug } });
+    if (!parent) continue;
+    const existingCount = await prisma.productVariant.count({ where: { productId: parent.id } });
+    if (existingCount > 0) continue; // admin már kezeli — nem nyúlunk hozzá
+    await prisma.productVariant.createMany({
+      data: variants.map((v, i) => ({
+        productId: parent.id,
+        name: v.name,
+        colorHex: v.colorHex,
+        colorHex2: v.colorHex2 ?? null,
+        sortOrder: i,
+      })),
+    });
+    log.push(`${variants.length} variáns létrehozva: ${parent.name}`);
   }
 
   // --- Legacy multi-package gift card → renamed, hidden, inactive. The new

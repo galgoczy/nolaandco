@@ -11,7 +11,9 @@ type Props = {
 };
 
 export default function ProductGallery({ mainImage, images, alt, badge }: Props) {
-  const allImages = [mainImage, ...images.filter((img) => img !== mainImage)];
+  const allImages = [mainImage, ...images].filter(
+    (img, idx, arr) => Boolean(img) && arr.indexOf(img) === idx,
+  );
   const [activeIdx, setActiveIdx] = useState(0);
   const hasMultiple = allImages.length > 1;
 
@@ -47,6 +49,30 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
       else setActiveIdx((i) => (i - 1 + allImages.length) % allImages.length);
     }
   };
+
+  // Fotó nélküli termék (a képeket az admin tölti fel) — semleges felület,
+  // hogy a termékoldal addig is teljes értékűen működjön.
+  if (allImages.length === 0) {
+    return (
+      <div className="flex flex-col gap-3 w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0">
+        <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-[#EFEAE2] ghost-border flex items-center justify-center">
+          <span className="text-carbon-light/50 text-xs tracking-[0.2em] uppercase">
+            Fotó hamarosan
+          </span>
+          {badge && (
+            <div className="absolute top-4 right-4">
+              <span
+                className="badge-shimmer px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white shadow-sm"
+                style={{ backgroundColor: '#D55850' }}
+              >
+                {badge}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3 w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0">

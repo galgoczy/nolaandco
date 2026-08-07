@@ -23,6 +23,8 @@ interface Props {
     imageUrl: string;
     category?: string | null;
     noShipping?: boolean;
+    /** Adminból szerkesztett bizalmi sorok; üres = kategória-alapértelmezés. */
+    features?: string[];
   };
   config: CapeConfig;
 }
@@ -185,7 +187,7 @@ export default function CapeAddToCart({ product, config }: Props) {
       <Button variant="secondary" onClick={handleAddToCart} className="w-full">
         Kosárba teszem – {formatPrice(product.price)}
       </Button>
-      <TrustBar category={product.category} className="justify-center" />
+      <TrustBar category={product.category} items={product.features} className="justify-center" />
     </div>
   );
 }

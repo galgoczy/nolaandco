@@ -31,10 +31,51 @@ model Product {
   // True for digital / no-ship goods (e.g. digital gift card, digital poster):
   // checkout charges no shipping, and a cart of only such items ships free.
   noShipping      Boolean  @default(false)
+  // --- Admin-editable product sheet (all optional; hidden when empty) ---
+  /// Stock on hand. null = untracked (always orderable), 0 = sold out.
+  stock           Int?
+  /// e.g. "kb. 2 hét" — overrides the category default in the trust bar.
+  productionTime  String?
+  /// e.g. "100% OEKO-TEX® pamut duplagéz"
+  material        String?
+  /// e.g. "30 × 30 cm"
+  size            String?
+  /// Washing / care instructions.
+  careInfo        String?
+  /// Trust-bar rows / product highlights. Empty = category defaults.
+  features        String[] @default([])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   orderItems OrderItem[]
+  variants   ProductVariant[]
+}
+
+/// A selectable variant of a product (e.g. one of the six NOLA Hush colours,
+/// or one of the three two-sided NOLA Cloud colourways). Rendered as a labelled
+/// swatch picker on the product page — never as a plain dropdown.
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Display label, e.g. "Púderrózsaszín" or "Bézs – Cappuccino".
+  name      String
+  /// Swatch colour(s). colorHex2 is set for two-sided colourways.
+  colorHex  String?
+  colorHex2 String?
+  /// Variant-specific gallery. When non-empty it replaces the product gallery
+  /// while this variant is selected; the first image is the main image.
+  images    String[] @default([])
+  /// Surcharge (or discount, if negative) on top of the product price.
+  priceDiff Int      @default(0)
+  /// Stock on hand for this variant. null = untracked, 0 = sold out.
+  stock     Int?
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
 }
 
 model Order {
@@ -147,6 +188,10 @@ model Category {
   slug          String   @unique
   name          String   // Hungarian display name: "Párnák"
   nameEn        String?  // English display name for fancy header: "KEEPSAKES"
+  /// Category card image (1:1), shown on the umbrella category page.
+  imageUrl      String?
+  /// Umbrella group this category belongs to: "kicsiknek" | "nagyoknak".
+  parent        String?
   sortOrder     Int      @default(0)
   visibleOnHome Boolean  @default(true)
   createdAt     DateTime @default(now())

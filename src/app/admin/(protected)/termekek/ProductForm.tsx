@@ -3,7 +3,10 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import ImageUpload from './ImageUpload';
+import VariantEditor, { type VariantFormValue } from './VariantEditor';
 import RichTextarea from '@/components/admin/RichTextarea';
+
+export type { VariantFormValue };
 
 export type ProductFormValues = {
   name: string;
@@ -23,6 +26,13 @@ export type ProductFormValues = {
   noShipping: boolean;
   onSale: boolean;
   salePrice: number | '';
+  stock: number | '';
+  productionTime: string;
+  material: string;
+  size: string;
+  careInfo: string;
+  features: string[];
+  variants: VariantFormValue[];
 };
 
 export const emptyProduct: ProductFormValues = {
@@ -43,6 +53,13 @@ export const emptyProduct: ProductFormValues = {
   noShipping: false,
   onSale: false,
   salePrice: '',
+  stock: '',
+  productionTime: '',
+  material: '',
+  size: '',
+  careInfo: '',
+  features: [],
+  variants: [],
 };
 
 export default function ProductForm({
@@ -84,6 +101,21 @@ export default function ProductForm({
       ...values,
       price: Number(values.price) || 0,
       salePrice: values.salePrice === '' ? null : Number(values.salePrice),
+      stock: values.stock === '' ? null : Number(values.stock),
+      features: values.features.map((f) => f.trim()).filter(Boolean),
+      variants: values.variants
+        .filter((v) => v.name.trim() !== '')
+        .map((v, i) => ({
+          id: v.id,
+          name: v.name.trim(),
+          colorHex: v.colorHex.trim() || null,
+          colorHex2: v.colorHex2.trim() || null,
+          images: v.images,
+          priceDiff: v.priceDiff === '' ? 0 : Number(v.priceDiff),
+          stock: v.stock === '' ? null : Number(v.stock),
+          sortOrder: i,
+          active: v.active,
+        })),
     };
 
     try {
@@ -125,6 +157,29 @@ export default function ProductForm({
       'images',
       values.images.filter((_, i) => i !== idx),
     );
+  }
+
+  function moveImage(idx: number, dir: -1 | 1) {
+    const target = idx + dir;
+    if (target < 0 || target >= values.images.length) return;
+    const next = [...values.images];
+    [next[idx], next[target]] = [next[target], next[idx]];
+    update('images', next);
+  }
+
+  function updateFeature(idx: number, value: string) {
+    update(
+      'features',
+      values.features.map((f, i) => (i === idx ? value : f)),
+    );
+  }
+
+  function moveFeature(idx: number, dir: -1 | 1) {
+    const target = idx + dir;
+    if (target < 0 || target >= values.features.length) return;
+    const next = [...values.features];
+    [next[idx], next[target]] = [next[target], next[idx]];
+    update('features', next);
   }
 
   return (
@@ -261,15 +316,151 @@ export default function ProductForm({
               disabled={!values.onSale}
             />
           </div>
+          <div>
+            <label className={labelCls}>Készlet (üres = nincs készletkövetés)</label>
+            <input
+              type="number"
+              className={inputCls}
+              value={values.stock}
+              min={0}
+              onChange={(e) =>
+                update('stock', e.target.value === '' ? '' : Number(e.target.value))
+              }
+              placeholder="pl. 12"
+            />
+            <p className="text-xs text-on-surface/50 mt-1">
+              0 esetén a termék &bdquo;Jelenleg nem elérhető&rdquo;. Ha vannak variánsok, a
+              variáns saját készlete dönt.
+            </p>
+          </div>
         </div>
       </section>
+
+      {/* Product sheet */}
+      <section className="bg-surface-container-lowest rounded-2xl p-6">
+        <h2 className="text-lg font-headline font-bold mb-1">Termékadatok</h2>
+        <p className="text-xs text-on-surface/60 mb-4">
+          A termékoldalon adatlapként jelennek meg. Az üresen hagyott mezők nem látszanak.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Gyártási idő</label>
+            <input
+              type="text"
+              className={inputCls}
+              value={values.productionTime}
+              onChange={(e) => update('productionTime', e.target.value)}
+              placeholder="pl. kb. 2 hét"
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Méret</label>
+            <input
+              type="text"
+              className={inputCls}
+              value={values.size}
+              onChange={(e) => update('size', e.target.value)}
+              placeholder="pl. 30 × 30 cm"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className={labelCls}>Anyagösszetétel</label>
+            <input
+              type="text"
+              className={inputCls}
+              value={values.material}
+              onChange={(e) => update('material', e.target.value)}
+              placeholder="pl. 100% OEKO-TEX® minősítésű pamut duplagéz"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className={labelCls}>Ápolási és kezelési információk</label>
+            <textarea
+              className={inputCls}
+              rows={3}
+              value={values.careInfo}
+              onChange={(e) => update('careInfo', e.target.value)}
+              placeholder="pl. 30°C-os kímélő gépi programon mosható..."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Trust bar / highlights */}
+      <section className="bg-surface-container-lowest rounded-2xl p-6">
+        <div className="flex items-start justify-between gap-4 mb-1">
+          <h2 className="text-lg font-headline font-bold">Bizalmi információk / termékjellemzők</h2>
+          <button
+            type="button"
+            onClick={() => update('features', [...values.features, ''])}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-surface-container hover:bg-surface-container-high whitespace-nowrap"
+          >
+            + Sor
+          </button>
+        </div>
+        <p className="text-xs text-on-surface/60 mb-4">
+          A kosárba tevő gomb alatti sáv sorai. Ha üresen hagyod, a kategória alapértelmezett
+          sorai jelennek meg.
+        </p>
+        {values.features.length === 0 ? (
+          <p className="text-sm text-on-surface/50">
+            Nincs egyedi sor — a kategória alapértelmezését használjuk.
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {values.features.map((f, idx) => (
+              <li key={idx} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  className={inputCls}
+                  value={f}
+                  onChange={(e) => updateFeature(idx, e.target.value)}
+                  placeholder="pl. OEKO-TEX alapanyagok"
+                />
+                <button
+                  type="button"
+                  onClick={() => moveFeature(idx, -1)}
+                  disabled={idx === 0}
+                  className="px-2 py-1 text-xs text-on-surface/60 hover:text-on-surface disabled:opacity-20"
+                  aria-label="Fel"
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveFeature(idx, 1)}
+                  disabled={idx === values.features.length - 1}
+                  className="px-2 py-1 text-xs text-on-surface/60 hover:text-on-surface disabled:opacity-20"
+                  aria-label="Le"
+                >
+                  ▼
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    update(
+                      'features',
+                      values.features.filter((_, i) => i !== idx),
+                    )
+                  }
+                  className="px-3 py-1 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 whitespace-nowrap"
+                >
+                  Törlés
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <VariantEditor variants={values.variants} onChange={(next) => update('variants', next)} />
 
       {/* Images */}
       <section className="bg-surface-container-lowest rounded-2xl p-6">
         <h2 className="text-lg font-headline font-bold mb-4">Képek</h2>
         <div className="flex flex-col gap-6">
           <div>
-            <label className={labelCls}>Fő kép *</label>
+            <label className={labelCls}>Fő kép</label>
             <div className="flex items-start gap-4">
               {values.imageUrl ? (
                 <div className="relative">
@@ -319,7 +510,7 @@ export default function ProductForm({
             {values.images.length > 0 && (
               <ul className="flex flex-wrap gap-3 mb-3">
                 {values.images.map((img, idx) => (
-                  <li key={idx} className="relative">
+                  <li key={`${img}-${idx}`} className="relative">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={img}
@@ -334,6 +525,27 @@ export default function ProductForm({
                     >
                       ×
                     </button>
+                    {/* Sorrendezés — a galéria ebben a sorrendben jelenik meg. */}
+                    <div className="flex justify-center gap-2 mt-1">
+                      <button
+                        type="button"
+                        onClick={() => moveImage(idx, -1)}
+                        disabled={idx === 0}
+                        className="px-1 text-xs text-on-surface/60 hover:text-on-surface disabled:opacity-20"
+                        aria-label="Előrébb"
+                      >
+                        ◀
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveImage(idx, 1)}
+                        disabled={idx === values.images.length - 1}
+                        className="px-1 text-xs text-on-surface/60 hover:text-on-surface disabled:opacity-20"
+                        aria-label="Hátrébb"
+                      >
+                        ▶
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>

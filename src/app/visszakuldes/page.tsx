@@ -34,8 +34,9 @@ export default function VisszakuldesPage() {
               A Nola & Co. termékeinek többsége perszonalizált (a baba születési adatai, a gyermek
               kezdőbetűje vagy egyedi színválasztás alapján készül), így ezekre a fenti irányelv
               vonatkozik. Kivételt képeznek a nem perszonalizált, raktárról vagy előre meghatározott
-              kivitelben kapható termékeink &ndash; jelenleg a <strong>NOLA Crew Kalandköpeny</strong>{' '}
-              és a <strong>koronák</strong> &ndash;, amelyekre a távollévők között kötött
+              kivitelben kapható termékeink &ndash; jelenleg a <strong>NOLA Crew Kalandköpeny</strong>, a{' '}
+              <strong>koronák</strong> és a <strong>Baba textilek &amp; dekorációk</strong>{' '}
+              (NOLA Hush, NOLA Cloud, NOLA Pixie) &ndash;, amelyekre a távollévők között kötött
               szerződésekre irányadó fogyasztóvédelmi szabályok (a 45/2014. (II. 26.) Korm. rendelet)
               szerinti <strong>14 napos, indokolás nélküli elállási jog</strong> érvényes. Ebben az
               esetben a terméket sértetlen, eredeti állapotában, a kézhezvételtől számított 14 napon
@@ -46,7 +47,8 @@ export default function VisszakuldesPage() {
           <RevealOnScroll>
             <div className="bg-surface-container-lowest rounded-xl p-6 ghost-border text-center">
               <p className="mb-5">
-                A nem személyre szabott termékek (NOLA Crew Kalandköpeny, koronák) esetében az
+                A nem személyre szabott termékek (NOLA Crew Kalandköpeny, koronák, baba textilek és
+                dekorációk) esetében az
                 elállási jogodat online, néhány kattintással gyakorolhatod:
               </p>
               <a

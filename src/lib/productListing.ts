@@ -22,8 +22,8 @@ export type ListingItem = {
  * Umbrella "collection" filters used by the main nav: they expand to several
  * real product categories.
  */
-const CATEGORY_GROUPS: Record<string, string[]> = {
-  kicsiknek: ['pillow', 'poster'],
+export const CATEGORY_GROUPS: Record<string, string[]> = {
+  kicsiknek: ['pillow', 'poster', 'babytextile'],
   nagyoknak: ['cape', 'crown'],
 };
 
@@ -33,7 +33,7 @@ const CATEGORY_GROUPS: Record<string, string[]> = {
  * the live site, while staying testable on its own category pages here.
  * Remove this exception at launch, when the products are un-hidden.
  */
-const SHOW_HIDDEN_IN_CATEGORY = new Set(['cape', 'crown', 'bundle']);
+const SHOW_HIDDEN_IN_CATEGORY = new Set(['cape', 'crown', 'bundle', 'babytextile']);
 
 /** Fetch all products visible in listings + all active aliases, merged. */
 export async function getListingItems(opts?: { category?: string }): Promise<ListingItem[]> {
@@ -110,11 +110,12 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
   const bucketRank = (cat: string | null) => {
     if (cat === 'pillow') return 0;
     if (cat === 'poster') return 1;
-    if (cat === 'cape') return 2;
-    if (cat === 'crown') return 3;
-    if (cat === 'bundle') return 4;
-    if (cat === 'giftcard') return 5;
-    return 6;
+    if (cat === 'babytextile') return 2;
+    if (cat === 'cape') return 3;
+    if (cat === 'crown') return 4;
+    if (cat === 'bundle') return 5;
+    if (cat === 'giftcard') return 6;
+    return 7;
   };
 
   return [...productItems, ...aliasItems].sort((a, b) => {

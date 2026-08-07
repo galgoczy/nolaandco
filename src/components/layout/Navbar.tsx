@@ -21,6 +21,7 @@ const navItems: NavItem[] = [
     children: [
       { label: 'Emlékpárnák', href: '/termekek?category=pillow' },
       { label: 'Születési poszterek', href: '/termekek?category=poster' },
+      { label: 'Baba textilek & dekorációk', href: '/termekek?category=babytextile' },
     ],
   },
   {

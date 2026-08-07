@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdminRequest } from '@/lib/admin-auth';
+import { parseVariants, syncProductVariants } from '@/lib/productVariants';
 
 export async function GET() {
   if (!(await isAdminRequest())) {
@@ -34,12 +35,19 @@ export async function POST(req: Request) {
   const description = str(data.description);
   const category = str(data.category);
   const imageUrl = str(data.imageUrl);
-  if (!name || !slug || !description || !category || !imageUrl) {
+  if (!name || !slug || !description || !category) {
     return NextResponse.json(
-      { error: 'Név, slug, leírás, kategória és fő kép kötelező' },
+      { error: 'Név, slug, leírás és kategória kötelező' },
       { status: 400 },
     );
   }
+
+  // A fő kép később is feltölthető (pl. új kollekció, ahol a fotók még készülnek).
+  const intOrNull = (v: unknown) => {
+    if (v === null || v === undefined || v === '') return null;
+    const n = typeof v === 'number' ? v : Number(v);
+    return Number.isFinite(n) ? Math.trunc(n) : null;
+  };
 
   try {
     const product = await prisma.product.create({
@@ -61,8 +69,20 @@ export async function POST(req: Request) {
         noShipping: bool(data.noShipping),
         onSale: bool(data.onSale),
         salePrice: data.salePrice ? num(data.salePrice) : null,
+        stock: intOrNull(data.stock),
+        productionTime: str(data.productionTime) || null,
+        material: str(data.material) || null,
+        size: str(data.size) || null,
+        careInfo: str(data.careInfo) || null,
+        features: arr(data.features),
       },
     });
+
+    const variants = parseVariants(data.variants);
+    if (variants && variants.length > 0) {
+      await syncProductVariants(product.id, variants);
+    }
+
     return NextResponse.json({ product });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Mentés sikertelen';
