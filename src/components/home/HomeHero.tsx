@@ -120,12 +120,18 @@ export default function HomeHero() {
       <div className={`w-full relative ${isMobile ? 'h-[68vh]' : 'aspect-video'}`}>
         {SLIDES.map((slide, i) => (
           <video
-            key={`${i}-${String(isMobile)}`}
+            // A kulcs csak akkor változik, ha tényleg más forrásra váltunk
+            // (desktop → mobil). Így a desktop videó letöltése nem indul újra
+            // a hidratálás után.
+            key={`${i}-${isMobile === true ? 'm' : 'd'}`}
             ref={refs[i]}
+            // Az első videó forrása a szerver által küldött HTML-ben is benne
+            // van, hogy a böngésző már a HTML olvasása közben tölteni kezdje.
+            // A második csak akkor kap forrást, amikor az első már játszik.
             src={
-              isMobile === null || (i > 0 && !loadSecond)
+              i > 0 && !loadSecond
                 ? undefined
-                : isMobile
+                : isMobile === true
                   ? slide.mobileSrc
                   : slide.desktopSrc
             }
