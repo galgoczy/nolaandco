@@ -19,6 +19,21 @@ const testimonials = [
       'A legkülönlegesebb babaszoba kiegészítő, amit valaha láttam. Tökéletes ajándék volt a barátnőmnek.',
     name: 'Laura',
   },
+  {
+    quote:
+      'Az első hetek hamar elrepülnek, egy szempillantás és már az újszülöttkor elillan. Életének első napjai jutnak eszembe mindig, mikor a párnára nézek és látom mellette a kislányom a jelenben, mennyi minden történt velünk és mennyi minden fog még. A párna ott lesz velünk mindig, akárcsak az emlékeink az első időszakról. Ő a világ számunkra!',
+    name: 'Adri',
+  },
+  {
+    quote:
+      '„Tényleg ekkora volt?” – szerintem ezt fogjuk kérdezni minden alkalommal, amikor ránézünk. 51 cm tiszta boldogság. 🩷 Ez a párna emlékeztet minket arra, milyen pici volt a kislányunk, amikor megszületett. Egy olyan emlék, amit jó lesz évekkel később is újra átölelni.',
+    name: 'Barbi',
+  },
+  {
+    quote:
+      'Gyönyörű emlék egy életre! A baba emlékpárna nagyon puha, igényesen elkészített, és minden apró részlete szeretettel készült. Különleges dísze lett a babaszobának, miközben egy igazán megható emléket őriz. A minősége kifogástalan, a kivitelezés pedig pontosan olyan, mint amire számítottam. Szívből ajánlom mindenkinek, aki egy egyedi és maradandó emléket szeretne megőrizni a kisbabájáról!',
+    name: 'Kata',
+  },
 ];
 
 const ROTATE_MS = 6000;
@@ -73,7 +88,11 @@ export default function TestimonialsSlider() {
                   }`}
                 >
                   <blockquote
-                    className="text-lg md:text-2xl text-[#4A4A4A] leading-relaxed italic"
+                    // A hosszabb véleményeknél kisebb betűméret, hogy ne
+                    // nőjön aránytalanul magasra a blokk.
+                    className={`${
+                      t.quote.length > 200 ? 'text-base md:text-xl' : 'text-lg md:text-2xl'
+                    } text-[#4A4A4A] leading-relaxed italic`}
                     style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
                   >
                     {t.quote}
