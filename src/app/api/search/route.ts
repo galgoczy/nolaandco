@@ -23,6 +23,9 @@ export async function GET(request: NextRequest) {
   const products = await prisma.product.findMany({
     where: {
       active: true,
+      // A listázásokból elrejtett termékek a keresőben sem jelenhetnek meg —
+      // a termékoldaluk direkt linken továbbra is elérhető marad.
+      hiddenFromListing: false,
       OR: [
         { name: { contains: q, mode: 'insensitive' } },
         { description: { contains: q, mode: 'insensitive' } },
