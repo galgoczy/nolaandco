@@ -3,12 +3,17 @@ import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
 const INSTAGRAM_URL = 'https://www.instagram.com/nolaandco.baby/';
 
-// Kézzel válogatott képek — később dinamikus Instagram-feedre cserélhető.
+// Kézzel válogatott vásárlói fotók. A sorrend ez a tömb — átrendezéshez
+// elég a sorokat felcserélni. Később dinamikus Instagram-feedre cserélhető.
 const images = [
-  '/testimonials/testimonial-1.jpg',
-  '/testimonials/testimonial-2.jpg',
-  '/testimonials/testimonial-3.jpg',
-  '/testimonials/testimonial-4.jpg',
+  '/images/Testimonials/IMG_0331.JPEG',
+  '/images/Testimonials/IMG_2025.jpg',
+  '/images/Testimonials/IMG_0795.jpg',
+  '/images/Testimonials/bc4c15d6-ebe1-4089-a1cb-9ae0aa41e4b1.JPG',
+  '/images/Testimonials/IMG_2888.jpg',
+  '/images/Testimonials/IMG_1361.jpg',
+  '/images/Testimonials/IMG_7755.jpg',
+  '/images/Testimonials/IMG_0757.jpg',
 ];
 
 /** BLOKK 8: Instagram-rács — a profilra mutató képes ráccsal. */
