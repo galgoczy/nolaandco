@@ -21,7 +21,7 @@ export default function InstagramGrid() {
             className="text-2xl md:text-3xl lg:text-4xl text-carbon text-center mb-3 tracking-[0.04em]"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
           >
-            A ti történeteitek, a mi emlékeink. 🤍
+            Apró pillanatok, örök emlékek.
           </h2>
         </RevealOnScroll>
         <RevealOnScroll>
