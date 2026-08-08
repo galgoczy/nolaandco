@@ -27,7 +27,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             alt={product.name}
             fill
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            sizes="(max-width: 768px) 85vw, (max-width: 1024px) 42vw, 28vw"
+            sizes="(max-width: 767px) 50vw, (max-width: 1280px) 33vw, 400px"
           />
         ) : (
           // Fotó nélküli (még feltöltés alatt lévő) termék — semleges felület.

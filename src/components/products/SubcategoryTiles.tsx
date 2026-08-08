@@ -33,7 +33,7 @@ export default async function SubcategoryTiles({ parent }: { parent: string }) {
                     alt={cat.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 45vw, 30vw"
+                    sizes="(max-width: 767px) 50vw, (max-width: 1280px) 33vw, 400px"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-[#EFEAE2] text-carbon-light/50 text-[10px] tracking-[0.2em] uppercase">

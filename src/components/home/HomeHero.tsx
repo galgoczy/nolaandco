@@ -66,7 +66,13 @@ const heroFont = "'Gilroy', 'Inter', 'Montserrat', sans-serif";
 export default function HomeHero() {
   const videoRef0 = useRef<HTMLVideoElement>(null);
   const videoRef1 = useRef<HTMLVideoElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  // null = még nem tudjuk a viewportot. Amíg null, egyik videónak sincs src-je,
+  // így a telefon nem kezdi el letölteni a (jóval nagyobb) desktop változatot,
+  // hogy aztán eldobja.
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  // A második videó csak akkor kezd töltődni, amikor az első már játszik —
+  // így nem versenyez az első képkockáért a CSS-sel, a JS-sel és a képekkel.
+  const [loadSecond, setLoadSecond] = useState(false);
   const [active, setActive] = useState(0);
   const refs = [videoRef0, videoRef1];
 
@@ -79,10 +85,11 @@ export default function HomeHero() {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  // On viewport switch, reload both sources and restart from the first video.
+  // On viewport switch, restart from the first video. (A <video> elemek
+  // kulcsa is a viewporttól függ, tehát új forrással mountolódnak újra.)
   useEffect(() => {
+    if (isMobile === null) return;
     setActive(0);
-    [videoRef0, videoRef1].forEach((r) => r.current?.load());
     const v = videoRef0.current;
     if (v) {
       v.currentTime = 0;
@@ -90,28 +97,47 @@ export default function HomeHero() {
     }
   }, [isMobile]);
 
+  // A második videó forrása csak most kerül fel — indítsuk el a pufferelést,
+  // hogy készen álljon, mire az első véget ér.
+  useEffect(() => {
+    if (!loadSecond) return;
+    videoRef1.current?.load();
+  }, [loadSecond]);
+
   // When the active video changes, start it from the beginning.
   useEffect(() => {
+    if (isMobile === null) return;
     const allRefs = [videoRef0, videoRef1];
     const v = allRefs[active].current;
     if (v) {
       v.currentTime = 0;
       v.play().catch(() => {});
     }
-  }, [active]);
+  }, [active, isMobile]);
 
   return (
-    <section className="relative w-full overflow-hidden leading-[0]">
+    <section className="relative w-full overflow-hidden leading-[0] bg-[#C4A591]">
       <div className={`w-full relative ${isMobile ? 'h-[68vh]' : 'aspect-video'}`}>
         {SLIDES.map((slide, i) => (
           <video
-            key={isMobile ? slide.mobileSrc : slide.desktopSrc}
+            key={`${i}-${String(isMobile)}`}
             ref={refs[i]}
-            src={isMobile ? slide.mobileSrc : slide.desktopSrc}
+            src={
+              isMobile === null || (i > 0 && !loadSecond)
+                ? undefined
+                : isMobile
+                  ? slide.mobileSrc
+                  : slide.desktopSrc
+            }
             muted
             playsInline
-            preload="auto"
+            preload={i === 0 || loadSecond ? 'auto' : 'none'}
             autoPlay={i === 0}
+            onPlaying={() => {
+              // Az első videó elindult — innentől van ~10 másodperc a
+              // másodikat betölteni, mielőtt szükség lenne rá.
+              if (i === 0) setLoadSecond(true);
+            }}
             onEnded={() => {
               if (i === active) setActive((a) => (a + 1) % SLIDES.length);
             }}

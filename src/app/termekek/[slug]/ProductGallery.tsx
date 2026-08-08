@@ -17,6 +17,22 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
   const [activeIdx, setActiveIdx] = useState(0);
   const hasMultiple = allImages.length > 1;
 
+  // Csak az aktív és a szomszédos diák képét kérjük le. Korábban a sáv minden
+  // képe egyszerre indult, így egy 5 fotós termékoldal 5 párhuzamos
+  // képtranszformációt indított hideg cache-en — ez volt a 2-3 másodperces
+  // első betöltés fő oka. A már betöltött indexeket megjegyezzük, hogy
+  // visszalapozásnál ne kelljen újra.
+  const [loadedIdx, setLoadedIdx] = useState<number[]>([0]);
+  useEffect(() => {
+    const n = allImages.length;
+    if (n === 0) return;
+    setLoadedIdx((prev) => {
+      const want = [activeIdx, (activeIdx + 1) % n, (activeIdx - 1 + n) % n];
+      const missing = want.filter((i) => prev.indexOf(i) === -1);
+      return missing.length > 0 ? prev.concat(missing) : prev;
+    });
+  }, [activeIdx, allImages.length]);
+
   // Brief hint-bump on mount (mobile only) — shifts the track slightly left
   // and back so the user sees that the gallery is swipeable.
   const [hintShift, setHintShift] = useState(0);
@@ -92,14 +108,16 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
           >
             {allImages.map((img, idx) => (
               <div key={img} className="relative w-full h-full flex-shrink-0">
-                <Image
-                  src={img}
-                  alt={`${alt} — ${idx + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  priority={idx === 0}
-                />
+                {loadedIdx.indexOf(idx) !== -1 && (
+                  <Image
+                    src={img}
+                    alt={`${alt} — ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 520px) 100vw, 470px"
+                    priority={idx === 0}
+                  />
+                )}
               </div>
             ))}
           </div>

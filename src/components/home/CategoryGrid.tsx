@@ -44,7 +44,7 @@ export default function CategoryGrid() {
                     alt={tile.label}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 90vw, 30vw"
+                    sizes="(max-width: 767px) 100vw, (max-width: 1280px) 33vw, 400px"
                   />
                 </div>
                 <p className="text-center text-base md:text-lg tracking-[0.08em] text-carbon uppercase">

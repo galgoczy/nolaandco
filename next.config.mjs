@@ -12,6 +12,12 @@ const nextConfig = {
     ];
   },
   images: {
+    // Az optimalizált változatok élettartama. A Next alapértéke 60 másodperc,
+    // ami után a képet újra kell transzformálni — ez okozta a termékgalériák
+    // időnkénti 2-3 másodperces első betöltését. Az adminból feltöltött képek
+    // addRandomSuffix-szal kapnak URL-t, tehát új feltöltés új URL-t jelent,
+    // így elavult cache nem fordulhat elő.
+    minimumCacheTTL: 2678400, // 31 nap
     remotePatterns: [
       {
         protocol: 'https',
