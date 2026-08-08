@@ -16,20 +16,29 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: 'FŐOLDAL', href: '/' },
   {
-    label: 'KICSIKNEK',
-    href: '/termekek?category=kicsiknek',
+    label: 'EMLÉKŐRZŐK',
+    href: '/termekek?category=emlekorzok',
     children: [
       { label: 'Emlékpárnák', href: '/termekek?category=pillow' },
       { label: 'Születési poszterek', href: '/termekek?category=poster' },
-      { label: 'Baba textilek & dekorációk', href: '/termekek?category=babytextile' },
     ],
   },
   {
-    label: 'NAGYOKNAK',
-    href: '/termekek?category=nagyoknak',
+    label: 'TEXTILEK',
+    href: '/termekek?category=textilek',
     children: [
+      { label: 'Szundikendők', href: '/termekek?category=szundikendo' },
+      { label: 'Takarók', href: '/termekek?category=takaro' },
       { label: 'Kalandköpenyek', href: '/termekek?category=cape' },
       { label: 'Koronák', href: '/termekek?category=crown' },
+    ],
+  },
+  {
+    label: 'DEKORÁCIÓ',
+    href: '/termekek?category=dekoracio',
+    children: [
+      { label: 'Születési poszterek', href: '/termekek?category=poster' },
+      { label: 'Pillangó dekorációk', href: '/termekek?category=decor' },
     ],
   },
   { label: 'VÁLOGATÁSOK', href: '/termekek?category=bundle' },

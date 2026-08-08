@@ -46,7 +46,8 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const isPillow = product.category === 'pillow';
   const isBigKidProduct =
     product.category === 'cape' || product.category === 'crown' || product.category === 'bundle';
-  const isTextile = product.category === 'babytextile';
+  // DB-variánsos, nem személyre szabott termékek (swatch-választós oldal).
+  const isTextile = ['szundikendo', 'takaro', 'decor'].includes(product.category);
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
 
   const pillowVariants = isPillow

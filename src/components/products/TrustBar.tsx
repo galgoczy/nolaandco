@@ -14,7 +14,9 @@ const BY_CATEGORY: Record<string, string[]> = {
   cape: HANDMADE,
   crown: HANDMADE,
   bundle: HANDMADE,
-  babytextile: HANDMADE,
+  szundikendo: HANDMADE,
+  takaro: HANDMADE,
+  decor: HANDMADE,
   poster: [
     '200 g-os silk felületű művészi papír',
     '50×70 cm-es méret',

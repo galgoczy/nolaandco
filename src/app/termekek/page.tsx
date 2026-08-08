@@ -7,7 +7,7 @@ import SubcategoryTiles from '@/components/products/SubcategoryTiles';
 import { getListingItems } from '@/lib/productListing';
 
 /** Gyűjtő kategóriák: itt az alkategória-kártyák is megjelennek a rács fölött. */
-const UMBRELLA_CATEGORIES = new Set(['kicsiknek', 'nagyoknak']);
+const UMBRELLA_CATEGORIES = new Set(['emlekorzok', 'textilek', 'dekoracio']);
 
 interface Props {
   searchParams: Promise<{ category?: string }>;

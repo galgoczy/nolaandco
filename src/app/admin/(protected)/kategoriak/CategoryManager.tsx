@@ -21,7 +21,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
   const [cats, setCats] = useState<Cat[]>(initial);
   const [editing, setEditing] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  const [form, setForm] = useState({ slug: '', name: '', nameEn: '' });
+  const [form, setForm] = useState({ slug: '', name: '', nameEn: '', parent: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -70,7 +70,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
   // --- Inline edit ---
   function startEdit(cat: Cat) {
     setEditing(cat.id);
-    setForm({ slug: cat.slug, name: cat.name, nameEn: cat.nameEn });
+    setForm({ slug: cat.slug, name: cat.name, nameEn: cat.nameEn, parent: cat.parent });
     setAdding(false);
     setError('');
   }
@@ -85,7 +85,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
     const res = await fetch(`/api/admin/categories/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug: form.slug, name: form.name, nameEn: form.nameEn }),
+      body: JSON.stringify({ slug: form.slug, name: form.name, nameEn: form.nameEn, parent: form.parent }),
     });
     const data = await res.json().catch(() => ({}));
     setSaving(false);
@@ -95,7 +95,9 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
     }
     setCats((prev) =>
       prev.map((c) =>
-        c.id === id ? { ...c, slug: form.slug, name: form.name, nameEn: form.nameEn } : c,
+        c.id === id
+          ? { ...c, slug: form.slug, name: form.name, nameEn: form.nameEn, parent: form.parent }
+          : c,
       ),
     );
     setEditing(null);
@@ -106,7 +108,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
   function startAdd() {
     setAdding(true);
     setEditing(null);
-    setForm({ slug: '', name: '', nameEn: '' });
+    setForm({ slug: '', name: '', nameEn: '', parent: '' });
     setError('');
   }
 
@@ -158,6 +160,17 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
   const inputCls =
     'px-2 py-1 rounded border border-outline-variant bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/30';
 
+  // A fő navigáció három útvonala. Az ide besorolt kategóriák automatikusan
+  // megjelennek a gyűjtőoldal alkategória-kártyái közt és a listájában.
+  const PARENT_OPTIONS = [
+    { value: '', label: '— (önálló)' },
+    { value: 'emlekorzok', label: 'Emlékőrzők' },
+    { value: 'textilek', label: 'Textilek' },
+    { value: 'dekoracio', label: 'Dekoráció' },
+  ];
+  const parentLabel = (v: string) =>
+    PARENT_OPTIONS.find((o) => o.value === v)?.label ?? v;
+
   return (
     <div className="flex flex-col gap-4 max-w-3xl">
       <div className="bg-surface-container-lowest rounded-2xl overflow-hidden">
@@ -169,6 +182,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
               <th className="p-4 text-on-surface/60 font-medium">Slug</th>
               <th className="p-4 text-on-surface/60 font-medium">Magyar név</th>
               <th className="p-4 text-on-surface/60 font-medium">Angol név</th>
+              <th className="p-4 text-on-surface/60 font-medium">Fő kategória</th>
               <th className="p-4 text-on-surface/60 font-medium text-center">Termékek</th>
               <th className="p-4 text-on-surface/60 font-medium text-center">Főoldalon</th>
               <th className="p-4 text-on-surface/60 font-medium text-right">Műveletek</th>
@@ -251,12 +265,26 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
                         onChange={(e) => setForm({ ...form, nameEn: e.target.value })}
                       />
                     </td>
+                    <td className="p-4">
+                      <select
+                        className={inputCls}
+                        value={form.parent}
+                        onChange={(e) => setForm({ ...form, parent: e.target.value })}
+                      >
+                        {PARENT_OPTIONS.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
                   </>
                 ) : (
                   <>
                     <td className="p-4 font-mono text-xs text-on-surface/60">{cat.slug}</td>
                     <td className="p-4">{cat.name}</td>
                     <td className="p-4 text-on-surface/70">{cat.nameEn || '—'}</td>
+                    <td className="p-4 text-on-surface/70">{parentLabel(cat.parent)}</td>
                   </>
                 )}
 
@@ -345,6 +373,20 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="pl. Párnák"
               />
+            </div>
+            <div>
+              <label className="block text-xs text-on-surface/60 mb-1">Fő kategória</label>
+              <select
+                className={`${inputCls} w-full`}
+                value={form.parent}
+                onChange={(e) => setForm({ ...form, parent: e.target.value })}
+              >
+                {PARENT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs text-on-surface/60 mb-1">Angol név</label>

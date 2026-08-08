@@ -9,6 +9,26 @@ const nextConfig = {
         destination: '/termekek/nola-digitalis-ajandekkartya',
         permanent: true,
       },
+      // Az életkor-alapú kategóriák terméktípus-alapúra cserélve — a régi
+      // linkek (hírlevél, közösségi média, Google-találatok) átirányítanak.
+      {
+        source: '/termekek',
+        has: [{ type: 'query', key: 'category', value: 'kicsiknek' }],
+        destination: '/termekek?category=emlekorzok',
+        permanent: true,
+      },
+      {
+        source: '/termekek',
+        has: [{ type: 'query', key: 'category', value: 'nagyoknak' }],
+        destination: '/termekek?category=textilek',
+        permanent: true,
+      },
+      {
+        source: '/termekek',
+        has: [{ type: 'query', key: 'category', value: 'babytextile' }],
+        destination: '/termekek?category=textilek',
+        permanent: true,
+      },
     ];
   },
   images: {

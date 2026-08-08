@@ -4,7 +4,7 @@ import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import { prisma } from '@/lib/prisma';
 
 /**
- * Alkategória-kártyák a gyűjtő kategóriaoldalak tetején (KICSIKNEK / NAGYOKNAK).
+ * Alkategória-kártyák a gyűjtő kategóriaoldalak tetején (EMLÉKŐRZŐK / TEXTILEK / DEKORÁCIÓ).
  * Ugyanaz a méret és 1:1 képarány, mint a főoldali kategória-kártyáknál.
  * A képek adminból tölthetők fel (Kategóriák → kategóriakép); amíg nincs kép,
  * a kártya semleges felülettel jelenik meg.

@@ -3,11 +3,11 @@ import Image from 'next/image';
 import CookiePreferencesLink from './CookiePreferencesLink';
 
 const quickLinks = [
+  { label: 'Emlékőrzők', href: '/termekek?category=emlekorzok' },
   { label: 'Emlékpárnák', href: '/termekek?category=pillow' },
   { label: 'Születési poszterek', href: '/termekek?category=poster' },
-  { label: 'Baba textilek & dekorációk', href: '/termekek?category=babytextile' },
-  { label: 'Kalandköpenyek', href: '/termekek?category=cape' },
-  { label: 'Koronák', href: '/termekek?category=crown' },
+  { label: 'Textilek', href: '/termekek?category=textilek' },
+  { label: 'Dekoráció', href: '/termekek?category=dekoracio' },
   { label: 'Válogatások', href: '/termekek?category=bundle' },
   { label: 'Ajándékkártya', href: '/termekek/nola-digitalis-ajandekkartya' },
   { label: 'Nektek', href: '/nektek' },

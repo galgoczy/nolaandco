@@ -358,7 +358,7 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
       'Pihe-puha társ a legelső összebújásokhoz és a nagy kalandok utáni megnyugváshoz. A minimal kialakítás célja, hogy semmilyen csörgő vagy túlságosan stimuláló részlet ne vonja el a baba figyelmét az alvásról — közben a csomó és a két puha zsinór éppen elegendő taktilis ingert nyújt a kis kezeknek, és fogzáskor is jól jöhet.',
     longDescription: hushLongDescription,
     price: 4900,
-    category: 'babytextile',
+    category: 'szundikendo',
     series: 'nola',
     variant: 'hush',
     imageUrl: '',
@@ -384,7 +384,7 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
       'Két oldal, két finom hangulat, egyetlen puha ölelés. Két réteg duplagézből, kézzel készülő takaróink pillekönnyűek, mégis kellemesen körbeölelnek. A 75 × 90 cm-es méret ideális a babakocsiba, hordozóba, a délutáni szundikhoz vagy az otthoni összebújáshoz.',
     longDescription: cloudLongDescription,
     price: 14900,
-    category: 'babytextile',
+    category: 'takaro',
     series: 'nola',
     variant: 'cloud',
     imageUrl: '',
@@ -410,7 +410,7 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
       'Egy puha, lebegő kis csoda a gyerekszobába. Az OEKO-TEX® pamut anyagból készülő óriás pillangó könnyed szárnyaival, kedves részleteivel és finom pasztellszíneivel játékos, mégis letisztult hangulatot teremt a kiságy, kuckó fölött, vagy akár a falra rögzítve. Körülbelül 30 cm széles, az akasztóval együtt pedig 70 cm hosszú — egy apró varázslat, amely nap mint nap megmozgatja a fantáziát és mesevilággá változtat bármilyen szobát.',
     longDescription: pixieLongDescription,
     price: 9900,
-    category: 'babytextile',
+    category: 'decor',
     series: 'nola',
     variant: 'pixie',
     imageUrl: '',
@@ -511,13 +511,17 @@ export async function syncCatalog(): Promise<string[]> {
     visibleOnHome: boolean;
     parent?: string;
   }[] = [
-    { slug: 'pillow', name: 'Párnák', nameEn: 'KEEPSAKES', sortOrder: 0, visibleOnHome: true, parent: 'kicsiknek' },
-    { slug: 'poster', name: 'Poszterek', nameEn: 'ART PRINTS', sortOrder: 1, visibleOnHome: true, parent: 'kicsiknek' },
-    { slug: 'babytextile', name: 'Baba textilek & dekorációk', nameEn: 'BABY TEXTILES', sortOrder: 2, visibleOnHome: false, parent: 'kicsiknek' },
-    { slug: 'cape', name: 'Kalandköpeny', nameEn: 'ADVENTURE CAPES', sortOrder: 3, visibleOnHome: true, parent: 'nagyoknak' },
-    { slug: 'crown', name: 'Korona', nameEn: 'CROWNS', sortOrder: 4, visibleOnHome: true, parent: 'nagyoknak' },
-    { slug: 'bundle', name: 'Válogatások', nameEn: 'BUNDLES', sortOrder: 5, visibleOnHome: true },
-    { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 6, visibleOnHome: true },
+    // Terméktípus-alapú fő kategóriák: Emlékőrzők · Textilek · Dekoráció.
+    // A parent a gyűjtő kategória (a fő navigáció három útvonala).
+    { slug: 'pillow', name: 'Emlékpárnák', nameEn: 'KEEPSAKES', sortOrder: 0, visibleOnHome: true, parent: 'emlekorzok' },
+    { slug: 'poster', name: 'Születési poszterek', nameEn: 'ART PRINTS', sortOrder: 1, visibleOnHome: true, parent: 'emlekorzok' },
+    { slug: 'szundikendo', name: 'Szundikendők', nameEn: 'COMFORTERS', sortOrder: 2, visibleOnHome: false, parent: 'textilek' },
+    { slug: 'takaro', name: 'Takarók', nameEn: 'BLANKETS', sortOrder: 3, visibleOnHome: false, parent: 'textilek' },
+    { slug: 'cape', name: 'Kalandköpenyek', nameEn: 'ADVENTURE CAPES', sortOrder: 4, visibleOnHome: true, parent: 'textilek' },
+    { slug: 'crown', name: 'Koronák', nameEn: 'CROWNS', sortOrder: 5, visibleOnHome: true, parent: 'textilek' },
+    { slug: 'decor', name: 'Pillangó dekorációk', nameEn: 'DECOR', sortOrder: 6, visibleOnHome: false, parent: 'dekoracio' },
+    { slug: 'bundle', name: 'Válogatások', nameEn: 'BUNDLES', sortOrder: 7, visibleOnHome: true },
+    { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 8, visibleOnHome: true },
   ];
 
   for (const cat of categories) {
@@ -644,6 +648,17 @@ export async function syncCatalog(): Promise<string[]> {
     } else {
       await prisma.productAlias.create({ data: a });
       log.push(`Alias létrehozva: ${a.slug}`);
+    }
+  }
+
+  // --- A korábbi közös "babytextile" kategória szétvált (szundikendo /
+  // takaro / decor); az üresen maradt sort eltakarítjuk.
+  const legacyBabytextile = await prisma.category.findUnique({ where: { slug: 'babytextile' } });
+  if (legacyBabytextile) {
+    const remaining = await prisma.product.count({ where: { category: 'babytextile' } });
+    if (remaining === 0) {
+      await prisma.category.delete({ where: { slug: 'babytextile' } });
+      log.push('Régi babytextile kategória törölve (üres).');
     }
   }
 

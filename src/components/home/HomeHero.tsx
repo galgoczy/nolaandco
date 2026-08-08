@@ -37,7 +37,7 @@ const SLIDES: HeroSlide[] = [
         Megtervezem a saját<br className="md:hidden" /> emlékpárnámat
       </>
     ),
-    ctaHref: '/termekek?category=kicsiknek',
+    ctaHref: '/termekek?category=emlekorzok',
   },
   {
     desktopSrc: '/scrollytelling/nola_koppeny-desktop.mp4',
@@ -51,7 +51,7 @@ const SLIDES: HeroSlide[] = [
       </>
     ),
     ctaLabel: 'Megnézem az újdonságokat',
-    ctaHref: '/termekek?category=nagyoknak',
+    ctaHref: '/termekek?category=textilek',
   },
 ];
 

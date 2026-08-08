@@ -42,7 +42,7 @@ type Props = {
 };
 
 /**
- * Termékoldal a Baba textilek & dekorációk kategóriához: galéria + feliratozott
+ * Termékoldal a textil- és dekortermékekhez (szundikendő, takaró, pillangó): galéria + feliratozott
  * szín-swatch választó + kosárba helyezés. A választott variáns saját
  * képgalériát, felárat és készletet hozhat; a választás a kosártételre kerül,
  * így a rendelésben, a visszaigazoló e-mailben és az adminban is látszik.

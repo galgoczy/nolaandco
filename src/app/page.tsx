@@ -9,7 +9,7 @@ import InstagramGrid from '@/components/home/InstagramGrid';
 import NewsletterBand from '@/components/home/NewsletterBand';
 
 // Evergreen home structure:
-//   1. Hero (video) → Nagyoknak kollekció
+//   1. Hero (video) → kollekció-CTA-k
 //   2. Vásárolj kategória szerint (3 oszlopos rács)
 //   3. Kiemelt újdonság sáv (Kalandköpenyek)
 //   5. Bizalmi ikon-sáv

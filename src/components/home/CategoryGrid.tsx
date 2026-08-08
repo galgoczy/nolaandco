@@ -8,21 +8,23 @@ type CategoryTile = {
   href?: string; // no href = placeholder tile (not clickable yet)
 };
 
+// Terméktípus-alapú fő útvonalak. A képek a korábbi kategória-kártyák fotói —
+// ha készül dedikált fotó a Textilek/Dekoráció kategóriához, itt cserélhető.
 const tiles: CategoryTile[] = [
   {
-    label: 'Kicsiknek',
+    label: 'Emlékőrzők',
     imageUrl: '/images/home/kategoria-kicsikrol.jpg',
-    href: '/termekek?category=kicsiknek',
+    href: '/termekek?category=emlekorzok',
   },
   {
-    label: 'Nagyoknak',
+    label: 'Textilek',
     imageUrl: '/images/home/kategoria-nagyoknak.jpg',
-    href: '/termekek?category=nagyoknak',
+    href: '/termekek?category=textilek',
   },
   {
-    label: 'NOLA válogatások',
+    label: 'Dekoráció',
     imageUrl: '/images/home/kategoria-valogatasok.jpg',
-    href: '/termekek?category=bundle',
+    href: '/termekek?category=dekoracio',
   },
 ];
 
