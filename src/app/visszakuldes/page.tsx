@@ -36,7 +36,7 @@ export default function VisszakuldesPage() {
               vonatkozik. Kivételt képeznek a nem perszonalizált, raktárról vagy előre meghatározott
               kivitelben kapható termékeink &ndash; jelenleg a <strong>NOLA Crew Kalandköpeny</strong>, a{' '}
               <strong>koronák</strong>, valamint a <strong>szundikendők, takarók és pillangó
-              dekorációk</strong> (NOLA Hush, NOLA Cloud, NOLA Pixie) &ndash;, amelyekre a távollévők között kötött
+              függők</strong> (NOLA Hush, NOLA Cloud, NOLA Pixie) &ndash;, amelyekre a távollévők között kötött
               szerződésekre irányadó fogyasztóvédelmi szabályok (a 45/2014. (II. 26.) Korm. rendelet)
               szerinti <strong>14 napos, indokolás nélküli elállási jog</strong> érvényes. Ebben az
               esetben a terméket sértetlen, eredeti állapotában, a kézhezvételtől számított 14 napon
@@ -47,8 +47,7 @@ export default function VisszakuldesPage() {
           <RevealOnScroll>
             <div className="bg-surface-container-lowest rounded-xl p-6 ghost-border text-center">
               <p className="mb-5">
-                A nem személyre szabott termékek (NOLA Crew Kalandköpeny, koronák, baba textilek és
-                dekorációk) esetében az
+                A nem személyre szabott termékek (NOLA Crew Kalandköpeny, koronák, szundikendők, takarók és pillangó függők) esetében az
                 elállási jogodat online, néhány kattintással gyakorolhatod:
               </p>
               <a

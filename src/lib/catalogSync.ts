@@ -1,5 +1,15 @@
 import { prisma } from './prisma';
 
+/** "Pasztell rózsaszín & Dusty rózsaszín" → "pasztell-rozsaszin-dusty-rozsaszin" */
+function slugifyHu(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 /**
  * Idempotent catalog sync: creates the categories, products and aliases the
  * storefront expects, and applies one-off migrations (badge rename, legacy
@@ -348,23 +358,33 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
     imageUrl: '/images/products/szuperhos-szett.png',
     badge: 'ÚJDONSÁG',
   },
-  // --- Baba textilek & dekorációk ---
+  // --- Textilek & dekoráció: minden szín/dizájn önálló termék ---
   // Képek és végleges árak adminból kerülnek fel; addig a termékek rejtve
-  // maradnak a listázásokból (a saját kategóriaoldalukon láthatók).
-  {
-    name: 'NOLA Hush – Minimal szundikendő',
-    slug: 'nola-hush-szundikendo',
+  // maradnak a listázásokból (a saját kategóriaoldalukon láthatók). Új
+  // darabok adminból bármikor felvehetők e kategóriákba — a lenti induló
+  // választék nem korlát.
+  ...[
+    'Bézs',
+    'Cappuccino',
+    'Pasztell rózsaszín',
+    'Dusty rózsaszín',
+    'Kékesszürke',
+    'Acélkék',
+  ].map((color, i) => ({
+    name: `NOLA Hush szundikendő – ${color}`,
+    slug: `nola-hush-szundikendo-${slugifyHu(color)}`,
     description:
       'Pihe-puha társ a legelső összebújásokhoz és a nagy kalandok utáni megnyugváshoz. A minimal kialakítás célja, hogy semmilyen csörgő vagy túlságosan stimuláló részlet ne vonja el a baba figyelmét az alvásról — közben a csomó és a két puha zsinór éppen elegendő taktilis ingert nyújt a kis kezeknek, és fogzáskor is jól jöhet.',
     longDescription: hushLongDescription,
     price: 4900,
     category: 'szundikendo',
     series: 'nola',
-    variant: 'hush',
+    variant: `hush-${slugifyHu(color)}`,
     imageUrl: '',
     badge: 'ÚJDONSÁG',
     withdrawalEligible: true,
     hiddenFromListing: true,
+    sortOrder: i,
     material: '100% OEKO-TEX® minősítésű pamut duplagéz (két réteg)',
     size: '30 × 30 cm',
     productionTime: 'kb. 2 hét',
@@ -376,21 +396,26 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
       'Gyártási idő: kb. 2 hét',
       'Biztonságos kártyás fizetés',
     ],
-  },
-  {
-    name: 'NOLA Cloud – Kétoldalas dupla géz takaró',
-    slug: 'nola-cloud-takaro',
+  })),
+  ...[
+    'Bézs & Cappuccino',
+    'Pasztell rózsaszín & Dusty rózsaszín',
+    'Kékesszürke & Acélkék',
+  ].map((colorway, i) => ({
+    name: `NOLA Cloud takaró – ${colorway}`,
+    slug: `nola-cloud-takaro-${slugifyHu(colorway)}`,
     description:
       'Két oldal, két finom hangulat, egyetlen puha ölelés. Két réteg duplagézből, kézzel készülő takaróink pillekönnyűek, mégis kellemesen körbeölelnek. A 75 × 90 cm-es méret ideális a babakocsiba, hordozóba, a délutáni szundikhoz vagy az otthoni összebújáshoz.',
     longDescription: cloudLongDescription,
     price: 14900,
     category: 'takaro',
     series: 'nola',
-    variant: 'cloud',
+    variant: `cloud-${slugifyHu(colorway)}`,
     imageUrl: '',
     badge: 'ÚJDONSÁG',
     withdrawalEligible: true,
     hiddenFromListing: true,
+    sortOrder: i,
     material: '100% OEKO-TEX® minősítésű pamut duplagéz (két réteg)',
     size: '75 × 90 cm',
     productionTime: 'kb. 2 hét',
@@ -402,21 +427,23 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
       'Gyártási idő: kb. 2 hét',
       'Biztonságos kártyás fizetés',
     ],
-  },
-  {
-    name: 'NOLA Pixie – Óriás pillangó függő',
-    slug: 'nola-pixie-pillango-fuggo',
+  })),
+  // A négy pillangó-modell nevét az admin pontosítja, ha megvannak a minták.
+  ...['I.', 'II.', 'III.', 'IV.'].map((numeral, i) => ({
+    name: `NOLA Pixie pillangó függő – ${numeral}`,
+    slug: `nola-pixie-pillango-fuggo-${i + 1}`,
     description:
       'Egy puha, lebegő kis csoda a gyerekszobába. Az OEKO-TEX® pamut anyagból készülő óriás pillangó könnyed szárnyaival, kedves részleteivel és finom pasztellszíneivel játékos, mégis letisztult hangulatot teremt a kiságy, kuckó fölött, vagy akár a falra rögzítve. Körülbelül 30 cm széles, az akasztóval együtt pedig 70 cm hosszú — egy apró varázslat, amely nap mint nap megmozgatja a fantáziát és mesevilággá változtat bármilyen szobát.',
     longDescription: pixieLongDescription,
     price: 9900,
     category: 'decor',
     series: 'nola',
-    variant: 'pixie',
+    variant: `pixie-${i + 1}`,
     imageUrl: '',
     badge: 'ÚJDONSÁG',
     withdrawalEligible: true,
     hiddenFromListing: true,
+    sortOrder: i,
     material: 'OEKO-TEX® minősítésű pamut',
     size: 'kb. 30 cm széles, akasztóval együtt kb. 70 cm hosszú',
     productionTime: 'kb. 2 hét',
@@ -428,30 +455,8 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
       'Gyártási idő: kb. 2 hét',
       'Biztonságos kártyás fizetés',
     ],
-  },
+  })),
 ];
-
-/**
- * Seed variants for the new textile products. Only applied when a product has
- * no variants at all, so admin-side edits (renames, extra colours, per-variant
- * images and stock) are never overwritten on re-sync.
- */
-const seedVariants: Record<string, { name: string; colorHex: string; colorHex2?: string }[]> = {
-  'nola-hush-szundikendo': [
-    { name: 'Bézs', colorHex: '#E5D9C7' },
-    { name: 'Cappuccino', colorHex: '#C4A591' },
-    { name: 'Pasztell rózsaszín', colorHex: '#F0D9D6' },
-    { name: 'Dusty rózsaszín', colorHex: '#D3A9A4' },
-    { name: 'Kékesszürke', colorHex: '#B7C2C9' },
-    { name: 'Acélkék', colorHex: '#7E96A8' },
-  ],
-  'nola-cloud-takaro': [
-    { name: 'Bézs – Cappuccino', colorHex: '#E5D9C7', colorHex2: '#C4A591' },
-    { name: 'Pasztell rózsaszín – Dusty rózsaszín', colorHex: '#F0D9D6', colorHex2: '#D3A9A4' },
-    { name: 'Kékesszürke – Acélkék', colorHex: '#B7C2C9', colorHex2: '#7E96A8' },
-  ],
-  // NOLA Pixie: a szín-/mintaváltozatokat az admin veszi fel.
-};
 
 export async function syncCatalog(): Promise<string[]> {
   const log: string[] = [];
@@ -471,10 +476,6 @@ export async function syncCatalog(): Promise<string[]> {
     'nola-hero-korona',
     'nola-stella-korona',
     'nola-crew-korona',
-    // Baba textilek & dekorációk — nem személyre szabott, standard termékek.
-    'nola-hush-szundikendo',
-    'nola-cloud-takaro',
-    'nola-pixie-pillango-fuggo',
   ];
   const eligibleUpdate = await prisma.product.updateMany({
     where: { slug: { in: withdrawalEligibleSlugs }, withdrawalEligible: false },
@@ -519,7 +520,7 @@ export async function syncCatalog(): Promise<string[]> {
     { slug: 'takaro', name: 'Takarók', nameEn: 'BLANKETS', sortOrder: 3, visibleOnHome: false, parent: 'textilek' },
     { slug: 'cape', name: 'Kalandköpenyek', nameEn: 'ADVENTURE CAPES', sortOrder: 4, visibleOnHome: true, parent: 'textilek' },
     { slug: 'crown', name: 'Koronák', nameEn: 'CROWNS', sortOrder: 5, visibleOnHome: true, parent: 'textilek' },
-    { slug: 'decor', name: 'Pillangó dekorációk', nameEn: 'DECOR', sortOrder: 6, visibleOnHome: false, parent: 'dekoracio' },
+    { slug: 'decor', name: 'Pillangó függők', nameEn: 'DECOR', sortOrder: 6, visibleOnHome: false, parent: 'dekoracio' },
     { slug: 'bundle', name: 'Válogatások', nameEn: 'BUNDLES', sortOrder: 7, visibleOnHome: true },
     { slug: 'giftcard', name: 'Ajándékkártyák', nameEn: 'GIFT CARDS', sortOrder: 8, visibleOnHome: true },
   ];
@@ -560,24 +561,6 @@ export async function syncCatalog(): Promise<string[]> {
       await prisma.product.create({ data: product });
       log.push(`Termék létrehozva: ${product.name}`);
     }
-  }
-
-  // --- Termékvariánsok (szín-swatch választó) ---
-  for (const [slug, variants] of Object.entries(seedVariants)) {
-    const parent = await prisma.product.findUnique({ where: { slug } });
-    if (!parent) continue;
-    const existingCount = await prisma.productVariant.count({ where: { productId: parent.id } });
-    if (existingCount > 0) continue; // admin már kezeli — nem nyúlunk hozzá
-    await prisma.productVariant.createMany({
-      data: variants.map((v, i) => ({
-        productId: parent.id,
-        name: v.name,
-        colorHex: v.colorHex,
-        colorHex2: v.colorHex2 ?? null,
-        sortOrder: i,
-      })),
-    });
-    log.push(`${variants.length} variáns létrehozva: ${parent.name}`);
   }
 
   // --- Legacy multi-package gift card → renamed, hidden, inactive. The new
@@ -648,6 +631,30 @@ export async function syncCatalog(): Promise<string[]> {
     } else {
       await prisma.productAlias.create({ data: a });
       log.push(`Alias létrehozva: ${a.slug}`);
+    }
+  }
+
+  // --- A variáns-alapú szülő-termékeket önálló szín-termékek váltották.
+  // Rendelés nélkül törölhetők (a variánsaik kaszkáddal mennek); ha mégis
+  // tartozna hozzájuk rendelés, archiválunk.
+  const legacyVariantParents = [
+    'nola-hush-szundikendo',
+    'nola-cloud-takaro',
+    'nola-pixie-pillango-fuggo',
+  ];
+  for (const slug of legacyVariantParents) {
+    const parentProduct = await prisma.product.findUnique({ where: { slug } });
+    if (!parentProduct) continue;
+    const orderCount = await prisma.orderItem.count({ where: { productId: parentProduct.id } });
+    if (orderCount === 0) {
+      await prisma.product.delete({ where: { id: parentProduct.id } });
+      log.push(`Régi variáns-alapú termék törölve: ${slug}`);
+    } else if (parentProduct.active) {
+      await prisma.product.update({
+        where: { id: parentProduct.id },
+        data: { active: false, hiddenFromListing: true },
+      });
+      log.push(`Régi variáns-alapú termék archiválva (van rendelése): ${slug}`);
     }
   }
 

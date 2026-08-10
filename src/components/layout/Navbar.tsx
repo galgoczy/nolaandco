@@ -38,12 +38,11 @@ const navItems: NavItem[] = [
     href: '/termekek?category=dekoracio',
     children: [
       { label: 'Születési poszterek', href: '/termekek?category=poster' },
-      { label: 'Pillangó dekorációk', href: '/termekek?category=decor' },
+      { label: 'Pillangó függők', href: '/termekek?category=decor' },
     ],
   },
   { label: 'VÁLOGATÁSOK', href: '/termekek?category=bundle' },
   { label: 'AJÁNDÉKKÁRTYA', href: '/termekek/nola-digitalis-ajandekkartya' },
-  { label: 'NEKTEK', href: '/nektek' },
   { label: 'RÓLUNK', href: '/rolunk' },
 ];
 
