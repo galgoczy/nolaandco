@@ -11,6 +11,7 @@ import PillowVariants from './PillowVariants';
 import PosterClient from './PosterClient';
 import TextileClient from './TextileClient';
 import ProductSpecs from '@/components/products/ProductSpecs';
+import BundleCompositeImage from '@/components/products/BundleCompositeImage';
 import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
 import { getCapeConfig } from './capeData';
 
@@ -157,6 +158,23 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
     );
   }
 
+  // Csomag saját fotó nélkül: a tagtermékek képeiből álló mozaik.
+  const bundleComposite =
+    product.category === 'bundle' && !product.imageUrl && product.bundleItems.length > 0
+      ? (
+          await prisma.product.findMany({
+            where: { slug: { in: product.bundleItems } },
+            select: { slug: true, imageUrl: true },
+          })
+        )
+          .sort(
+            (a, b) => product.bundleItems.indexOf(a.slug) - product.bundleItems.indexOf(b.slug),
+          )
+          .map((m) => m.imageUrl)
+          .filter((u) => u !== '')
+          .slice(0, 3)
+      : [];
+
   const longDescriptionBlock = product.longDescription ? (
     <>
       <h2 className="text-2xl md:text-3xl text-[#4A4A4A] mb-6 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
@@ -175,12 +193,34 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-x-16">
           {/* Left column: gallery + (desktop) long description */}
           <div className="w-full lg:w-1/2 flex flex-col gap-12">
-            <ProductGallery
-              mainImage={product.imageUrl}
-              images={product.images ?? []}
-              alt={product.name}
-              badge={product.badge}
-            />
+            {bundleComposite.length > 0 ? (
+              <div className="w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0">
+                <div className="relative aspect-[2/3] rounded-2xl overflow-hidden ghost-border">
+                  <BundleCompositeImage
+                    images={bundleComposite}
+                    alt={product.name}
+                    sizes="(max-width: 520px) 50vw, 235px"
+                  />
+                  {product.badge && (
+                    <div className="absolute top-4 right-4 z-10">
+                      <span
+                        className="badge-shimmer px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white shadow-sm"
+                        style={{ backgroundColor: '#7A4A5A' }}
+                      >
+                        {product.badge}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <ProductGallery
+                mainImage={product.imageUrl}
+                images={product.images ?? []}
+                alt={product.name}
+                badge={product.badge}
+              />
+            )}
 
             {product.longDescription && (
               <div

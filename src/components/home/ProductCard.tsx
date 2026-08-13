@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
+import BundleCompositeImage from '@/components/products/BundleCompositeImage';
 
 interface ProductCardProps {
   product: {
@@ -11,6 +12,8 @@ interface ProductCardProps {
     /** Original (compare-at) price when the product is on sale. */
     originalPrice?: number | null;
     imageUrl: string;
+    /** Kép nélküli csomagoknál a tagtermékek fotói (automatikus mozaik). */
+    compositeImages?: string[] | null;
     /** Rámutatásra megjelenő második kép (a galéria első képe); null = nincs váltás. */
     hoverImageUrl?: string | null;
     badge?: string | null;
@@ -51,6 +54,12 @@ export default function ProductCard({ product }: ProductCardProps) {
               />
             )}
           </>
+        ) : product.compositeImages && product.compositeImages.length > 0 ? (
+          <BundleCompositeImage
+            images={product.compositeImages}
+            alt={product.name}
+            sizes="(max-width: 767px) 25vw, 200px"
+          />
         ) : (
           // Fotó nélküli (még feltöltés alatt lévő) termék — semleges felület.
           <div className="absolute inset-0 flex items-center justify-center bg-[#EFEAE2] text-carbon-light/50 text-[10px] tracking-[0.2em] uppercase text-center px-4">

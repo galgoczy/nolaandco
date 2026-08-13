@@ -75,6 +75,7 @@ export async function POST(req: Request) {
         size: str(data.size) || null,
         careInfo: str(data.careInfo) || null,
         features: arr(data.features),
+        bundleItems: arr(data.bundleItems),
       },
     });
 

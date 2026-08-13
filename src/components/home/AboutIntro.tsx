@@ -1,10 +1,11 @@
 import Image from 'next/image';
 import { getSiteImages } from '@/lib/siteImages';
+import { renderInline } from '@/lib/richTextInline';
 import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
 /** BLOKK 6: Rólunk szekció bevezetője — 50-50% kép + szöveg. */
-export default async function AboutIntro() {
+export default async function AboutIntro({ t }: { t: Record<string, string> }) {
   const imgs = await getSiteImages(['home-rolunk-intro']);
   return (
     <section className="py-12 md:py-[72px] bg-surface">
@@ -30,15 +31,12 @@ export default async function AboutIntro() {
                 className="text-3xl md:text-4xl lg:text-5xl text-carbon tracking-[0.04em] leading-tight"
                 style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
               >
-                Tőlünk, Nektek.
+                {t['rolunk-cim']}
               </h2>
             </RevealOnScroll>
             <RevealOnScroll>
               <p className="text-[#4A4A4A] text-base md:text-lg leading-relaxed font-body">
-                A Nola &amp; Co. születését nem egyetlen pillanat, hanem egy mély vágy inspirálta:
-                alkotni valamit, ami a leginkább képes megőrizni a legelső napok csodáját &ndash;
-                és ami azután is velük marad, ahogy egyre nagyobbra nőnek. Termékeinkben a szülői
-                gondoskodás, a gyermeki fantázia és a letisztult design találkozik.
+                {renderInline(t['rolunk-szoveg'])}
               </p>
             </RevealOnScroll>
             <RevealOnScroll>
@@ -46,7 +44,7 @@ export default async function AboutIntro() {
                 href="/rolunk"
                 className="inline-block bg-cta hover:bg-cta-hover text-white px-8 py-3.5 rounded-full text-sm font-medium btn-anim uppercase tracking-[0.1em] shadow-md"
               >
-                Ismerd meg a történetünket
+                {t['rolunk-gomb']}
               </Link>
             </RevealOnScroll>
           </div>

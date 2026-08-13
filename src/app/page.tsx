@@ -12,6 +12,7 @@ import WorkshopSection from '@/components/home/WorkshopSection';
 import TestimonialsSlider from '@/components/home/TestimonialsSlider';
 import InstagramGrid from '@/components/home/InstagramGrid';
 import NewsletterBand from '@/components/home/NewsletterBand';
+import { getAllSiteTexts } from '@/lib/siteTexts';
 
 // Evergreen home structure:
 //   1. Hero (video) → kollekció-CTA-k
@@ -22,18 +23,20 @@ import NewsletterBand from '@/components/home/NewsletterBand';
 //   7. Vásárlói vélemények (slider)
 //   8. Instagram-rács
 //   9. Hírlevél-sáv (a lábléc fölött)
-export default function HomePage() {
+export default async function HomePage() {
+  // A blokkok szövegei adminból szerkeszthetők (Megjelenés → Szövegek).
+  const t = await getAllSiteTexts();
   return (
     <main>
-      <HomeHero />
-      <CategoryGrid />
-      <FeaturedCapes />
-      <TrustBadges />
-      <AboutIntro />
-      <WorkshopSection />
-      <TestimonialsSlider />
-      <InstagramGrid />
-      <NewsletterBand />
+      <HomeHero t={t} />
+      <CategoryGrid t={t} />
+      <FeaturedCapes t={t} />
+      <TrustBadges t={t} />
+      <AboutIntro t={t} />
+      <WorkshopSection t={t} />
+      <TestimonialsSlider t={t} />
+      <InstagramGrid t={t} />
+      <NewsletterBand t={t} />
     </main>
   );
 }

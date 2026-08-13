@@ -44,6 +44,10 @@ model Product {
   careInfo        String?
   /// Trust-bar rows / product highlights. Empty = category defaults.
   features        String[] @default([])
+  /// Csomagoknál a tartalmazott termékek slugjai. Amíg a csomagnak nincs
+  /// saját fő képe, a kártyája automatikusan a tagtermékek fotóiból áll
+  /// össze (függőleges osztással); kézi képfeltöltés felülírja.
+  bundleItems     String[] @default([])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -196,6 +200,17 @@ model Category {
   visibleOnHome Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+/// Adminból szerkeszthető szövegek a statikus szekciókhoz (főoldali blokkok
+/// címei, leírásai, gombfeliratai). A key a kódban definiált szöveghely;
+/// sor hiányában az alapértelmezett (kódbeli) szöveg jelenik meg.
+model SiteText {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 /// Admin által cserélhető képek a statikus szekciókhoz (főoldali

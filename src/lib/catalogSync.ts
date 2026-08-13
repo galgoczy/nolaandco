@@ -479,6 +479,7 @@ Mindkét darab ugyanazokkal a születési adatokkal készül, így tökéletes p
     category: 'bundle',
     series: 'valogatas',
     variant: 'elso-pillanatok',
+    bundleItems: ['origin-core', 'poszter'],
     imageUrl: '',
     badge: 'ÚJDONSÁG',
     hiddenFromListing: true,
@@ -503,6 +504,7 @@ Mindkét darab ugyanazokkal a születési adatokkal készül, így tökéletes p
     category: 'bundle',
     series: 'valogatas',
     variant: 'meses-gyerekszoba',
+    bundleItems: ['nola-pixie-pillango-fuggo-1', 'poszter'],
     imageUrl: '',
     badge: 'ÚJDONSÁG',
     hiddenFromListing: true,
@@ -527,6 +529,7 @@ Mindkét darab ugyanazokkal a születési adatokkal készül, így tökéletes p
     category: 'bundle',
     series: 'valogatas',
     variant: 'kalandra-fel',
+    bundleItems: ['nola-hero-kalandkopeny', 'nola-hero-korona'],
     imageUrl: '',
     badge: 'ÚJDONSÁG',
     hiddenFromListing: true,
@@ -553,6 +556,7 @@ Mindkét darab két réteg OEKO-TEX® minősítésű pamut duplagézből, kézze
     category: 'bundle',
     series: 'valogatas',
     variant: 'puha-kucko',
+    bundleItems: ['nola-cloud-takaro-bezs-cappuccino', 'nola-hush-szundikendo-bezs'],
     imageUrl: '',
     badge: 'ÚJDONSÁG',
     withdrawalEligible: true,
@@ -739,6 +743,16 @@ export async function syncCatalog(): Promise<string[]> {
       await prisma.productAlias.create({ data: a });
       log.push(`Alias létrehozva: ${a.slug}`);
     }
+  }
+
+  // A Szuperhős szett mozaik-fotójához tagtermékek (egyszeri backfill).
+  const szuperhos = await prisma.product.findUnique({ where: { slug: 'szuperhos-szett' } });
+  if (szuperhos && szuperhos.bundleItems.length === 0) {
+    await prisma.product.update({
+      where: { slug: 'szuperhos-szett' },
+      data: { bundleItems: ['nola-hero-kalandkopeny', 'nola-hero-korona'] },
+    });
+    log.push('Szuperhős szett: csomagtartalom beállítva a mozaik-fotóhoz.');
   }
 
   // --- A variáns-alapú szülő-termékeket önálló szín-termékek váltották.

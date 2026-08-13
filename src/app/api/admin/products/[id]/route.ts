@@ -59,6 +59,7 @@ export async function PATCH(
     if (data[key] !== undefined) update[key] = str(data[key]) || null;
   }
   if (data.features !== undefined) update.features = arr(data.features) ?? [];
+  if (data.bundleItems !== undefined) update.bundleItems = arr(data.bundleItems) ?? [];
 
   try {
     const product = await prisma.product.update({ where: { id }, data: update });

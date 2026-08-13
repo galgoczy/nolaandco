@@ -34,6 +34,7 @@ export type ProductFormValues = {
   size: string;
   careInfo: string;
   features: string[];
+  bundleItems: string;
   variants: VariantFormValue[];
 };
 
@@ -61,6 +62,7 @@ export const emptyProduct: ProductFormValues = {
   size: '',
   careInfo: '',
   features: [],
+  bundleItems: '',
   variants: [],
 };
 
@@ -105,6 +107,10 @@ export default function ProductForm({
       salePrice: values.salePrice === '' ? null : Number(values.salePrice),
       stock: values.stock === '' ? null : Number(values.stock),
       features: values.features.map((f) => f.trim()).filter(Boolean),
+      bundleItems: values.bundleItems
+        .split(',')
+        .map((x) => x.trim())
+        .filter(Boolean),
       variants: values.variants
         .filter((v) => v.name.trim() !== '')
         .map((v, i) => ({
@@ -266,6 +272,22 @@ export default function ProductForm({
               onChange={(e) => update('series', e.target.value)}
               placeholder="origin / nova / ..."
             />
+          </div>
+          <div className="md:col-span-2">
+            <label className={labelCls}>
+              Csomag tartalma (termék slugok, vesszővel — csak Válogatások kategóriánál)
+            </label>
+            <input
+              type="text"
+              className={inputCls}
+              value={values.bundleItems}
+              onChange={(e) => update('bundleItems', e.target.value)}
+              placeholder="pl. origin-core, poszter"
+            />
+            <p className="text-xs text-on-surface/50 mt-1">
+              Amíg a csomagnak nincs saját fő képe, a kártyáján automatikusan az itt felsorolt
+              termékek fotói jelennek meg egymás mellett. Kézi fő kép feltöltése felülírja.
+            </p>
           </div>
           <div>
             <label className={labelCls}>Variáns (opcionális)</label>

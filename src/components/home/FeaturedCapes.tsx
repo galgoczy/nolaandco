@@ -2,10 +2,11 @@ import Image from 'next/image';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import Button from '@/components/ui/Button';
 import { getSiteImages } from '@/lib/siteImages';
+import { renderInline } from '@/lib/richTextInline';
 
 /** BLOKK 3: Kiemelt újdonság sáv — a Pixie pillangó függők bemutatása.
  * A fotó adminból cserélhető (Megjelenés). */
-export default async function FeaturedCapes() {
+export default async function FeaturedCapes({ t }: { t: Record<string, string> }) {
   const imgs = await getSiteImages(['home-kiemelt-kalandkopeny']);
   return (
     <section className="py-10 md:py-16 bg-[#f5f0e8]">
@@ -31,18 +32,13 @@ export default async function FeaturedCapes() {
                 className="text-3xl md:text-4xl text-carbon tracking-[0.04em] leading-tight"
                 style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
               >
-                Újdonság: Nola Pixie pillangó függők
+                {t['ujdonsag-cim']}
               </h2>
               <p className="text-[#4A4A4A] text-base md:text-lg leading-relaxed font-body">
-                Megérkeztek a Pixie pillangó függők a webshopba. Ezek a könnyed,
-                kézzel készült textildíszek finoman mozognak a gyerekszobában, és
-                kedves részletei lehetnek az olvasósaroknak, kiságynak vagy
-                baldachinnak. Minden darab kis szériában készül, ezért a mintákból
-                egyszerre csak néhány elérhető. Reméljük, találsz köztük olyat,
-                amelyik igazán illik hozzátok.
+                {renderInline(t['ujdonsag-szoveg'])}
               </p>
               <Button variant="secondary" href="/termekek?category=decor">
-                Megnézem a kollekciót
+                {t['ujdonsag-gomb']}
               </Button>
             </div>
           </div>

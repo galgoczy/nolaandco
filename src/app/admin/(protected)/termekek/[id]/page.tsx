@@ -63,6 +63,7 @@ export default async function EditProductPage({
           size: product.size ?? '',
           careInfo: product.careInfo ?? '',
           features: product.features ?? [],
+          bundleItems: (product.bundleItems ?? []).join(', '),
           variants: variants.map((v) => ({
             id: v.id,
             name: v.name,

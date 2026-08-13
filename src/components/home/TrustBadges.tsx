@@ -1,4 +1,5 @@
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
+import { renderInline } from '@/lib/richTextInline';
 
 const iconCls = 'w-10 h-10 md:w-12 md:h-12 text-[#C4A591]';
 const iconProps = {
@@ -13,8 +14,7 @@ const iconProps = {
 
 const badges = [
   {
-    title: 'Kézműves gondoskodás',
-    desc: 'Minden darabot egyedileg, szeretettel varrunk budapesti műhelyünkben.',
+    key: 'bizalom-1',
     // varrótű + cérna
     icon: (
       <svg {...iconProps} className={iconCls}>
@@ -25,8 +25,7 @@ const badges = [
     ),
   },
   {
-    title: 'Prémium puhaság',
-    desc: 'OEKO-TEX® plüss és 100% pamut duplagéz: a legtisztább érintés a legkisebbeknek.',
+    key: 'bizalom-2',
     // levél / növény
     icon: (
       <svg {...iconProps} className={iconCls}>
@@ -37,8 +36,7 @@ const badges = [
     ),
   },
   {
-    title: 'Személyre szabott csodák',
-    desc: 'A baba pontos születési méretétől a nagytesó kezdőbetűjéig mindent nektek készítünk.',
+    key: 'bizalom-3',
     // csillag / szikra
     icon: (
       <svg {...iconProps} className={iconCls}>
@@ -48,8 +46,7 @@ const badges = [
     ),
   },
   {
-    title: 'Emlékből kaland',
-    desc: 'A legelső pillanatoktól a gyermekkori varázslatos játékokig végigkísérjük a családot.',
+    key: 'bizalom-4',
     // papírrepülő
     icon: (
       <svg {...iconProps} className={iconCls}>
@@ -61,7 +58,7 @@ const badges = [
 ];
 
 /** BLOKK 5: Bizalmi ikon-sáv — teljes szélességű, halvány zsályazöld háttérrel. */
-export default function TrustBadges() {
+export default function TrustBadges({ t }: { t: Record<string, string> }) {
   return (
     <section className="py-10 md:py-16 bg-[#eef1e8]">
       <div className="max-w-6xl mx-auto px-6 md:px-8">
@@ -70,24 +67,22 @@ export default function TrustBadges() {
             className="text-2xl md:text-3xl lg:text-4xl text-carbon text-center mb-10 md:mb-14 tracking-[0.04em] leading-snug"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
           >
-            Több, mint egy tárgy.
-            <br className="hidden md:block" />{' '}
-            Egy darabka a családotok történetéből.
+            {renderInline(t['bizalom-cim'])}
           </h2>
         </RevealOnScroll>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 md:gap-8">
           {badges.map((b, i) => (
-            <RevealOnScroll key={b.title} delay={i * 100}>
+            <RevealOnScroll key={b.key} delay={i * 100}>
               <div className="flex flex-col items-center text-center">
                 <div className="mb-4">{b.icon}</div>
                 <h3
                   className="text-sm md:text-base text-carbon mb-2 tracking-[0.12em] uppercase"
                   style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}
                 >
-                  {b.title}
+                  {t[`${b.key}-cim`]}
                 </h3>
                 <p className="text-xs md:text-sm text-[#4A4A4A] font-body" style={{ lineHeight: 1.7 }}>
-                  {b.desc}
+                  {renderInline(t[`${b.key}-szoveg`])}
                 </p>
               </div>
             </RevealOnScroll>
