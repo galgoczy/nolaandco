@@ -2,6 +2,7 @@ import Image from 'next/image';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import { getSiteImages } from '@/lib/siteImages';
 import { renderInline } from '@/lib/richTextInline';
+import { getAllSiteTexts } from '@/lib/siteTexts';
 
 const features = [
   { key: 'crafting-1', icon: '/images/31.png' },
@@ -10,8 +11,11 @@ const features = [
   { key: 'crafting-4', icon: '/images/19.png' },
 ];
 
-export default async function WorkshopSection({ t }: { t: Record<string, string> }) {
-  // A műhelyfotók adminból cserélhetők (Megjelenés → THE ART OF CRAFTING).
+export default async function WorkshopSection({ t: tProp }: { t?: Record<string, string> }) {
+  // A műhelyfotók és szövegek adminból cserélhetők (Megjelenés). A t propot a
+  // főoldal adja át (egy lekérdezés az összes blokknak); prop nélkül — pl. a
+  // kísérleti fooldal-v* oldalakon — a komponens maga tölti be.
+  const t = tProp ?? (await getAllSiteTexts());
   const imgs = await getSiteImages(['artofcrafting-1', 'artofcrafting-2', 'artofcrafting-3']);
   return (
     <section className="py-16 md:py-24 bg-[#C4A591] overflow-hidden">
