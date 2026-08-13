@@ -39,8 +39,8 @@ export const SITE_IMAGE_SLOTS: SiteImageSlot[] = [
   },
   {
     key: 'home-kiemelt-kalandkopeny',
-    label: 'Kiemelt újdonság sáv',
-    hint: 'Főoldal – ÚJDONSÁG: NOLA Kalandköpenyek (négyzetes, 1:1)',
+    label: 'Kiemelt újdonság sáv (Pixie pillangók)',
+    hint: 'Főoldal – Újdonság: Nola Pixie pillangó függők (négyzetes, 1:1)',
     defaultUrl: '/images/home/kalandkopeny-kiemelt.jpg',
     group: 'Főoldal – szekciók',
   },

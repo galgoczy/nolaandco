@@ -3,7 +3,7 @@ import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import Button from '@/components/ui/Button';
 import { getSiteImages } from '@/lib/siteImages';
 
-/** BLOKK 3: Kiemelt újdonság sáv — a Kalandköpeny kollekció bemutatása.
+/** BLOKK 3: Kiemelt újdonság sáv — a Pixie pillangó függők bemutatása.
  * A fotó adminból cserélhető (Megjelenés). */
 export default async function FeaturedCapes() {
   const imgs = await getSiteImages(['home-kiemelt-kalandkopeny']);
@@ -17,7 +17,7 @@ export default async function FeaturedCapes() {
               <div className="relative aspect-square rounded-sm overflow-hidden bg-surface-container-low ghost-border">
                 <Image
                   src={imgs['home-kiemelt-kalandkopeny']}
-                  alt="NOLA Kalandköpenyek"
+                  alt="Nola Pixie pillangó függők"
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 90vw, 60vw"
@@ -31,15 +31,17 @@ export default async function FeaturedCapes() {
                 className="text-3xl md:text-4xl text-carbon tracking-[0.04em] leading-tight"
                 style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
               >
-                ÚJDONSÁG: NOLA Kalandköpenyek
+                Újdonság: Nola Pixie pillangó függők
               </h2>
               <p className="text-[#4A4A4A] text-base md:text-lg leading-relaxed font-body">
-                Egy köpeny, két stílus. Pihe-puha, kétoldalas duplagéz köpenyeink
-                elhozzák a varázslatot a mindennapokba. Add meg a lehetőséget,
-                hogy a Te gyermeked legyen a történet hőse! Fedezd fel az új
-                kollekciót exkluzív bevezető áron.
+                Megérkeztek a Pixie pillangó függők a webshopba. Ezek a könnyed,
+                kézzel készült textildíszek finoman mozognak a gyerekszobában, és
+                kedves részletei lehetnek az olvasósaroknak, kiságynak vagy
+                baldachinnak. Minden darab kis szériában készül, ezért a mintákból
+                egyszerre csak néhány elérhető. Reméljük, találsz köztük olyat,
+                amelyik igazán illik hozzátok.
               </p>
-              <Button variant="secondary" href="/termekek?category=cape">
+              <Button variant="secondary" href="/termekek?category=decor">
                 Megnézem a kollekciót
               </Button>
             </div>
