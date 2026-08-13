@@ -745,14 +745,24 @@ export async function syncCatalog(): Promise<string[]> {
     }
   }
 
-  // A Szuperhős szett mozaik-fotójához tagtermékek (egyszeri backfill).
-  const szuperhos = await prisma.product.findUnique({ where: { slug: 'szuperhos-szett' } });
-  if (szuperhos && szuperhos.bundleItems.length === 0) {
-    await prisma.product.update({
-      where: { slug: 'szuperhos-szett' },
-      data: { bundleItems: ['nola-hero-kalandkopeny', 'nola-hero-korona'] },
-    });
-    log.push('Szuperhős szett: csomagtartalom beállítva a mozaik-fotóhoz.');
+  // A csomagok mozaik-fotójához tagtermékek — backfill minden olyan
+  // csomagra, ahol a lista üres. (A szinkron a meglévő termékek
+  // admin-szerkeszthető mezőit nem írja felül, ezért a korábbi buildben
+  // létrejött csomagok e nélkül maradtak.) Az admin által beállított
+  // lista érintetlen marad.
+  const bundleItemsBackfill: Record<string, string[]> = {
+    'szuperhos-szett': ['nola-hero-kalandkopeny', 'nola-hero-korona'],
+    'elso-pillanatok-csomag': ['origin-core', 'poszter'],
+    'meses-gyerekszoba-valogatas': ['nola-pixie-pillango-fuggo-1', 'poszter'],
+    'kalandra-fel-csomag': ['nola-hero-kalandkopeny', 'nola-hero-korona'],
+    'puha-kucko-csomag': ['nola-cloud-takaro-bezs-cappuccino', 'nola-hush-szundikendo-bezs'],
+  };
+  for (const [slug, items] of Object.entries(bundleItemsBackfill)) {
+    const bundleProduct = await prisma.product.findUnique({ where: { slug } });
+    if (bundleProduct && bundleProduct.bundleItems.length === 0) {
+      await prisma.product.update({ where: { slug }, data: { bundleItems: items } });
+      log.push(`Csomagtartalom beállítva a mozaik-fotóhoz: ${slug}`);
+    }
   }
 
   // --- A variáns-alapú szülő-termékeket önálló szín-termékek váltották.
