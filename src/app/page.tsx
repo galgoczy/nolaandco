@@ -1,3 +1,8 @@
+// A főoldal szekció-képei adatbázisból jönnek (adminból cserélhetők) —
+// percenként újraépül, hogy a csere gyorsan megjelenjen, de a látogatók
+// többsége cache-ből kapja az oldalt.
+export const revalidate = 60;
+
 import HomeHero from '@/components/home/HomeHero';
 import CategoryGrid from '@/components/home/CategoryGrid';
 import FeaturedCapes from '@/components/home/FeaturedCapes';

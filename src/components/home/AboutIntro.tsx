@@ -1,9 +1,11 @@
 import Image from 'next/image';
+import { getSiteImages } from '@/lib/siteImages';
 import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
 /** BLOKK 6: Rólunk szekció bevezetője — 50-50% kép + szöveg. */
-export default function AboutIntro() {
+export default async function AboutIntro() {
+  const imgs = await getSiteImages(['home-rolunk-intro']);
   return (
     <section className="py-12 md:py-[72px] bg-surface">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
@@ -12,7 +14,7 @@ export default function AboutIntro() {
           <RevealOnScroll className="w-full md:w-1/2">
             <div className="relative aspect-[3/4] max-w-md mx-auto rounded-2xl overflow-hidden bg-surface-container">
               <Image
-                src="/images/home/tolunk-uj.jpg"
+                src={imgs['home-rolunk-intro']}
                 alt="Tőlünk, Nektek – Nola & Co."
                 fill
                 className="object-cover"

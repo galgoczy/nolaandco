@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
+import { getSiteImages } from '@/lib/siteImages';
 
 type CategoryTile = {
   label: string;
@@ -8,28 +9,31 @@ type CategoryTile = {
   href?: string; // no href = placeholder tile (not clickable yet)
 };
 
-// Terméktípus-alapú fő útvonalak. A képek a korábbi kategória-kártyák fotói —
-// ha készül dedikált fotó a Textilek/Dekoráció kategóriához, itt cserélhető.
-const tiles: CategoryTile[] = [
-  {
-    label: 'Emlékőrzők',
-    imageUrl: '/images/home/kategoria-kicsikrol.jpg',
-    href: '/termekek?category=emlekorzok',
-  },
-  {
-    label: 'Textilek',
-    imageUrl: '/images/home/kategoria-nagyoknak.jpg',
-    href: '/termekek?category=textilek',
-  },
-  {
-    label: 'Dekoráció',
-    imageUrl: '/images/home/kategoria-valogatasok.jpg',
-    href: '/termekek?category=dekoracio',
-  },
-];
-
-/** BLOKK 2: Vásárolj kategória szerint — 3 oszlopos, 1:1 képes rács. */
-export default function CategoryGrid() {
+/** BLOKK 2: Vásárolj kategória szerint — 3 oszlopos, 1:1 képes rács.
+ * A képek adminból cserélhetők (Megjelenés → Főoldal – kategória-kártyák). */
+export default async function CategoryGrid() {
+  const imgs = await getSiteImages([
+    'home-kategoria-emlekorzok',
+    'home-kategoria-textilek',
+    'home-kategoria-dekoracio',
+  ]);
+  const tiles: CategoryTile[] = [
+    {
+      label: 'Emlékőrzők',
+      imageUrl: imgs['home-kategoria-emlekorzok'],
+      href: '/termekek?category=emlekorzok',
+    },
+    {
+      label: 'Textilek',
+      imageUrl: imgs['home-kategoria-textilek'],
+      href: '/termekek?category=textilek',
+    },
+    {
+      label: 'Dekoráció',
+      imageUrl: imgs['home-kategoria-dekoracio'],
+      href: '/termekek?category=dekoracio',
+    },
+  ];
   return (
     <section className="py-10 md:py-16 bg-surface">
       <div className="max-w-7xl mx-auto px-6 md:px-8">

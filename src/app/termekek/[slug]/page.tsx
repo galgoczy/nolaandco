@@ -205,20 +205,30 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
             </h1>
 
             {!isGiftCard && (
-              <div className="flex items-center gap-3">
-                {product.onSale && product.salePrice ? (
-                  <>
-                    <span className="text-2xl font-bold text-primary">
-                      {formatPrice(product.salePrice)}
-                    </span>
-                    <span className="text-lg text-carbon-light line-through">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-3">
+                  {product.onSale && product.salePrice ? (
+                    <>
+                      <span className="text-2xl font-bold text-primary">
+                        {formatPrice(product.salePrice)}
+                      </span>
+                      <span className="text-lg text-carbon-light line-through">
+                        {formatPrice(product.price)}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-2xl font-bold text-carbon">
                       {formatPrice(product.price)}
                     </span>
-                  </>
-                ) : (
-                  <span className="text-2xl font-bold text-carbon">
-                    {formatPrice(product.price)}
-                  </span>
+                  )}
+                </div>
+                {/* Csomagoknál a megtakarítás kiírva: "X helyett Y — Z megtakarítás". */}
+                {product.category === 'bundle' && product.onSale && product.salePrice && (
+                  <p className="text-sm text-carbon-light">
+                    {formatPrice(product.price)} helyett{' '}
+                    <strong className="text-carbon">{formatPrice(product.salePrice)}</strong> —{' '}
+                    {formatPrice(product.price - product.salePrice)} megtakarítás
+                  </p>
                 )}
               </div>
             )}

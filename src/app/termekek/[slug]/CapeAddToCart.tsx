@@ -50,8 +50,24 @@ export default function CapeAddToCart({ product, config }: Props) {
     }
   }, [added]);
 
-  // Dropdown fields of the product (designer cape: 7, bundle: 2, otherwise none).
-  const fields = config.designer ? DESIGNER_FIELDS : config.bundle ? BUNDLE_FIELDS : [];
+  // Dropdown fields of the product: custom list (curated bundles), the 7
+  // designer fields, the cape+crown bundle pair, or none.
+  const fields = config.fields ?? (config.designer ? DESIGNER_FIELDS : config.bundle ? BUNDLE_FIELDS : []);
+
+  // Születési adatok a párnát/posztert tartalmazó csomagokhoz — ugyanazokra a
+  // rendelés-mezőkre kerülnek, mint a párnáknál, így a gyártás változatlanul
+  // megkapja őket.
+  const [birth, setBirth] = useState({
+    babyName: '',
+    birthDate: '',
+    birthTime: '',
+    birthWeight: '',
+    birthHeight: '',
+  });
+  const updateBirth = (key: keyof typeof birth, value: string) => {
+    setBirth((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: '' }));
+  };
 
   // The bundle only takes an initial letter when the chosen cape has one
   // (Crew comes with the TESÓ shield instead).
@@ -68,6 +84,12 @@ export default function CapeAddToCart({ product, config }: Props) {
     }
     for (const field of fields) {
       if (!selections[field.key]) newErrors[field.key] = 'Kérlek válassz!';
+    }
+    if (config.birthData) {
+      if (!birth.babyName.trim()) newErrors.babyName = 'Kötelező mező';
+      if (!birth.birthDate) newErrors.birthDate = 'Kötelező mező';
+      if (!birth.birthWeight.trim()) newErrors.birthWeight = 'Kötelező mező';
+      if (!birth.birthHeight.trim()) newErrors.birthHeight = 'Kötelező mező';
     }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -90,10 +112,11 @@ export default function CapeAddToCart({ product, config }: Props) {
       price: product.price,
       imageUrl: product.imageUrl,
       quantity: 1,
-      babyName: '',
-      birthDate: '',
-      birthWeight: '',
-      birthHeight: '',
+      babyName: config.birthData ? birth.babyName.trim() : '',
+      birthDate: config.birthData ? birth.birthDate : '',
+      birthTime: config.birthData ? birth.birthTime.trim() : undefined,
+      birthWeight: config.birthData ? birth.birthWeight.trim() : '',
+      birthHeight: config.birthData ? birth.birthHeight.trim() : '',
       customNote: noteParts.join('\n'),
       category: product.category,
       noShipping: product.noShipping,
@@ -129,7 +152,7 @@ export default function CapeAddToCart({ product, config }: Props) {
       {fields.length > 0 && (
         <div className="bg-[#faf6f1] rounded-2xl p-6 shadow-sm space-y-4">
           <h3 className="text-lg font-bold text-carbon">
-            {config.bundle ? 'Állítsd össze a szetted' : 'Tervezd meg a köpenyed'}
+            {config.fields || config.bundle ? 'Állítsd össze a csomagod' : 'Tervezd meg a köpenyed'}
           </h3>
           {fields.map((field) => (
             <div key={field.key} className="flex flex-col gap-1">
@@ -181,6 +204,55 @@ export default function CapeAddToCart({ product, config }: Props) {
               setErrors((prev) => ({ ...prev, initial: '' }));
             }}
           />
+        </div>
+      )}
+
+      {config.birthData && (
+        <div className="bg-[#faf6f1] rounded-2xl p-6 shadow-sm space-y-4">
+          <h3 className="text-lg font-bold text-carbon">Születési adatok</h3>
+          <p className="text-sm text-carbon-light -mt-2">
+            Ezekkel az adatokkal készül el a csomag emlékpárnája / posztere.
+          </p>
+          <Input
+            label="Baba neve *"
+            name="bundleBabyName"
+            value={birth.babyName}
+            error={errors.babyName || undefined}
+            onChange={(e) => updateBirth('babyName', e.target.value)}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Születési dátum *"
+              name="bundleBirthDate"
+              type="date"
+              value={birth.birthDate}
+              error={errors.birthDate || undefined}
+              onChange={(e) => updateBirth('birthDate', e.target.value)}
+            />
+            <Input
+              label="Születési idő (pl. 14:32)"
+              name="bundleBirthTime"
+              value={birth.birthTime}
+              placeholder="óó:pp"
+              onChange={(e) => updateBirth('birthTime', e.target.value)}
+            />
+            <Input
+              label="Súly (g) *"
+              name="bundleBirthWeight"
+              value={birth.birthWeight}
+              placeholder="pl. 3450"
+              error={errors.birthWeight || undefined}
+              onChange={(e) => updateBirth('birthWeight', e.target.value)}
+            />
+            <Input
+              label="Hossz (cm) *"
+              name="bundleBirthHeight"
+              value={birth.birthHeight}
+              placeholder="pl. 51"
+              error={errors.birthHeight || undefined}
+              onChange={(e) => updateBirth('birthHeight', e.target.value)}
+            />
+          </div>
         </div>
       )}
 

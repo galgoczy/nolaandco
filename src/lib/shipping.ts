@@ -21,6 +21,19 @@ export const HU_PARCEL_COST = 1190;
 export const HU_HOME_COST = 2490;
 
 /**
+ * A csomagautomatás (HU parcel) szállítás automatikusan ingyenes, ha a kosár
+ * kedvezménnyel csökkentett termékértéke eléri ezt az összeget. Kuponkód
+ * nélkül érvényesül; házhoz szállításra és külföldi (Packeta) címre nem
+ * vonatkozik.
+ */
+export const FREE_PARCEL_THRESHOLD = 25000;
+
+/** True, ha az adott (kedvezmény utáni) termékértékre jár az ingyenes automata. */
+export function qualifiesForFreeParcel(discountedSubtotal: number): boolean {
+  return discountedSubtotal >= FREE_PARCEL_THRESHOLD;
+}
+
+/**
  * Packeta destination countries. Prices are per-country adjustable; for launch
  * they are a uniform 4500 Ft (to be refined later).
  */

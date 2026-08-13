@@ -6,7 +6,7 @@ import { useCartStore } from '@/store/cart';
 import { shippingSchema, homeDeliverySchema, foreignShippingSchema, type ShippingData } from '@/lib/validators';
 import { formatPrice } from '@/lib/utils';
 import { cartRequiresShipping } from '@/lib/shippingRules';
-import { ALL_COUNTRIES, BILLING_COUNTRIES, getShippingCost, isPacketaCountry } from '@/lib/shipping';
+import { ALL_COUNTRIES, BILLING_COUNTRIES, getShippingCost, isPacketaCountry, FREE_PARCEL_THRESHOLD, qualifiesForFreeParcel } from '@/lib/shipping';
 import Input from '@/components/ui/Input';
 import FoxpostSelector from '@/components/checkout/FoxpostSelector';
 import PacketaSelector, { type PacketaPointData } from '@/components/checkout/PacketaSelector';
@@ -145,10 +145,16 @@ export default function CheckoutPage() {
     if (discount > subtotal) discount = subtotal;
   }
 
-  // Free-shipping coupon applies to domestic (HU) parcel only.
-  const freeShippingApplied = Boolean(
+  // Ingyenes csomagautomata: kuponnal, VAGY automatikusan 25 000 Ft
+  // (kedvezmény utáni) termékérték felett. Csak belföldi parcel módra.
+  const freeParcelEligible =
+    !isForeign && needsShipping && qualifiesForFreeParcel(subtotal - discount);
+  const freeParcelRemaining = Math.max(0, FREE_PARCEL_THRESHOLD - (subtotal - discount));
+  const freeShippingByCoupon = Boolean(
     coupon?.freeShippingOnParcel && !isForeign && effectiveMethod === 'parcel' && needsShipping,
   );
+  const freeShippingApplied =
+    freeShippingByCoupon || (freeParcelEligible && effectiveMethod === 'parcel');
   const shippingCost = freeShippingApplied ? 0 : baseShippingCost;
 
   const grandTotal = subtotal - discount + shippingCost;
@@ -467,7 +473,16 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                   <div className="mt-2 text-right font-semibold text-sm text-[#4A4A4A]">
-                    {formatPrice(getShippingCost('HU', 'parcel'))}
+                    {freeParcelEligible ? (
+                      <>
+                        <span className="line-through text-[#4A4A4A]/40 mr-2 font-normal">
+                          {formatPrice(getShippingCost('HU', 'parcel'))}
+                        </span>
+                        <span className="text-green-600">Ingyenes</span>
+                      </>
+                    ) : (
+                      formatPrice(getShippingCost('HU', 'parcel'))
+                    )}
                   </div>
                 </button>
 
@@ -747,6 +762,18 @@ export default function CheckoutPage() {
 
               {/* Totals */}
               <div className="mt-4 pt-4 border-t border-gray-100 space-y-2 text-sm">
+                {needsShipping && !isForeign && (
+                  freeParcelEligible ? (
+                    <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
+                      Gratulálunk! A csomagautomatás szállítás ingyenes.
+                    </div>
+                  ) : (
+                    <div className="bg-[#faf6f1] text-[#4A4A4A] rounded-xl px-4 py-3 text-sm">
+                      Már csak <strong>{formatPrice(freeParcelRemaining)}</strong> hiányzik az
+                      ingyenes csomagautomatás szállításhoz.
+                    </div>
+                  )
+                )}
                 <div className="flex justify-between text-[#4A4A4A]/70">
                   <span>Részösszeg</span>
                   <span>{formatPrice(subtotal)}</span>
@@ -763,7 +790,9 @@ export default function CheckoutPage() {
                     {freeShippingApplied ? (
                       <span>
                         <span className="line-through text-[#4A4A4A]/40 mr-2">{formatPrice(baseShippingCost)}</span>
-                        <span className="text-green-600">Ingyenes (kupon)</span>
+                        <span className="text-green-600">
+                          {freeShippingByCoupon ? 'Ingyenes (kupon)' : 'Ingyenes'}
+                        </span>
                       </span>
                     ) : (
                       <span>{formatPrice(shippingCost)}</span>

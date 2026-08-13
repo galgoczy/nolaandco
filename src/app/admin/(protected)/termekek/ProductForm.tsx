@@ -3,7 +3,9 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import ImageUpload from './ImageUpload';
+import VideoUpload from './VideoUpload';
 import VariantEditor, { type VariantFormValue } from './VariantEditor';
+import { makeVideoEntry, parseMediaEntry } from '@/lib/productMedia';
 import RichTextarea from '@/components/admin/RichTextarea';
 
 export type { VariantFormValue };
@@ -509,14 +511,36 @@ export default function ProductForm({
             <label className={labelCls}>További képek</label>
             {values.images.length > 0 && (
               <ul className="flex flex-wrap gap-3 mb-3">
-                {values.images.map((img, idx) => (
+                {values.images.map((img, idx) => {
+                  const media = parseMediaEntry(img);
+                  return (
                   <li key={`${img}-${idx}`} className="relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={img}
-                      alt=""
-                      className="w-24 h-24 rounded-lg object-cover bg-gray-100 border border-outline-variant"
-                    />
+                    <div className="relative">
+                      {media.type === 'video' && media.poster ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={media.poster}
+                          alt=""
+                          className="w-24 h-24 rounded-lg object-cover bg-gray-900 border border-outline-variant"
+                        />
+                      ) : media.type === 'video' ? (
+                        <div className="w-24 h-24 rounded-lg bg-gray-900 border border-outline-variant" />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={media.src}
+                          alt=""
+                          className="w-24 h-24 rounded-lg object-cover bg-gray-100 border border-outline-variant"
+                        />
+                      )}
+                      {media.type === 'video' && (
+                        <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <span className="w-8 h-8 rounded-full bg-white/85 flex items-center justify-center text-[#4A4A4A] text-xs">
+                            ▶
+                          </span>
+                        </span>
+                      )}
+                    </div>
                     <button
                       type="button"
                       onClick={() => removeImage(idx)}
@@ -525,7 +549,7 @@ export default function ProductForm({
                     >
                       ×
                     </button>
-                    {/* Sorrendezés — a galéria ebben a sorrendben jelenik meg. */}
+                    {/* Sorrendezés — a galéria ebben a sorrendben jelenik meg (képek és videók közösen). */}
                     <div className="flex justify-center gap-2 mt-1">
                       <button
                         type="button"
@@ -547,14 +571,27 @@ export default function ProductForm({
                       </button>
                     </div>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             )}
             <div className="flex flex-col gap-2">
-              <ImageUpload
-                label="További kép feltöltése"
-                onUploaded={(url) => update('images', [...values.images, url])}
-              />
+              <div className="flex flex-wrap gap-2">
+                <ImageUpload
+                  label="További kép feltöltése"
+                  onUploaded={(url) => update('images', [...values.images, url])}
+                />
+                <VideoUpload
+                  onUploaded={(videoUrl, posterUrl) =>
+                    update('images', [...values.images, makeVideoEntry(videoUrl, posterUrl)])
+                  }
+                />
+              </div>
+              <p className="text-xs text-on-surface/50">
+                Rövid, tömörített MP4 ajánlott (max 64 MB). A borítókép automatikusan az első
+                képkockából készül; a videó a galériában a fenti sorrend szerint jelenik meg,
+                és csak kattintásra indul el.
+              </p>
               <details className="text-xs">
                 <summary className="cursor-pointer text-on-surface/60 hover:text-on-surface">
                   ...vagy URL hozzáadása

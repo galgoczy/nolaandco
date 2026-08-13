@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { firstImageEntry } from './productMedia';
 
 /**
  * Item shape used by listing UIs (ProductCard etc.). Covers both real Product
@@ -11,6 +12,8 @@ export type ListingItem = {
   price: number;             // price to display
   originalPrice: number | null; // compare-at price when on sale
   imageUrl: string;
+  /** Hover-előnézet: a galéria első (admin által sorrendezett) képe. */
+  hoverImageUrl: string | null;
   badge: string | null;
   category: string | null;
   series: string | null;
@@ -98,6 +101,10 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
     price: p.onSale && p.salePrice ? p.salePrice : p.price,
     originalPrice: p.onSale && p.salePrice ? p.price : null,
     imageUrl: p.imageUrl,
+    hoverImageUrl: (() => {
+      const first = firstImageEntry(p.images);
+      return first && first !== p.imageUrl ? first : null;
+    })(),
     badge: p.badge,
     category: p.category ?? null,
     series: p.series ?? null,
@@ -117,6 +124,10 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
         price: canonical.onSale && canonical.salePrice ? canonical.salePrice : canonical.price,
         originalPrice: canonical.onSale && canonical.salePrice ? canonical.price : null,
         imageUrl: a.imageUrl,
+        hoverImageUrl: (() => {
+          const first = firstImageEntry(canonical.images);
+          return first && first !== a.imageUrl ? first : null;
+        })(),
         badge: a.badge ?? canonical.badge,
         category: canonical.category ?? null,
         series: canonical.series ?? null,
@@ -129,14 +140,16 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
   // Homepage/listing order: pillows → posters (aliases appear here) → capes →
   // crowns → giftcards. Within each bucket we keep the item's own sortOrder
   // (then createdAt via fetch order).
+  // A Dekoráció gyűjtőoldalon a pillangó függők állnak elöl, utánuk a poszterek.
+  const decorFirst = opts?.category === 'dekoracio';
   const bucketRank = (cat: string | null) => {
-    if (cat === 'pillow') return 0;
+    if (cat === 'decor') return decorFirst ? 0 : 6;
+    if (cat === 'pillow') return 0.5;
     if (cat === 'poster') return 1;
     if (cat === 'szundikendo') return 2;
     if (cat === 'takaro') return 3;
     if (cat === 'cape') return 4;
     if (cat === 'crown') return 5;
-    if (cat === 'decor') return 6;
     if (cat === 'bundle') return 7;
     if (cat === 'giftcard') return 8;
     return 9;

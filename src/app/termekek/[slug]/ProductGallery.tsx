@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import { parseMediaEntry, type MediaEntry } from '@/lib/productMedia';
 
 type Props = {
   mainImage: string;
@@ -10,28 +11,54 @@ type Props = {
   badge?: string | null;
 };
 
-export default function ProductGallery({ mainImage, images, alt, badge }: Props) {
-  const allImages = [mainImage, ...images].filter(
-    (img, idx, arr) => Boolean(img) && arr.indexOf(img) === idx,
+/** Lejátszás-ikon a videó-diákhoz és bélyegképekhez. */
+function PlayIcon({ className = 'w-5 h-5' }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
+      <path d="M8 5.14v13.72c0 .8.87 1.3 1.56.88l10.5-6.86a1.03 1.03 0 0 0 0-1.76L9.56 4.26A1.03 1.03 0 0 0 8 5.14z" />
+    </svg>
   );
-  const [activeIdx, setActiveIdx] = useState(0);
-  const hasMultiple = allImages.length > 1;
+}
 
-  // Csak az aktív és a szomszédos diák képét kérjük le. Korábban a sáv minden
-  // képe egyszerre indult, így egy 5 fotós termékoldal 5 párhuzamos
+export default function ProductGallery({ mainImage, images, alt, badge }: Props) {
+  // A galéria bejegyzései: a fő kép + a (képeket és videókat közösen
+  // sorrendező) galérialista, duplikátumok nélkül.
+  const seen: string[] = [];
+  const allMedia: MediaEntry[] = [];
+  const push = (entry: string) => {
+    if (!entry || seen.indexOf(entry) !== -1) return;
+    seen.push(entry);
+    allMedia.push(parseMediaEntry(entry));
+  };
+  push(mainImage);
+  images.forEach(push);
+
+  const [activeIdx, setActiveIdx] = useState(0);
+  // A videó elem csak a lejátszás gombra kattintva mountolódik — addig csak a
+  // borítókép töltődik, így a videó nem lassítja az oldal betöltését.
+  const [playingIdx, setPlayingIdx] = useState<number | null>(null);
+  const hasMultiple = allMedia.length > 1;
+
+  // Csak az aktív és a szomszédos diák médiáját kérjük le. Korábban a sáv
+  // minden képe egyszerre indult, így egy 5 fotós termékoldal 5 párhuzamos
   // képtranszformációt indított hideg cache-en — ez volt a 2-3 másodperces
   // első betöltés fő oka. A már betöltött indexeket megjegyezzük, hogy
   // visszalapozásnál ne kelljen újra.
   const [loadedIdx, setLoadedIdx] = useState<number[]>([0]);
   useEffect(() => {
-    const n = allImages.length;
+    const n = allMedia.length;
     if (n === 0) return;
     setLoadedIdx((prev) => {
       const want = [activeIdx, (activeIdx + 1) % n, (activeIdx - 1 + n) % n];
       const missing = want.filter((i) => prev.indexOf(i) === -1);
       return missing.length > 0 ? prev.concat(missing) : prev;
     });
-  }, [activeIdx, allImages.length]);
+  }, [activeIdx, allMedia.length]);
+
+  // Diaváltáskor a futó videó leáll (az elem lekerül a DOM-ról).
+  useEffect(() => {
+    setPlayingIdx((playing) => (playing !== null && playing !== activeIdx ? null : playing));
+  }, [activeIdx]);
 
   // Brief hint-bump on mount (mobile only) — shifts the track slightly left
   // and back so the user sees that the gallery is swipeable.
@@ -61,14 +88,14 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
     const dy = t.clientY - touchStart.current.y;
     touchStart.current = null;
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-      if (dx < 0) setActiveIdx((i) => (i + 1) % allImages.length);
-      else setActiveIdx((i) => (i - 1 + allImages.length) % allImages.length);
+      if (dx < 0) setActiveIdx((i) => (i + 1) % allMedia.length);
+      else setActiveIdx((i) => (i - 1 + allMedia.length) % allMedia.length);
     }
   };
 
   // Fotó nélküli termék (a képeket az admin tölti fel) — semleges felület,
   // hogy a termékoldal addig is teljes értékűen működjön.
-  if (allImages.length === 0) {
+  if (allMedia.length === 0) {
     return (
       <div className="flex flex-col gap-3 w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0">
         <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-[#EFEAE2] ghost-border flex items-center justify-center">
@@ -79,7 +106,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
             <div className="absolute top-4 right-4">
               <span
                 className="badge-shimmer px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white shadow-sm"
-                style={{ backgroundColor: '#D55850' }}
+                style={{ backgroundColor: '#7A4A5A' }}
               >
                 {badge}
               </span>
@@ -106,18 +133,57 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
               transform: `translateX(calc(-${activeIdx * 100}% + ${hintShift}%))`,
             }}
           >
-            {allImages.map((img, idx) => (
-              <div key={img} className="relative w-full h-full flex-shrink-0">
-                {loadedIdx.indexOf(idx) !== -1 && (
-                  <Image
-                    src={img}
-                    alt={`${alt} — ${idx + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 520px) 100vw, 470px"
-                    priority={idx === 0}
-                  />
-                )}
+            {allMedia.map((media, idx) => (
+              <div key={media.src} className="relative w-full h-full flex-shrink-0">
+                {loadedIdx.indexOf(idx) !== -1 &&
+                  (media.type === 'video' ? (
+                    playingIdx === idx ? (
+                      // Álló és fekvő videó is torzítás nélkül fér el
+                      // (object-contain), sötét háttér előtt.
+                      <video
+                        src={media.src}
+                        poster={media.poster || undefined}
+                        controls
+                        autoPlay
+                        playsInline
+                        preload="none"
+                        className="absolute inset-0 w-full h-full object-contain bg-black"
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setPlayingIdx(idx)}
+                        className="absolute inset-0 w-full h-full group/video"
+                        aria-label="Videó lejátszása"
+                      >
+                        {media.poster ? (
+                          <Image
+                            src={media.poster}
+                            alt={`${alt} — videó`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 520px) 100vw, 470px"
+                          />
+                        ) : (
+                          <span className="absolute inset-0 bg-[#2C2C2C]" />
+                        )}
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <span className="w-16 h-16 rounded-full bg-white/85 backdrop-blur-sm shadow-lg flex items-center justify-center text-[#4A4A4A] transition-transform duration-300 group-hover/video:scale-110">
+                            <PlayIcon className="w-7 h-7 ml-1" />
+                          </span>
+                        </span>
+                      </button>
+                    )
+                  ) : (
+                    <Image
+                      src={media.src}
+                      alt={`${alt} — ${idx + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 520px) 100vw, 470px"
+                      priority={idx === 0}
+                    />
+                  ))}
               </div>
             ))}
           </div>
@@ -126,7 +192,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
             <div className="absolute top-4 right-4 z-10">
               <span
                 className="badge-shimmer px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white shadow-sm"
-                style={{ backgroundColor: '#D55850' }}
+                style={{ backgroundColor: '#7A4A5A' }}
               >
                 {badge}
               </span>
@@ -138,7 +204,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
               <button
                 type="button"
                 onClick={() =>
-                  setActiveIdx((i) => (i - 1 + allImages.length) % allImages.length)
+                  setActiveIdx((i) => (i - 1 + allMedia.length) % allMedia.length)
                 }
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center text-[#4A4A4A] hover:bg-white transition-colors z-10"
                 aria-label="Előző kép"
@@ -156,7 +222,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
               </button>
               <button
                 type="button"
-                onClick={() => setActiveIdx((i) => (i + 1) % allImages.length)}
+                onClick={() => setActiveIdx((i) => (i + 1) % allMedia.length)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center text-[#4A4A4A] hover:bg-white transition-colors z-10"
                 aria-label="Következő kép"
               >
@@ -173,7 +239,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
               </button>
 
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden z-10">
-                {allImages.map((_, idx) => (
+                {allMedia.map((_, idx) => (
                   <button
                     key={idx}
                     type="button"
@@ -193,7 +259,7 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
       {/* Thumbnails — desktop only */}
       {hasMultiple && (
         <div className="hidden md:flex gap-2 overflow-x-auto pb-1">
-          {allImages.map((img, idx) => (
+          {allMedia.map((media, idx) => (
             <button
               key={idx}
               type="button"
@@ -204,13 +270,34 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
                   : 'border-transparent opacity-60 hover:opacity-100'
               }`}
             >
-              <Image
-                src={img}
-                alt={`${alt} — ${idx + 1}`}
-                fill
-                className="object-cover"
-                sizes="80px"
-              />
+              {media.type === 'video' ? (
+                <>
+                  {media.poster ? (
+                    <Image
+                      src={media.poster}
+                      alt={`${alt} — videó`}
+                      fill
+                      className="object-cover"
+                      sizes="80px"
+                    />
+                  ) : (
+                    <span className="absolute inset-0 bg-[#2C2C2C]" />
+                  )}
+                  <span className="absolute inset-0 flex items-center justify-center text-white">
+                    <span className="w-6 h-6 rounded-full bg-black/45 flex items-center justify-center">
+                      <PlayIcon className="w-3 h-3 ml-0.5" />
+                    </span>
+                  </span>
+                </>
+              ) : (
+                <Image
+                  src={media.src}
+                  alt={`${alt} — ${idx + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="80px"
+                />
+              )}
             </button>
           ))}
         </div>

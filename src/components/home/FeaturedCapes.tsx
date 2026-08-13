@@ -1,10 +1,12 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import Button from '@/components/ui/Button';
+import { getSiteImages } from '@/lib/siteImages';
 
-/** BLOKK 3: Kiemelt újdonság sáv — a Kalandköpeny kollekció bemutatása. */
-export default function FeaturedCapes() {
+/** BLOKK 3: Kiemelt újdonság sáv — a Kalandköpeny kollekció bemutatása.
+ * A fotó adminból cserélhető (Megjelenés). */
+export default async function FeaturedCapes() {
+  const imgs = await getSiteImages(['home-kiemelt-kalandkopeny']);
   return (
     <section className="py-10 md:py-16 bg-[#f5f0e8]">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
@@ -14,7 +16,7 @@ export default function FeaturedCapes() {
             <div className="w-full md:w-2/3">
               <div className="relative aspect-square rounded-sm overflow-hidden bg-surface-container-low ghost-border">
                 <Image
-                  src="/images/home/kalandkopeny-kiemelt.jpg"
+                  src={imgs['home-kiemelt-kalandkopeny']}
                   alt="NOLA Kalandköpenyek"
                   fill
                   className="object-cover"

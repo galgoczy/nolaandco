@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
+import { getSiteImages } from '@/lib/siteImages';
 
 const features = [
   {
@@ -24,7 +25,9 @@ const features = [
   },
 ];
 
-export default function WorkshopSection() {
+export default async function WorkshopSection() {
+  // A műhelyfotók adminból cserélhetők (Megjelenés → THE ART OF CRAFTING).
+  const imgs = await getSiteImages(['artofcrafting-1', 'artofcrafting-2', 'artofcrafting-3']);
   return (
     <section className="py-16 md:py-24 bg-[#C4A591] overflow-hidden">
       <div className="max-w-7xl mx-auto px-8">
@@ -80,9 +83,9 @@ export default function WorkshopSection() {
         {/* 3 Workshop photos */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { src: '/images/home/artofcrafting-1.jpg', alt: 'Szabás' },
-            { src: '/images/home/artofcrafting-2.jpg', alt: 'Kézi applikálás' },
-            { src: '/images/home/artofcrafting-3.jpg', alt: 'Varrás' },
+            { src: imgs['artofcrafting-1'], alt: 'Szabás' },
+            { src: imgs['artofcrafting-2'], alt: 'Kézi applikálás' },
+            { src: imgs['artofcrafting-3'], alt: 'Varrás' },
           ].map((img, i) => (
             <RevealOnScroll key={i} delay={i * 120}>
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#FDFBF7]/10">

@@ -198,6 +198,18 @@ model Category {
   updatedAt     DateTime @updatedAt
 }
 
+/// Admin által cserélhető képek a statikus szekciókhoz (főoldali
+/// kategória-kártyák, ART OF CRAFTING fotók, kiemelt sáv, ...). A key a
+/// kódban definiált képhely azonosítója; sor hiányában az alapértelmezett
+/// (repóbeli) kép jelenik meg.
+model SiteImage {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Banner {
   id        String   @id @default(cuid())
   text      String

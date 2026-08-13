@@ -14,7 +14,7 @@ import {
 import { cartItemRequiresShipping } from '@/lib/shippingRules';
 import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
 import { notifyNewOrderTelegram } from '@/lib/telegram';
-import { getShippingCost, carrierForCountry, getCountryConfig } from '@/lib/shipping';
+import { getShippingCost, carrierForCountry, getCountryConfig, qualifiesForFreeParcel } from '@/lib/shipping';
 import type { CartItemData } from '@/store/cart';
 
 /**
@@ -302,6 +302,17 @@ export async function POST(request: NextRequest) {
           }
         }
       }
+    }
+
+    // Automatikus ingyenes csomagautomata 25 000 Ft (kedvezmény utáni termék-
+    // érték) felett — kupon nélkül, csak belföldi parcel módra.
+    if (
+      country === 'HU' &&
+      effectiveMethod === 'parcel' &&
+      orderRequiresShipping &&
+      qualifiesForFreeParcel(subtotal - discount)
+    ) {
+      freeShippingApplied = true;
     }
 
     const shippingCost = freeShippingApplied ? 0 : baseShippingCost;

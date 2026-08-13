@@ -456,6 +456,113 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
       'Biztonságos kártyás fizetés',
     ],
   })),
+  // --- Válogatások: kurált csomagok (a Szuperhős szett mellett) ---
+  // Az árak a briefből jönnek: price = eredeti (áthúzott) ár, salePrice a
+  // csomagár. Képek adminból; addig rejtve a listázásokból.
+  {
+    name: 'Első pillanatok csomag',
+    slug: 'elso-pillanatok-csomag',
+    description:
+      'A legelső fejezet, két formában: 1:1 méretarányú emlékpárna és print emlékposzter, ugyanazokkal a születési adatokkal. A babaváró és újszülöttkori időszak legszebb ajándéka — 2 900 Ft megtakarítással, ingyenes csomagautomatás szállítással.',
+    longDescription: `**Mit tartalmaz a csomag?**
+
+**1:1 méretarányú emlékpárna** — a választott modellben (ORIGIN vagy NOVA, CORE / LINEA / ATELIER stílusban), a baba születési adataival.
+
+**Print emlékposzter** — a választott dizájnnal és háttérszínnel, 200 g-os silk felületű művészi papíron, 50×70 cm-es méretben.
+
+Mindkét darab ugyanazokkal a születési adatokkal készül, így tökéletes párost alkotnak a babaszobában.
+
+**Ár:** 35 800 Ft helyett **32 900 Ft** — 2 900 Ft megtakarítás, és a csomagot ingyen szállítjuk csomagautomatába.`,
+    price: 35800,
+    onSale: true,
+    salePrice: 32900,
+    category: 'bundle',
+    series: 'valogatas',
+    variant: 'elso-pillanatok',
+    imageUrl: '',
+    badge: 'ÚJDONSÁG',
+    hiddenFromListing: true,
+    sortOrder: 1,
+    productionTime: 'kb. 2 hét',
+  },
+  {
+    name: 'Mesés gyerekszoba válogatás',
+    slug: 'meses-gyerekszoba-valogatas',
+    description:
+      'Óriás pillangó függő és print emlékposzter egy csomagban — a falra és a kiságy fölé, egymással harmonizáló pasztell hangulatban. 2 900 Ft megtakarítással, ingyenes csomagautomatás szállítással.',
+    longDescription: `**Mit tartalmaz a csomag?**
+
+**NOLA Pixie óriás pillangó függő** — a választott modellben; kb. 30 cm széles, az akasztóval együtt kb. 70 cm.
+
+**Print emlékposzter** — a választott dizájnnal és háttérszínnel, 200 g-os silk felületű művészi papíron, 50×70 cm-es méretben, a baba születési adataival.
+
+**Ár:** 32 800 Ft helyett **29 900 Ft** — 2 900 Ft megtakarítás, és a csomagot ingyen szállítjuk csomagautomatába.`,
+    price: 32800,
+    onSale: true,
+    salePrice: 29900,
+    category: 'bundle',
+    series: 'valogatas',
+    variant: 'meses-gyerekszoba',
+    imageUrl: '',
+    badge: 'ÚJDONSÁG',
+    hiddenFromListing: true,
+    sortOrder: 2,
+    productionTime: 'kb. 2 hét',
+  },
+  {
+    name: 'Kalandra fel csomag',
+    slug: 'kalandra-fel-csomag',
+    description:
+      'Kifordítható Kalandköpeny és a hozzá színben harmonizáló kétoldalas korona — a hétköznapi varázslat teljes szettje, 900 Ft megtakarítással.',
+    longDescription: `**Mit tartalmaz a csomag?**
+
+**NOLA Kalandköpeny** — a választott színvilágban (Hero, Stella vagy Crew), Hero és Stella esetén a gyermek kezdőbetűjével.
+
+**NOLA kétoldalas korona** — a választott, köpenyhez harmonizáló színvilágban.
+
+**Ár:** 16 800 Ft helyett **15 900 Ft** — 900 Ft megtakarítás.`,
+    price: 16800,
+    onSale: true,
+    salePrice: 15900,
+    category: 'bundle',
+    series: 'valogatas',
+    variant: 'kalandra-fel',
+    imageUrl: '',
+    badge: 'ÚJDONSÁG',
+    hiddenFromListing: true,
+    sortOrder: 3,
+    productionTime: 'kb. 2 hét',
+  },
+  {
+    name: 'Puha kuckó csomag',
+    slug: 'puha-kucko-csomag',
+    description:
+      'Kétoldalas duplagéz takaró és minimal szundikendő egy csomagban — minden, ami a délutáni szundikhoz és az esti összebújásokhoz kell. 900 Ft megtakarítással.',
+    longDescription: `**Mit tartalmaz a csomag?**
+
+**NOLA Cloud takaró** — a választott kétoldalas színpárosításban (75 × 90 cm).
+
+**NOLA Hush szundikendő** — a választott színben (30 × 30 cm).
+
+Mindkét darab két réteg OEKO-TEX® minősítésű pamut duplagézből, kézzel készül.
+
+**Ár:** 15 800 Ft helyett **14 900 Ft** — 900 Ft megtakarítás.`,
+    price: 15800,
+    onSale: true,
+    salePrice: 14900,
+    category: 'bundle',
+    series: 'valogatas',
+    variant: 'puha-kucko',
+    imageUrl: '',
+    badge: 'ÚJDONSÁG',
+    withdrawalEligible: true,
+    hiddenFromListing: true,
+    sortOrder: 4,
+    productionTime: 'kb. 2 hét',
+    material: '100% OEKO-TEX® minősítésű pamut duplagéz (két réteg)',
+    careInfo:
+      '30°C-os kímélő gépi programon vagy kézzel mosható. Szárítógépben nem szárítható. Fektetve, formára igazítva szárítandó.',
+  },
 ];
 
 export async function syncCatalog(): Promise<string[]> {
