@@ -13,7 +13,7 @@ export type HeroImageSlide = {
   ctaHref: string;
 };
 
-const ROTATE_MS = 4000;
+const ROTATE_MS = 4500;
 
 const textShadow =
   '0 2px 24px rgba(0,0,0,0.35), 0 0 12px rgba(0,0,0,0.25), 0 0 2px rgba(255,255,255,0.15)';
@@ -50,7 +50,7 @@ export default function HeroImageCarousel({ slides }: { slides: HeroImageSlide[]
             alt="Nola & Co."
             fill
             priority={i === 0}
-            className="object-cover object-[50%_68%] md:object-center"
+            className="object-cover object-[50%_58%] md:object-[50%_60%]"
             sizes="100vw"
           />
           {/* Finom sötétítés alul, hogy a szöveg világos képen is olvasható maradjon. */}
