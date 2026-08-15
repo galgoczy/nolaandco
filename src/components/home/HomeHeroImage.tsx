@@ -5,6 +5,9 @@ import { renderInline, renderMobileBreaks } from '@/lib/richTextInline';
 
 const textShadow =
   '0 2px 24px rgba(0,0,0,0.35), 0 0 12px rgba(0,0,0,0.25), 0 0 2px rgba(255,255,255,0.15)';
+// A felvezető sor világos képrészletre eshet — külön, sötétebb derengést kap.
+const eyebrowShadow =
+  '0 1px 4px rgba(0,0,0,0.65), 0 0 14px rgba(0,0,0,0.55), 0 0 30px rgba(0,0,0,0.4)';
 const heroFont = "'Gilroy', 'Inter', 'Montserrat', sans-serif";
 
 /**
@@ -22,13 +25,13 @@ export default async function HomeHeroImage({ t }: { t: Record<string, string> }
 
   return (
     <section className="relative w-full overflow-hidden bg-[#C4A591]">
-      <div className="relative w-full aspect-[4/5] sm:aspect-[4/3] md:aspect-auto md:h-[calc(100svh-76px-7vh)]">
+      <div className="relative w-full aspect-[8/9] sm:aspect-[4/3] md:aspect-auto md:h-[calc(100svh-76px-7vh)]">
         <Image
           src={imgs['home-hero-kep']}
           alt="Nola & Co."
           fill
           priority
-          className="object-cover"
+          className="object-cover object-[50%_68%] md:object-center"
           sizes="100vw"
         />
         {/* Finom sötétítés alul, hogy a szöveg világos képen is olvasható maradjon. */}
@@ -46,7 +49,7 @@ export default async function HomeHeroImage({ t }: { t: Record<string, string> }
                 fontWeight: 300,
                 letterSpacing: '0.18em',
                 lineHeight: 1.4,
-                textShadow,
+                textShadow: eyebrowShadow,
               }}
             >
               {t['hero-1-eyebrow']}
