@@ -38,6 +38,13 @@ export const SITE_IMAGE_SLOTS: SiteImageSlot[] = [
     group: 'Főoldal – kategória-kártyák',
   },
   {
+    key: 'home-hero-kep',
+    label: 'Hero fotó',
+    hint: 'Főoldal – nyitókép (mobilon 4:5-re, desktopon szélesre vágva jelenik meg)',
+    defaultUrl: '/images/newhero.png',
+    group: 'Főoldal – szekciók',
+  },
+  {
     key: 'home-kiemelt-kalandkopeny',
     label: 'Kiemelt újdonság sáv (Pixie pillangók)',
     hint: 'Főoldal – Újdonság: Nola Pixie pillangó függők (négyzetes, 1:1)',
