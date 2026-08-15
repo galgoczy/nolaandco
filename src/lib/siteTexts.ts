@@ -17,13 +17,13 @@ export type SiteTextSlot = {
 };
 
 export const SITE_TEXT_SLOTS: SiteTextSlot[] = [
-  // --- Hero (videós fejléc) ---
-  { key: 'hero-1-eyebrow', label: '1. dia – felvezető sor', group: 'Hero (videós fejléc)', defaultValue: 'EMLÉKEK, AMIK PONTOSAN AKKORÁK, MINT Ő VOLT' },
-  { key: 'hero-1-title', label: '1. dia – cím', group: 'Hero (videós fejléc)', multiline: true, defaultValue: '1:1 méretarányú\nszületési emlékpárnák\n& poszterek' },
-  { key: 'hero-1-cta', label: '1. dia – gomb', group: 'Hero (videós fejléc)', defaultValue: 'Megtervezem a saját\nemlékpárnámat' },
-  { key: 'hero-2-eyebrow', label: '2. dia – felvezető sor', group: 'Hero (videós fejléc)', defaultValue: 'PUHA TEXTILEK A GYEREKKOR APRÓ PILLANATAIHOZ' },
-  { key: 'hero-2-title', label: '2. dia – cím', group: 'Hero (videós fejléc)', multiline: true, defaultValue: 'Megérkezett\na Nagytesó kollekció' },
-  { key: 'hero-2-cta', label: '2. dia – gomb', group: 'Hero (videós fejléc)', defaultValue: 'Megnézem az újdonságokat' },
+  // --- Hero (nyitóképek) ---
+  { key: 'hero-1-eyebrow', label: '1. dia – felvezető sor', group: 'Hero (nyitóképek)', defaultValue: 'PUHA TEXTILEK A GYEREKKOR APRÓ PILLANATAIHOZ' },
+  { key: 'hero-1-title', label: '1. dia – cím', group: 'Hero (nyitóképek)', multiline: true, defaultValue: '1:1 méretarányú\nszületési emlékpárnák\n& poszterek' },
+  { key: 'hero-1-cta', label: '1. dia – gomb', group: 'Hero (nyitóképek)', defaultValue: 'Megtervezem a saját\nemlékpárnámat' },
+  { key: 'hero-2-eyebrow', label: '2. dia – felvezető sor', group: 'Hero (nyitóképek)', defaultValue: 'PUHA TEXTILEK A GYEREKKOR APRÓ PILLANATAIHOZ' },
+  { key: 'hero-2-title', label: '2. dia – cím', group: 'Hero (nyitóképek)', multiline: true, defaultValue: 'Nola Pixie óriás\npillangó függők' },
+  { key: 'hero-2-cta', label: '2. dia – gomb', group: 'Hero (nyitóképek)', defaultValue: 'Megnézem a kollekciót' },
   // --- Kategória-rács ---
   { key: 'kategoriak-cim', label: 'Blokk címe', group: 'Vásárolj kategória szerint', defaultValue: 'Vásárolj kategória szerint' },
   { key: 'kategoria-1-felirat', label: '1. kártya felirata', group: 'Vásárolj kategória szerint', defaultValue: 'Emlékőrzők' },
