@@ -3,7 +3,9 @@
 // többsége cache-ből kapja az oldalt.
 export const revalidate = 60;
 
-import HomeHero from '@/components/home/HomeHero';
+// A videós hero (HomeHero) félretéve — visszaváltáshoz importáld és cseréld
+// vissza a HomeHeroImage helyére: <HomeHero t={t} />.
+import HomeHeroImage from '@/components/home/HomeHeroImage';
 import CategoryGrid from '@/components/home/CategoryGrid';
 import FeaturedCapes from '@/components/home/FeaturedCapes';
 import TrustBadges from '@/components/home/TrustBadges';
@@ -28,7 +30,7 @@ export default async function HomePage() {
   const t = await getAllSiteTexts();
   return (
     <main>
-      <HomeHero t={t} />
+      <HomeHeroImage t={t} />
       <CategoryGrid t={t} />
       <FeaturedCapes t={t} />
       <TrustBadges t={t} />

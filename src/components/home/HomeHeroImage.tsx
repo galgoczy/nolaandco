@@ -1,0 +1,41 @@
+import { getSiteImages } from '@/lib/siteImages';
+import HeroImageCarousel, { type HeroImageSlide } from './HeroImageCarousel';
+
+/**
+ * BLOKK 1 (kép-variáns): teljes szélességű hero fotók, rajtuk felvezető +
+ * cím + CTA — két dia, 4 másodpercenként finom, jobbról érkező átúszással.
+ * A szövegek adminból szerkeszthetők (Megjelenés → Szövegek → Hero), a fotók
+ * a Megjelenés → Képek alatt cserélhetők. Amíg a 2. dia képhelye üres, a
+ * hero egyképes.
+ *
+ * Desktopon a kép majdnem a nyitóképernyő aljáig ér, mobilon 4:4,5-re vágva,
+ * hogy alatta már látsszon a kategória-választó. A videós hero (HomeHero.tsx)
+ * félretéve — visszaváltás: a főoldalon <HomeHero t={t} /> erre a komponensre
+ * cserélve.
+ */
+export default async function HomeHeroImage({ t }: { t: Record<string, string> }) {
+  const imgs = await getSiteImages(['home-hero-kep', 'home-hero-kep-2']);
+
+  const slides: HeroImageSlide[] = [
+    {
+      src: imgs['home-hero-kep'],
+      eyebrow: t['hero-1-eyebrow'],
+      title: t['hero-1-title'],
+      cta: t['hero-1-cta'],
+      ctaHref: '/termekek?category=emlekorzok',
+    },
+    {
+      src: imgs['home-hero-kep-2'],
+      eyebrow: t['hero-2-eyebrow'],
+      title: t['hero-2-title'],
+      cta: t['hero-2-cta'],
+      ctaHref: '/termekek?category=dekoracio',
+    },
+  ].filter((s) => s.src !== '');
+
+  return (
+    <section className="relative w-full overflow-hidden bg-[#C4A591]">
+      <HeroImageCarousel slides={slides} />
+    </section>
+  );
+}
