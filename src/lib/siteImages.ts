@@ -47,8 +47,8 @@ export const SITE_IMAGE_SLOTS: SiteImageSlot[] = [
   {
     key: 'home-hero-kep-2',
     label: 'Hero fotó – 2. dia (Pixie)',
-    hint: 'Főoldal – nyitókép második diája; amíg nincs kép feltöltve, a hero egyképes',
-    defaultUrl: '',
+    hint: 'Főoldal – nyitókép második diája (mobilon 4:4,5-re, desktopon szélesre vágva)',
+    defaultUrl: '/images/newhero_butterfly.jpg',
     group: 'Főoldal – szekciók',
   },
   {
