@@ -22,14 +22,14 @@ export default async function HomeHeroImage({ t }: { t: Record<string, string> }
       eyebrow: t['hero-1-eyebrow'],
       title: t['hero-1-title'],
       cta: t['hero-1-cta'],
-      ctaHref: '/termekek?category=emlekorzok',
+      ctaHref: '/termekek?category=pillow',
     },
     {
       src: imgs['home-hero-kep-2'],
       eyebrow: t['hero-2-eyebrow'],
       title: t['hero-2-title'],
       cta: t['hero-2-cta'],
-      ctaHref: '/termekek?category=dekoracio',
+      ctaHref: '/termekek?category=decor',
     },
     {
       src: imgs['home-hero-kep-3'],
