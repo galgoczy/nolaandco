@@ -205,6 +205,17 @@ model Category {
 /// Adminból szerkeszthető szövegek a statikus szekciókhoz (főoldali blokkok
 /// címei, leírásai, gombfeliratai). A key a kódban definiált szöveghely;
 /// sor hiányában az alapértelmezett (kódbeli) szöveg jelenik meg.
+/// Adminból véglegesen törölt katalógus-termékek nyilvántartása. A deploykor
+/// futó katalógus-szinkron a kódbeli listából újra létrehozná őket; az itt
+/// szereplő slugokat kihagyja, így a törlés tartós marad. A sor akkor tűnik
+/// el, ha a slugot adminból újra létrehozzák.
+model RemovedCatalogProduct {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+}
+
 model SiteText {
   id        String   @id @default(cuid())
   key       String   @unique

@@ -102,6 +102,13 @@ export async function DELETE(
     });
   }
 
-  await prisma.product.delete({ where: { id } });
+  // Sírkő: a deploykor futó katalógus-szinkron a kódbeli listából újra
+  // létrehozná a terméket, ezért feljegyezzük, hogy ezt a slugot ne hozza vissza.
+  const deleted = await prisma.product.delete({ where: { id } });
+  await prisma.removedCatalogProduct.upsert({
+    where: { slug: deleted.slug },
+    update: { name: deleted.name },
+    create: { slug: deleted.slug, name: deleted.name },
+  });
   return NextResponse.json({ ok: true });
 }

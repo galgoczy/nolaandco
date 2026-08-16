@@ -84,6 +84,9 @@ export async function POST(req: Request) {
       await syncProductVariants(product.id, variants);
     }
 
+    // Ha ezt a slugot korábban törölték, a sírkő már nem kell — a termék újra létezik.
+    await prisma.removedCatalogProduct.deleteMany({ where: { slug } });
+
     return NextResponse.json({ product });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Mentés sikertelen';

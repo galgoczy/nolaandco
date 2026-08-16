@@ -17,6 +17,10 @@ function slugifyHu(text: string): string {
  * overwritten, and nothing is ever deleted (apart from the long-retired
  * gift card variant rows that no order references).
  *
+ * Az adminból véglegesen törölt termékek slugja a RemovedCatalogProduct
+ * táblába kerül, és a szinkron kihagyja őket — különben minden deploy
+ * visszahozná a törölt darabokat.
+ *
  * Used by both `prisma/seed.ts` (CLI) and the admin "Katalógus frissítés"
  * button (API route), so the shop catalog can be refreshed without shell
  * access to the database.
@@ -342,22 +346,8 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
     badge: 'ÚJDONSÁG',
     withdrawalEligible: true,
   },
-  // --- Válogatások: bundle termékek ---
-  {
-    name: 'Szuperhős szett',
-    slug: 'szuperhos-szett',
-    description:
-      'A tökéletes páros a nagytesóknak: kifordítható, kétoldalas prémium duplagéz Kalandköpeny és a hozzá színben harmonizáló kétoldalas korona egy szettben, kedvezményes áron. Válaszd ki a köpeny és a korona színét, és mi kézzel, egyedileg készítjük el a műhelyünkben.',
-    longDescription: bundleLongDescription,
-    price: 14900,
-    onSale: true,
-    salePrice: 12800,
-    category: 'bundle',
-    series: 'nagyteso',
-    variant: 'bundle',
-    imageUrl: '/images/products/szuperhos-szett.png',
-    badge: 'ÚJDONSÁG',
-  },
+  // A Szuperhős szett kikerült a katalógusból: a Kalandra fel! csomag váltotta
+  // fel ugyanezzel a tartalommal, ezért a szinkron nem hozza vissza.
   // --- Textilek & dekoráció: minden szín/dizájn önálló termék ---
   // Képek és végleges árak adminból kerülnek fel; addig a termékek rejtve
   // maradnak a listázásokból (a saját kategóriaoldalukon láthatók). Új
@@ -365,7 +355,6 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
   // választék nem korlát.
   ...[
     'Bézs',
-    'Cappuccino',
     'Pasztell rózsaszín',
     'Dusty rózsaszín',
     'Kékesszürke',
@@ -398,7 +387,6 @@ Az ajándékkártya a vásárlástól számított **1 évig érvényes**, és a 
     ],
   })),
   ...[
-    'Bézs & Cappuccino',
     'Pasztell rózsaszín & Dusty rózsaszín',
     'Kékesszürke & Acélkék',
   ].map((colorway, i) => ({
@@ -556,7 +544,7 @@ Mindkét darab két réteg OEKO-TEX® minősítésű pamut duplagézből, kézze
     category: 'bundle',
     series: 'valogatas',
     variant: 'puha-kucko',
-    bundleItems: ['nola-cloud-takaro-bezs-cappuccino', 'nola-hush-szundikendo-bezs'],
+    bundleItems: ['nola-cloud-takaro-pasztell-rozsaszin-dusty-rozsaszin', 'nola-hush-szundikendo-bezs'],
     imageUrl: '',
     badge: 'ÚJDONSÁG',
     withdrawalEligible: true,
@@ -653,7 +641,16 @@ export async function syncCatalog(): Promise<string[]> {
   }
 
   // --- Products ---
+  // Az adminból véglegesen törölt termékeket nem hozzuk vissza. Nélküle minden
+  // deploy újra létrehozná őket, hiszen a szinkron a hiányzó slugokat pótolja.
+  const removed = await prisma.removedCatalogProduct.findMany({ select: { slug: true } });
+  const removedSlugs = new Set(removed.map((r) => r.slug));
+
   for (const product of products) {
+    if (removedSlugs.has(product.slug)) {
+      log.push(`Kihagyva (adminból törölve): ${product.slug}`);
+      continue;
+    }
     const existing = await prisma.product.findUnique({ where: { slug: product.slug } });
     if (existing) {
       // On re-sync, only the "structural" fields are updated. Admin-editable
@@ -751,11 +748,10 @@ export async function syncCatalog(): Promise<string[]> {
   // létrejött csomagok e nélkül maradtak.) Az admin által beállított
   // lista érintetlen marad.
   const bundleItemsBackfill: Record<string, string[]> = {
-    'szuperhos-szett': ['nola-hero-kalandkopeny', 'nola-hero-korona'],
     'elso-pillanatok-csomag': ['origin-core', 'poszter'],
     'meses-gyerekszoba-valogatas': ['nola-pixie-pillango-fuggo-1', 'poszter'],
     'kalandra-fel-csomag': ['nola-hero-kalandkopeny', 'nola-hero-korona'],
-    'puha-kucko-csomag': ['nola-cloud-takaro-bezs-cappuccino', 'nola-hush-szundikendo-bezs'],
+    'puha-kucko-csomag': ['nola-cloud-takaro-pasztell-rozsaszin-dusty-rozsaszin', 'nola-hush-szundikendo-bezs'],
   };
   for (const [slug, items] of Object.entries(bundleItemsBackfill)) {
     const bundleProduct = await prisma.product.findUnique({ where: { slug } });
