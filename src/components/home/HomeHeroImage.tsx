@@ -3,10 +3,10 @@ import HeroImageCarousel, { type HeroImageSlide } from './HeroImageCarousel';
 
 /**
  * BLOKK 1 (kép-variáns): teljes szélességű hero fotók, rajtuk felvezető +
- * cím + CTA — két dia, 4 másodpercenként finom, jobbról érkező átúszással.
+ * cím + CTA — három dia, 4,5 másodpercenként finom, jobbról érkező átúszással.
  * A szövegek adminból szerkeszthetők (Megjelenés → Szövegek → Hero), a fotók
- * a Megjelenés → Képek alatt cserélhetők. Amíg a 2. dia képhelye üres, a
- * hero egyképes.
+ * a Megjelenés → Képek alatt cserélhetők. Az üres képhelyű diák kimaradnak a
+ * rotációból.
  *
  * Desktopon a kép majdnem a nyitóképernyő aljáig ér, mobilon 4:4,5-re vágva,
  * hogy alatta már látsszon a kategória-választó. A videós hero (HomeHero.tsx)
@@ -14,7 +14,7 @@ import HeroImageCarousel, { type HeroImageSlide } from './HeroImageCarousel';
  * cserélve.
  */
 export default async function HomeHeroImage({ t }: { t: Record<string, string> }) {
-  const imgs = await getSiteImages(['home-hero-kep', 'home-hero-kep-2']);
+  const imgs = await getSiteImages(['home-hero-kep', 'home-hero-kep-2', 'home-hero-kep-3']);
 
   const slides: HeroImageSlide[] = [
     {
@@ -30,6 +30,13 @@ export default async function HomeHeroImage({ t }: { t: Record<string, string> }
       title: t['hero-2-title'],
       cta: t['hero-2-cta'],
       ctaHref: '/termekek?category=dekoracio',
+    },
+    {
+      src: imgs['home-hero-kep-3'],
+      eyebrow: t['hero-3-eyebrow'],
+      title: t['hero-3-title'],
+      cta: t['hero-3-cta'],
+      ctaHref: '/termekek?category=szundikendo',
     },
   ].filter((s) => s.src !== '');
 

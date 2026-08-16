@@ -24,6 +24,9 @@ export const SITE_TEXT_SLOTS: SiteTextSlot[] = [
   { key: 'hero-2-eyebrow', label: '2. dia – felvezető sor', group: 'Hero (nyitóképek)', defaultValue: 'PUHA TEXTILEK A GYEREKKOR APRÓ PILLANATAIHOZ' },
   { key: 'hero-2-title', label: '2. dia – cím', group: 'Hero (nyitóképek)', multiline: true, defaultValue: 'Nola Pixie óriás\npillangó függők' },
   { key: 'hero-2-cta', label: '2. dia – gomb', group: 'Hero (nyitóképek)', defaultValue: 'Megnézem a kollekciót' },
+  { key: 'hero-3-eyebrow', label: '3. dia – felvezető sor', group: 'Hero (nyitóképek)', defaultValue: 'PUHA TEXTILEK A GYEREKKOR APRÓ PILLANATAIHOZ' },
+  { key: 'hero-3-title', label: '3. dia – cím', group: 'Hero (nyitóképek)', multiline: true, defaultValue: 'Nola Hush dupla géz\nszundikendők' },
+  { key: 'hero-3-cta', label: '3. dia – gomb', group: 'Hero (nyitóképek)', defaultValue: 'Megnézem a kollekciót' },
   // --- Kategória-rács ---
   { key: 'kategoriak-cim', label: 'Blokk címe', group: 'Vásárolj kategória szerint', defaultValue: 'Vásárolj kategória szerint' },
   { key: 'kategoria-1-felirat', label: '1. kártya felirata', group: 'Vásárolj kategória szerint', defaultValue: 'Emlékőrzők' },
