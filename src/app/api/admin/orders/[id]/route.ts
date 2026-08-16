@@ -5,6 +5,7 @@ import { sendEmail } from '@/lib/emails/send';
 import { shippingNotificationSubject, shippingNotificationHtml } from '@/lib/emails/shipping-notification';
 import { followUpSubject, followUpHtml } from '@/lib/emails/follow-up';
 import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
+import { applyStockForOrder } from '@/lib/stock';
 
 export async function GET(
   _request: NextRequest,
@@ -86,6 +87,12 @@ export async function PATCH(
     if (status === 'paid' && prev?.status !== 'paid') {
       fulfillGiftCardsForOrder(order.id).catch((err) =>
         console.error('Gift card fulfillment error:', err)
+      );
+      // Készletlevonás a kézzel (pl. banki átutalás után) fizetettre állított
+      // rendeléseknél is. Saját zárja van, tehát ha a webhook már levonta,
+      // ez nem von le újra.
+      applyStockForOrder(order.id).catch((err) =>
+        console.error('Készletlevonás sikertelen:', { orderId: order.id, err })
       );
     }
 

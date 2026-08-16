@@ -5,6 +5,7 @@ import { createSzamlazzInvoice } from '@/lib/szamlazz';
 import { sendEmail } from '@/lib/emails/send';
 import { orderConfirmationSubject, orderConfirmationHtml } from '@/lib/emails/order-confirmation';
 import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
+import { applyStockForOrder } from '@/lib/stock';
 import { notifyNewOrderTelegram } from '@/lib/telegram';
 import {
   ADMIN_NOTIFICATION_RECIPIENT,
@@ -49,6 +50,15 @@ export async function POST(request: NextRequest) {
           stripePaymentId: session.id,
         },
       });
+
+      // Készletlevonás. Saját zárja van, ezért a webhook ismételt
+      // kézbesítésekor sem von le másodszor. Hiba esetén sem állítjuk meg a
+      // visszaigazolást — a rendelés attól még érvényes.
+      try {
+        await applyStockForOrder(orderId);
+      } catch (err) {
+        console.error('Készletlevonás sikertelen:', { orderId, err });
+      }
 
       const order = await prisma.order.findUnique({
         where: { id: orderId },
