@@ -9,9 +9,35 @@ const nextConfig = {
         destination: '/termekek/nola-digitalis-ajandekkartya',
         permanent: true,
       },
+      // Az életkor-alapú kategóriák terméktípus-alapúra cserélve — a régi
+      // linkek (hírlevél, közösségi média, Google-találatok) átirányítanak.
+      {
+        source: '/termekek',
+        has: [{ type: 'query', key: 'category', value: 'kicsiknek' }],
+        destination: '/termekek?category=emlekorzok',
+        permanent: true,
+      },
+      {
+        source: '/termekek',
+        has: [{ type: 'query', key: 'category', value: 'nagyoknak' }],
+        destination: '/termekek?category=textilek',
+        permanent: true,
+      },
+      {
+        source: '/termekek',
+        has: [{ type: 'query', key: 'category', value: 'babytextile' }],
+        destination: '/termekek?category=textilek',
+        permanent: true,
+      },
     ];
   },
   images: {
+    // Az optimalizált változatok élettartama. A Next alapértéke 60 másodperc,
+    // ami után a képet újra kell transzformálni — ez okozta a termékgalériák
+    // időnkénti 2-3 másodperces első betöltését. Az adminból feltöltött képek
+    // addRandomSuffix-szal kapnak URL-t, tehát új feltöltés új URL-t jelent,
+    // így elavult cache nem fordulhat elő.
+    minimumCacheTTL: 2678400, // 31 nap
     remotePatterns: [
       {
         protocol: 'https',

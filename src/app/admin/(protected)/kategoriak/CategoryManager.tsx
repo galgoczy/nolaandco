@@ -2,12 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ImageUpload from '../termekek/ImageUpload';
 
 type Cat = {
   id: string;
   slug: string;
   name: string;
   nameEn: string;
+  imageUrl: string;
+  parent: string;
   sortOrder: number;
   visibleOnHome: boolean;
   productCount: number;
@@ -18,7 +21,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
   const [cats, setCats] = useState<Cat[]>(initial);
   const [editing, setEditing] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  const [form, setForm] = useState({ slug: '', name: '', nameEn: '' });
+  const [form, setForm] = useState({ slug: '', name: '', nameEn: '', parent: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -53,10 +56,21 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
     router.refresh();
   }
 
+  // --- Category card image ---
+  async function saveImage(cat: Cat, url: string) {
+    setCats((prev) => prev.map((c) => (c.id === cat.id ? { ...c, imageUrl: url } : c)));
+    await fetch(`/api/admin/categories/${cat.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageUrl: url }),
+    });
+    router.refresh();
+  }
+
   // --- Inline edit ---
   function startEdit(cat: Cat) {
     setEditing(cat.id);
-    setForm({ slug: cat.slug, name: cat.name, nameEn: cat.nameEn });
+    setForm({ slug: cat.slug, name: cat.name, nameEn: cat.nameEn, parent: cat.parent });
     setAdding(false);
     setError('');
   }
@@ -71,7 +85,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
     const res = await fetch(`/api/admin/categories/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug: form.slug, name: form.name, nameEn: form.nameEn }),
+      body: JSON.stringify({ slug: form.slug, name: form.name, nameEn: form.nameEn, parent: form.parent }),
     });
     const data = await res.json().catch(() => ({}));
     setSaving(false);
@@ -81,7 +95,9 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
     }
     setCats((prev) =>
       prev.map((c) =>
-        c.id === id ? { ...c, slug: form.slug, name: form.name, nameEn: form.nameEn } : c,
+        c.id === id
+          ? { ...c, slug: form.slug, name: form.name, nameEn: form.nameEn, parent: form.parent }
+          : c,
       ),
     );
     setEditing(null);
@@ -92,7 +108,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
   function startAdd() {
     setAdding(true);
     setEditing(null);
-    setForm({ slug: '', name: '', nameEn: '' });
+    setForm({ slug: '', name: '', nameEn: '', parent: '' });
     setError('');
   }
 
@@ -114,7 +130,16 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
       setError(data.error || 'Mentés sikertelen');
       return;
     }
-    setCats((prev) => [...prev, { ...data.category, nameEn: data.category.nameEn ?? '', productCount: 0 }]);
+    setCats((prev) => [
+      ...prev,
+      {
+        ...data.category,
+        nameEn: data.category.nameEn ?? '',
+        imageUrl: data.category.imageUrl ?? '',
+        parent: data.category.parent ?? '',
+        productCount: 0,
+      },
+    ]);
     setAdding(false);
     router.refresh();
   }
@@ -135,6 +160,17 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
   const inputCls =
     'px-2 py-1 rounded border border-outline-variant bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/30';
 
+  // A fő navigáció három útvonala. Az ide besorolt kategóriák automatikusan
+  // megjelennek a gyűjtőoldal alkategória-kártyái közt és a listájában.
+  const PARENT_OPTIONS = [
+    { value: '', label: '— (önálló)' },
+    { value: 'emlekorzok', label: 'Emlékőrzők' },
+    { value: 'textilek', label: 'Textilek' },
+    { value: 'dekoracio', label: 'Dekoráció' },
+  ];
+  const parentLabel = (v: string) =>
+    PARENT_OPTIONS.find((o) => o.value === v)?.label ?? v;
+
   return (
     <div className="flex flex-col gap-4 max-w-3xl">
       <div className="bg-surface-container-lowest rounded-2xl overflow-hidden">
@@ -142,9 +178,11 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
           <thead>
             <tr className="border-b border-outline-variant text-left bg-surface-container-low">
               <th className="p-4 text-on-surface/60 font-medium w-10">Sorrend</th>
+              <th className="p-4 text-on-surface/60 font-medium">Kép</th>
               <th className="p-4 text-on-surface/60 font-medium">Slug</th>
               <th className="p-4 text-on-surface/60 font-medium">Magyar név</th>
               <th className="p-4 text-on-surface/60 font-medium">Angol név</th>
+              <th className="p-4 text-on-surface/60 font-medium">Fő kategória</th>
               <th className="p-4 text-on-surface/60 font-medium text-center">Termékek</th>
               <th className="p-4 text-on-surface/60 font-medium text-center">Főoldalon</th>
               <th className="p-4 text-on-surface/60 font-medium text-right">Műveletek</th>
@@ -176,6 +214,34 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
                   </div>
                 </td>
 
+                <td className="p-4">
+                  <div className="flex flex-col items-start gap-1">
+                    {cat.imageUrl ? (
+                      <div className="relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={cat.imageUrl}
+                          alt=""
+                          className="w-14 h-14 rounded-lg object-cover bg-gray-100 border border-outline-variant"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => saveImage(cat, '')}
+                          className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center hover:bg-red-600"
+                          aria-label="Kép törlése"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-14 h-14 rounded-lg bg-surface-container border border-dashed border-outline-variant flex items-center justify-center text-[10px] text-on-surface/40 text-center px-1">
+                        Nincs kép
+                      </div>
+                    )}
+                    <ImageUpload label="Feltöltés" onUploaded={(url) => saveImage(cat, url)} />
+                  </div>
+                </td>
+
                 {editing === cat.id ? (
                   <>
                     <td className="p-4">
@@ -199,12 +265,26 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
                         onChange={(e) => setForm({ ...form, nameEn: e.target.value })}
                       />
                     </td>
+                    <td className="p-4">
+                      <select
+                        className={inputCls}
+                        value={form.parent}
+                        onChange={(e) => setForm({ ...form, parent: e.target.value })}
+                      >
+                        {PARENT_OPTIONS.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
                   </>
                 ) : (
                   <>
                     <td className="p-4 font-mono text-xs text-on-surface/60">{cat.slug}</td>
                     <td className="p-4">{cat.name}</td>
                     <td className="p-4 text-on-surface/70">{cat.nameEn || '—'}</td>
+                    <td className="p-4 text-on-surface/70">{parentLabel(cat.parent)}</td>
                   </>
                 )}
 
@@ -293,6 +373,20 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="pl. Párnák"
               />
+            </div>
+            <div>
+              <label className="block text-xs text-on-surface/60 mb-1">Fő kategória</label>
+              <select
+                className={`${inputCls} w-full`}
+                value={form.parent}
+                onChange={(e) => setForm({ ...form, parent: e.target.value })}
+              >
+                {PARENT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs text-on-surface/60 mb-1">Angol név</label>

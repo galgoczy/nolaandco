@@ -1,30 +1,22 @@
 import Image from 'next/image';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
+import { getSiteImages } from '@/lib/siteImages';
+import { renderInline } from '@/lib/richTextInline';
+import { getAllSiteTexts } from '@/lib/siteTexts';
 
 const features = [
-  {
-    title: 'Prémium alapanyagok',
-    icon: '/images/31.png',
-    desc: 'Legyen szó a párnáink pihe-puha plüsséről, vagy az új termékeink pillekönnyű pamut duplagéz (muszlin) anyagáról, textíliáink és cérnáink kivétel nélkül OEKO-TEX® Standard 100 minősítésűek. Ez garantálja, hogy minden felhasznált anyagot káros anyagokra bevizsgáltak, így az újszülöttek és a nagyobb gyerekek érzékeny bőrével érintkezve is 100%-ig biztonságos választást jelentenek.',
-  },
-  {
-    title: 'Tartós kidolgozás',
-    icon: '/images/5.png',
-    desc: 'Termékeinket évekre tervezzük. A párnák töltete hipoallergén, mosható és formatartó (nem csomósodik), míg a kalandköpenyek és kiegészítők dupla rétegű anyagból, strapabíró varrással készülnek. Bármelyiket is választod, hosszú távon megőrzik puhaságukat és gyönyörű esésüket az emlékőrzés vagy a mindennapi játék során is.',
-  },
-  {
-    title: 'Egyedi részletek',
-    icon: '/images/9.png',
-    desc: 'Minden darab a tiétek. A párnákon lévő sziluetteket és születési adatokat modern, bőrbarát és mosásálló technológiával visszük fel az anyagra. A köpenyeken lévő kezdőbetűket és motívumokat pedig kézműves filcből, gondos kézi rátét-varrással (applikálással) rögzítjük, hogy tökéletes, térbeli harmóniát alkossanak.',
-  },
-  {
-    title: 'Kézműves gondoskodás',
-    icon: '/images/19.png',
-    desc: 'Minden termékünk gondosan, egyedileg készül, hogy a legkisebb babák és a legnagyobb „csapatjátékosok" számára is megbízható, biztonságos és szerethető kiegészítő legyen.',
-  },
+  { key: 'crafting-1', icon: '/images/31.png' },
+  { key: 'crafting-2', icon: '/images/5.png' },
+  { key: 'crafting-3', icon: '/images/9.png' },
+  { key: 'crafting-4', icon: '/images/19.png' },
 ];
 
-export default function WorkshopSection() {
+export default async function WorkshopSection({ t: tProp }: { t?: Record<string, string> }) {
+  // A műhelyfotók és szövegek adminból cserélhetők (Megjelenés). A t propot a
+  // főoldal adja át (egy lekérdezés az összes blokknak); prop nélkül — pl. a
+  // kísérleti fooldal-v* oldalakon — a komponens maga tölti be.
+  const t = tProp ?? (await getAllSiteTexts());
+  const imgs = await getSiteImages(['artofcrafting-1', 'artofcrafting-2', 'artofcrafting-3']);
   return (
     <section className="py-16 md:py-24 bg-[#C4A591] overflow-hidden">
       <div className="max-w-7xl mx-auto px-8">
@@ -32,19 +24,17 @@ export default function WorkshopSection() {
         <div className="text-center mb-10">
           <RevealOnScroll>
             <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl text-[#FDFBF7] mb-4 leading-tight tracking-[0.2em] uppercase" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 100 }}>
-              THE ART OF CRAFTING
+              {t['crafting-cim']}
             </h2>
           </RevealOnScroll>
           <RevealOnScroll>
             <h3 className="text-base md:text-lg text-[#FDFBF7]/90 mb-6" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, letterSpacing: '0.08em' }}>
-              A műhely titkai
+              {t['crafting-alcim']}
             </h3>
           </RevealOnScroll>
           <RevealOnScroll>
             <p className="text-[#FDFBF7]/85 leading-loose max-w-3xl mx-auto" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 200, letterSpacing: '0.02em' }}>
-              A Nola &amp; Co. darabjai nem sorozatgyártásban készülnek. Minden emlékőrző és
-              kiegészítő a te megrendelésedre, a ti egyedi történetetek alapján születik meg
-              budapesti műhelyünkben.
+              {renderInline(t['crafting-bevezeto'])}
             </p>
           </RevealOnScroll>
         </div>
@@ -66,10 +56,10 @@ export default function WorkshopSection() {
                 </div>
                 <div>
                   <h4 className="text-sm uppercase tracking-wider mb-2 text-[#FDFBF7]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>
-                    {f.title}
+                    {t[`${f.key}-cim`]}
                   </h4>
                   <p className="text-sm text-[#FDFBF7]/90 leading-relaxed" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}>
-                    {f.desc}
+                    {renderInline(t[`${f.key}-szoveg`])}
                   </p>
                 </div>
               </div>
@@ -80,9 +70,9 @@ export default function WorkshopSection() {
         {/* 3 Workshop photos */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { src: '/images/home/artofcrafting-1.jpg', alt: 'Szabás' },
-            { src: '/images/home/artofcrafting-2.jpg', alt: 'Kézi applikálás' },
-            { src: '/images/home/artofcrafting-3.jpg', alt: 'Varrás' },
+            { src: imgs['artofcrafting-1'], alt: 'Szabás' },
+            { src: imgs['artofcrafting-2'], alt: 'Kézi applikálás' },
+            { src: imgs['artofcrafting-3'], alt: 'Varrás' },
           ].map((img, i) => (
             <RevealOnScroll key={i} delay={i * 120}>
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#FDFBF7]/10">

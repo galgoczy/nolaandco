@@ -3,28 +3,23 @@
 import { useEffect, useState } from 'react';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
-const testimonials = [
-  {
-    quote:
-      'Elsírtam magam, amikor kibontottam a csomagolást. Hajszálpontosan akkora, mint a kislányom volt...',
-    name: 'Zsófi',
-  },
-  {
-    quote:
-      'Csodálatos minőség, a – nem is olyan kicsi – fiam azóta a babakori méretű párnájával alszik.',
-    name: 'Anna',
-  },
-  {
-    quote:
-      'A legkülönlegesebb babaszoba kiegészítő, amit valaha láttam. Tökéletes ajándék volt a barátnőmnek.',
-    name: 'Laura',
-  },
-];
+/** A vélemények adminból szerkeszthetők (Megjelenés → Szövegek); az üresre
+ * állított vélemény kimarad a lapozóból. */
+function buildTestimonials(t: Record<string, string>) {
+  const items: { quote: string; name: string }[] = [];
+  for (let i = 1; i <= 6; i++) {
+    const quote = (t[`velemeny-${i}-szoveg`] ?? '').trim();
+    const name = (t[`velemeny-${i}-nev`] ?? '').trim();
+    if (quote) items.push({ quote, name });
+  }
+  return items;
+}
 
 const ROTATE_MS = 6000;
 
 /** BLOKK 7: Vásárlói vélemények — automatikusan lapozó, letisztult slider. */
-export default function TestimonialsSlider() {
+export default function TestimonialsSlider({ t }: { t: Record<string, string> }) {
+  const testimonials = buildTestimonials(t);
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -45,7 +40,7 @@ export default function TestimonialsSlider() {
             className="text-2xl md:text-3xl lg:text-4xl text-carbon mb-10 md:mb-14 tracking-[0.04em]"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
           >
-            Amit a Nola anyukák mondanak
+            {t['velemeny-cim']}
           </h2>
         </RevealOnScroll>
 
@@ -73,7 +68,11 @@ export default function TestimonialsSlider() {
                   }`}
                 >
                   <blockquote
-                    className="text-lg md:text-2xl text-[#4A4A4A] leading-relaxed italic"
+                    // A hosszabb véleményeknél kisebb betűméret, hogy ne
+                    // nőjön aránytalanul magasra a blokk.
+                    className={`${
+                      t.quote.length > 200 ? 'text-base md:text-xl' : 'text-lg md:text-2xl'
+                    } text-[#4A4A4A] leading-relaxed italic`}
                     style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
                   >
                     {t.quote}

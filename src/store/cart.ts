@@ -21,6 +21,9 @@ export interface CartItemData {
   posterLayoutLabel?: string;
   /** Chosen variant label (e.g. "Digitális", "Nyomtatott", giftcard option). */
   variant?: string;
+  /** ProductVariant id when the product uses the DB-backed variant picker.
+   *  Checkout re-reads the variant server-side for the authoritative price. */
+  variantId?: string;
   /** Product category, e.g. "pillow" | "poster" | "giftcard". Used by shipping rules. */
   category?: string | null;
   /** True for digital / no-ship products (admin flag). */

@@ -14,7 +14,7 @@ import {
 import { cartItemRequiresShipping } from '@/lib/shippingRules';
 import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
 import { notifyNewOrderTelegram } from '@/lib/telegram';
-import { getShippingCost, carrierForCountry, getCountryConfig } from '@/lib/shipping';
+import { getShippingCost, carrierForCountry, getCountryConfig, qualifiesForFreeParcel } from '@/lib/shipping';
 import type { CartItemData } from '@/store/cart';
 
 /**
@@ -171,6 +171,17 @@ export async function POST(request: NextRequest) {
 
     const productMap = new Map(products.map((p) => [p.id, p]));
 
+    // DB-backed variants (Baba textilek & dekorációk): the chosen variant is the
+    // authority for both the surcharge and the availability check — never the
+    // price the client sent.
+    const variantIds = items
+      .map((item) => item.variantId)
+      .filter((id): id is string => typeof id === 'string' && id.length > 0);
+    const variants = variantIds.length
+      ? await prisma.productVariant.findMany({ where: { id: { in: variantIds } } })
+      : [];
+    const variantMap = new Map(variants.map((v) => [v.id, v]));
+
     const orderRequiresShipping = items.some((item) => {
       const product = productMap.get(item.productId);
       return cartItemRequiresShipping({
@@ -209,9 +220,27 @@ export async function POST(request: NextRequest) {
       // For variant products (poster/giftcard), use the cart item price
       // since the DB only stores the base price
       const isVariant = product.category === 'poster' || product.category === 'giftcard';
-      const price = isVariant
-        ? item.price
-        : (product.onSale && product.salePrice ? product.salePrice : product.price);
+      const variantCandidate = item.variantId ? variantMap.get(item.variantId) : undefined;
+      // Ignore a variant that doesn't belong to this product (stale/forged cart).
+      const chosenVariant =
+        variantCandidate && variantCandidate.productId === product.id ? variantCandidate : undefined;
+
+      // Availability: an explicit stock of 0 blocks the order (null = untracked).
+      const availableStock = chosenVariant ? chosenVariant.stock : product.stock;
+      if (
+        (chosenVariant && !chosenVariant.active) ||
+        (availableStock !== null && availableStock < item.quantity)
+      ) {
+        return NextResponse.json(
+          {
+            error: `A(z) "${item.name}" jelenleg nem elérhető a kért mennyiségben. Kérlek, frissítsd a kosarad.`,
+          },
+          { status: 400 }
+        );
+      }
+
+      const basePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
+      const price = isVariant ? item.price : basePrice + (chosenVariant?.priceDiff ?? 0);
       subtotal += price * item.quantity;
 
       verifiedItems.push({
@@ -273,6 +302,17 @@ export async function POST(request: NextRequest) {
           }
         }
       }
+    }
+
+    // Automatikus ingyenes csomagautomata 25 000 Ft (kedvezmény utáni termék-
+    // érték) felett — kupon nélkül, csak belföldi parcel módra.
+    if (
+      country === 'HU' &&
+      effectiveMethod === 'parcel' &&
+      orderRequiresShipping &&
+      qualifiesForFreeParcel(subtotal - discount)
+    ) {
+      freeShippingApplied = true;
     }
 
     const shippingCost = freeShippingApplied ? 0 : baseShippingCost;

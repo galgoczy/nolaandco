@@ -1,10 +1,13 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import Button from '@/components/ui/Button';
+import { getSiteImages } from '@/lib/siteImages';
+import { renderInline } from '@/lib/richTextInline';
 
-/** BLOKK 3: Kiemelt újdonság sáv — a Kalandköpeny kollekció bemutatása. */
-export default function FeaturedCapes() {
+/** BLOKK 3: Kiemelt újdonság sáv — a Pixie pillangó függők bemutatása.
+ * A fotó adminból cserélhető (Megjelenés). */
+export default async function FeaturedCapes({ t }: { t: Record<string, string> }) {
+  const imgs = await getSiteImages(['home-kiemelt-kalandkopeny']);
   return (
     <section className="py-10 md:py-16 bg-[#f5f0e8]">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
@@ -14,8 +17,8 @@ export default function FeaturedCapes() {
             <div className="w-full md:w-2/3">
               <div className="relative aspect-square rounded-sm overflow-hidden bg-surface-container-low ghost-border">
                 <Image
-                  src="/images/home/kalandkopeny-kiemelt.jpg"
-                  alt="NOLA Kalandköpenyek"
+                  src={imgs['home-kiemelt-kalandkopeny']}
+                  alt="Nola Pixie pillangó függők"
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 90vw, 60vw"
@@ -29,16 +32,13 @@ export default function FeaturedCapes() {
                 className="text-3xl md:text-4xl text-carbon tracking-[0.04em] leading-tight"
                 style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
               >
-                ÚJDONSÁG: NOLA Kalandköpenyek
+                {t['ujdonsag-cim']}
               </h2>
               <p className="text-[#4A4A4A] text-base md:text-lg leading-relaxed font-body">
-                Egy köpeny, két stílus. Pihe-puha, kétoldalas duplagéz köpenyeink
-                elhozzák a varázslatot a mindennapokba. Add meg a lehetőséget,
-                hogy a Te gyermeked legyen a történet hőse! Fedezd fel az új
-                kollekciót exkluzív bevezető áron.
+                {renderInline(t['ujdonsag-szoveg'])}
               </p>
-              <Button variant="secondary" href="/termekek?category=cape">
-                Megnézem a kollekciót
+              <Button variant="secondary" href="/termekek?category=decor">
+                {t['ujdonsag-gomb']}
               </Button>
             </div>
           </div>

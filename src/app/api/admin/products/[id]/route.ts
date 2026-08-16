@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdminRequest } from '@/lib/admin-auth';
+import { parseVariants, syncProductVariants } from '@/lib/productVariants';
 
 export async function PATCH(
   req: Request,
@@ -51,9 +52,22 @@ export async function PATCH(
   if (data.salePrice !== undefined) {
     update.salePrice = data.salePrice === null || data.salePrice === '' ? null : num(data.salePrice);
   }
+  if (data.stock !== undefined) {
+    update.stock = data.stock === null || data.stock === '' ? null : num(data.stock);
+  }
+  for (const key of ['productionTime', 'material', 'size', 'careInfo'] as const) {
+    if (data[key] !== undefined) update[key] = str(data[key]) || null;
+  }
+  if (data.features !== undefined) update.features = arr(data.features) ?? [];
+  if (data.bundleItems !== undefined) update.bundleItems = arr(data.bundleItems) ?? [];
 
   try {
     const product = await prisma.product.update({ where: { id }, data: update });
+
+    // A variánsok teljes halmazát a form küldi — a hiányzókat töröljük.
+    const variants = parseVariants(data.variants);
+    if (variants) await syncProductVariants(id, variants);
+
     return NextResponse.json({ product });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Mentés sikertelen';
@@ -88,6 +102,13 @@ export async function DELETE(
     });
   }
 
-  await prisma.product.delete({ where: { id } });
+  // Sírkő: a deploykor futó katalógus-szinkron a kódbeli listából újra
+  // létrehozná a terméket, ezért feljegyezzük, hogy ezt a slugot ne hozza vissza.
+  const deleted = await prisma.product.delete({ where: { id } });
+  await prisma.removedCatalogProduct.upsert({
+    where: { slug: deleted.slug },
+    update: { name: deleted.name },
+    create: { slug: deleted.slug, name: deleted.name },
+  });
   return NextResponse.json({ ok: true });
 }

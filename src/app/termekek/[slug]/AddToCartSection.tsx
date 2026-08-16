@@ -35,6 +35,8 @@ interface Props {
     imageUrl: string;
     category?: string | null;
     noShipping?: boolean;
+    /** Adminból szerkesztett bizalmi sorok; üres = kategória-alapértelmezés. */
+    features?: string[];
   };
   onBirthDataChange?: (data: BirthData | null) => void;
   onVariantChange?: (variantIdx: number) => void;
@@ -284,7 +286,7 @@ export default function AddToCartSection({
             onSubmit={handleBirthDataSubmit}
             submitLabel={oneClickAdd ? `Kosárba teszem – ${formatPrice(product.price)}` : undefined}
           />
-          <TrustBar category={product.category} className="mt-4 justify-center" />
+          <TrustBar category={product.category} items={product.features} className="mt-4 justify-center" />
         </>
       ) : !added ? (
         <div ref={addToCartRef} className="space-y-4">
@@ -325,7 +327,7 @@ export default function AddToCartSection({
           <Button variant="secondary" onClick={() => handleAddToCart()} className="w-full">
             Kosárba teszem – {formatPrice(isPoster ? posterVariants[selectedVariant].price : product.price)}
           </Button>
-          <TrustBar category={product.category} className="justify-center" />
+          <TrustBar category={product.category} items={product.features} className="justify-center" />
         </div>
       ) : (
         <div

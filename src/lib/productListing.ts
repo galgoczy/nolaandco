@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { firstImageEntry } from './productMedia';
 
 /**
  * Item shape used by listing UIs (ProductCard etc.). Covers both real Product
@@ -11,6 +12,10 @@ export type ListingItem = {
   price: number;             // price to display
   originalPrice: number | null; // compare-at price when on sale
   imageUrl: string;
+  /** Kép nélküli csomagoknál a tagtermékek fotói (automatikus mozaik). */
+  compositeImages: string[] | null;
+  /** Hover-előnézet: a galéria első (admin által sorrendezett) képe. */
+  hoverImageUrl: string | null;
   badge: string | null;
   category: string | null;
   series: string | null;
@@ -22,10 +27,32 @@ export type ListingItem = {
  * Umbrella "collection" filters used by the main nav: they expand to several
  * real product categories.
  */
-const CATEGORY_GROUPS: Record<string, string[]> = {
-  kicsiknek: ['pillow', 'poster'],
+export const CATEGORY_GROUPS: Record<string, string[]> = {
+  // Terméktípus-alapú fő útvonalak. A poszter elsődleges kategóriája az
+  // Emlékőrzők, de a Dekoráció gyűjtőoldalon is megjelenik.
+  emlekorzok: ['pillow', 'poster'],
+  textilek: ['szundikendo', 'takaro', 'cape', 'crown'],
+  dekoracio: ['poster', 'decor'],
+  // Örökölt (életkor-alapú) csoportok — a régi linkek 301-del átirányítanak,
+  // ez csak biztonsági háló a kódból érkező hivatkozásoknak.
+  kicsiknek: ['pillow', 'poster', 'szundikendo', 'takaro', 'decor'],
   nagyoknak: ['cape', 'crown'],
 };
+
+/**
+ * Resolve an umbrella slug to its member category slugs: the hardcoded map
+ * plus any category whose admin-set `parent` matches. New admin-created
+ * categories under Emlékőrzők/Textilek/Dekoráció thus appear automatically.
+ */
+async function resolveCategoryGroup(slug: string): Promise<string[]> {
+  const fixed = CATEGORY_GROUPS[slug] ?? [];
+  const children = await prisma.category.findMany({
+    where: { parent: slug },
+    select: { slug: true },
+  });
+  const merged = Array.from(new Set(fixed.concat(children.map((c) => c.slug))));
+  return merged.length > 0 ? merged : [slug];
+}
 
 /**
  * Categories whose pages show hidden products too. Main and preview share one
@@ -33,12 +60,12 @@ const CATEGORY_GROUPS: Record<string, string[]> = {
  * the live site, while staying testable on its own category pages here.
  * Remove this exception at launch, when the products are un-hidden.
  */
-const SHOW_HIDDEN_IN_CATEGORY = new Set(['cape', 'crown', 'bundle']);
+const SHOW_HIDDEN_IN_CATEGORY = new Set(['cape', 'crown', 'bundle', 'szundikendo', 'takaro', 'decor']);
 
 /** Fetch all products visible in listings + all active aliases, merged. */
 export async function getListingItems(opts?: { category?: string }): Promise<ListingItem[]> {
   const categoryFilter = opts?.category
-    ? CATEGORY_GROUPS[opts.category] ?? [opts.category]
+    ? await resolveCategoryGroup(opts.category)
     : undefined;
 
   const hiddenExemptCategories =
@@ -62,6 +89,29 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
     }),
   ]);
 
+  // Kép nélküli csomagok mozaik-fotója: a tagtermékek fő képei.
+  const bundleMemberSlugs = Array.from(
+    new Set(
+      products
+        .filter((p) => p.category === 'bundle' && !p.imageUrl && p.bundleItems.length > 0)
+        .flatMap((p) => p.bundleItems),
+    ),
+  );
+  const bundleMembers = bundleMemberSlugs.length
+    ? await prisma.product.findMany({
+        where: { slug: { in: bundleMemberSlugs } },
+        select: { slug: true, imageUrl: true },
+      })
+    : [];
+  const memberImageBySlug = new Map(bundleMembers.map((m) => [m.slug, m.imageUrl]));
+  const compositeFor = (p: { category: string; imageUrl: string; bundleItems: string[] }) => {
+    if (p.category !== 'bundle' || p.imageUrl || p.bundleItems.length === 0) return null;
+    const imgs = p.bundleItems
+      .map((slug) => memberImageBySlug.get(slug) ?? '')
+      .filter((u) => u !== '');
+    return imgs.length > 0 ? imgs.slice(0, 3) : null;
+  };
+
   // Resolve each alias by looking up its canonical product (for price/category/badge).
   const canonicalSlugs = Array.from(new Set(aliases.map((a) => a.targetProductSlug)));
   const canonicalProducts = canonicalSlugs.length
@@ -76,6 +126,11 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
     price: p.onSale && p.salePrice ? p.salePrice : p.price,
     originalPrice: p.onSale && p.salePrice ? p.price : null,
     imageUrl: p.imageUrl,
+    compositeImages: compositeFor(p),
+    hoverImageUrl: (() => {
+      const first = firstImageEntry(p.images);
+      return first && first !== p.imageUrl ? first : null;
+    })(),
     badge: p.badge,
     category: p.category ?? null,
     series: p.series ?? null,
@@ -95,6 +150,11 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
         price: canonical.onSale && canonical.salePrice ? canonical.salePrice : canonical.price,
         originalPrice: canonical.onSale && canonical.salePrice ? canonical.price : null,
         imageUrl: a.imageUrl,
+        compositeImages: null,
+        hoverImageUrl: (() => {
+          const first = firstImageEntry(canonical.images);
+          return first && first !== a.imageUrl ? first : null;
+        })(),
         badge: a.badge ?? canonical.badge,
         category: canonical.category ?? null,
         series: canonical.series ?? null,
@@ -107,14 +167,19 @@ export async function getListingItems(opts?: { category?: string }): Promise<Lis
   // Homepage/listing order: pillows → posters (aliases appear here) → capes →
   // crowns → giftcards. Within each bucket we keep the item's own sortOrder
   // (then createdAt via fetch order).
+  // A Dekoráció gyűjtőoldalon a pillangó függők állnak elöl, utánuk a poszterek.
+  const decorFirst = opts?.category === 'dekoracio';
   const bucketRank = (cat: string | null) => {
-    if (cat === 'pillow') return 0;
+    if (cat === 'decor') return decorFirst ? 0 : 6;
+    if (cat === 'pillow') return 0.5;
     if (cat === 'poster') return 1;
-    if (cat === 'cape') return 2;
-    if (cat === 'crown') return 3;
-    if (cat === 'bundle') return 4;
-    if (cat === 'giftcard') return 5;
-    return 6;
+    if (cat === 'szundikendo') return 2;
+    if (cat === 'takaro') return 3;
+    if (cat === 'cape') return 4;
+    if (cat === 'crown') return 5;
+    if (cat === 'bundle') return 7;
+    if (cat === 'giftcard') return 8;
+    return 9;
   };
 
   return [...productItems, ...aliasItems].sort((a, b) => {

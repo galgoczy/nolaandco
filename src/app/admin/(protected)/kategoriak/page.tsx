@@ -23,6 +23,8 @@ export default async function AdminCategoriesPage() {
           slug: c.slug,
           name: c.name,
           nameEn: c.nameEn ?? '',
+          imageUrl: c.imageUrl ?? '',
+          parent: c.parent ?? '',
           sortOrder: c.sortOrder,
           visibleOnHome: c.visibleOnHome,
           productCount: countMap[c.slug] ?? 0,

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
+import BundleCompositeImage from '@/components/products/BundleCompositeImage';
 
 interface ProductCardProps {
   product: {
@@ -11,6 +12,10 @@ interface ProductCardProps {
     /** Original (compare-at) price when the product is on sale. */
     originalPrice?: number | null;
     imageUrl: string;
+    /** Kép nélküli csomagoknál a tagtermékek fotói (automatikus mozaik). */
+    compositeImages?: string[] | null;
+    /** Rámutatásra megjelenő második kép (a galéria első képe); null = nincs váltás. */
+    hoverImageUrl?: string | null;
     badge?: string | null;
     category?: string | null;
   };
@@ -21,18 +26,51 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/termekek/${product.slug}`} className="group cursor-pointer card-hover block">
       <div className="relative aspect-[2/3] rounded-sm overflow-hidden bg-surface-container-low mb-3 ghost-border">
-        <Image
-          src={product.imageUrl}
-          alt={product.name}
-          fill
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 768px) 85vw, (max-width: 1024px) 42vw, 28vw"
-        />
+        {product.imageUrl ? (
+          // Rámutatásra nem nagyítunk: ha van második kép, lágy átúszással arra
+          // váltunk, és a kurzor távozásakor vissza. Egyetlen képnél nincs váltás,
+          // és mobilon (hover híján) mindig az első kép látszik.
+          <>
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              fill
+              className={`w-full h-full object-cover ${
+                product.hoverImageUrl
+                  ? 'transition-opacity duration-300 ease-out group-hover:opacity-0'
+                  : ''
+              }`}
+              sizes="(max-width: 767px) 50vw, (max-width: 1280px) 33vw, 400px"
+            />
+            {product.hoverImageUrl && (
+              <Image
+                src={product.hoverImageUrl}
+                alt=""
+                aria-hidden
+                fill
+                loading="lazy"
+                className="w-full h-full object-cover opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
+                sizes="(max-width: 767px) 50vw, (max-width: 1280px) 33vw, 400px"
+              />
+            )}
+          </>
+        ) : product.compositeImages && product.compositeImages.length > 0 ? (
+          <BundleCompositeImage
+            images={product.compositeImages}
+            alt={product.name}
+            sizes="(max-width: 767px) 25vw, 200px"
+          />
+        ) : (
+          // Fotó nélküli (még feltöltés alatt lévő) termék — semleges felület.
+          <div className="absolute inset-0 flex items-center justify-center bg-[#EFEAE2] text-carbon-light/50 text-[10px] tracking-[0.2em] uppercase text-center px-4">
+            Fotó hamarosan
+          </div>
+        )}
         {product.badge && (
           <div className="absolute top-4 right-4">
             <span
               className="badge-shimmer px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white shadow-sm"
-              style={{ backgroundColor: '#D55850' }}
+              style={{ backgroundColor: '#7A4A5A' }}
             >
               {product.badge}
             </span>

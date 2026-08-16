@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
+import { renderInline } from '@/lib/richTextInline';
 
 /** BLOKK 9: Hírlevél-feliratkozó sáv a lábléc fölött. */
-export default function NewsletterBand() {
+export default function NewsletterBand({ t }: { t: Record<string, string> }) {
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -40,14 +41,12 @@ export default function NewsletterBand() {
             className="text-2xl md:text-3xl lg:text-4xl text-[#FDFBF7] mb-4 tracking-[0.06em]"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
           >
-            Legyél a Nola család része!
+            {t['hirlevel-cim']}
           </h2>
         </RevealOnScroll>
         <RevealOnScroll>
           <p className="text-[#FDFBF7]/95 font-light leading-relaxed mb-8 max-w-2xl mx-auto">
-            Iratkozz fel, hogy elsőként értesülj a limitált kollekciókról, és megajándékozunk egy{' '}
-            <strong className="font-bold">INGYENES SZÁLLÍTÁS</strong> kuponnal az első
-            rendelésedhez!
+            {renderInline(t['hirlevel-szoveg'])}
           </p>
         </RevealOnScroll>
 

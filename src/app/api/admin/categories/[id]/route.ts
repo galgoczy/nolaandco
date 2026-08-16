@@ -22,6 +22,16 @@ export async function PATCH(
   if (typeof data.nameEn === 'string') update.nameEn = data.nameEn.trim() || null;
   if (typeof data.slug === 'string') update.slug = data.slug.trim().toLowerCase();
   if (typeof data.visibleOnHome === 'boolean') update.visibleOnHome = data.visibleOnHome;
+  if (data.imageUrl !== undefined) {
+    update.imageUrl = typeof data.imageUrl === 'string' && data.imageUrl.trim()
+      ? data.imageUrl.trim()
+      : null;
+  }
+  if (data.parent !== undefined) {
+    update.parent = typeof data.parent === 'string' && data.parent.trim()
+      ? data.parent.trim()
+      : null;
+  }
 
   try {
     const category = await prisma.category.update({ where: { id }, data: update });

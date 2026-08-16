@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCartStore } from '@/store/cart';
 import { formatPrice } from '@/lib/utils';
+import { FREE_PARCEL_THRESHOLD } from '@/lib/shipping';
+import { cartRequiresShipping } from '@/lib/shippingRules';
 import Button from '@/components/ui/Button';
 
 export default function KosarPage() {
@@ -158,6 +160,32 @@ export default function KosarPage() {
 
         {/* Summary */}
         <div className="mt-10 bg-white rounded-2xl p-6 md:p-8 shadow-sm ghost-border">
+          {/* Ingyenes csomagautomata 25 000 Ft felett — az esetleges kupon a
+              pénztárban kerül még levonásra, ott pontosítjuk az összeget. */}
+          {cartRequiresShipping(items) && (
+            <div className="mb-6">
+              {total() >= FREE_PARCEL_THRESHOLD ? (
+                <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
+                  Gratulálunk! A csomagautomatás szállítás ingyenes.
+                </div>
+              ) : (
+                <>
+                  <div className="bg-[#faf6f1] text-[#4A4A4A] rounded-xl px-4 py-3 text-sm">
+                    Már csak <strong>{formatPrice(FREE_PARCEL_THRESHOLD - total())}</strong>{' '}
+                    hiányzik az ingyenes csomagautomatás szállításhoz.
+                  </div>
+                  <div className="mt-2 h-1.5 rounded-full bg-[#EFEAE2] overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-[#C4A591] transition-all duration-500"
+                      style={{
+                        width: `${Math.min(100, Math.round((total() / FREE_PARCEL_THRESHOLD) * 100))}%`,
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          )}
           <div className="space-y-3">
             <div className="flex justify-between text-carbon">
               <span>Részösszeg</span>

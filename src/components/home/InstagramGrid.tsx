@@ -3,16 +3,21 @@ import RevealOnScroll from '@/components/ui/RevealOnScroll';
 
 const INSTAGRAM_URL = 'https://www.instagram.com/nolaandco.baby/';
 
-// Kézzel válogatott képek — később dinamikus Instagram-feedre cserélhető.
+// Kézzel válogatott vásárlói fotók. A sorrend ez a tömb — átrendezéshez
+// elég a sorokat felcserélni. Később dinamikus Instagram-feedre cserélhető.
 const images = [
-  '/testimonials/testimonial-1.jpg',
-  '/testimonials/testimonial-2.jpg',
-  '/testimonials/testimonial-3.jpg',
-  '/testimonials/testimonial-4.jpg',
+  '/images/Testimonials/IMG_0331.JPEG',
+  '/images/Testimonials/IMG_2025.jpg',
+  '/images/Testimonials/IMG_0795.jpg',
+  '/images/Testimonials/bc4c15d6-ebe1-4089-a1cb-9ae0aa41e4b1.JPG',
+  '/images/Testimonials/IMG_2888.jpg',
+  '/images/Testimonials/IMG_1361.jpg',
+  '/images/Testimonials/IMG_7755.jpg',
+  '/images/Testimonials/IMG_0757.jpg',
 ];
 
 /** BLOKK 8: Instagram-rács — a profilra mutató képes ráccsal. */
-export default function InstagramGrid() {
+export default function InstagramGrid({ t }: { t: Record<string, string> }) {
   return (
     <section className="py-10 md:py-16 bg-surface">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
@@ -21,7 +26,7 @@ export default function InstagramGrid() {
             className="text-2xl md:text-3xl lg:text-4xl text-carbon text-center mb-3 tracking-[0.04em]"
             style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
           >
-            A ti történeteitek, a mi emlékeink. 🤍
+            {t['insta-cim']}
           </h2>
         </RevealOnScroll>
         <RevealOnScroll>
@@ -32,26 +37,32 @@ export default function InstagramGrid() {
               rel="noopener noreferrer"
               className="text-[#C4A591] hover:text-[#4A4A4A] transition-colors font-medium tracking-[0.08em]"
             >
-              Kövess minket: @nolaandco.baby
+              {t['insta-link']}
             </a>
           </p>
         </RevealOnScroll>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        {/* Egyetlen, vízszintesen görgethető sor — a képek felváltva kicsit
+            lejjebb csúsztatva, minimális lekerekítéssel. */}
+        <div className="flex gap-3 md:gap-4 overflow-x-auto pb-4 -mx-6 px-6 md:-mx-8 md:px-8">
           {images.map((src, i) => (
-            <RevealOnScroll key={src} delay={i * 80}>
+            <RevealOnScroll
+              key={src}
+              delay={i * 80}
+              className={`flex-shrink-0 ${i % 2 === 1 ? 'mt-8 md:mt-10' : ''}`}
+            >
               <a
                 href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative block aspect-square rounded-xl overflow-hidden bg-surface-container-low"
+                className="group relative block w-40 h-40 md:w-52 md:h-52 rounded-sm overflow-hidden bg-surface-container-low"
               >
                 <Image
                   src={src}
                   alt="Nola & Co. az Instagramon"
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  sizes="(max-width: 768px) 45vw, 23vw"
+                  sizes="(max-width: 768px) 160px, 208px"
                 />
                 <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-colors duration-300">
                   <svg

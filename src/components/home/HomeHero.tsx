@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
+import { renderInline, renderMobileBreaks } from '@/lib/richTextInline';
 
 type HeroSlide = {
   desktopSrc: string;
@@ -15,45 +16,29 @@ type HeroSlide = {
 };
 
 // Sequential hero playlist: the videos play one after another (cross-fading),
-// then start over. Each slide carries its own overlay copy + CTA.
-const SLIDES: HeroSlide[] = [
-  {
-    desktopSrc: '/scrollytelling/hero6-desktop.mp4',
-    mobileSrc: '/scrollytelling/hero6-mobile.mp4',
-    eyebrow: 'EMLÉKEK, AMIK PONTOSAN AKKORÁK, MINT Ő VOLT',
-    title: (
-      <>
-        1:1 méretarányú
-        <br />
-        születési emlékpárnák
-        <br />
-        &amp; poszterek
-      </>
-    ),
-    // Desktopon egy sor, mobilon szépen két sorba tör ("Megtervezem a saját" /
-    // "emlékpárnámat"), így nem lesz túl széles vagy háromsoros.
-    ctaLabel: (
-      <>
-        Megtervezem a saját<br className="md:hidden" /> emlékpárnámat
-      </>
-    ),
-    ctaHref: '/termekek?category=kicsiknek',
-  },
-  {
-    desktopSrc: '/scrollytelling/nola_koppeny-desktop.mp4',
-    mobileSrc: '/scrollytelling/nola_koppeny-mobile.mp4',
-    mobileObjectPosition: '70% 50%',
-    eyebrow: 'EMLÉKEK A KICSIKNEK, KALANDOK A NAGYOKNAK',
-    title: (
-      <>
-        Megérkezett
-        <br />a Nagytesó kollekció
-      </>
-    ),
-    ctaLabel: 'Megnézem az újdonságokat',
-    ctaHref: '/termekek?category=nagyoknak',
-  },
-];
+// then start over. A szövegek adminból szerkeszthetők (Megjelenés → Szövegek);
+// az 1. dia gombjában az új sor csak mobilon tör (hogy ne legyen 3 soros).
+function buildSlides(t: Record<string, string>): HeroSlide[] {
+  return [
+    {
+      desktopSrc: '/scrollytelling/hero6-desktop.mp4',
+      mobileSrc: '/scrollytelling/hero6-mobile.mp4',
+      eyebrow: t['hero-1-eyebrow'],
+      title: renderInline(t['hero-1-title']),
+      ctaLabel: renderMobileBreaks(t['hero-1-cta']),
+      ctaHref: '/termekek?category=emlekorzok',
+    },
+    {
+      desktopSrc: '/scrollytelling/nola_koppeny-desktop.mp4',
+      mobileSrc: '/scrollytelling/nola_koppeny-mobile.mp4',
+      mobileObjectPosition: '70% 50%',
+      eyebrow: t['hero-2-eyebrow'],
+      title: renderInline(t['hero-2-title']),
+      ctaLabel: renderInline(t['hero-2-cta']),
+      ctaHref: '/termekek?category=textilek',
+    },
+  ];
+}
 
 const textShadow =
   '0 2px 24px rgba(0,0,0,0.35), 0 0 12px rgba(0,0,0,0.25), 0 0 2px rgba(255,255,255,0.15)';
@@ -63,10 +48,17 @@ const heroFont = "'Gilroy', 'Inter', 'Montserrat', sans-serif";
  * BLOKK 1: Hero — 16:9 background videos (autoplay, muted) with a
  * left-aligned text box + CTA per slide.
  */
-export default function HomeHero() {
+export default function HomeHero({ t }: { t: Record<string, string> }) {
+  const SLIDES = buildSlides(t);
   const videoRef0 = useRef<HTMLVideoElement>(null);
   const videoRef1 = useRef<HTMLVideoElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  // null = még nem tudjuk a viewportot. Amíg null, egyik videónak sincs src-je,
+  // így a telefon nem kezdi el letölteni a (jóval nagyobb) desktop változatot,
+  // hogy aztán eldobja.
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  // A második videó csak akkor kezd töltődni, amikor az első már játszik —
+  // így nem versenyez az első képkockáért a CSS-sel, a JS-sel és a képekkel.
+  const [loadSecond, setLoadSecond] = useState(false);
   const [active, setActive] = useState(0);
   const refs = [videoRef0, videoRef1];
 
@@ -79,10 +71,11 @@ export default function HomeHero() {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  // On viewport switch, reload both sources and restart from the first video.
+  // On viewport switch, restart from the first video. (A <video> elemek
+  // kulcsa is a viewporttól függ, tehát új forrással mountolódnak újra.)
   useEffect(() => {
+    if (isMobile === null) return;
     setActive(0);
-    [videoRef0, videoRef1].forEach((r) => r.current?.load());
     const v = videoRef0.current;
     if (v) {
       v.currentTime = 0;
@@ -90,28 +83,53 @@ export default function HomeHero() {
     }
   }, [isMobile]);
 
+  // A második videó forrása csak most kerül fel — indítsuk el a pufferelést,
+  // hogy készen álljon, mire az első véget ér.
+  useEffect(() => {
+    if (!loadSecond) return;
+    videoRef1.current?.load();
+  }, [loadSecond]);
+
   // When the active video changes, start it from the beginning.
   useEffect(() => {
+    if (isMobile === null) return;
     const allRefs = [videoRef0, videoRef1];
     const v = allRefs[active].current;
     if (v) {
       v.currentTime = 0;
       v.play().catch(() => {});
     }
-  }, [active]);
+  }, [active, isMobile]);
 
   return (
-    <section className="relative w-full overflow-hidden leading-[0]">
+    <section className="relative w-full overflow-hidden leading-[0] bg-[#C4A591]">
       <div className={`w-full relative ${isMobile ? 'h-[68vh]' : 'aspect-video'}`}>
         {SLIDES.map((slide, i) => (
           <video
-            key={isMobile ? slide.mobileSrc : slide.desktopSrc}
+            // A kulcs csak akkor változik, ha tényleg más forrásra váltunk
+            // (desktop → mobil). Így a desktop videó letöltése nem indul újra
+            // a hidratálás után.
+            key={`${i}-${isMobile === true ? 'm' : 'd'}`}
             ref={refs[i]}
-            src={isMobile ? slide.mobileSrc : slide.desktopSrc}
+            // Az első videó forrása a szerver által küldött HTML-ben is benne
+            // van, hogy a böngésző már a HTML olvasása közben tölteni kezdje.
+            // A második csak akkor kap forrást, amikor az első már játszik.
+            src={
+              i > 0 && !loadSecond
+                ? undefined
+                : isMobile === true
+                  ? slide.mobileSrc
+                  : slide.desktopSrc
+            }
             muted
             playsInline
-            preload="auto"
+            preload={i === 0 || loadSecond ? 'auto' : 'none'}
             autoPlay={i === 0}
+            onPlaying={() => {
+              // Az első videó elindult — innentől van ~10 másodperc a
+              // másodikat betölteni, mielőtt szükség lenne rá.
+              if (i === 0) setLoadSecond(true);
+            }}
             onEnded={() => {
               if (i === active) setActive((a) => (a + 1) % SLIDES.length);
             }}

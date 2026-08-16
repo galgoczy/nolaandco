@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
@@ -9,6 +10,9 @@ import CapeAddToCart from './CapeAddToCart';
 import ProductGallery from './ProductGallery';
 import PillowVariants from './PillowVariants';
 import PosterClient from './PosterClient';
+import TextileClient from './TextileClient';
+import ProductSpecs from '@/components/products/ProductSpecs';
+import BundleCompositeImage from '@/components/products/BundleCompositeImage';
 import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
 import { getCapeConfig } from './capeData';
 
@@ -19,18 +23,40 @@ interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+/**
+ * Alias- és termékfeloldás egy helyen. A React `cache` a kérésen belül
+ * megjegyzi az eredményt, így a generateMetadata és az oldal együtt is csak
+ * egyszer kérdezi le az adatbázist.
+ */
+const resolveProduct = cache(async (slug: string) => {
+  // Alias lookup first — if this URL is a "landing card" for a canonical product,
+  // resolve to the canonical product and use the alias's default layout.
+  const alias = await prisma.productAlias.findUnique({ where: { slug } });
+  const canonicalSlug = alias?.targetProductSlug ?? slug;
+  const product = await prisma.product.findUnique({ where: { slug: canonicalSlug } });
+  return { alias, product };
+});
+
+/**
+ * A nem létező termék ellenőrzése ide kerül, mert a metaadat még a válasz
+ * streamelése előtt áll össze — csak innen hívva ad a notFound() valódi 404-et.
+ * Magában az oldalban hívva a `loading.tsx` Suspense-határa miatt a státusz
+ * már 200-ként elment. Lásd vercel/next.js#76474.
+ */
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  const { product } = await resolveProduct(slug);
+  if (!product || !product.active) {
+    notFound();
+  }
+  return {};
+}
+
 export default async function ProductDetailPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const search = await searchParams;
 
-  // Alias lookup first — if this URL is a "landing card" for a canonical product,
-  // resolve to the canonical product and use the alias's default layout.
-  const alias = await prisma.productAlias.findUnique({ where: { slug } });
-
-  const canonicalSlug = alias?.targetProductSlug ?? slug;
-  const product = await prisma.product.findUnique({
-    where: { slug: canonicalSlug },
-  });
+  const { alias, product } = await resolveProduct(slug);
 
   if (!product || !product.active) {
     notFound();
@@ -44,6 +70,8 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const isPillow = product.category === 'pillow';
   const isBigKidProduct =
     product.category === 'cape' || product.category === 'crown' || product.category === 'bundle';
+  // DB-variánsos, nem személyre szabott termékek (swatch-választós oldal).
+  const isTextile = ['szundikendo', 'takaro', 'decor'].includes(product.category);
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
 
   const pillowVariants = isPillow
@@ -103,6 +131,73 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
     );
   }
 
+  if (isTextile) {
+    const variants = await prisma.productVariant.findMany({
+      where: { productId: product.id, active: true },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    });
+    // A NOLA Cloud kétoldalas párosításokkal érkezik — ott "színpárosítás" a felirat.
+    const variantLabel = variants.some((v) => v.colorHex2)
+      ? 'Válassz színpárosítást'
+      : 'Válassz színt';
+
+    return (
+      <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
+        <div className="max-w-7xl mx-auto px-8">
+          <TextileClient
+            product={{
+              id: product.id,
+              name: product.name,
+              slug: product.slug,
+              price: effectivePrice,
+              originalPrice: product.onSale && product.salePrice ? product.price : null,
+              imageUrl: product.imageUrl,
+              images: product.images ?? [],
+              category: product.category,
+              description: product.description,
+              longDescription: product.longDescription,
+              badge: product.badge,
+              stock: product.stock,
+              features: product.features ?? [],
+              material: product.material,
+              size: product.size,
+              productionTime: product.productionTime,
+              careInfo: product.careInfo,
+              noShipping: product.noShipping,
+            }}
+            variants={variants.map((v) => ({
+              id: v.id,
+              name: v.name,
+              colorHex: v.colorHex,
+              colorHex2: v.colorHex2,
+              stock: v.stock,
+              images: v.images ?? [],
+              priceDiff: v.priceDiff,
+            }))}
+            variantLabel={variantLabel}
+          />
+        </div>
+      </section>
+    );
+  }
+
+  // Csomag saját fotó nélkül: a tagtermékek képeiből álló mozaik.
+  const bundleComposite =
+    product.category === 'bundle' && !product.imageUrl && product.bundleItems.length > 0
+      ? (
+          await prisma.product.findMany({
+            where: { slug: { in: product.bundleItems } },
+            select: { slug: true, imageUrl: true },
+          })
+        )
+          .sort(
+            (a, b) => product.bundleItems.indexOf(a.slug) - product.bundleItems.indexOf(b.slug),
+          )
+          .map((m) => m.imageUrl)
+          .filter((u) => u !== '')
+          .slice(0, 3)
+      : [];
+
   const longDescriptionBlock = product.longDescription ? (
     <>
       <h2 className="text-2xl md:text-3xl text-[#4A4A4A] mb-6 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
@@ -121,12 +216,34 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-x-16">
           {/* Left column: gallery + (desktop) long description */}
           <div className="w-full lg:w-1/2 flex flex-col gap-12">
-            <ProductGallery
-              mainImage={product.imageUrl}
-              images={product.images ?? []}
-              alt={product.name}
-              badge={product.badge}
-            />
+            {bundleComposite.length > 0 ? (
+              <div className="w-full max-w-[470px] mx-auto lg:ml-auto lg:mr-0">
+                <div className="relative aspect-[2/3] rounded-2xl overflow-hidden ghost-border">
+                  <BundleCompositeImage
+                    images={bundleComposite}
+                    alt={product.name}
+                    sizes="(max-width: 520px) 50vw, 235px"
+                  />
+                  {product.badge && (
+                    <div className="absolute top-4 right-4 z-10">
+                      <span
+                        className="badge-shimmer px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white shadow-sm"
+                        style={{ backgroundColor: '#7A4A5A' }}
+                      >
+                        {product.badge}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <ProductGallery
+                mainImage={product.imageUrl}
+                images={product.images ?? []}
+                alt={product.name}
+                badge={product.badge}
+              />
+            )}
 
             {product.longDescription && (
               <div
@@ -151,20 +268,30 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
             </h1>
 
             {!isGiftCard && (
-              <div className="flex items-center gap-3">
-                {product.onSale && product.salePrice ? (
-                  <>
-                    <span className="text-2xl font-bold text-primary">
-                      {formatPrice(product.salePrice)}
-                    </span>
-                    <span className="text-lg text-carbon-light line-through">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-3">
+                  {product.onSale && product.salePrice ? (
+                    <>
+                      <span className="text-2xl font-bold text-primary">
+                        {formatPrice(product.salePrice)}
+                      </span>
+                      <span className="text-lg text-carbon-light line-through">
+                        {formatPrice(product.price)}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-2xl font-bold text-carbon">
                       {formatPrice(product.price)}
                     </span>
-                  </>
-                ) : (
-                  <span className="text-2xl font-bold text-carbon">
-                    {formatPrice(product.price)}
-                  </span>
+                  )}
+                </div>
+                {/* Csomagoknál a megtakarítás kiírva: "X helyett Y — Z megtakarítás". */}
+                {product.category === 'bundle' && product.onSale && product.salePrice && (
+                  <p className="text-sm text-carbon-light">
+                    {formatPrice(product.price)} helyett{' '}
+                    <strong className="text-carbon">{formatPrice(product.salePrice)}</strong> —{' '}
+                    {formatPrice(product.price - product.salePrice)} megtakarítás
+                  </p>
                 )}
               </div>
             )}
@@ -207,6 +334,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                     imageUrl: product.imageUrl,
                     category: product.category,
                     noShipping: product.noShipping,
+                    features: product.features ?? [],
                   }}
                   config={getCapeConfig(product.slug)}
                 />
@@ -220,11 +348,22 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                     imageUrl: product.imageUrl,
                     category: product.category,
                     noShipping: product.noShipping,
+                    features: product.features ?? [],
                   }}
                   oneClickAdd
                 />
               )}
             </div>
+
+            {/* Adminból szerkeszthető termékadat-lap (üres mezők kimaradnak). */}
+            <ProductSpecs
+              specs={{
+                material: product.material,
+                size: product.size,
+                productionTime: product.productionTime,
+                careInfo: product.careInfo,
+              }}
+            />
           </div>
 
           {/* Mobile-only long description, at the very bottom */}

@@ -16,24 +16,33 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: 'FŐOLDAL', href: '/' },
   {
-    label: 'KICSIKNEK',
-    href: '/termekek?category=kicsiknek',
+    label: 'EMLÉKŐRZŐK',
+    href: '/termekek?category=emlekorzok',
     children: [
       { label: 'Emlékpárnák', href: '/termekek?category=pillow' },
       { label: 'Születési poszterek', href: '/termekek?category=poster' },
     ],
   },
   {
-    label: 'NAGYOKNAK',
-    href: '/termekek?category=nagyoknak',
+    label: 'TEXTILEK',
+    href: '/termekek?category=textilek',
     children: [
+      { label: 'Szundikendők', href: '/termekek?category=szundikendo' },
+      { label: 'Takarók', href: '/termekek?category=takaro' },
       { label: 'Kalandköpenyek', href: '/termekek?category=cape' },
       { label: 'Koronák', href: '/termekek?category=crown' },
     ],
   },
+  {
+    label: 'DEKORÁCIÓ',
+    href: '/termekek?category=dekoracio',
+    children: [
+      { label: 'Pillangó függők', href: '/termekek?category=decor' },
+      { label: 'Születési poszterek', href: '/termekek?category=poster' },
+    ],
+  },
   { label: 'VÁLOGATÁSOK', href: '/termekek?category=bundle' },
   { label: 'AJÁNDÉKKÁRTYA', href: '/termekek/nola-digitalis-ajandekkartya' },
-  { label: 'NEKTEK', href: '/nektek' },
   { label: 'RÓLUNK', href: '/rolunk' },
 ];
 
@@ -48,15 +57,22 @@ type BannerData = {
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [banner, setBanner] = useState<BannerData | null>(null);
+  const [bundleLinks, setBundleLinks] = useState<{ label: string; href: string }[]>([]);
   const [showBanner, setShowBanner] = useState(true);
   const [mounted, setMounted] = useState(false);
   const count = useCartStore((s) => s.count());
   const pathname = usePathname();
 
   // A Főoldal menüpont a főoldalon felesleges — csak aloldalakon jelenik meg.
-  const visibleItems = navItems.filter(
-    (item) => !(item.href === '/' && pathname === '/')
-  );
+  // A Válogatások lenyílóját a kategória látható termékei adják (adminból
+  // automatikusan követi a változást).
+  const visibleItems = navItems
+    .filter((item) => !(item.href === '/' && pathname === '/'))
+    .map((item) =>
+      item.label === 'VÁLOGATÁSOK' && bundleLinks.length > 0
+        ? { ...item, children: bundleLinks }
+        : item
+    );
 
   useEffect(() => {
     setMounted(true);
@@ -64,6 +80,19 @@ export default function Navbar() {
       .then((r) => r.json())
       .then((data) => {
         if (data.banner) setBanner(data.banner);
+      })
+      .catch(() => {});
+    fetch('/api/menu/bundles')
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.bundles)) {
+          setBundleLinks(
+            data.bundles.map((b: { name: string; slug: string }) => ({
+              label: b.name,
+              href: `/termekek/${b.slug}`,
+            }))
+          );
+        }
       })
       .catch(() => {});
   }, []);

@@ -11,9 +11,13 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [product, dbCats] = await Promise.all([
+  const [product, dbCats, variants] = await Promise.all([
     prisma.product.findUnique({ where: { id } }),
     prisma.category.findMany({ orderBy: { sortOrder: 'asc' } }),
+    prisma.productVariant.findMany({
+      where: { productId: id },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    }),
   ]);
   if (!product) notFound();
 
@@ -53,6 +57,23 @@ export default async function EditProductPage({
           noShipping: product.noShipping,
           onSale: product.onSale,
           salePrice: product.salePrice ?? '',
+          stock: product.stock ?? '',
+          productionTime: product.productionTime ?? '',
+          material: product.material ?? '',
+          size: product.size ?? '',
+          careInfo: product.careInfo ?? '',
+          features: product.features ?? [],
+          bundleItems: (product.bundleItems ?? []).join(', '),
+          variants: variants.map((v) => ({
+            id: v.id,
+            name: v.name,
+            colorHex: v.colorHex ?? '',
+            colorHex2: v.colorHex2 ?? '',
+            images: v.images ?? [],
+            priceDiff: v.priceDiff,
+            stock: v.stock ?? '',
+            active: v.active,
+          })),
         }}
       />
     </div>

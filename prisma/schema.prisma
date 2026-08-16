@@ -44,6 +44,10 @@ model Product {
   careInfo        String?
   /// Trust-bar rows / product highlights. Empty = category defaults.
   features        String[] @default([])
+  /// Csomagoknál a tartalmazott termékek slugjai. Amíg a csomagnak nincs
+  /// saját fő képe, a kártyája automatikusan a tagtermékek fotóiból áll
+  /// össze (függőleges osztással); kézi képfeltöltés felülírja.
+  bundleItems     String[] @default([])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -196,6 +200,40 @@ model Category {
   visibleOnHome Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+/// Adminból szerkeszthető szövegek a statikus szekciókhoz (főoldali blokkok
+/// címei, leírásai, gombfeliratai). A key a kódban definiált szöveghely;
+/// sor hiányában az alapértelmezett (kódbeli) szöveg jelenik meg.
+/// Adminból véglegesen törölt katalógus-termékek nyilvántartása. A deploykor
+/// futó katalógus-szinkron a kódbeli listából újra létrehozná őket; az itt
+/// szereplő slugokat kihagyja, így a törlés tartós marad. A sor akkor tűnik
+/// el, ha a slugot adminból újra létrehozzák.
+model RemovedCatalogProduct {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+}
+
+model SiteText {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Admin által cserélhető képek a statikus szekciókhoz (főoldali
+/// kategória-kártyák, ART OF CRAFTING fotók, kiemelt sáv, ...). A key a
+/// kódban definiált képhely azonosítója; sor hiányában az alapértelmezett
+/// (repóbeli) kép jelenik meg.
+model SiteImage {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Banner {
