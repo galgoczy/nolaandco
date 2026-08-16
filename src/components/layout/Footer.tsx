@@ -4,8 +4,6 @@ import CookiePreferencesLink from './CookiePreferencesLink';
 
 const quickLinks = [
   { label: 'Emlékőrzők', href: '/termekek?category=emlekorzok' },
-  { label: 'Emlékpárnák', href: '/termekek?category=pillow' },
-  { label: 'Születési poszterek', href: '/termekek?category=poster' },
   { label: 'Textilek', href: '/termekek?category=textilek' },
   { label: 'Dekoráció', href: '/termekek?category=dekoracio' },
   { label: 'Válogatások', href: '/termekek?category=bundle' },
