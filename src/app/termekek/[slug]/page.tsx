@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
@@ -22,18 +23,40 @@ interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+/**
+ * Alias- és termékfeloldás egy helyen. A React `cache` a kérésen belül
+ * megjegyzi az eredményt, így a generateMetadata és az oldal együtt is csak
+ * egyszer kérdezi le az adatbázist.
+ */
+const resolveProduct = cache(async (slug: string) => {
+  // Alias lookup first — if this URL is a "landing card" for a canonical product,
+  // resolve to the canonical product and use the alias's default layout.
+  const alias = await prisma.productAlias.findUnique({ where: { slug } });
+  const canonicalSlug = alias?.targetProductSlug ?? slug;
+  const product = await prisma.product.findUnique({ where: { slug: canonicalSlug } });
+  return { alias, product };
+});
+
+/**
+ * A nem létező termék ellenőrzése ide kerül, mert a metaadat még a válasz
+ * streamelése előtt áll össze — csak innen hívva ad a notFound() valódi 404-et.
+ * Magában az oldalban hívva a `loading.tsx` Suspense-határa miatt a státusz
+ * már 200-ként elment. Lásd vercel/next.js#76474.
+ */
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  const { product } = await resolveProduct(slug);
+  if (!product || !product.active) {
+    notFound();
+  }
+  return {};
+}
+
 export default async function ProductDetailPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const search = await searchParams;
 
-  // Alias lookup first — if this URL is a "landing card" for a canonical product,
-  // resolve to the canonical product and use the alias's default layout.
-  const alias = await prisma.productAlias.findUnique({ where: { slug } });
-
-  const canonicalSlug = alias?.targetProductSlug ?? slug;
-  const product = await prisma.product.findUnique({
-    where: { slug: canonicalSlug },
-  });
+  const { alias, product } = await resolveProduct(slug);
 
   if (!product || !product.active) {
     notFound();
