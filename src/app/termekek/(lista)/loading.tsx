@@ -1,4 +1,7 @@
 // Azonnali skeleton a terméklistázáshoz, amíg az adatbázis-lekérdezés fut.
+// A (lista) útvonalcsoportban van, hogy a Suspense-határa csak a listaoldalra
+// vonatkozzon: a termékoldalon streamelés nélkül dől el, létezik-e a termék,
+// és így a nem létező termék valódi 404-et kap 200 helyett.
 export default function TermekekLoading() {
   return (
     <section className="pt-6 md:pt-10 pb-20 bg-surface min-h-screen">
