@@ -201,10 +201,16 @@ export default function TextileClient({ product, variants, variantLabel }: Props
           />
         )}
 
-        {stock !== null && stock > 0 && stock <= 3 && (
-          <p className="text-sm text-[#D55850]">
-            Már csak {stock} db elérhető ebből a változatból.
-          </p>
+        {/* Készletinfó minden olyan terméknél, ahol be van állítva darabszám.
+            Három darab alatt sürgetőbb, pirosan; fölötte semleges tájékoztatás. */}
+        {stock !== null && stock > 0 && (
+          stock <= 3 ? (
+            <p className="text-sm text-[#D55850]">
+              Már csak {stock} db elérhető ebből a változatból.
+            </p>
+          ) : (
+            <p className="text-sm text-carbon-light">Raktáron: {stock} db</p>
+          )
         )}
 
         <div className="pt-2 space-y-6">
