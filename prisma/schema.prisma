@@ -115,6 +115,10 @@ model Order {
   // Structured pickup-point id (Foxpost place_id or Packeta point id).
   // Replaces the legacy overloading of shippingNote.
   pickupPointId   String?
+  /// Mikor vontuk le a rendelés tételeit a készletből. A mező egyben zár is:
+  /// csak az a hívás von le, amelyik null-ról tudja beállítani, így a Stripe
+  /// webhook ismételt kézbesítése sem csökkenti kétszer a készletet.
+  stockAdjustedAt DateTime?
   customerId      String?
   customer        Customer? @relation(fields: [customerId], references: [id])
   createdAt       DateTime @default(now())

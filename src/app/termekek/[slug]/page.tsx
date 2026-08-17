@@ -14,7 +14,7 @@ import TextileClient from './TextileClient';
 import ProductSpecs from '@/components/products/ProductSpecs';
 import BundleCompositeImage from '@/components/products/BundleCompositeImage';
 import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
-import { getCapeConfig } from './capeData';
+import { resolveCapeConfig } from '@/lib/capeOptions';
 
 const POSTER_DESIGNER_SLUG = 'poszter';
 
@@ -73,6 +73,12 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   // DB-variánsos, nem személyre szabott termékek (swatch-választós oldal).
   const isTextile = ['szundikendo', 'takaro', 'decor'].includes(product.category);
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
+
+  // A csomagok választható színei/modelljei a katalógusból jönnek, hogy az
+  // adminban átnevezett vagy elfogyott darabok ne maradjanak a listában.
+  const capeConfig = isBigKidProduct
+    ? await resolveCapeConfig(product.slug)
+    : { designer: false };
 
   const pillowVariants = isPillow
     ? await (async () => {
@@ -336,7 +342,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                     noShipping: product.noShipping,
                     features: product.features ?? [],
                   }}
-                  config={getCapeConfig(product.slug)}
+                  config={capeConfig}
                 />
               ) : (
                 <AddToCartSection

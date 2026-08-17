@@ -15,6 +15,7 @@ import { cartItemRequiresShipping } from '@/lib/shippingRules';
 import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
 import { notifyNewOrderTelegram } from '@/lib/telegram';
 import { getShippingCost, carrierForCountry, getCountryConfig, qualifiesForFreeParcel } from '@/lib/shipping';
+import { applyStockForOrder } from '@/lib/stock';
 import type { CartItemData } from '@/store/cart';
 
 /**
@@ -422,6 +423,12 @@ export async function POST(request: NextRequest) {
         where: { id: order.id },
         data: { status: 'paid' },
       });
+
+      try {
+        await applyStockForOrder(order.id);
+      } catch (err) {
+        console.error('Készletlevonás sikertelen:', { orderId: order.id, err });
+      }
 
       // Digital gift cards: generate the coupon code(s) and email them.
       try {
