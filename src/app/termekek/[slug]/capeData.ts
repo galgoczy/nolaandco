@@ -7,6 +7,14 @@ export type DesignerField = {
   key: string;
   label: string;
   options: string[];
+  /**
+   * Ha meg van adva, a választható értékek a katalógusból jönnek: ennek a
+   * kategóriának az elérhető termékeiből. Az `options` ilyenkor csak tartalék
+   * arra az esetre, ha a kategória üres. Így a csomagok nem kínálnak olyan
+   * színt vagy modellt, amit közben adminban átneveztek vagy töröltek.
+   * A feloldás szerver oldalon történik: src/lib/capeOptions.ts.
+   */
+  optionsFrom?: string;
 };
 
 const SIDE_COLORS = [
@@ -116,7 +124,7 @@ const CAPE_CONFIGS: Record<string, CapeConfig> = {
     designer: false,
     birthData: true,
     fields: [
-      { key: 'parna-modell', label: 'Emlékpárna modell', options: PILLOW_MODELS },
+      { key: 'parna-modell', label: 'Emlékpárna modell', options: PILLOW_MODELS, optionsFrom: 'pillow' },
       { key: 'poszter-dizajn', label: 'Poszter dizájn', options: POSTER_DESIGNS },
       { key: 'poszter-hatter', label: 'Poszter háttérszín', options: POSTER_BACKGROUNDS },
     ],
@@ -125,7 +133,7 @@ const CAPE_CONFIGS: Record<string, CapeConfig> = {
     designer: false,
     birthData: true,
     fields: [
-      { key: 'pillango-modell', label: 'Pillangó függő', options: PIXIE_MODELS },
+      { key: 'pillango-modell', label: 'Pillangó függő', options: PIXIE_MODELS, optionsFrom: 'decor' },
       { key: 'poszter-dizajn', label: 'Poszter dizájn', options: POSTER_DESIGNS },
       { key: 'poszter-hatter', label: 'Poszter háttérszín', options: POSTER_BACKGROUNDS },
     ],
@@ -138,8 +146,8 @@ const CAPE_CONFIGS: Record<string, CapeConfig> = {
   'puha-kucko-csomag': {
     designer: false,
     fields: [
-      { key: 'takaro-parositas', label: 'Takaró színpárosítás', options: CLOUD_COLORWAYS },
-      { key: 'szundikendo-szin', label: 'Szundikendő színe', options: HUSH_COLORS },
+      { key: 'takaro-parositas', label: 'Takaró színpárosítás', options: CLOUD_COLORWAYS, optionsFrom: 'takaro' },
+      { key: 'szundikendo-szin', label: 'Szundikendő színe', options: HUSH_COLORS, optionsFrom: 'szundikendo' },
     ],
   },
 };
