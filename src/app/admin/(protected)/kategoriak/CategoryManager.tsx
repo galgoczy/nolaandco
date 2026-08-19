@@ -174,6 +174,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
   return (
     <div className="flex flex-col gap-4 max-w-3xl">
       <div className="bg-surface-container-lowest rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-sm font-body">
           <thead>
             <tr className="border-b border-outline-variant text-left bg-surface-container-low">
@@ -349,6 +350,7 @@ export default function CategoryManager({ initial }: { initial: Cat[] }) {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Add new */}
