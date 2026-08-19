@@ -7,12 +7,21 @@ import ProductRowActions from './ProductRowActions';
 import ProductSortButtons from './ProductSortButtons';
 
 export default async function AdminProductsPage() {
-  const [products, dbCats] = await Promise.all([
+  const [products, dbCats, waiting] = await Promise.all([
     prisma.product.findMany({ orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] }),
     prisma.category.findMany(),
+    // Hányan kértek értesítést az elfogyott darabokra — ez a legjobb jelzés
+    // arra, miből érdemes újat gyártani.
+    prisma.stockAlert.groupBy({
+      by: ['productId'],
+      where: { notifiedAt: null },
+      _count: { _all: true },
+    }),
   ]);
   const categoryLabels: Record<string, string> = {};
   dbCats.forEach((c) => { categoryLabels[c.slug] = c.name; });
+  const waitingByProduct: Record<string, number> = {};
+  waiting.forEach((w) => { waitingByProduct[w.productId] = w._count._all; });
 
   return (
     <div>
@@ -96,6 +105,14 @@ export default async function AdminProductsPage() {
                     ) : (
                       <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
                         Inaktív
+                      </span>
+                    )}
+                    {waitingByProduct[product.id] > 0 && (
+                      <span
+                        title="Ennyien kértek értesítést, ha újra készleten lesz"
+                        className="mt-1 block text-xs text-[#B48D76]"
+                      >
+                        {waitingByProduct[product.id]} várakozó
                       </span>
                     )}
                   </td>
