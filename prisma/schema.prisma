@@ -53,6 +53,26 @@ model Product {
 
   orderItems OrderItem[]
   variants   ProductVariant[]
+  stockAlerts StockAlert[]
+}
+
+/// „Szólj, ha újra lesz" feliratkozás egy elfogyott termékre. Egyszeri
+/// szolgáltatásüzenet, nem hírlevél: amikor a termék készlete 0-ról pozitívra
+/// vált, kimegy az értesítő, és a sor elfogy (notifiedAt kitöltődik). Ha a
+/// darab újra elfogy, újra fel kell iratkozni.
+model StockAlert {
+  id         String    @id @default(cuid())
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  email      String
+  /// Egykattintásos leiratkozás azonosítója (a levélben lévő link).
+  token      String    @unique
+  createdAt  DateTime  @default(now())
+  /// Mikor ment ki az értesítő. null = még vár.
+  notifiedAt DateTime?
+
+  @@unique([productId, email])
+  @@index([productId, notifiedAt])
 }
 
 /// A selectable variant of a product (e.g. one of the six NOLA Hush colours,

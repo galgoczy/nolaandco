@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdminRequest } from '@/lib/admin-auth';
 import { parseVariants, syncProductVariants } from '@/lib/productVariants';
+import { notifyBackInStock } from '@/lib/stockAlerts';
 
 export async function PATCH(
   req: Request,
@@ -62,13 +63,33 @@ export async function PATCH(
   if (data.bundleItems !== undefined) update.bundleItems = arr(data.bundleItems) ?? [];
 
   try {
+    // A készlet felfelé csak itt mozdulhat (fizetéskor csak csökken), ezért a
+    // „szólj, ha újra lesz" értesítők kiváltása is ide tartozik. A korábbi
+    // értéket a frissítés előtt kell megnézni.
+    const before =
+      update.stock !== undefined
+        ? await prisma.product.findUnique({ where: { id }, select: { stock: true } })
+        : null;
+
     const product = await prisma.product.update({ where: { id }, data: update });
 
     // A variánsok teljes halmazát a form küldi — a hiányzókat töröljük.
     const variants = parseVariants(data.variants);
     if (variants) await syncProductVariants(id, variants);
 
-    return NextResponse.json({ product });
+    let notified = 0;
+    const cameBackInStock =
+      before?.stock === 0 && typeof product.stock === 'number' && product.stock > 0;
+    if (cameBackInStock) {
+      // A mentés nem bukhat el azon, ha a levélküldés akadozik.
+      try {
+        notified = await notifyBackInStock(id);
+      } catch (err) {
+        console.error('Készletértesítők kiküldése sikertelen:', { productId: id, err });
+      }
+    }
+
+    return NextResponse.json({ product, notified });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Mentés sikertelen';
     if (msg.includes('Unique constraint')) {

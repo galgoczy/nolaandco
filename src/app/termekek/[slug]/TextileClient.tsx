@@ -9,6 +9,7 @@ import ProductGallery from './ProductGallery';
 import { renderRichText } from '@/lib/richText';
 import { formatPrice } from '@/lib/utils';
 import { useCartStore } from '@/store/cart';
+import StockAlertForm from '@/components/products/StockAlertForm';
 
 export type TextileVariant = PickerVariant & {
   images: string[];
@@ -241,14 +242,18 @@ export default function TextileClient({ product, variants, variantLabel }: Props
             </div>
           ) : (
             <>
-              <Button
-                variant="secondary"
-                onClick={handleAddToCart}
-                disabled={soldOut}
-                className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {soldOut ? 'Jelenleg nem elérhető' : `Kosárba teszem – ${formatPrice(price)}`}
-              </Button>
+              {soldOut ? (
+                // Az elfogyott termék ne legyen zsákutca: itt lehet értesítést kérni.
+                <StockAlertForm productId={product.id} />
+              ) : (
+                <Button
+                  variant="secondary"
+                  onClick={handleAddToCart}
+                  className="w-full"
+                >
+                  {`Kosárba teszem – ${formatPrice(price)}`}
+                </Button>
+              )}
               {error && <p className="text-sm text-red-500 -mt-3">{error}</p>}
             </>
           )}

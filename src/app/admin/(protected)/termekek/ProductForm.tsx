@@ -70,10 +70,13 @@ export default function ProductForm({
   initial,
   productId,
   categories,
+  waitingCount = 0,
 }: {
   initial: ProductFormValues;
   productId?: string;
   categories: { value: string; label: string }[];
+  /** Hányan kértek értesítést, ha ez a termék újra készleten lesz. */
+  waitingCount?: number;
 }) {
   const router = useRouter();
   const [values, setValues] = useState<ProductFormValues>(initial);
@@ -354,8 +357,19 @@ export default function ProductForm({
             />
             <p className="text-xs text-on-surface/50 mt-1">
               0 esetén a termék &bdquo;Jelenleg nem elérhető&rdquo;. Ha vannak variánsok, a
-              variáns saját készlete dönt.
+              variáns saját készlete dönt. Fizetéskor automatikusan csökken.
             </p>
+            {isEdit && (
+              <p
+                className={`text-xs mt-2 ${
+                  waitingCount > 0 ? 'text-[#B48D76] font-medium' : 'text-on-surface/50'
+                }`}
+              >
+                {waitingCount > 0
+                  ? `${waitingCount} vásárló kér értesítést — 0-ról feljebb állítva mindannyian levelet kapnak.`
+                  : 'Jelenleg senki nem kért értesítést erre a termékre.'}
+              </p>
+            )}
           </div>
         </div>
       </section>
