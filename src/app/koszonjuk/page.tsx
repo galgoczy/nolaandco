@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import AnimatedCheck from './AnimatedCheck';
 import ClearCartOnSuccess from './ClearCartOnSuccess';
+import PurchaseTracker from './PurchaseTracker';
 
 interface Props {
   searchParams: Promise<{ order_id?: string; session_id?: string }>;
@@ -83,6 +84,7 @@ export default async function ThankYouPage({ searchParams }: Props) {
   return (
     <main className="min-h-screen bg-[#F7F3EE] py-12 px-4">
       <ClearCartOnSuccess />
+      <PurchaseTracker orderId={order.id} value={order.total} />
       <div className="max-w-2xl mx-auto">
         {/* Success header */}
         <div className="text-center mb-10">

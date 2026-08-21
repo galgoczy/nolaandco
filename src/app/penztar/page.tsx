@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cart';
+import { trackInitiateCheckout } from '@/lib/metaPixel';
 import { shippingSchema, homeDeliverySchema, foreignShippingSchema, type ShippingData } from '@/lib/validators';
 import { formatPrice } from '@/lib/utils';
 import { cartRequiresShipping } from '@/lib/shippingRules';
@@ -126,9 +127,22 @@ export default function CheckoutPage() {
     }
   }, [mounted, items.length, redirecting, router]);
 
+  // A pénztár megnyitása — a Meta ebből tanulja meg, kik jutottak el idáig.
+  // A kosár betöltése után egyszer fut le, üres kosárnál nem.
+  const checkoutTracked = useRef(false);
+  useEffect(() => {
+    if (!mounted || checkoutTracked.current || items.length === 0) return;
+    checkoutTracked.current = true;
+    trackInitiateCheckout({
+      items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+      value: total(),
+    });
+  }, [mounted, items, total]);
+
   if (!mounted || (items.length === 0 && !redirecting)) return null;
 
   const subtotal = total();
+
   const needsShipping = cartRequiresShipping(items);
   const isForeign = isPacketaCountry(shippingCountry);
   // Foreign (Packeta) orders always ship to a pickup point.
