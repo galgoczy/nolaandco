@@ -1,55 +1,32 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { pickPrize, makeCode, type Prize } from '@/lib/promoPrizes';
 
 /**
- * Kaparós nyereményszelvény (demó).
+ * Kaparós nyereményszelvény.
  *
  * A "fólia" egy canvas a nyeremény fölött: a kaparás `destination-out`
  * radírral lyukat töröl bele, így alatta tényleg előbukkan a nyeremény.
  * Amikor a felület ~55%-a lekopott, a maradék magától felfeslik, konfetti
  * hullik, és a nyereménykártya megpattan. Mobilon érintéssel működik
  * (a kaparás közben az oldal nem görgethet), egérrel is húzható.
+ *
+ * Két mód:
+ *  - `demo`: a nyeremény a böngészőben sorsolódik, újrahúzható (a /pici-piac
+ *    bemutatóoldal).
+ *  - `card`: a QR-kódos vásári kártya. Az első érintéskor a szerver sorsol
+ *    és a kártyához köti a nyereményt (POST /api/promo/start); ha a kártya
+ *    már ki van kaparva (`initial`), a nyeremény fólia nélkül, azonnal
+ *    látszik. Felfedés után a vendég elküldheti magának e-mailben.
  */
 
-type Prize = {
-  id: string;
-  weight: number;
-  kind: 'coupon' | 'item';
-  /** A nagy vizuál a kártyán: százalék vagy embléma. */
-  big: string;
-  label: string;
-  desc: string;
+type Props = {
+  mode?: 'demo' | 'card';
+  token?: string;
+  /** Már kikapart kártya állapota — ilyenkor nincs fólia, nincs sorsolás. */
+  initial?: { prize: Prize; code: string; email: string | null } | null;
 };
-
-const PRIZES: Prize[] = [
-  { id: 'kupon10', weight: 38, kind: 'coupon', big: '10%', label: '10% kedvezmény', desc: 'a teljes rendelésedre' },
-  { id: 'kupon15', weight: 22, kind: 'coupon', big: '15%', label: '15% kedvezmény', desc: 'a teljes rendelésedre' },
-  { id: 'szallitas', weight: 18, kind: 'coupon', big: '🚚', label: 'Ingyenes szállítás', desc: 'a következő rendelésedre' },
-  { id: 'hush', weight: 13, kind: 'item', big: '🧸', label: 'NOLA Hush szundikendő', desc: 'választható színben, a standon átvehető' },
-  { id: 'pixie', weight: 9, kind: 'item', big: '🦋', label: 'NOLA Pixie pillangó függő', desc: 'a standon átvehető' },
-];
-
-function pickPrize(): Prize {
-  const total = PRIZES.reduce((sum, p) => sum + p.weight, 0);
-  let roll = Math.random() * total;
-  for (const p of PRIZES) {
-    roll -= p.weight;
-    if (roll <= 0) return p;
-  }
-  return PRIZES[0];
-}
-
-/** Egyedi kinézetű kód — összetéveszthető karakterek (0/O, 1/I/L) nélkül. */
-function makeCode(): string {
-  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-  let out = '';
-  for (let i = 0; i < 8; i++) {
-    out += chars[Math.floor(Math.random() * chars.length)];
-    if (i === 3) out += '-';
-  }
-  return 'PICI-' + out;
-}
 
 /** Konfetti a márka színeivel — könnyű, könyvtár nélküli megoldás. */
 function fireConfetti(canvas: HTMLCanvasElement, originY: number) {
@@ -114,25 +91,39 @@ function fireConfetti(canvas: HTMLCanvasElement, originY: number) {
   requestAnimationFrame(tick);
 }
 
-export default function ScratchCard() {
+export default function ScratchCard({ mode = 'demo', token, initial = null }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const foilRef = useRef<HTMLCanvasElement>(null);
   const confettiRef = useRef<HTMLCanvasElement>(null);
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
   const strokes = useRef(0);
   const measuring = useRef(false);
-  const revealedRef = useRef(false);
+  const revealedRef = useRef(!!initial);
+  const prizeRef = useRef<Prize | null>(initial?.prize ?? null);
+  const startRequested = useRef(false);
+  const pendingReveal = useRef(false);
 
-  const [prize, setPrize] = useState<Prize | null>(null);
-  const [code, setCode] = useState('');
-  const [revealed, setRevealed] = useState(false);
+  const [prize, setPrize] = useState<Prize | null>(initial?.prize ?? null);
+  const [code, setCode] = useState(initial?.code ?? '');
+  const [revealed, setRevealed] = useState(!!initial);
   const [copied, setCopied] = useState(false);
+  const [startError, setStartError] = useState('');
 
-  // A sorsolás mountoláskor történik, hogy a szerver-render determinisztikus maradjon.
+  // E-mail küldés (csak kártya módban).
+  const [emailValue, setEmailValue] = useState('');
+  const [emailState, setEmailState] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [emailError, setEmailError] = useState('');
+  const [sentTo, setSentTo] = useState<string | null>(initial?.email ?? null);
+
+  // Demó: a sorsolás mountoláskor, hogy a szerver-render determinisztikus maradjon.
   useEffect(() => {
-    setPrize(pickPrize());
-    setCode(makeCode());
-  }, []);
+    if (mode === 'demo') {
+      const p = pickPrize();
+      prizeRef.current = p;
+      setPrize(p);
+      setCode(makeCode());
+    }
+  }, [mode]);
 
   /** A fólia megrajzolása: rose-gold felület, fénycsíkok, felirat. */
   const drawFoil = useCallback(() => {
@@ -192,6 +183,7 @@ export default function ScratchCard() {
   }, []);
 
   useEffect(() => {
+    if (revealedRef.current) return; // már kikapart kártya: nincs fólia
     drawFoil();
     const onResize = () => {
       // Elforgatásnál újrarajzolunk; a megkezdett kaparás elvész, de a
@@ -204,6 +196,11 @@ export default function ScratchCard() {
 
   const reveal = useCallback(() => {
     if (revealedRef.current) return;
+    // Kártya módban a nyeremény a szervertől jön; ha még úton van, várunk rá.
+    if (!prizeRef.current) {
+      pendingReveal.current = true;
+      return;
+    }
     revealedRef.current = true;
     setRevealed(true);
     try {
@@ -217,6 +214,37 @@ export default function ScratchCard() {
       fireConfetti(confettiRef.current, rect.top + rect.height / 2);
     }
   }, []);
+
+  /** Kártya mód: az első érintéskor a szerver sorsol és a kártyához köt. */
+  const startCard = useCallback(async () => {
+    if (mode !== 'card' || !token || startRequested.current) return;
+    startRequested.current = true;
+    setStartError('');
+    try {
+      const res = await fetch('/api/promo/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.prize) {
+        startRequested.current = false;
+        setStartError(data.error || 'Nem sikerült betölteni a kártyát. Próbáld újra.');
+        return;
+      }
+      prizeRef.current = data.prize;
+      setPrize(data.prize);
+      setCode(data.code);
+      if (data.email) setSentTo(data.email);
+      if (pendingReveal.current) {
+        pendingReveal.current = false;
+        reveal();
+      }
+    } catch {
+      startRequested.current = false;
+      setStartError('Nem sikerült betölteni a kártyát. Próbáld újra.');
+    }
+  }, [mode, token, reveal]);
 
   /** Mennyi kopott le? Ritkított mintavétel, hogy mobilon se akadjon. */
   const measure = useCallback(() => {
@@ -270,7 +298,9 @@ export default function ScratchCard() {
     revealedRef.current = false;
     setRevealed(false);
     setCopied(false);
-    setPrize(pickPrize());
+    const p = pickPrize();
+    prizeRef.current = p;
+    setPrize(p);
     setCode(makeCode());
     lastPoint.current = null;
     strokes.current = 0;
@@ -289,6 +319,34 @@ export default function ScratchCard() {
         /* régi böngésző — a kód kézzel is kijelölhető */
       });
   }, [code]);
+
+  const sendEmail = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!token) return;
+      setEmailError('');
+      setEmailState('sending');
+      try {
+        const res = await fetch('/api/promo/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, email: emailValue }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setEmailError(data.error || 'A küldés nem sikerült.');
+          setEmailState('idle');
+          return;
+        }
+        setSentTo(emailValue.trim().toLowerCase());
+        setEmailState('sent');
+      } catch {
+        setEmailError('A küldés nem sikerült. Próbáld újra.');
+        setEmailState('idle');
+      }
+    },
+    [token, emailValue],
+  );
 
   return (
     <div className="w-full max-w-[430px] select-none" data-revealed={revealed ? 'true' : 'false'}>
@@ -321,13 +379,16 @@ export default function ScratchCard() {
 
       <div
         className="relative rounded-3xl bg-white p-3"
-        style={{ animation: revealed ? 'prizeGlow 2.4s ease-in-out 2' : undefined, boxShadow: '0 10px 40px rgba(74,74,74,0.14)' }}
+        style={{
+          animation: revealed && !initial ? 'prizeGlow 2.4s ease-in-out 2' : undefined,
+          boxShadow: '0 10px 40px rgba(74,74,74,0.14)',
+        }}
       >
         <div ref={wrapRef} className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#FBF8F4]">
           {/* A nyeremény — a fólia alatt, kaparással bukkan elő. */}
           <div
             className={`absolute inset-0 flex flex-col items-center justify-center px-6 text-center ${revealed ? 'prize-pop' : ''}`}
-            style={revealed ? { animation: 'prizePop 650ms cubic-bezier(0.22, 1.4, 0.4, 1) both' } : undefined}
+            style={revealed && !initial ? { animation: 'prizePop 650ms cubic-bezier(0.22, 1.4, 0.4, 1) both' } : undefined}
           >
             {prize && (
               <>
@@ -345,7 +406,7 @@ export default function ScratchCard() {
 
                 <div
                   className="code-pulse mt-4 rounded-xl border-2 border-dashed border-[#C4A591] bg-[#F7F1EA] px-5 py-2.5"
-                  style={revealed ? { animation: 'codePulse 1.6s ease-in-out 1.2s 2' } : undefined}
+                  style={revealed && !initial ? { animation: 'codePulse 1.6s ease-in-out 1.2s 2' } : undefined}
                 >
                   <p className="text-[10px] tracking-[0.18em] text-[#B48D76] font-semibold mb-0.5">
                     {prize.kind === 'coupon' ? 'KUPONKÓDOD' : 'ÁTVÉTELI KÓDOD'}
@@ -356,39 +417,47 @@ export default function ScratchCard() {
             )}
           </div>
 
-          {/* A kaparható fólia. */}
-          <canvas
-            ref={foilRef}
-            className="absolute inset-0 cursor-crosshair"
-            style={{
-              opacity: revealed ? 0 : 1,
-              transition: 'opacity 700ms ease-out',
-              pointerEvents: revealed ? 'none' : 'auto',
-              touchAction: 'none',
-              WebkitTouchCallout: 'none',
-            }}
-            onContextMenu={(e) => e.preventDefault()}
-            onPointerDown={(e) => {
-              e.currentTarget.setPointerCapture(e.pointerId);
-              scratchTo(e.clientX, e.clientY, false);
-            }}
-            onPointerMove={(e) => {
-              if (e.buttons !== 1 && e.pointerType === 'mouse') return;
-              if (!lastPoint.current) return;
-              scratchTo(e.clientX, e.clientY, true);
-            }}
-            onPointerUp={() => {
-              lastPoint.current = null;
-              measure();
-            }}
-            onPointerCancel={() => {
-              lastPoint.current = null;
-            }}
-          />
+          {/* A kaparható fólia. Már kikapart kártyánál nem is renderelődik. */}
+          {!initial && (
+            <canvas
+              ref={foilRef}
+              className="absolute inset-0 cursor-crosshair"
+              style={{
+                opacity: revealed ? 0 : 1,
+                transition: 'opacity 700ms ease-out',
+                pointerEvents: revealed ? 'none' : 'auto',
+                touchAction: 'none',
+                WebkitTouchCallout: 'none',
+              }}
+              onContextMenu={(e) => e.preventDefault()}
+              onPointerDown={(e) => {
+                e.currentTarget.setPointerCapture(e.pointerId);
+                // Kártya mód: az első érintés indítja a sorsolást a szerveren.
+                startCard();
+                scratchTo(e.clientX, e.clientY, false);
+              }}
+              onPointerMove={(e) => {
+                if (e.buttons !== 1 && e.pointerType === 'mouse') return;
+                if (!lastPoint.current) return;
+                scratchTo(e.clientX, e.clientY, true);
+              }}
+              onPointerUp={() => {
+                lastPoint.current = null;
+                measure();
+              }}
+              onPointerCancel={() => {
+                lastPoint.current = null;
+              }}
+            />
+          )}
         </div>
 
+        {startError && (
+          <p className="px-3 pt-3 text-sm text-red-500 text-center">{startError}</p>
+        )}
+
         {revealed && prize && (
-          <div className="px-3 pt-3 pb-1 text-center">
+          <div className="px-3 pt-3 pb-1 text-center space-y-3">
             {prize.kind === 'coupon' ? (
               <button
                 type="button"
@@ -403,19 +472,59 @@ export default function ScratchCard() {
                 nyereményed! 💝
               </p>
             )}
+
+            {/* E-mail küldés — csak a vásári kártyánál. */}
+            {mode === 'card' && (
+              <div className="pt-2 border-t border-[#E0DAD1]">
+                {sentTo && emailState !== 'sending' && (
+                  <p className="text-sm text-green-800 mt-3">
+                    ✓ Elküldtük ide: <span className="font-medium">{sentTo}</span>
+                  </p>
+                )}
+                {emailState !== 'sent' && (
+                  <form onSubmit={sendEmail} className="mt-3 space-y-2">
+                    <p className="text-xs text-[#4A4A4A]/60">
+                      {sentTo ? 'Küldés másik címre:' : 'Küldd el magadnak, hogy meglegyen később is:'}
+                    </p>
+                    <input
+                      type="email"
+                      required
+                      value={emailValue}
+                      onChange={(e) => setEmailValue(e.target.value)}
+                      placeholder="E-mail cím"
+                      aria-label="E-mail cím"
+                      className="w-full rounded-xl border border-[#E0DAD1] px-4 py-3 text-sm focus:outline-none focus:border-[#C4A591]"
+                    />
+                    <button
+                      type="submit"
+                      disabled={emailState === 'sending'}
+                      className="w-full rounded-2xl border-2 border-[#C4A591] text-[#8A6A52] hover:bg-[#F7F1EA] transition-colors font-semibold text-sm tracking-wide py-2.5 cursor-pointer disabled:opacity-50"
+                    >
+                      {emailState === 'sending' ? 'Küldés…' : 'Elküldöm magamnak'}
+                    </button>
+                    {emailError && <p className="text-sm text-red-500">{emailError}</p>}
+                    <p className="text-[11px] text-[#4A4A4A]/50">
+                      Egyetlen levelet küldünk a nyereményeddel, hírlevélre nem iratkozol fel.
+                    </p>
+                  </form>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      <div className="mt-6 text-center">
-        <button
-          type="button"
-          onClick={reset}
-          className="text-sm text-[#B48D76] hover:text-[#4A4A4A] underline underline-offset-2 transition-colors cursor-pointer"
-        >
-          Új szelvény kaparása (demó)
-        </button>
-      </div>
+      {mode === 'demo' && (
+        <div className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={reset}
+            className="text-sm text-[#B48D76] hover:text-[#4A4A4A] underline underline-offset-2 transition-colors cursor-pointer"
+          >
+            Új szelvény kaparása (demó)
+          </button>
+        </div>
+      )}
     </div>
   );
 }
