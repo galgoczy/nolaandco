@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic';
 
 import { cache } from 'react';
+import type { Metadata } from 'next';
+import ProductViewTracker from '@/components/products/ProductViewTracker';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
@@ -43,13 +45,39 @@ const resolveProduct = cache(async (slug: string) => {
  * Magában az oldalban hívva a `loading.tsx` Suspense-határa miatt a státusz
  * már 200-ként elment. Lásd vercel/next.js#76474.
  */
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const { product } = await resolveProduct(slug);
   if (!product || !product.active) {
     notFound();
   }
-  return {};
+
+  // Saját megosztási adatok termékenként. Enélkül minden terméklink a főoldal
+  // címét és képét vitte a Facebookon és a Google-találatokban, az og:url pedig
+  // a főoldalra mutatott — így a megosztások nem a termékhez gyűltek.
+  const url = `/termekek/${slug}`;
+  const description = product.description.replace(/\s+/g, ' ').trim().slice(0, 200);
+  // A galéria videóbejegyzéseket is tartalmazhat ("videó|poszter"), azokat kihagyjuk.
+  const image = product.imageUrl || product.images.find((i) => !i.includes('|')) || null;
+
+  return {
+    title: product.name,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'website',
+      title: product.name,
+      description,
+      url,
+      images: image ? [{ url: image, alt: product.name }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.name,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
 }
 
 export default async function ProductDetailPage({ params, searchParams }: Props) {
@@ -113,6 +141,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
 
     return (
       <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
+        <ProductViewTracker id={product.id} name={product.name} price={effectivePrice} category={product.category} />
         <div className="max-w-7xl mx-auto px-8">
           <PosterClient
             product={{
@@ -149,6 +178,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
 
     return (
       <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
+        <ProductViewTracker id={product.id} name={product.name} price={effectivePrice} category={product.category} />
         <div className="max-w-7xl mx-auto px-8">
           <TextileClient
             product={{
@@ -218,6 +248,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
 
   return (
     <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
+      <ProductViewTracker id={product.id} name={product.name} price={effectivePrice} category={product.category} />
       <div className="max-w-7xl mx-auto px-8">
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-x-16">
           {/* Left column: gallery + (desktop) long description */}

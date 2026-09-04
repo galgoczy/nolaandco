@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { trackAddToCart } from '@/lib/metaPixel';
 
 export interface CartItemData {
   id: string;
@@ -50,6 +51,14 @@ export const useCartStore = create<CartStore>()(
         set((state) => ({
           items: [...state.items, { ...item, id }],
         }));
+        // Központi hely: a termékoldalak több különböző gombbal tesznek
+        // kosárba, de mind ide fut be, így az esemény sehol nem marad el.
+        trackAddToCart({
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        });
       },
 
       removeItem: (id) => {

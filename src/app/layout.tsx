@@ -12,7 +12,11 @@ const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nolaandco.hu'),
-  title: 'Nola & Co | Emlékőrzők, babaszoba dekor & textilek',
+  title: {
+    default: 'Nola & Co | Emlékőrzők, babaszoba dekor & textilek',
+    // Az aloldalak (pl. termékek) saját címe mellé is kikerül a márkanév.
+    template: '%s | Nola & Co',
+  },
   description:
     'Személyre szabott babapárnák és poszterek. Prémium minőségű, OEKO-TEX tanúsítvánnyal rendelkező anyagokból.',
   openGraph: {

@@ -240,6 +240,30 @@ model RemovedCatalogProduct {
   createdAt DateTime @default(now())
 }
 
+/// Vásári kaparós kártya. A kártyán egy QR-kód van, ami a /pp/<token>
+/// oldalra visz; a token az azonosító, semmilyen bejelentkezés nem kell.
+/// A nyeremény az első kaparás pillanatában dől el a szerveren és a
+/// kártyához kötődik — a kártya minden későbbi beolvasása ugyanazt mutatja.
+/// (A kuponrendszerrel való összekötés — valódi, beváltható kupon — a
+/// következő kör; couponCode addig demó-kód.)
+model PromoCard {
+  id          String    @id @default(cuid())
+  token       String    @unique
+  /// Kampány, pl. "pici-piac-2026" — a következő vásáron újrahasználható a rendszer.
+  batch       String
+  prizeId     String?
+  prizeLabel  String?
+  couponCode  String?
+  /// Az első kaparás pillanata — ekkor kapott nyereményt.
+  scratchedAt DateTime?
+  /// Ha a vendég elküldte magának e-mailben.
+  email       String?
+  emailedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([batch])
+}
+
 model SiteText {
   id        String   @id @default(cuid())
   key       String   @unique

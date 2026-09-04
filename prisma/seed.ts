@@ -29,6 +29,22 @@ async function main() {
     console.log(`  Created admin: ${admin.email}`);
   }
 
+  // Pici Piac tesztkártyák: 10 rögzített token a folyamat kipróbálásához.
+  // Csak létrehoz — a már kikapart kártyák állapotát nem bántja.
+  console.log('Seeding promo test cards...');
+  const testTokens = [
+    'TTBMYWQK', '42JH2KXP', 'AA52NNGD', '3MCG9MHK', '7VKAEHWW',
+    'FPSYHWH2', '4K4HB7CJ', 'YEA7K4GR', '9R3XGP6Y', '2NTEJSSG',
+  ];
+  for (const token of testTokens) {
+    await prisma.promoCard.upsert({
+      where: { token },
+      update: {},
+      create: { token, batch: 'pici-piac-teszt' },
+    });
+  }
+  console.log(`  ${testTokens.length} promo test cards ready`);
+
   console.log('Seeding complete!');
 }
 
