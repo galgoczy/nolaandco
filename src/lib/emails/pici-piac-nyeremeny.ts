@@ -1,4 +1,5 @@
 import { emailLayout } from './layout';
+import { PROMO_CONTACT_EMAIL, PROMO_VALID_UNTIL_TEXT } from '../promoPrizes';
 
 interface PiciPiacPrizeData {
   prizeLabel: string;
@@ -39,8 +40,8 @@ export function piciPiacPrizeHtml(d: PiciPiacPrizeData): string {
     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4A4A4A;">
       ${
         d.isCoupon
-          ? 'A kódot a webshopunk pénztáránál tudod beváltani. Nézz szét a termékeink között — van pár újdonság, amit a vásáron is láthattál:'
-          : 'A nyereményed a standunknál veheted át — mutasd fel ezt a levelet vagy a kártyád oldalát. Addig is nézz szét a termékeink között:'
+          ? `A kódot a webshopunk pénztáránál tudod beváltani, egyszer, ${PROMO_VALID_UNTIL_TEXT}. Nézz szét a termékeink között — van pár újdonság, amit a vásáron is láthattál:`
+          : `A nyereményed a standunknál veheted át — mutasd fel ezt a levelet vagy a kártyád oldalát. Ha már nem vagy a vásáron, írj nekünk az átvételi kódoddal a <a href="mailto:${PROMO_CONTACT_EMAIL}" style="color:#C4A591;">${PROMO_CONTACT_EMAIL}</a> címre, és egyeztetjük az átvételt. Addig is nézz szét a termékeink között:`
       }
     </p>
 

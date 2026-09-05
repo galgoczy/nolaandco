@@ -22,6 +22,8 @@ type CouponRow = {
 };
 
 const NEWSLETTER_SOURCE = 'newsletter';
+/** A Pici Piac kaparós kártyák kuponjai — a kártya kaparásakor jönnek létre. */
+const PICI_PIAC_SOURCE = 'pici-piac';
 
 type CatOption = { slug: string; name: string };
 
@@ -334,11 +336,18 @@ export default function CouponManager({
   );
 
   const newsletterCoupons = coupons.filter((c) => c.source === NEWSLETTER_SOURCE);
-  const normalCoupons = coupons.filter((c) => c.source !== NEWSLETTER_SOURCE);
+  const piciPiacCoupons = coupons.filter((c) => c.source === PICI_PIAC_SOURCE);
+  const normalCoupons = coupons.filter(
+    (c) => c.source !== NEWSLETTER_SOURCE && c.source !== PICI_PIAC_SOURCE,
+  );
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
       {renderTable('Kuponok', normalCoupons)}
+      {piciPiacCoupons.length > 0 &&
+        renderTable('Pici Piac kuponok', piciPiacCoupons, {
+          emptyText: 'Még nincs vásári kupon. A kaparós kártyák kaparásakor jönnek létre.',
+        })}
       {renderTable('Hírlevél kuponok', newsletterCoupons, {
         newsletter: true,
         emptyText: 'Még nincs hírlevél kupon. Ezek automatikusan jönnek létre feliratkozáskor.',

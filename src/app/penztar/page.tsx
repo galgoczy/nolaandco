@@ -769,7 +769,11 @@ export default function CheckoutPage() {
                 )}
                 {coupon && (
                   <p className="text-xs text-green-600 mt-1">
-                    ✓ {coupon.code} — {coupon.discountType === 'percent' ? `${coupon.discountValue}%` : formatPrice(coupon.discountValue)} kedvezmény
+                    ✓ {coupon.code} —{' '}
+                    {coupon.discountValue > 0
+                      ? `${coupon.discountType === 'percent' ? `${coupon.discountValue}%` : formatPrice(coupon.discountValue)} kedvezmény`
+                      : 'ingyenes csomagautomatás szállítás'}
+                    {coupon.discountValue > 0 && coupon.freeShippingOnParcel ? ' + ingyenes csomagautomata' : ''}
                   </p>
                 )}
               </div>
