@@ -1013,7 +1013,7 @@ A Foxpost /Packeta csomagautomaták jól megközelíthető helyeken
 találhatók, például bevásárlóközpontokban, benzinkutakon, lakóházak
 közelében, vagy egyéb forgalmas helyeken.
 
-A csomagautomatás szállítás díja 1190 Ft, míg a házhozszállítás 2490
+A csomagautomatás szállítás díja 1190 Ft, míg a házhozszállítás 3690
 Ft-ba kerül.
 
 A Szolgáltató nem felelős a szállítási határidők csúszásáért, amennyiben

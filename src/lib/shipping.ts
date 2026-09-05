@@ -18,7 +18,7 @@ export type CountryConfig = {
 
 /** Domestic — unchanged Foxpost pricing. */
 export const HU_PARCEL_COST = 1190;
-export const HU_HOME_COST = 2490;
+export const HU_HOME_COST = 3690;
 
 /**
  * A csomagautomatás (HU parcel) szállítás automatikusan ingyenes, ha a kosár
