@@ -49,6 +49,8 @@ export default async function PromoCardsPage() {
   for (const o of orders) if (o.couponCode && !orderByCode[o.couponCode]) orderByCode[o.couponCode] = o;
 
   const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://nolaandco.hu';
+  // A fejléc csak az éles kártyákat összesíti; a tesztek a saját szekciójukban.
+  const liveCards = cards.filter((c) => !c.batch.includes('teszt'));
 
   // Kötegek: az éles előre, a tesztek utána.
   // (Set-spread nélkül — a projekt es5 targetje azt nem fordítja.)
@@ -67,8 +69,8 @@ export default async function PromoCardsPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-headline font-bold text-on-surface">Promó kártyák</h1>
         <p className="text-sm text-on-surface/60 mt-1">
-          {cards.length} kártya · {cards.filter((c) => c.scratchedAt).length} lekaparva ·{' '}
-          {cards.filter((c) => c.emailedAt).length} e-mailt kért · a nyeremények {PROMO_VALID_UNTIL_TEXT}{' '}
+          Éles: {liveCards.length} kártya · {liveCards.filter((c) => c.scratchedAt).length} lekaparva ·{' '}
+          {liveCards.filter((c) => c.emailedAt).length} e-mailt kért · a nyeremények {PROMO_VALID_UNTIL_TEXT}{' '}
           válthatók be
         </p>
       </div>

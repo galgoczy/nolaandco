@@ -29,20 +29,18 @@ async function main() {
     console.log(`  Created admin: ${admin.email}`);
   }
 
-  // Pici Piac kártyák — kötegenként. Csak létrehoz: a már kikapart kártyák
-  // állapotát (nyeremény, e-mail) nem bántja. A tokenek véletlenek, nem
-  // sorszámok, így a többi kártya nem találgatható ki.
+  // Pici Piac kártyák — kötegenként. A kártya kötegét a seed karbantartja
+  // (így egy köteg átnevezhető/összevonható), de a kikapart kártyák
+  // állapotát (nyeremény, kód, e-mail) nem bántja. A tokenek véletlenek,
+  // nem sorszámok, így a többi kártya nem találgatható ki.
   console.log('Seeding promo cards...');
   const promoBatches: Record<string, string[]> = {
-    // Az első próbakör 10 kártyája (kettő már lekaparva a teszteléskor).
+    // A 20 tesztkártya (két próbakör összevonva) — az adminból visszaállítható.
     'pici-piac-teszt': [
       'TTBMYWQK', '42JH2KXP', 'AA52NNGD', '3MCG9MHK', '7VKAEHWW',
       'FPSYHWH2', '4K4HB7CJ', 'YEA7K4GR', '9R3XGP6Y', '2NTEJSSG',
-    ],
-    // Második próbakör — az adminból visszaállítható.
-    'pici-piac-teszt-2': [
-    'GY7WF85K', 'H64976BS', 'KZRPK4NF', 'EANGZWE9', 'UDYHSXQF',
-    'X6CHZ7B8', 'J3GTWHTQ', 'MKJ7KHUP', '5DAPDMVB', 'D8UG35VP',
+      'GY7WF85K', 'H64976BS', 'KZRPK4NF', 'EANGZWE9', 'UDYHSXQF',
+      'X6CHZ7B8', 'J3GTWHTQ', 'MKJ7KHUP', '5DAPDMVB', 'D8UG35VP',
     ],
     // Az 50 éles vásári kártya.
     'pici-piac-2026': [
@@ -60,7 +58,7 @@ async function main() {
   };
   for (const [batch, tokens] of Object.entries(promoBatches)) {
     for (const token of tokens) {
-      await prisma.promoCard.upsert({ where: { token }, update: {}, create: { token, batch } });
+      await prisma.promoCard.upsert({ where: { token }, update: { batch }, create: { token, batch } });
     }
     console.log(`  ${batch}: ${tokens.length} kártya rendben`);
   }
