@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { pickPrize, makeCode, type Prize } from '@/lib/promoPrizes';
+import { pickPrize, makeCode, PROMO_CONTACT_EMAIL, type Prize } from '@/lib/promoPrizes';
 
 /**
  * Kaparós nyereményszelvény.
@@ -469,7 +469,11 @@ export default function ScratchCard({ mode = 'demo', token, initial = null }: Pr
             ) : (
               <p className="font-body text-sm text-[#4A4A4A]/75 leading-relaxed">
                 Mutasd fel ezt a képernyőt a Nola &amp; Co standnál, és vidd el a
-                nyereményed! 💝
+                nyereményed! 💝 Ha már nem vagy a vásáron, írj nekünk az átvételi
+                kódoddal:{' '}
+                <a href={`mailto:${PROMO_CONTACT_EMAIL}`} className="underline text-[#8A6A52]">
+                  {PROMO_CONTACT_EMAIL}
+                </a>
               </p>
             )}
 

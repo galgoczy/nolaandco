@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getCard } from '@/lib/promoCards';
+import { PROMO_VALID_UNTIL_TEXT } from '@/lib/promoPrizes';
 import ScratchCard from '@/app/pici-piac/ScratchCard';
 
 export const dynamic = 'force-dynamic';
@@ -69,7 +70,7 @@ export default async function PromoCardPage({ params }: { params: Promise<{ toke
       />
 
       <p className="mt-10 text-xs text-[#4A4A4A]/45 text-center max-w-sm leading-relaxed">
-        Kártya: {card.token} · Tesztváltozat — a kódok beváltása még nem lehetséges.
+        Kártya: {card.token} · A nyeremény egyszer, {PROMO_VALID_UNTIL_TEXT} váltható be.
       </p>
     </main>
   );

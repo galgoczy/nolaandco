@@ -355,7 +355,7 @@ export async function POST(request: NextRequest) {
         shippingCost,
         total,
         discount,
-        couponCode: discount > 0 ? couponCode || null : null,
+        couponCode: discount > 0 || freeShippingApplied ? couponCode || null : null,
         items: {
           create: verifiedItems.map((item) => ({
             productId: item.productId,
@@ -454,7 +454,7 @@ export async function POST(request: NextRequest) {
         subtotal,
         shippingCost,
         discount,
-        couponCode: discount > 0 ? couponCode || null : null,
+        couponCode: discount > 0 || freeShippingApplied ? couponCode || null : null,
         total,
         hasGiftCard,
         hasInvoice: false,
@@ -489,7 +489,7 @@ export async function POST(request: NextRequest) {
         subtotal,
         shippingCost,
         discount,
-        couponCode: discount > 0 ? couponCode || null : null,
+        couponCode: discount > 0 || freeShippingApplied ? couponCode || null : null,
         total,
         hasGiftCard,
         hasInvoice: false,

@@ -259,6 +259,8 @@ model PromoCard {
   /// Ha a vendég elküldte magának e-mailben.
   email       String?
   emailedAt   DateTime?
+  /// Tárgynyeremény: mikor vette át a vendég (adminban jelölve).
+  redeemedAt  DateTime?
   createdAt   DateTime  @default(now())
 
   @@index([batch])
