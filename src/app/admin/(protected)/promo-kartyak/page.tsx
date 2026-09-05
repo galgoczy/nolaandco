@@ -16,8 +16,9 @@ function fmt(d: Date | null): string {
 
 /**
  * A vásári kaparós kártyák állapota kötegenként: melyiket olvasták be és
- * kaparták le, mit nyert, kért-e e-mailt. A tesztkötegek kártyái egy
- * gombbal visszaállíthatók érintetlenre; az éles kötegé szándékosan nem.
+ * kaparták le, mit nyert, kért-e e-mailt. A lekapart kártya visszaállítható
+ * érintetlenre (a link/QR nem változik): tesztkártyánál egy megerősítéssel,
+ * éles kártyánál a kód begépelésével — és csak ha még nem ment ki e-mail.
  */
 export default async function PromoCardsPage() {
   const cards = await prisma.promoCard.findMany({
@@ -60,7 +61,7 @@ export default async function PromoCardsPage() {
               </span>
               {isTest && (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
-                  teszt — visszaállítható
+                  teszt
                 </span>
               )}
             </div>
@@ -75,7 +76,7 @@ export default async function PromoCardsPage() {
                       <th className="p-3 text-on-surface/60 font-medium">Nyeremény</th>
                       <th className="p-3 text-on-surface/60 font-medium">Kód</th>
                       <th className="p-3 text-on-surface/60 font-medium">E-mail</th>
-                      {isTest && <th className="p-3 text-on-surface/60 font-medium text-right"></th>}
+                      <th className="p-3 text-on-surface/60 font-medium text-right"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -114,11 +115,11 @@ export default async function PromoCardsPage() {
                             '—'
                           )}
                         </td>
-                        {isTest && (
-                          <td className="p-3 text-right">
-                            {c.scratchedAt && <ResetCardButton token={c.token} />}
-                          </td>
-                        )}
+                        <td className="p-3 text-right">
+                          {c.scratchedAt && (isTest || !c.emailedAt) && (
+                            <ResetCardButton token={c.token} live={!isTest} />
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
