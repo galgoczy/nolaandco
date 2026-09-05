@@ -204,7 +204,7 @@ export async function emailCard(
       prizeDesc: card.prize.desc,
       isCoupon: card.prize.kind === 'coupon',
       code: card.code,
-      shopUrl: `${baseUrl}/termekek`,
+      shopUrl: baseUrl,
       cardUrl: `${baseUrl}/pp/${card.token}`,
     }),
   });

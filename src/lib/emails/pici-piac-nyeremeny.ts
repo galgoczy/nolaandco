@@ -49,7 +49,7 @@ export function piciPiacPrizeHtml(d: PiciPiacPrizeData): string {
       <tr>
         <td align="center" style="background-color:#C4A591;border-radius:8px;">
           <a href="${d.shopUrl}" style="display:inline-block;padding:12px 28px;color:#FFFFFF;font-size:14px;font-weight:600;text-decoration:none;letter-spacing:0.5px;">
-            Irány a termékek
+            Irány a webshop
           </a>
         </td>
       </tr>
