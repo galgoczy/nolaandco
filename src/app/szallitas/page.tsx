@@ -38,7 +38,7 @@ export default function SzallitasPage() {
                 <h3 className="text-carbon font-medium mb-1">Szállítási díj <span className="text-sm font-normal">(Magyarország területén)</span></h3>
                 <ul className="list-disc list-inside space-y-1 ml-1">
                   <li>Csomagautomatába: <strong className="text-carbon">1 190 Ft</strong></li>
-                  <li>Házhozszállítás: <strong className="text-carbon">2 490 Ft</strong></li>
+                  <li>Házhozszállítás: <strong className="text-carbon">3 690 Ft</strong></li>
                 </ul>
               </div>
 
