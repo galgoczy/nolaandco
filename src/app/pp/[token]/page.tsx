@@ -33,10 +33,10 @@ export default async function PromoCardPage({ params }: { params: Promise<{ toke
             a standnál, szívesen segítünk!
           </p>
           <Link
-            href="/termekek"
+            href="/"
             className="inline-block bg-[#C4A591] hover:opacity-90 transition-opacity text-white rounded-2xl px-8 py-3 text-sm font-semibold tracking-wide"
           >
-            Irány a termékek
+            Irány a webshop
           </Link>
         </div>
       </main>
