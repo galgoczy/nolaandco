@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 import { parseMediaEntry, type MediaEntry } from '@/lib/productMedia';
 
 type Props = {
@@ -157,10 +157,9 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
                         aria-label="Videó lejátszása"
                       >
                         {media.poster ? (
-                          <Image
+                          <ProductImage
                             src={media.poster}
                             alt={`${alt} — videó`}
-                            fill
                             className="object-cover"
                             sizes="(max-width: 520px) 100vw, 470px"
                           />
@@ -175,10 +174,9 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
                       </button>
                     )
                   ) : (
-                    <Image
+                    <ProductImage
                       src={media.src}
                       alt={`${alt} — ${idx + 1}`}
-                      fill
                       className="object-cover"
                       sizes="(max-width: 520px) 100vw, 470px"
                       priority={idx === 0}
@@ -273,10 +271,9 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
               {media.type === 'video' ? (
                 <>
                   {media.poster ? (
-                    <Image
+                    <ProductImage
                       src={media.poster}
                       alt={`${alt} — videó`}
-                      fill
                       className="object-cover"
                       sizes="80px"
                     />
@@ -290,10 +287,9 @@ export default function ProductGallery({ mainImage, images, alt, badge }: Props)
                   </span>
                 </>
               ) : (
-                <Image
+                <ProductImage
                   src={media.src}
                   alt={`${alt} — ${idx + 1}`}
-                  fill
                   className="object-cover"
                   sizes="80px"
                 />

@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 import { renderRichText } from '@/lib/richText';
 import { formatPrice } from '@/lib/utils';
 import type { BirthData } from '@/lib/validators';
@@ -377,7 +378,7 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
                         : 'border-[#4A4A4A]/20 opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <Image src={img} alt="" fill className="object-cover" sizes="40px" />
+                    <ProductImage src={img} alt="" className="object-cover" sizes="40px" />
                   </button>
                 );
               })}
@@ -404,10 +405,9 @@ export default function PosterClient({ product, initialLayoutId }: Props) {
                 {lifestyleImages.map((img, idx) => (
                   <div key={img} className="w-full flex-shrink-0">
                     <div className="relative w-full aspect-[5/7] bg-surface-container-low overflow-hidden ghost-border">
-                      <Image
+                      <ProductImage
                         src={img}
                         alt={`${product.name} — lifestyle ${idx + 1}`}
-                        fill
                         className="object-cover"
                         sizes="(max-width: 1024px) 100vw, 50vw"
                       />

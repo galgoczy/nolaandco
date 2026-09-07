@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 import { formatPrice } from '@/lib/utils';
 import BundleCompositeImage from '@/components/products/BundleCompositeImage';
 
@@ -31,11 +31,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           // váltunk, és a kurzor távozásakor vissza. Egyetlen képnél nincs váltás,
           // és mobilon (hover híján) mindig az első kép látszik.
           <>
-            <Image
+            <ProductImage
               src={product.imageUrl}
               alt={product.name}
-              fill
-              className={`w-full h-full object-cover ${
+              className={`object-cover ${
                 product.hoverImageUrl
                   ? 'transition-opacity duration-300 ease-out group-hover:opacity-0'
                   : ''
@@ -43,13 +42,10 @@ export default function ProductCard({ product }: ProductCardProps) {
               sizes="(max-width: 767px) 50vw, (max-width: 1280px) 33vw, 400px"
             />
             {product.hoverImageUrl && (
-              <Image
+              <ProductImage
                 src={product.hoverImageUrl}
                 alt=""
-                aria-hidden
-                fill
-                loading="lazy"
-                className="w-full h-full object-cover opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
+                className="object-cover opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
                 sizes="(max-width: 767px) 50vw, (max-width: 1280px) 33vw, 400px"
               />
             )}

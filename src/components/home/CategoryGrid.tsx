@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 import Link from 'next/link';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
 import { getSiteImages } from '@/lib/siteImages';
@@ -47,10 +47,9 @@ export default async function CategoryGrid({ t }: { t: Record<string, string> })
             const card = (
               <>
                 <div className="relative aspect-square rounded-sm overflow-hidden bg-surface-container-low ghost-border mb-4">
-                  <Image
+                  <ProductImage
                     src={tile.imageUrl}
                     alt={tile.label}
-                    fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 767px) 54vw, (max-width: 1280px) 33vw, 400px"
                   />

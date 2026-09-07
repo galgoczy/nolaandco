@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/utils';
 
@@ -139,13 +139,7 @@ export default function SearchModal() {
                         className="flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container transition-colors"
                       >
                         <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-low">
-                          <Image
-                            src={p.imageUrl}
-                            alt={p.name}
-                            fill
-                            className="object-cover"
-                            sizes="48px"
-                          />
+                          <ProductImage src={p.imageUrl} alt={p.name} className="object-cover" sizes="48px" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-carbon truncate">{p.name}</p>

@@ -1,10 +1,21 @@
 import { NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { put, del } from '@vercel/blob';
 import { isAdminRequest } from '@/lib/admin-auth';
+import { generateVariants } from '@/lib/imageVariants.server';
 
-const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+export const runtime = 'nodejs';
+// Az eredeti mellé 3 méret × 2 formátum készül; egy 48 MP-es fotónál ez pár másodperc.
+export const maxDuration = 60;
+
+const MAX_SIZE = 8 * 1024 * 1024; // 8 MB — az eredeti érintetlenül kerül a Blobba
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
 
+/**
+ * Képfeltöltés: az eredeti változatlanul a Blobba kerül (bármikor újra
+ * felhasználható), mellé elkészülnek a kiszolgált változatok
+ * (lásd src/lib/imageVariants.ts). Ha a változatgyártás nem sikerül, az
+ * eredetit is töröljük és hibát adunk — így nem maradhat kép változat nélkül.
+ */
 export async function POST(req: Request) {
   if (!(await isAdminRequest())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -52,12 +63,24 @@ export async function POST(req: Request) {
     .slice(0, 40) || 'kep';
 
   const key = `products/${base}.${ext}`;
+  const original = Buffer.from(await file.arrayBuffer());
 
-  const blob = await put(key, file, {
+  const blob = await put(key, original, {
     access: 'public',
     addRandomSuffix: true,
     contentType: file.type,
   });
+
+  try {
+    await generateVariants(blob.url, original);
+  } catch (err) {
+    console.error('Képváltozat-gyártás sikertelen, az eredetit töröljük:', blob.url, err);
+    await del(blob.url).catch(() => undefined);
+    return NextResponse.json(
+      { error: 'A kép feltöltése nem sikerült (a változatok gyártása hibára futott). Próbáld újra.' },
+      { status: 500 },
+    );
+  }
 
   return NextResponse.json({ url: blob.url });
 }
