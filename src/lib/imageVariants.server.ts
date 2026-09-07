@@ -12,9 +12,12 @@ import { VARIANT_WIDTHS, VARIANT_MARKER, variantUrl, isBlobImage, type VariantFo
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
+// Az AVIF `effort` a keresés alaposságát állítja. A 3-as mérésünkben
+// ugyanakkora fájlt ad, mint a 4-es (0,2 dB eltéréssel), viszont közel
+// háromszor gyorsabb — a szerverfüggvény időkerete miatt ez számít.
 function encode(pipeline: sharp.Sharp, format: VariantFormat): Promise<Buffer> {
   return format === 'avif'
-    ? pipeline.avif({ quality: 65, chromaSubsampling: '4:4:4', effort: 4 }).toBuffer()
+    ? pipeline.avif({ quality: 65, chromaSubsampling: '4:4:4', effort: 3 }).toBuffer()
     : pipeline.webp({ quality: 85 }).toBuffer();
 }
 
