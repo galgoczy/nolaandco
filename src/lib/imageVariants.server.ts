@@ -1,6 +1,6 @@
 import sharp from 'sharp';
 import { put, head } from '@vercel/blob';
-import { VARIANT_WIDTHS, VARIANT_FORMATS, variantUrl, isBlobImage, type VariantFormat } from './imageVariants';
+import { VARIANT_WIDTHS, VARIANT_MARKER, variantUrl, isBlobImage, type VariantFormat } from './imageVariants';
 
 /**
  * Képváltozatok gyártása és ellenőrzése — csak szerveren (sharp + Blob token).
@@ -47,22 +47,25 @@ export async function generateVariants(sourceUrl: string, original?: Buffer): Pr
       raw: { width: master.info.width, height: master.info.height, channels: master.info.channels },
     });
 
-  const urls: string[] = [];
-  // Sorrend: a legnagyobb AVIF az utolsó — a hasVariants() ezt nézi, így egy
+  // Sorrend: a WebP tartalék előbb, az AVIF-ek méret szerint növekvően — a
+  // legnagyobb AVIF az utolsó írás, a hasVariants() ezt nézi, így egy
   // félbeszakadt gyártás sosem számít késznek.
-  for (const width of VARIANT_WIDTHS) {
-    for (const format of [...VARIANT_FORMATS].reverse()) {
-      const data = await encode(fromMaster().resize({ width, withoutEnlargement: true }), format);
-      const key = `${pathname}~${width}.${format}`;
-      const blob = await put(key, data, {
-        access: 'public',
-        addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: `image/${format}`,
-        cacheControlMaxAge: ONE_YEAR,
-      });
-      urls.push(blob.url);
-    }
+  const jobs: { width: number; format: VariantFormat }[] = [];
+  for (const width of VARIANT_WIDTHS.webp) jobs.push({ width, format: 'webp' });
+  for (const width of VARIANT_WIDTHS.avif) jobs.push({ width, format: 'avif' });
+
+  const urls: string[] = [];
+  for (const { width, format } of jobs) {
+    const data = await encode(fromMaster().resize({ width, withoutEnlargement: true }), format);
+    const key = `${pathname}~${width}.${format}`;
+    const blob = await put(key, data, {
+      access: 'public',
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      contentType: `image/${format}`,
+      cacheControlMaxAge: ONE_YEAR,
+    });
+    urls.push(blob.url);
   }
   return urls;
 }
@@ -70,7 +73,7 @@ export async function generateVariants(sourceUrl: string, original?: Buffer): Pr
 /** Igaz, ha az adott eredetihez már megvannak a változatok (a legnagyobb AVIF-et nézzük). */
 export async function hasVariants(sourceUrl: string): Promise<boolean> {
   try {
-    await head(variantUrl(sourceUrl, VARIANT_WIDTHS[VARIANT_WIDTHS.length - 1], 'avif'));
+    await head(variantUrl(sourceUrl, VARIANT_MARKER.width, VARIANT_MARKER.format));
     return true;
   } catch {
     return false;
