@@ -11,17 +11,22 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [product, dbCats, variants, waitingCount] = await Promise.all([
+  const [product, dbCats, variants, alerts] = await Promise.all([
     prisma.product.findUnique({ where: { id } }),
     prisma.category.findMany({ orderBy: { sortOrder: 'asc' } }),
     prisma.productVariant.findMany({
       where: { productId: id },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
     }),
-    // „Szólj, ha újra lesz" feliratkozók — a készlet mező mellett látszik.
-    prisma.stockAlert.count({ where: { productId: id, notifiedAt: null } }),
+    // „Szólj, ha újra lesz" feliratkozók — a készlet mező alatt listázva.
+    prisma.stockAlert.findMany({
+      where: { productId: id },
+      orderBy: { createdAt: 'asc' },
+      select: { email: true, createdAt: true, notifiedAt: true },
+    }),
   ]);
   if (!product) notFound();
+  const waitingCount = alerts.filter((a) => !a.notifiedAt).length;
 
   const categories = dbCats.map((c) => ({ value: c.slug, label: c.name }));
 
@@ -42,6 +47,11 @@ export default async function EditProductPage({
         productId={product.id}
         categories={categories}
         waitingCount={waitingCount}
+        waitingList={alerts.map((a) => ({
+          email: a.email,
+          createdAt: a.createdAt.toISOString(),
+          notifiedAt: a.notifiedAt ? a.notifiedAt.toISOString() : null,
+        }))}
         initial={{
           name: product.name,
           slug: product.slug,
