@@ -71,12 +71,15 @@ export default function ProductForm({
   productId,
   categories,
   waitingCount = 0,
+  waitingList = [],
 }: {
   initial: ProductFormValues;
   productId?: string;
   categories: { value: string; label: string }[];
   /** Hányan kértek értesítést, ha ez a termék újra készleten lesz. */
   waitingCount?: number;
+  /** A feliratkozók (a már értesítettek is, jelölve). */
+  waitingList?: { email: string; createdAt: string; notifiedAt: string | null }[];
 }) {
   const router = useRouter();
   const [values, setValues] = useState<ProductFormValues>(initial);
@@ -369,6 +372,22 @@ export default function ProductForm({
                   ? `${waitingCount} vásárló kér értesítést — 0-ról feljebb állítva mindannyian levelet kapnak.`
                   : 'Jelenleg senki nem kért értesítést erre a termékre.'}
               </p>
+            )}
+            {isEdit && waitingList.length > 0 && (
+              <ul className="mt-2 text-xs text-on-surface/70 space-y-0.5">
+                {waitingList.map((w) => (
+                  <li key={w.email} className={w.notifiedAt ? 'text-on-surface/40' : ''}>
+                    {w.email}
+                    <span className="text-on-surface/40">
+                      {' · '}
+                      {new Date(w.createdAt).toLocaleDateString('hu-HU')}
+                      {w.notifiedAt
+                        ? ` · értesítve ${new Date(w.notifiedAt).toLocaleDateString('hu-HU')}`
+                        : ' · vár'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </div>
