@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Kategóriák', href: '/admin/kategoriak' },
   { label: 'Megjelenés', href: '/admin/megjelenes' },
   { label: 'Képváltozatok', href: '/admin/kepek' },
+  { label: 'Tárhely', href: '/admin/tarhely' },
   { label: 'Kuponok', href: '/admin/kuponok' },
   { label: 'Katalógus frissítés', href: '/admin/katalogus' },
   { label: 'Statisztikák', href: '/admin/statisztikak' },
