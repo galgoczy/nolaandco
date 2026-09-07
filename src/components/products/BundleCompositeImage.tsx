@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 
 /**
  * Csomagok automatikus mozaik-fotója: a tagtermékek fő képei függőleges
@@ -19,14 +19,7 @@ export default function BundleCompositeImage({
     <div className="absolute inset-0 flex gap-[2px] bg-white">
       {images.map((src, i) => (
         <div key={`${src}-${i}`} className="relative flex-1 overflow-hidden">
-          <Image
-            src={src}
-            alt={i === 0 ? alt : ''}
-            aria-hidden={i !== 0}
-            fill
-            className="object-cover"
-            sizes={sizes}
-          />
+          <ProductImage src={src} alt={i === 0 ? alt : ''} className="object-cover" sizes={sizes} />
         </div>
       ))}
     </div>

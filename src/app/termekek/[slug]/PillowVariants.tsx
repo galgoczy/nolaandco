@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 
 type PillowThumb = {
   id: string;
@@ -40,10 +40,9 @@ export default function PillowVariants({
                   : 'border-[#4A4A4A]/15 hover:border-[#C4A591] hover:scale-105'
               }`}
             >
-              <Image
+              <ProductImage
                 src={p.imageUrl}
                 alt={p.name}
-                fill
                 className="object-cover"
                 style={{
                   objectPosition: 'top',

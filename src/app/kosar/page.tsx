@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 import Link from 'next/link';
 import { useCartStore } from '@/store/cart';
 import { formatPrice } from '@/lib/utils';
@@ -63,13 +63,7 @@ export default function KosarPage() {
                 href={`/termekek/${item.slug}`}
                 className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-surface-container-low"
               >
-                <Image
-                  src={item.imageUrl}
-                  alt={item.name}
-                  fill
-                  className="object-cover"
-                  sizes="80px"
-                />
+                <ProductImage src={item.imageUrl} alt={item.name} className="object-cover" sizes="80px" />
               </Link>
 
               {/* Info */}

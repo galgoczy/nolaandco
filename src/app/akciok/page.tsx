@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import Button from '@/components/ui/Button';
@@ -113,11 +113,11 @@ export default async function AkciokPage() {
                         className="group block bg-surface-container-lowest rounded-lg overflow-hidden ghost-border card-hover"
                       >
                         <div className="relative aspect-square overflow-hidden">
-                          <Image
+                          <ProductImage
                             src={product.imageUrl}
                             alt={product.name}
-                            fill
                             className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            sizes="(max-width: 767px) 50vw, (max-width: 1280px) 33vw, 400px"
                           />
                           <div className="absolute top-3 right-3 bg-brand-red text-on-primary px-3 py-1 rounded-full text-xs font-bold">
                             Akció
