@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import Image from 'next/image';
 import { isBlobImage, variantSrcSet, variantUrl } from '@/lib/imageVariants';
 
@@ -26,6 +26,15 @@ type Props = {
  */
 export default function ProductImage({ src, alt, sizes, className = '', style, priority, onLoad }: Props) {
   const [legacy, setLegacy] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Ha a változat már a hidratálás ELŐTT hibára futott (gyors 404 a szerver
+  // által renderelt <img>-en), az onError nem éri el Reactet. Ezt utólag
+  // vesszük észre: befejezett betöltés nulla szélességgel = hiba.
+  useEffect(() => {
+    const el = imgRef.current;
+    if (el && el.complete && el.naturalWidth === 0 && el.currentSrc) setLegacy(true);
+  }, []);
 
   if (!isBlobImage(src) || legacy) {
     return (
@@ -47,6 +56,7 @@ export default function ProductImage({ src, alt, sizes, className = '', style, p
       <source type="image/avif" srcSet={variantSrcSet(src, 'avif')} sizes={sizes} />
       <source type="image/webp" srcSet={variantSrcSet(src, 'webp')} sizes={sizes} />
       <img
+        ref={imgRef}
         src={variantUrl(src, 1080, 'webp')}
         alt={alt}
         sizes={sizes}
