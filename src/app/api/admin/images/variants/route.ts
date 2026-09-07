@@ -46,7 +46,7 @@ export async function GET() {
 export async function POST(req: Request) {
   if (!(await isAdminRequest())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const body = (await req.json().catch(() => null)) as { limit?: number; force?: boolean } | null;
-  const limit = Math.min(Math.max(body?.limit ?? 4, 1), 10);
+  const limit = Math.min(Math.max(body?.limit ?? 2, 1), 4);
 
   const sources = await collectSources();
   const flags = body?.force ? sources.map(() => false) : await Promise.all(sources.map((s) => hasVariants(s)));
@@ -56,8 +56,8 @@ export async function POST(req: Request) {
   const errors: { url: string; error: string }[] = [];
   const started = Date.now();
   for (const url of missing.slice(0, limit)) {
-    // Ne fussunk ki az időből: ~45 mp után átadjuk a következő körnek.
-    if (Date.now() - started > 45_000) break;
+    // Ne fussunk ki a 60 mp-es keretből: 25 mp után már nem kezdünk új képet.
+    if (Date.now() - started > 25_000) break;
     try {
       await generateVariants(url);
       processed.push(url);
