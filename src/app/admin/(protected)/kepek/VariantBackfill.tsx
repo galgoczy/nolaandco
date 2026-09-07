@@ -31,11 +31,14 @@ export default function VariantBackfill() {
         const res = await fetch('/api/admin/images/variants', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ limit: 4 }),
+          body: JSON.stringify({ limit: 2 }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          setError(data.error || 'Hiba a gyártás közben.');
+          setError(
+            data.error ||
+              `Hiba a gyártás közben (HTTP ${res.status}). Nyomd meg újra — a kész képeket kihagyja, onnan folytatja.`,
+          );
           break;
         }
         setStatus({ total: data.total, done: data.done, remaining: data.remaining });

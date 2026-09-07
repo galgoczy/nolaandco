@@ -35,15 +35,24 @@ export async function generateVariants(sourceUrl: string, original?: Buffer): Pr
   const buf = original ?? (await fetchOriginal(sourceUrl));
   const pathname = new URL(sourceUrl).pathname.slice(1);
 
-  // Egyszer dekódolunk, utána méretenként/formátumonként enkódolunk.
-  const base = sharp(buf, { limitInputPixels: 80_000_000 }).rotate();
-  const meta = await base.metadata();
-  const urls: string[] = [];
+  // A 48 MP-es fotót egyszer dekódoljuk (EXIF-forgatással, sRGB-re alakítva)
+  // teljes méretben, és minden változat ebből, egy lépésben kicsinyítve
+  // készül — ugyanaz a minőség, mint a közvetlen út, de nem 6 dekódolás.
+  const master = await sharp(buf, { limitInputPixels: 80_000_000 })
+    .rotate()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const fromMaster = () =>
+    sharp(master.data, {
+      raw: { width: master.info.width, height: master.info.height, channels: master.info.channels },
+    });
 
+  const urls: string[] = [];
+  // Sorrend: a legnagyobb AVIF az utolsó — a hasVariants() ezt nézi, így egy
+  // félbeszakadt gyártás sosem számít késznek.
   for (const width of VARIANT_WIDTHS) {
-    const resized = base.clone().resize({ width, withoutEnlargement: true });
-    for (const format of VARIANT_FORMATS) {
-      const data = await encode(resized.clone(), format);
+    for (const format of [...VARIANT_FORMATS].reverse()) {
+      const data = await encode(fromMaster().resize({ width, withoutEnlargement: true }), format);
       const key = `${pathname}~${width}.${format}`;
       const blob = await put(key, data, {
         access: 'public',
@@ -55,7 +64,6 @@ export async function generateVariants(sourceUrl: string, original?: Buffer): Pr
       urls.push(blob.url);
     }
   }
-  void meta;
   return urls;
 }
 
