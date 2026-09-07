@@ -66,6 +66,18 @@ export const emptyProduct: ProductFormValues = {
   variants: [],
 };
 
+/** Feliratkozás/értesítés ideje magyar formában, budapesti időzónában (perc pontossággal). */
+function fmtDateTime(iso: string): string {
+  return new Intl.DateTimeFormat('hu-HU', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Europe/Budapest',
+  }).format(new Date(iso));
+}
+
 export default function ProductForm({
   initial,
   productId,
@@ -380,10 +392,8 @@ export default function ProductForm({
                     {w.email}
                     <span className="text-on-surface/40">
                       {' · '}
-                      {new Date(w.createdAt).toLocaleDateString('hu-HU')}
-                      {w.notifiedAt
-                        ? ` · értesítve ${new Date(w.notifiedAt).toLocaleDateString('hu-HU')}`
-                        : ' · vár'}
+                      {fmtDateTime(w.createdAt)}
+                      {w.notifiedAt ? ` · értesítve ${fmtDateTime(w.notifiedAt)}` : ' · vár'}
                     </span>
                   </li>
                 ))}
