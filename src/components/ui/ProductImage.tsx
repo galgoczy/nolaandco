@@ -28,12 +28,23 @@ export default function ProductImage({ src, alt, sizes, className = '', style, p
   const [legacy, setLegacy] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Ha a változat már a hidratálás ELŐTT hibára futott (gyors 404 a szerver
-  // által renderelt <img>-en), az onError nem éri el Reactet. Ezt utólag
-  // vesszük észre: befejezett betöltés nulla szélességgel = hiba.
+  // Ha a változat már a hidratálás ELŐTT hibára futott (a szerver által
+  // renderelt <img> gyorsan 404-et kap), az onError nem éri el Reactet.
+  // Ilyenkor a kép "befejezett", de nulla széles — ebből ismerjük fel.
+  // (A currentSrc ilyenkor üres marad, ezért azt nem szabad feltételként
+  // használni; a `loading="lazy"`, még el sem indult képnél a complete
+  // hamis, tehát téves riasztás nincs.)
   useEffect(() => {
     const el = imgRef.current;
-    if (el && el.complete && el.naturalWidth === 0 && el.currentSrc) setLegacy(true);
+    if (!el) return;
+    if (el.complete && el.naturalWidth === 0) {
+      setLegacy(true);
+      return;
+    }
+    // Natív figyelő is, ha a React szintetikus onError-je lemaradna.
+    const onErr = () => setLegacy(true);
+    el.addEventListener('error', onErr);
+    return () => el.removeEventListener('error', onErr);
   }, []);
 
   if (!isBlobImage(src) || legacy) {
