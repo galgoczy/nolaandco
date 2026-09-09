@@ -16,6 +16,20 @@
  * a Blobban; belőle bármikor újragyártható minden változat.
  */
 
+/**
+ * Kiszolgáljuk-e már a látogatóknak az előre gyártott változatokat?
+ *
+ * Amíg a visszamenőleges gyártás nem futott végig minden képre, a hiányzó
+ * változat törött képet jelentene addig, amíg a böngésző vissza nem esik a
+ * next/image útra — ez a visszaesés a gyakorlatban nem mindig ér célba
+ * (a hidratálás előtti hibák miatt). Ezért amíg nincs kész minden változat,
+ * a megszokott next/image utat használjuk.
+ *
+ * A gyártás (Admin → Képváltozatok) befejezése után ezt kell true-ra
+ * állítani; a feltöltés és a gyártás ettől függetlenül készíti a fájlokat.
+ */
+export const SERVE_VARIANTS = false;
+
 export type VariantFormat = 'avif' | 'webp';
 
 export const VARIANT_WIDTHS: Record<VariantFormat, number[]> = {

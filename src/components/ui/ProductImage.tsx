@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import Image from 'next/image';
-import { isBlobImage, variantSrcSet, variantUrl } from '@/lib/imageVariants';
+import { SERVE_VARIANTS, isBlobImage, variantSrcSet, variantUrl } from '@/lib/imageVariants';
 
 type Props = {
   src: string;
@@ -47,7 +47,7 @@ export default function ProductImage({ src, alt, sizes, className = '', style, p
     return () => el.removeEventListener('error', onErr);
   }, []);
 
-  if (!isBlobImage(src) || legacy) {
+  if (!SERVE_VARIANTS || !isBlobImage(src) || legacy) {
     return (
       <Image
         src={src}
