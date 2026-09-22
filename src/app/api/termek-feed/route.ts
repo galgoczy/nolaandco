@@ -26,8 +26,19 @@ export const dynamic = 'force-dynamic';
 const BASE_URL = 'https://nolaandco.hu';
 const BRAND = 'Nola & Co';
 
-function absoluteUrl(url: string): string {
-  return url.startsWith('http') ? url : BASE_URL + url;
+/**
+ * A feed képei a weboldal képoptimalizálóján át mennek, 1200 px szélesen:
+ * a Meta így pár száz KB-os JPEG-et kap (PNG forrásnál PNG-t) a 3 MB-os
+ * eredeti helyett, és a kész kép 31 napig a CDN-en marad — a katalógus
+ * szinkronizálása nem húzza le újra és újra az eredetit a tárhelyről.
+ *
+ * Az AVIF/WebP változatokat szándékosan nem használjuk: a Meta katalógus
+ * JPEG-et és PNG-t fogad. A formátumot a letöltő `Accept` fejléce dönti el,
+ * tehát a Meta mindig olyat kap, amit elfogad. Az 1200 px bőven a Meta által
+ * ajánlott legalább 1024 px fölött van.
+ */
+function feedImageUrl(src: string): string {
+  return `${BASE_URL}/_next/image?url=${encodeURIComponent(src)}&w=1200&q=85`;
 }
 
 /** Markdown-jelölés és sortörések nélküli, egysoros szöveg. */
@@ -83,7 +94,7 @@ export async function GET() {
     const extraImages = galleryImages
       .filter((img) => img !== mainImage)
       .slice(0, 5)
-      .map(absoluteUrl)
+      .map(feedImageUrl)
       .join(',');
 
     const onSale = p.onSale && p.salePrice != null;
@@ -98,7 +109,7 @@ export async function GET() {
         csvField(`${p.price} HUF`),
         csvField(onSale ? `${p.salePrice} HUF` : ''),
         csvField(`${BASE_URL}/termekek/${p.slug}`),
-        csvField(absoluteUrl(mainImage)),
+        csvField(feedImageUrl(mainImage)),
         csvField(extraImages),
         csvField(BRAND),
       ].join(','),
