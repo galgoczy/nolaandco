@@ -17,18 +17,18 @@
  */
 
 /**
- * Kiszolgáljuk-e már a látogatóknak az előre gyártott változatokat?
+ * Kiszolgáljuk-e a látogatóknak az előre gyártott változatokat?
  *
- * Amíg a visszamenőleges gyártás nem futott végig minden képre, a hiányzó
- * változat törött képet jelentene addig, amíg a böngésző vissza nem esik a
- * next/image útra — ez a visszaesés a gyakorlatban nem mindig ér célba
- * (a hidratálás előtti hibák miatt). Ezért amíg nincs kész minden változat,
- * a megszokott next/image utat használjuk.
+ * Bekapcsolva, miután a visszamenőleges gyártás minden hivatkozott képre
+ * lefutott (2026-09-22: mind a 207 Blob-képnél megvan a teljes készlet). Az
+ * új feltöltéseknél a változatok a feltöltéskor készülnek, tehát az oldal
+ * sosem hivatkozik nem létező változatra. Ha mégis hiányozna egy, a
+ * ProductImage visszaesik a next/image útra.
  *
- * A gyártás (Admin → Képváltozatok) befejezése után ezt kell true-ra
- * állítani; a feltöltés és a gyártás ettől függetlenül készíti a fájlokat.
+ * Ha valamiért újra ki kell kapcsolni (pl. a gyártás tömeges újrafuttatása
+ * idejére), false-ra állítva minden kép a next/image úton jön.
  */
-export const SERVE_VARIANTS = false;
+export const SERVE_VARIANTS = true;
 
 export type VariantFormat = 'avif' | 'webp';
 
