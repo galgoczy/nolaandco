@@ -6,8 +6,10 @@ import { useEffect, useState } from 'react';
 import {
   readConsent,
   COOKIE_CONSENT_EVENT,
+  COOKIE_CONSENT_KEY,
   type ConsentState,
 } from '@/lib/cookieConsent';
+import { trackPageView } from '@/lib/metaPixel';
 
 const GA_ID = 'G-XQ02YFVB9M';
 const FB_PIXEL_ID = '1406749431210962';
@@ -46,24 +48,37 @@ export default function Analytics() {
     return () => window.removeEventListener(COOKIE_CONSENT_EVENT, applyConsent);
   }, []);
 
+  // A sorba tevő küldővel: ha a hatás a pixel-szkript előtt fut le, az első
+  // PageView sem veszik el.
   useEffect(() => {
     if (consent !== 'accepted') return;
-    window.fbq?.('track', 'PageView');
+    trackPageView();
   }, [pathname, consent]);
+
+  // A hozzájárulás kezdőállapotát maguk a szkriptek állítják be a mentett
+  // döntésből, MIELŐTT bármi elindulna. Korábban ezt a fenti hatás tette meg
+  // utólag, ami versenyhelyzet volt: ha a hatás a szkriptek előtt futott,
+  // az engedélyezés elveszett (window.fbq / window.gtag még nem létezett),
+  // majd a szkript alapból visszavonta — így elfogadott sütik mellett sem
+  // ment ki egyetlen Meta-esemény sem. Most a sorrend nem számít: a
+  // szkriptek és a hatás ugyanabból a mentett értékből dolgoznak.
+  const readStoredConsent = `var __nolaConsent = null; try { __nolaConsent = window.localStorage.getItem('${COOKIE_CONSENT_KEY}'); } catch (e) {}`;
 
   return (
     <>
-      {/* Google Consent Mode v2: default denied before any tag fires. */}
+      {/* Google Consent Mode v2: az alapállapot a mentett döntésből jön. */}
       <Script id="gtag-consent-default" strategy="afterInteractive">
         {`
+          ${readStoredConsent}
+          var __nolaGranted = __nolaConsent === 'accepted' ? 'granted' : 'denied';
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           window.gtag = gtag;
           gtag('consent', 'default', {
-            ad_storage: 'denied',
-            ad_user_data: 'denied',
-            ad_personalization: 'denied',
-            analytics_storage: 'denied',
+            ad_storage: __nolaGranted,
+            ad_user_data: __nolaGranted,
+            ad_personalization: __nolaGranted,
+            analytics_storage: __nolaGranted,
             wait_for_update: 500,
           });
           gtag('js', new Date());
@@ -75,7 +90,8 @@ export default function Analytics() {
         strategy="afterInteractive"
       />
 
-      {/* Meta Pixel — loaded with consent revoked until the user accepts. */}
+      {/* Meta Pixel — a hozzájárulás az init ELŐTT, a mentett döntésből
+          (a Meta dokumentációja szerinti sorrend). */}
       <Script id="fb-pixel" strategy="afterInteractive">
         {`
           !function(f,b,e,v,n,t,s)
@@ -86,8 +102,9 @@ export default function Analytics() {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
+          ${readStoredConsent}
+          fbq('consent', __nolaConsent === 'accepted' ? 'grant' : 'revoke');
           fbq('init', '${FB_PIXEL_ID}');
-          fbq('consent', 'revoke');
         `}
       </Script>
     </>

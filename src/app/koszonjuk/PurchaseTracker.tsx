@@ -11,12 +11,16 @@ import { trackPurchase } from '@/lib/metaPixel';
 export default function PurchaseTracker({
   orderId,
   value,
+  items,
 }: {
   orderId: string;
   value: number;
+  items: { productId: string; quantity: number }[];
 }) {
   useEffect(() => {
-    trackPurchase({ orderId, value });
+    trackPurchase({ orderId, value, items });
+    // Az items tömb minden rendereléskor új — a rendelés azonosítója elég kulcsnak.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId, value]);
 
   return null;
