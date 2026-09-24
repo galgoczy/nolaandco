@@ -84,7 +84,11 @@ export default async function ThankYouPage({ searchParams }: Props) {
   return (
     <main className="min-h-screen bg-[#F7F3EE] py-12 px-4">
       <ClearCartOnSuccess />
-      <PurchaseTracker orderId={order.id} value={order.total} />
+      <PurchaseTracker
+        orderId={order.id}
+        value={order.total}
+        items={order.items.map((i) => ({ productId: i.productId, quantity: i.quantity }))}
+      />
       <div className="max-w-2xl mx-auto">
         {/* Success header */}
         <div className="text-center mb-10">

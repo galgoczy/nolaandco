@@ -56,6 +56,11 @@ function send(run: (f: Fbq) => void): void {
 
 const CURRENCY = 'HUF';
 
+/** Oldalmegtekintés — a hozzájárulás ellenőrzése a hívó (Analytics) dolga. */
+export function trackPageView(): void {
+  send((f) => f('track', 'PageView'));
+}
+
 /** Termékoldal megtekintése — ez a dinamikus hirdetések alapja. */
 export function trackViewContent(product: {
   id: string;
@@ -108,8 +113,16 @@ export function trackInitiateCheckout(cart: {
 /**
  * Sikeres rendelés. Rendelésenként egyszer küldjük: a köszönőoldal
  * újratöltése vagy visszalépés különben többször számolna ugyanabból.
+ *
+ * A termékazonosítók (content_ids) ugyanazok, mint a feed `id` oszlopa és a
+ * ViewContent/AddToCart eseményeké — enélkül a Meta nem tudja a vásárlást a
+ * katalógus termékeihez kötni.
  */
-export function trackPurchase(order: { orderId: string; value: number }): void {
+export function trackPurchase(order: {
+  orderId: string;
+  value: number;
+  items: { productId: string; quantity: number }[];
+}): void {
   const key = `nola_purchase_${order.orderId}`;
   try {
     if (sessionStorage.getItem(key)) return;
@@ -117,7 +130,16 @@ export function trackPurchase(order: { orderId: string; value: number }): void {
   } catch {
     // Privát ablakban a sessionStorage dobhat — ilyenkor inkább elküldjük.
   }
+  // Egy termék több sorban is szerepelhet (pl. két különböző névvel
+  // személyre szabva) — azonosítónként összevonjuk.
+  const qty: Record<string, number> = {};
+  for (const i of order.items) qty[i.productId] = (qty[i.productId] ?? 0) + i.quantity;
+  const ids = Object.keys(qty);
   send((f) => f('track', 'Purchase', {
+    content_ids: ids,
+    content_type: 'product',
+    contents: ids.map((id) => ({ id, quantity: qty[id] })),
+    num_items: order.items.reduce((sum, i) => sum + i.quantity, 0),
     value: order.value,
     currency: CURRENCY,
   }));
