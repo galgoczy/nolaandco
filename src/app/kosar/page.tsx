@@ -6,18 +6,43 @@ import Link from 'next/link';
 import { useCartStore } from '@/store/cart';
 import { formatPrice } from '@/lib/utils';
 import { FREE_PARCEL_THRESHOLD } from '@/lib/shipping';
-import { cartRequiresShipping } from '@/lib/shippingRules';
+import { cartRequiresShipping, cartItemRequiresShipping } from '@/lib/shippingRules';
 import Button from '@/components/ui/Button';
+import { useUrgentProductionEnabled } from '@/lib/useUrgentProduction';
+import {
+  NORMAL_DURATION,
+  NORMAL_LABEL,
+  URGENT_DURATION,
+  URGENT_LABEL,
+  URGENT_MIXED_NOTE,
+  countUrgent,
+  hasSlowerItems,
+  isUrgentEligible,
+  urgentFeeFor,
+} from '@/lib/urgentProduction';
 
 export default function KosarPage() {
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const setUrgent = useCartStore((s) => s.setUrgent);
   const total = useCartStore((s) => s.total);
 
   // Hydration guard for persisted zustand store
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // Sürgősségi elkészítés: a felár a kosár egészéből, a kapcsoló állapota a szerverről.
+  const hasPillow = items.some((i) => isUrgentEligible(i.category));
+  const urgentEnabled = useUrgentProductionEnabled(hasPillow);
+  const urgentCount = countUrgent(items);
+  const urgentFee = urgentFeeFor(urgentCount);
+  const urgentBlocked = urgentCount > 0 && urgentEnabled === false;
+  const mixedUrgent =
+    urgentCount > 0 &&
+    hasSlowerItems(items.map((i) => ({ ...i, ships: cartItemRequiresShipping(i) })));
+  // Az ingyenes csomagautomata-határba a felár is beszámít (a kupon a pénztárban jön).
+  const orderValue = total() + urgentFee;
 
   if (!mounted) {
     return (
@@ -87,6 +112,31 @@ export default function KosarPage() {
                   <p className="text-xs text-carbon-light/80 mt-0.5">
                     Dizájn: {item.posterLayoutLabel}
                   </p>
+                )}
+                {isUrgentEligible(item.category) && (
+                  <div className="mt-2">
+                    <label
+                      className={`inline-flex items-center gap-2 text-xs ${
+                        urgentEnabled === true || item.urgent ? 'cursor-pointer text-carbon' : 'text-carbon-light'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={!!item.urgent}
+                        // Kikapcsolt állapotban új sürgős nem kérhető, de a meglévő visszaállítható.
+                        disabled={!item.urgent && urgentEnabled !== true}
+                        onChange={(e) => setUrgent(item.id, e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-[#C4A591] focus:ring-[#C4A591]/30"
+                      />
+                      {URGENT_LABEL} ({URGENT_DURATION})
+                    </label>
+                    <p className="text-xs text-carbon-light mt-0.5">
+                      {item.urgent
+                        ? `Elkészül ${URGENT_DURATION} alatt, a szállítás ezen felül.`
+                        : `${NORMAL_LABEL}: ${NORMAL_DURATION}.`}
+                      {!item.urgent && urgentEnabled === false && ' A sürgős elkészítés most nem választható.'}
+                    </p>
+                  </div>
                 )}
               </div>
 
@@ -158,21 +208,21 @@ export default function KosarPage() {
               pénztárban kerül még levonásra, ott pontosítjuk az összeget. */}
           {cartRequiresShipping(items) && (
             <div className="mb-6">
-              {total() >= FREE_PARCEL_THRESHOLD ? (
+              {orderValue >= FREE_PARCEL_THRESHOLD ? (
                 <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
                   Gratulálunk! A csomagautomatás szállítás ingyenes.
                 </div>
               ) : (
                 <>
                   <div className="bg-[#faf6f1] text-[#4A4A4A] rounded-xl px-4 py-3 text-sm">
-                    Már csak <strong>{formatPrice(FREE_PARCEL_THRESHOLD - total())}</strong>{' '}
+                    Már csak <strong>{formatPrice(FREE_PARCEL_THRESHOLD - orderValue)}</strong>{' '}
                     hiányzik az ingyenes csomagautomatás szállításhoz.
                   </div>
                   <div className="mt-2 h-1.5 rounded-full bg-[#EFEAE2] overflow-hidden">
                     <div
                       className="h-full rounded-full bg-[#C4A591] transition-all duration-500"
                       style={{
-                        width: `${Math.min(100, Math.round((total() / FREE_PARCEL_THRESHOLD) * 100))}%`,
+                        width: `${Math.min(100, Math.round((orderValue / FREE_PARCEL_THRESHOLD) * 100))}%`,
                       }}
                     />
                   </div>
@@ -180,25 +230,55 @@ export default function KosarPage() {
               )}
             </div>
           )}
+          {mixedUrgent && (
+            <div className="mb-6 bg-[#faf6f1] text-[#4A4A4A] rounded-xl px-4 py-3 text-sm">{URGENT_MIXED_NOTE}</div>
+          )}
+          {urgentBlocked && (
+            <div className="mb-6 bg-red-50 text-red-700 rounded-xl px-4 py-3 text-sm">
+              A sürgősségi elkészítés jelenleg nem választható, mert a műhely szabad kapacitása betelt.
+              Kérlek, állítsd a párnákat normál elkészítésre.
+              <button
+                type="button"
+                onClick={() => items.filter((i) => i.urgent).forEach((i) => setUrgent(i.id, false))}
+                className="block mt-2 underline font-medium"
+              >
+                Minden párna normál elkészítéssel
+              </button>
+            </div>
+          )}
           <div className="space-y-3">
             <div className="flex justify-between text-carbon">
               <span>Részösszeg</span>
               <span className="font-medium">{formatPrice(total())}</span>
             </div>
+            {urgentFee > 0 && (
+              <div className="flex justify-between text-carbon">
+                <span>
+                  {URGENT_LABEL} ({urgentCount} párna)
+                </span>
+                <span className="font-medium">+{formatPrice(urgentFee)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-carbon-light text-sm">
               <span>Szállítási költség</span>
               <span>számítás a pénztárban</span>
             </div>
             <div className="border-t border-outline-variant pt-3 flex justify-between text-lg font-bold text-carbon">
               <span>Összesen</span>
-              <span>{formatPrice(total())}</span>
+              <span>{formatPrice(orderValue)}</span>
             </div>
           </div>
 
           <div className="mt-6">
-            <Button variant="secondary" href="/penztar" className="w-full">
-              Tovább a pénztárhoz
-            </Button>
+            {urgentBlocked ? (
+              <Button variant="secondary" className="w-full" disabled>
+                Tovább a pénztárhoz
+              </Button>
+            ) : (
+              <Button variant="secondary" href="/penztar" className="w-full">
+                Tovább a pénztárhoz
+              </Button>
+            )}
           </div>
         </div>
       </div>

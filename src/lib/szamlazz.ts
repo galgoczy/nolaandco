@@ -13,6 +13,7 @@ type OrderWithItems = {
   billingCountry?: string | null;
   subtotal: number;
   shippingCost: number;
+  urgentFee?: number;
   total: number;
   items: {
     quantity: number;
@@ -80,6 +81,19 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
         grossUnitPrice: item.price,
       })
   );
+
+  // Sürgősségi elkészítés felára — külön tétel, nem a szállítási költség része.
+  if (order.urgentFee && order.urgentFee > 0) {
+    items.push(
+      new Item({
+        label: 'Sürgősségi elkészítés',
+        quantity: 1,
+        unit: 'db',
+        vat: 'AAM',
+        grossUnitPrice: order.urgentFee,
+      })
+    );
+  }
 
   // Add shipping as a line item if there's a shipping cost
   if (order.shippingCost > 0) {

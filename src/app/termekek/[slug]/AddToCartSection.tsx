@@ -4,6 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import BirthDataForm from '@/components/products/BirthDataForm';
 import TrustBar from '@/components/products/TrustBar';
+import UrgentProductionChoice from '@/components/products/UrgentProductionChoice';
+import { useUrgentProductionEnabled } from '@/lib/useUrgentProduction';
+import { countUrgent, isUrgentEligible, nextUrgentFee } from '@/lib/urgentProduction';
 import Button from '@/components/ui/Button';
 import { useCartStore } from '@/store/cart';
 import { useBirthDataStore } from '@/store/birthData';
@@ -79,6 +82,18 @@ export default function AddToCartSection({
 
   const isGiftCard = product.category === 'giftcard';
   const isPoster = product.category === 'poster';
+
+  // Sürgősségi elkészítés (csak emlékpárnánál). A felár a kosár tartalmától
+  // függ: ha már van benne sürgős párna, a következő csak +2 000 Ft.
+  const isPillow = isUrgentEligible(product.category);
+  const urgentEnabled = useUrgentProductionEnabled(isPillow);
+  const [urgent, setUrgent] = useState(false);
+  const cartItems = useCartStore((s) => s.items);
+  const urgentFeeNow = nextUrgentFee(countUrgent(cartItems));
+  useEffect(() => {
+    if (urgentEnabled === false) setUrgent(false);
+  }, [urgentEnabled]);
+  const pillowPrice = product.price + (isPillow && urgent ? urgentFeeNow : 0);
 
   // Hydrate from the persisted birth-data store so the form is pre-filled
   // when the user navigates between products. Fires once after the client
@@ -175,6 +190,7 @@ export default function AddToCartSection({
       noShipping: product.noShipping,
       ...(variantLabel ? { variant: variantLabel } : {}),
       ...(posterLayout ? { posterLayout, posterLayoutLabel } : {}),
+      ...(isPillow ? { urgent: urgent && urgentEnabled === true } : {}),
     });
 
     setAdded(true);
@@ -279,12 +295,21 @@ export default function AddToCartSection({
           ))}
         </div>
       )}
+      {isPillow && !added && (
+        <UrgentProductionChoice
+          value={urgent}
+          onChange={setUrgent}
+          enabled={urgentEnabled}
+          nextFee={urgentFeeNow}
+          basePrice={product.price}
+        />
+      )}
       {!birthData || isEditing ? (
         <>
           <BirthDataForm
             initialValue={isEditing ? birthData : null}
             onSubmit={handleBirthDataSubmit}
-            submitLabel={oneClickAdd ? `Kosárba teszem – ${formatPrice(product.price)}` : undefined}
+            submitLabel={oneClickAdd ? `Kosárba teszem – ${formatPrice(isPillow ? pillowPrice : product.price)}` : undefined}
           />
           <TrustBar category={product.category} items={product.features} className="mt-4 justify-center" />
         </>
@@ -325,7 +350,7 @@ export default function AddToCartSection({
           </div>
 
           <Button variant="secondary" onClick={() => handleAddToCart()} className="w-full">
-            Kosárba teszem – {formatPrice(isPoster ? posterVariants[selectedVariant].price : product.price)}
+            Kosárba teszem – {formatPrice(isPoster ? posterVariants[selectedVariant].price : isPillow ? pillowPrice : product.price)}
           </Button>
           <TrustBar category={product.category} items={product.features} className="justify-center" />
         </div>

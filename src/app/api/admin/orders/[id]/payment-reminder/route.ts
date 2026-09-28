@@ -49,6 +49,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       })),
       discount: order.discount,
       couponCode: order.couponCode,
+      urgentFee: order.urgentFee,
       total: order.total,
     }),
   });

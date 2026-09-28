@@ -122,6 +122,10 @@ model Order {
   // Applied coupon (if any) — persisted so notifications/admin can show it.
   couponCode      String?
   discount        Int      @default(0)
+  /// Sürgősségi elkészítés felára (bruttó Ft) — a termékek és a szállítás
+  /// mellett külön sor; a kupon nem csökkenti, az ingyenes csomagautomata-
+  /// határba viszont beszámít. 0 = normál elkészítés.
+  urgentFee       Int      @default(0)
   paymentMethod   String   @default("card") // "card" | "transfer"
   stripePaymentId String?
   trackingNumber  String?
@@ -160,6 +164,8 @@ model OrderItem {
   birthTime     String?
   customNote    String?
   posterLayout  String?  // chosen poster design variant (e.g. "origin-1")
+  /// Sürgősségi (2–3 munkanapos) elkészítést kért-e erre a tételre.
+  urgent        Boolean  @default(false)
 
   orderId   String
   order     Order   @relation(fields: [orderId], references: [id])
@@ -264,6 +270,14 @@ model PromoCard {
   createdAt   DateTime  @default(now())
 
   @@index([batch])
+}
+
+/// Egyszerű kulcs–érték beállítások, amelyeket az admin kapcsol
+/// (pl. "urgent-production-enabled" = "true" | "false").
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }
 
 model SiteText {

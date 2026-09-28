@@ -16,6 +16,8 @@ import { fulfillGiftCardsForOrder } from '@/lib/giftCards';
 import { notifyNewOrderTelegram } from '@/lib/telegram';
 import { getShippingCost, carrierForCountry, getCountryConfig, qualifiesForFreeParcel } from '@/lib/shipping';
 import { applyStockForOrder } from '@/lib/stock';
+import { isUrgentEnabled } from '@/lib/urgentProduction.server';
+import { URGENT_LABEL, hasSlowerItems, isUrgentEligible, urgentFeeFor } from '@/lib/urgentProduction';
 import type { CartItemData } from '@/store/cart';
 
 /**
@@ -42,11 +44,15 @@ async function sendOrderEmails(args: {
     price: number;
     babyName?: string | null;
     posterLayoutLabel?: string | null;
+    urgent?: boolean;
   }>;
   subtotal: number;
   shippingCost: number;
   discount?: number;
   couponCode?: string | null;
+  urgentFee?: number;
+  mixedUrgent?: boolean;
+  hasPillow?: boolean;
   total: number;
   hasGiftCard: boolean;
   hasInvoice: boolean;
@@ -64,6 +70,9 @@ async function sendOrderEmails(args: {
       shippingCost: args.shippingCost,
       discount: args.discount,
       couponCode: args.couponCode,
+      urgentFee: args.urgentFee,
+      mixedUrgent: args.mixedUrgent,
+      hasPillow: args.hasPillow,
       total: args.total,
       shippingMethod: args.shippingMethod,
       paymentMethod: args.paymentMethod,
@@ -74,7 +83,7 @@ async function sendOrderEmails(args: {
 
   const adminSend = sendEmail({
     to: ADMIN_NOTIFICATION_RECIPIENT,
-    subject: orderNotificationSubject(args.orderId),
+    subject: orderNotificationSubject(args.orderId, (args.urgentFee ?? 0) > 0),
     html: orderNotificationHtml({
       orderId: args.orderId,
       adminOrderUrl: `${args.baseUrl}/admin/rendeles/${args.orderId}`,
@@ -94,6 +103,8 @@ async function sendOrderEmails(args: {
       shippingCost: args.shippingCost,
       discount: args.discount,
       couponCode: args.couponCode,
+      urgentFee: args.urgentFee,
+      mixedUrgent: args.mixedUrgent,
       total: args.total,
       hasGiftCard: args.hasGiftCard,
     }),
@@ -207,6 +218,9 @@ export async function POST(request: NextRequest) {
       customNote?: string;
       posterLayout?: string;
       posterLayoutLabel?: string;
+      urgent: boolean;
+      category: string;
+      ships: boolean;
     }[] = [];
 
     for (const item of items) {
@@ -216,6 +230,22 @@ export async function POST(request: NextRequest) {
           { error: `A(z) "${item.name}" termék nem található vagy nem elérhető.` },
           { status: 400 }
         );
+      }
+
+      // Emlékpárna csak a teljes személyre szabási adatokkal rendelhető — az
+      // elkészítési idő ezek beérkezésével indul, hiányosan nem fogadjuk el.
+      if (product.category === 'pillow') {
+        const missing = [item.babyName, item.birthDate, item.birthWeight, item.birthHeight].some(
+          (v) => typeof v !== 'string' || v.trim() === '',
+        );
+        if (missing) {
+          return NextResponse.json(
+            {
+              error: `A(z) "${item.name}" személyre szabási adatai hiányosak (név, születési dátum, súly, hossz). Kérlek, töröld a tételt a kosárból, és tedd be újra a termékoldalon az adatokkal együtt.`,
+            },
+            { status: 400 },
+          );
+        }
       }
 
       // For variant products (poster/giftcard), use the cart item price
@@ -257,8 +287,35 @@ export async function POST(request: NextRequest) {
         customNote: item.customNote || undefined,
         posterLayout: item.posterLayout || undefined,
         posterLayoutLabel: item.posterLayoutLabel || undefined,
+        // A sürgősséget csak jogosult terméknél vesszük figyelembe — a kliens
+        // által küldött jelzőt más terméknél figyelmen kívül hagyjuk.
+        urgent: item.urgent === true && isUrgentEligible(product.category),
+        category: product.category,
+        ships: cartItemRequiresShipping({
+          slug: item.slug,
+          variant: item.variant,
+          category: product.category,
+          noShipping: product.noShipping,
+        }),
       });
     }
+
+    // ── Sürgősségi elkészítés ─────────────────────────────────────────
+    // A felárat mindig a szerver számolja a sürgős párnák darabszámából; a
+    // kapcsoló kikapcsolt állapotában a sürgős tételt elutasítjuk.
+    const urgentCount = verifiedItems.reduce((n, i) => n + (i.urgent ? i.quantity : 0), 0);
+    if (urgentCount > 0 && !(await isUrgentEnabled())) {
+      return NextResponse.json(
+        {
+          error:
+            'A sürgősségi elkészítés jelenleg nem választható, mert a műhely szabad kapacitása betelt. Kérlek, a kosárban állítsd a párnákat normál elkészítésre.',
+        },
+        { status: 409 },
+      );
+    }
+    const urgentFee = urgentFeeFor(urgentCount);
+    const mixedUrgent = urgentCount > 0 && hasSlowerItems(verifiedItems);
+    const hasPillow = verifiedItems.some((i) => i.category === 'pillow');
 
     const baseShippingCost = orderRequiresShipping ? getShippingCost(country, effectiveMethod) : 0;
 
@@ -305,20 +362,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Automatikus ingyenes csomagautomata 25 000 Ft (kedvezmény utáni termék-
-    // érték) felett — kupon nélkül, csak belföldi parcel módra.
+    // Automatikus ingyenes csomagautomata 25 000 Ft felett — a kedvezmény utáni
+    // termékérték + a sürgősségi felár számít, a szállítási díj nem. Kupon
+    // nélkül, csak belföldi parcel módra.
     if (
       country === 'HU' &&
       effectiveMethod === 'parcel' &&
       orderRequiresShipping &&
-      qualifiesForFreeParcel(subtotal - discount)
+      qualifiesForFreeParcel(subtotal - discount + urgentFee)
     ) {
       freeShippingApplied = true;
     }
 
     const shippingCost = freeShippingApplied ? 0 : baseShippingCost;
 
-    const total = subtotal - discount + shippingCost;
+    // A kupon csak a termékekből von le; a felár mindig teljes összegben.
+    const total = subtotal - discount + urgentFee + shippingCost;
     const shippingData = shippingResult.data;
 
     // Link to customer if logged in
@@ -355,6 +414,7 @@ export async function POST(request: NextRequest) {
         shippingCost,
         total,
         discount,
+        urgentFee,
         couponCode: discount > 0 || freeShippingApplied ? couponCode || null : null,
         items: {
           create: verifiedItems.map((item) => ({
@@ -368,6 +428,7 @@ export async function POST(request: NextRequest) {
             birthTime: item.birthTime || null,
             customNote: item.customNote || null,
             posterLayout: item.posterLayout || null,
+            urgent: item.urgent,
           })),
         },
       },
@@ -415,6 +476,7 @@ export async function POST(request: NextRequest) {
       price: item.price,
       babyName: item.babyName ?? null,
       posterLayoutLabel: item.posterLayoutLabel ?? null,
+      urgent: item.urgent,
     }));
 
     // ── Zero-total flow (100% discount / free item): skip Stripe, mark paid. ──
@@ -455,6 +517,9 @@ export async function POST(request: NextRequest) {
         shippingCost,
         discount,
         couponCode: discount > 0 || freeShippingApplied ? couponCode || null : null,
+        urgentFee,
+        mixedUrgent,
+        hasPillow,
         total,
         hasGiftCard,
         hasInvoice: false,
@@ -490,6 +555,9 @@ export async function POST(request: NextRequest) {
         shippingCost,
         discount,
         couponCode: discount > 0 || freeShippingApplied ? couponCode || null : null,
+        urgentFee,
+        mixedUrgent,
+        hasPillow,
         total,
         hasGiftCard,
         hasInvoice: false,
@@ -518,6 +586,18 @@ export async function POST(request: NextRequest) {
         },
         quantity: item.quantity,
       }));
+
+      // Sürgősségi elkészítés felára — külön tétel, nem szállítási díj.
+      if (urgentFee > 0) {
+        lineItems.push({
+          price_data: {
+            currency: 'huf',
+            product_data: { name: `${URGENT_LABEL} (${urgentCount} db emlékpárna)` },
+            unit_amount: urgentFee * 100,
+          },
+          quantity: 1,
+        });
+      }
 
       // Add shipping as a line item (omit for digital-only or free-shipping orders)
       if (shippingCost > 0) {

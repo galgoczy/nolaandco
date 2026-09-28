@@ -6,7 +6,18 @@ import { useCartStore } from '@/store/cart';
 import { trackInitiateCheckout } from '@/lib/metaPixel';
 import { shippingSchema, homeDeliverySchema, foreignShippingSchema, type ShippingData } from '@/lib/validators';
 import { formatPrice } from '@/lib/utils';
-import { cartRequiresShipping } from '@/lib/shippingRules';
+import { cartRequiresShipping, cartItemRequiresShipping } from '@/lib/shippingRules';
+import { useUrgentProductionEnabled } from '@/lib/useUrgentProduction';
+import {
+  PRODUCTION_START_NOTE,
+  URGENT_DURATION,
+  URGENT_LABEL,
+  URGENT_MIXED_NOTE,
+  countUrgent,
+  hasSlowerItems,
+  isUrgentEligible,
+  urgentFeeFor,
+} from '@/lib/urgentProduction';
 import { ALL_COUNTRIES, BILLING_COUNTRIES, getShippingCost, isPacketaCountry, FREE_PARCEL_THRESHOLD, qualifiesForFreeParcel } from '@/lib/shipping';
 import Input from '@/components/ui/Input';
 import FoxpostSelector from '@/components/checkout/FoxpostSelector';
@@ -139,9 +150,20 @@ export default function CheckoutPage() {
     });
   }, [mounted, items, total]);
 
+  // Sürgősségi elkészítés: választható-e még (az admin közben kikapcsolhatta).
+  const urgentEnabled = useUrgentProductionEnabled(items.some((i) => isUrgentEligible(i.category)));
+
   if (!mounted || (items.length === 0 && !redirecting)) return null;
 
   const subtotal = total();
+
+  // A felár a sürgős párnák számából; a kupon nem csökkenti (lásd urgentProduction.ts).
+  const urgentCount = countUrgent(items);
+  const urgentFee = urgentFeeFor(urgentCount);
+  const urgentBlocked = urgentCount > 0 && urgentEnabled === false;
+  const mixedUrgent =
+    urgentCount > 0 &&
+    hasSlowerItems(items.map((i) => ({ ...i, ships: cartItemRequiresShipping(i) })));
 
   const needsShipping = cartRequiresShipping(items);
   const isForeign = isPacketaCountry(shippingCountry);
@@ -159,11 +181,12 @@ export default function CheckoutPage() {
     if (discount > subtotal) discount = subtotal;
   }
 
-  // Ingyenes csomagautomata: kuponnal, VAGY automatikusan 25 000 Ft
-  // (kedvezmény utáni) termékérték felett. Csak belföldi parcel módra.
-  const freeParcelEligible =
-    !isForeign && needsShipping && qualifiesForFreeParcel(subtotal - discount);
-  const freeParcelRemaining = Math.max(0, FREE_PARCEL_THRESHOLD - (subtotal - discount));
+  // Ingyenes csomagautomata: kuponnal, VAGY automatikusan 25 000 Ft felett —
+  // a kedvezmény utáni termékérték + a sürgősségi felár számít, a szállítási
+  // díj nem. Csak belföldi parcel módra.
+  const thresholdValue = subtotal - discount + urgentFee;
+  const freeParcelEligible = !isForeign && needsShipping && qualifiesForFreeParcel(thresholdValue);
+  const freeParcelRemaining = Math.max(0, FREE_PARCEL_THRESHOLD - thresholdValue);
   const freeShippingByCoupon = Boolean(
     coupon?.freeShippingOnParcel && !isForeign && effectiveMethod === 'parcel' && needsShipping,
   );
@@ -171,7 +194,7 @@ export default function CheckoutPage() {
     freeShippingByCoupon || (freeParcelEligible && effectiveMethod === 'parcel');
   const shippingCost = freeShippingApplied ? 0 : baseShippingCost;
 
-  const grandTotal = subtotal - discount + shippingCost;
+  const grandTotal = subtotal - discount + urgentFee + shippingCost;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -723,6 +746,11 @@ export default function CheckoutPage() {
                           Dizájn: {item.posterLayoutLabel}
                         </p>
                       )}
+                      {isUrgentEligible(item.category) && (
+                        <p className={`text-xs ${item.urgent ? 'text-[#8A6A52] font-medium' : 'text-[#4A4A4A]/60'}`}>
+                          {item.urgent ? `${URGENT_LABEL} · ${URGENT_DURATION}` : 'Normál elkészítés · kb. 1 hét'}
+                        </p>
+                      )}
                       <p className="text-xs text-[#4A4A4A]/60">{item.quantity} db</p>
                     </div>
                     <p className="font-medium text-sm whitespace-nowrap">{formatPrice(item.price * item.quantity)}</p>
@@ -802,6 +830,14 @@ export default function CheckoutPage() {
                     <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
+                {urgentFee > 0 && (
+                  <div className="flex justify-between text-[#4A4A4A]/70">
+                    <span>
+                      {URGENT_LABEL} ({urgentCount} párna)
+                    </span>
+                    <span>+{formatPrice(urgentFee)}</span>
+                  </div>
+                )}
                 {needsShipping && (
                   <div className="flex justify-between text-[#4A4A4A]/70">
                     <span>Szállítás ({effectiveMethod === 'home' ? 'Házhozszállítás' : isForeign ? 'Packeta átvevőpont' : 'Csomagautomata'})</span>
@@ -823,6 +859,24 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {items.some((i) => isUrgentEligible(i.category)) && (
+                <p className="text-xs text-[#4A4A4A]/60 mt-4 leading-relaxed">
+                  {PRODUCTION_START_NOTE}
+                  {paymentMethod === 'transfer' && ' Átutalásnál a fizetés az összeg beérkezésekor teljesül.'}
+                </p>
+              )}
+              {mixedUrgent && (
+                <div className="bg-[#faf6f1] text-[#4A4A4A] rounded-xl px-4 py-3 mt-3 text-xs leading-relaxed">
+                  {URGENT_MIXED_NOTE}
+                </div>
+              )}
+              {urgentBlocked && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-xl mt-4 text-sm">
+                  A sürgősségi elkészítés jelenleg nem választható, mert a műhely szabad kapacitása
+                  betelt. Kérlek, a <a href="/kosar" className="underline">kosárban</a> állítsd a párnákat
+                  normál elkészítésre.
+                </div>
+              )}
               {errors._form && (
                 <div className="bg-red-50 text-red-600 p-3 rounded-xl mt-4 text-sm">
                   {errors._form}
@@ -853,7 +907,7 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={loading || !termsAccepted}
+                disabled={loading || !termsAccepted || urgentBlocked}
                 className="w-full mt-4 bg-[#D5E8F0] text-[#4A4A4A] py-3.5 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? (

@@ -47,6 +47,19 @@ export async function GET(
     quantity: item.quantity,
   }));
 
+  // Sürgősségi elkészítés felára — ugyanúgy külön tétel, mint a pénztárban.
+  if (order.urgentFee > 0) {
+    const urgentCount = order.items.reduce((n, i) => n + (i.urgent ? i.quantity : 0), 0);
+    lineItems.push({
+      price_data: {
+        currency: 'huf',
+        product_data: { name: `Sürgősségi elkészítés (${urgentCount} db emlékpárna)` },
+        unit_amount: order.urgentFee * 100,
+      },
+      quantity: 1,
+    });
+  }
+
   if (order.shippingCost > 0) {
     lineItems.push({
       price_data: {

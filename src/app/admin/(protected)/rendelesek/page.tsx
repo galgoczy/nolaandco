@@ -92,6 +92,11 @@ export default async function OrdersPage({
                     >
                       #{order.id.slice(-8).toUpperCase()}
                     </Link>
+                    {order.urgentFee > 0 && (
+                      <span className="ml-2 inline-block px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs font-bold">
+                        ⚡ Sürgős
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-on-surface/70">
                     {new Date(order.createdAt).toLocaleDateString('hu-HU')}

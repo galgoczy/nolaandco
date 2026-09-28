@@ -112,7 +112,7 @@ const faqItems: FaqItem[] = [
   {
     question: 'Mikor kapom meg a rendelésemet?',
     answer:
-      'Mivel minden Nola termék egyedileg, sok esetben az általad megadott adatok alapján készül, a gyártási időnk kb. 2 hét. Amint a termék elkészült, azonnal átadjuk a futárnak, amiről e-mailben értesítünk. (Kiemelt időszakokban előfordulhat, hogy pár napos csúszással kell számolni a gyártásban, de erről előre tájékoztatunk.)',
+      'Mivel minden Nola termék egyedileg, sok esetben az általad megadott adatok alapján készül, a gyártásra időt kell szánnunk: az emlékpárnák elkészítési ideje kb. 1 hét, a születési posztereké és a többi megrendelésre készülő terméké kb. 2 hét. Ha sietnél, a párnákhoz sürgősségi elkészítés is kérhető (2–3 munkanap, +4 000 Ft), szabad kapacitás függvényében. Az elkészítési idő akkor indul, amikor a fizetés és minden személyre szabási adat beérkezett; a szállítás ideje ezen felül értendő. Ha a rendelésben több termék van, egy csomagban küldjük, amikor minden elkészült. Amint a csomag útnak indult, e-mailben értesítünk. (Kiemelt időszakokban előfordulhat, hogy pár napos csúszással kell számolni a gyártásban, de erről előre tájékoztatunk.)',
   },
   {
     question: 'Tudok ajándékba venni párnát vagy posztert, ha még nem született meg a baba?',

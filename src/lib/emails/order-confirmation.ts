@@ -1,4 +1,11 @@
 import { emailLayout } from './layout';
+import {
+  NORMAL_DURATION,
+  PRODUCTION_START_NOTE,
+  URGENT_DURATION,
+  URGENT_LABEL,
+  URGENT_MIXED_NOTE,
+} from '@/lib/urgentProduction';
 
 interface OrderItem {
   name: string;
@@ -6,6 +13,7 @@ interface OrderItem {
   price: number;
   babyName?: string | null;
   posterLayoutLabel?: string | null;
+  urgent?: boolean;
 }
 
 interface OrderConfirmationData {
@@ -22,6 +30,9 @@ interface OrderConfirmationData {
   hasInvoice?: boolean;
   paymentMethod?: 'card' | 'transfer';
   hasGiftCard?: boolean;
+  urgentFee?: number;
+  mixedUrgent?: boolean;
+  hasPillow?: boolean;
 }
 
 const BANK_ACCOUNT = '10918001-00000047-88110009';
@@ -47,6 +58,7 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
           ${item.name}${item.quantity > 1 ? ` <span style="color:#999;">&times;${item.quantity}</span>` : ''}
           ${item.babyName ? `<br/><span style="font-size:12px;color:#999;">${item.babyName}</span>` : ''}
           ${item.posterLayoutLabel ? `<br/><span style="font-size:12px;color:#999;">Dizájn: ${item.posterLayoutLabel}</span>` : ''}
+          ${item.urgent ? `<br/><span style="font-size:12px;color:#B5651D;font-weight:600;">${URGENT_LABEL} (${URGENT_DURATION})</span>` : ''}
         </td>
         <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;white-space:nowrap;">
           ${formatPrice(item.price * item.quantity)}
@@ -74,10 +86,23 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
       </tr>`
         : '';
 
+    const urgentRow =
+      data.urgentFee && data.urgentFee > 0
+        ? `<tr>
+        <td style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;">
+          ${URGENT_LABEL}
+        </td>
+        <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;white-space:nowrap;">
+          +${formatPrice(data.urgentFee)}
+        </td>
+      </tr>`
+        : '';
+
     itemsHtml = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-top:2px solid #E8E6E1;">
       ${rows}
       ${discountRow}
+      ${urgentRow}
       ${
         shippingLabel && data.shippingCost != null
           ? `<tr>
@@ -137,6 +162,31 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
       ? 'Amint az utalás beérkezett, megkezdjük a baba születési adatainak feldolgozását, és küldünk egy újabb értesítést a csomagod útnak indításáról.'
       : 'A rendelésedet rögzítettük, és műhelyünkben megkezdtük a baba születési adatainak feldolgozását. Amint az alkotás elkészült, küldünk egy újabb értesítést a csomagod útnak indításáról.';
 
+  // Elkészítési idő — párnás rendelésnél mindig tájékoztatunk, sürgősnél kiemelten.
+  const isUrgent = !!(data.urgentFee && data.urgentFee > 0);
+  const productionBlock =
+    data.hasPillow || isUrgent
+      ? `
+    <div style="margin:24px 0;padding:18px 20px;background-color:#F5F0E8;border-radius:10px;border:1px solid #E8E0D0;">
+      <p style="margin:0 0 10px;font-size:14px;font-weight:600;color:#4A4A4A;">
+        ${isUrgent ? URGENT_LABEL : 'Elkészítési idő'}
+      </p>
+      <p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:#4A4A4A;">
+        ${
+          isUrgent
+            ? `A sürgősségi elkészítést választott párnád ${URGENT_DURATION} alatt elkészül.`
+            : `Az emlékpárna elkészítési ideje ${NORMAL_DURATION}.`
+        }
+        ${PRODUCTION_START_NOTE}
+      </p>
+      ${
+        data.mixedUrgent
+          ? `<p style="margin:0;font-size:13px;line-height:1.7;color:#4A4A4A;">${URGENT_MIXED_NOTE}</p>`
+          : ''
+      }
+    </div>`
+      : '';
+
   const giftCardBlock = data.hasGiftCard
     ? `
     <div style="margin:24px 0;padding:18px 20px;background-color:#F5F0E8;border-radius:10px;border:1px solid #E8E0D0;">
@@ -165,6 +215,7 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
       A rendelésed (<strong>${orderRef}</strong>) ${data.paymentMethod === 'transfer' ? 'rögzítve. ' : ''}${trackingNote}
     </p>
     ${itemsHtml}
+    ${productionBlock}
     ${giftCardBlock}
     ${transferBlock}
     ${invoiceNote}
