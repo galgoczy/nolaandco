@@ -46,7 +46,6 @@ export default function UrgentProductionChoice({
             <span className="font-medium text-carbon">{NORMAL_LABEL}</span>
             <p className="text-sm text-carbon-light mt-0.5">{NORMAL_DURATION}</p>
           </div>
-          <span className="text-sm text-carbon-light whitespace-nowrap">az árban</span>
         </div>
       </button>
 
@@ -61,7 +60,7 @@ export default function UrgentProductionChoice({
       >
         <div className="flex items-center justify-between gap-4">
           <div>
-            <span className="font-medium text-carbon">{URGENT_LABEL}</span>
+            <span className="font-medium text-carbon">{URGENT_LABEL} (ingyenes szállítással)</span>
             <p className="text-sm text-carbon-light mt-0.5">{URGENT_DURATION}</p>
           </div>
           <span className="font-bold text-carbon whitespace-nowrap">+{formatPrice(nextFee)}</span>
