@@ -17,7 +17,13 @@ import { notifyNewOrderTelegram } from '@/lib/telegram';
 import { getShippingCost, carrierForCountry, getCountryConfig, qualifiesForFreeParcel } from '@/lib/shipping';
 import { applyStockForOrder } from '@/lib/stock';
 import { isUrgentEnabled } from '@/lib/urgentProduction.server';
-import { URGENT_LABEL, hasSlowerItems, isUrgentEligible, urgentFeeFor } from '@/lib/urgentProduction';
+import {
+  URGENT_LABEL,
+  hasSlowerItems,
+  isUrgentEligible,
+  urgentFeeFor,
+  urgentGrantsFreeParcel,
+} from '@/lib/urgentProduction';
 import type { CartItemData } from '@/store/cart';
 
 /**
@@ -363,13 +369,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Automatikus ingyenes csomagautomata 25 000 Ft felett — a kedvezmény utáni
-    // termékérték + a sürgősségi felár számít, a szállítási díj nem. Kupon
-    // nélkül, csak belföldi parcel módra.
+    // termékérték + a sürgősségi felár számít, a szállítási díj nem. Sürgős
+    // párnával határtól függetlenül ingyenes. Csak belföldi parcel módra.
     if (
       country === 'HU' &&
       effectiveMethod === 'parcel' &&
       orderRequiresShipping &&
-      qualifiesForFreeParcel(subtotal - discount + urgentFee)
+      (urgentGrantsFreeParcel(urgentCount) || qualifiesForFreeParcel(subtotal - discount + urgentFee))
     ) {
       freeShippingApplied = true;
     }

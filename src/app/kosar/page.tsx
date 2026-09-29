@@ -19,6 +19,7 @@ import {
   hasSlowerItems,
   isUrgentEligible,
   urgentFeeFor,
+  urgentGrantsFreeParcel,
 } from '@/lib/urgentProduction';
 
 export default function KosarPage() {
@@ -208,7 +209,11 @@ export default function KosarPage() {
               pénztárban kerül még levonásra, ott pontosítjuk az összeget. */}
           {cartRequiresShipping(items) && (
             <div className="mb-6">
-              {orderValue >= FREE_PARCEL_THRESHOLD ? (
+              {urgentGrantsFreeParcel(urgentCount) ? (
+                <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
+                  A sürgős elkészítéssel a csomagautomatás szállítás ingyenes.
+                </div>
+              ) : orderValue >= FREE_PARCEL_THRESHOLD ? (
                 <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
                   Gratulálunk! A csomagautomatás szállítás ingyenes.
                 </div>

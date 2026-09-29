@@ -1017,7 +1017,10 @@ A csomagautomatás szállítás díja 1190 Ft, míg a házhozszállítás 3690
 Ft-ba kerül. 25 000 Ft-os rendelési értéktől a csomagautomatás szállítás
 ingyenes; a rendelési értéket a kedvezmények levonása után, a szállítási
 díj nélkül számítjuk, és abba a sürgősségi elkészítés felára is
-beleszámít. A sürgősségi elkészítés felára nem szállítási díj, a
+beleszámít. Sürgősségi elkészítést tartalmazó rendelésnél a
+csomagautomatás szállítás a rendelési értéktől függetlenül (kedvezmény
+esetén is) ingyenes; házhozszállításnál a szállítási díj ilyenkor is
+felszámításra kerül. A sürgősségi elkészítés felára nem szállítási díj, a
 rendelésben külön tételként szerepel, és a kuponkedvezmény nem
 csökkenti.
 

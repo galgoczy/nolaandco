@@ -17,6 +17,7 @@ import {
   hasSlowerItems,
   isUrgentEligible,
   urgentFeeFor,
+  urgentGrantsFreeParcel,
 } from '@/lib/urgentProduction';
 import { ALL_COUNTRIES, BILLING_COUNTRIES, getShippingCost, isPacketaCountry, FREE_PARCEL_THRESHOLD, qualifiesForFreeParcel } from '@/lib/shipping';
 import Input from '@/components/ui/Input';
@@ -185,7 +186,10 @@ export default function CheckoutPage() {
   // a kedvezmény utáni termékérték + a sürgősségi felár számít, a szállítási
   // díj nem. Csak belföldi parcel módra.
   const thresholdValue = subtotal - discount + urgentFee;
-  const freeParcelEligible = !isForeign && needsShipping && qualifiesForFreeParcel(thresholdValue);
+  const freeParcelEligible =
+    !isForeign &&
+    needsShipping &&
+    (urgentGrantsFreeParcel(urgentCount) || qualifiesForFreeParcel(thresholdValue));
   const freeParcelRemaining = Math.max(0, FREE_PARCEL_THRESHOLD - thresholdValue);
   const freeShippingByCoupon = Boolean(
     coupon?.freeShippingOnParcel && !isForeign && effectiveMethod === 'parcel' && needsShipping,
@@ -811,7 +815,9 @@ export default function CheckoutPage() {
                 {needsShipping && !isForeign && (
                   freeParcelEligible ? (
                     <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
-                      Gratulálunk! A csomagautomatás szállítás ingyenes.
+                      {urgentGrantsFreeParcel(urgentCount)
+                        ? 'A sürgős elkészítéssel a csomagautomatás szállítás ingyenes.'
+                        : 'Gratulálunk! A csomagautomatás szállítás ingyenes.'}
                     </div>
                   ) : (
                     <div className="bg-[#faf6f1] text-[#4A4A4A] rounded-xl px-4 py-3 text-sm">

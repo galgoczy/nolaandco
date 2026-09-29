@@ -7,6 +7,7 @@ import {
   URGENT_DURATION,
   URGENT_EXTRA_FEE,
   URGENT_FIRST_FEE,
+  URGENT_FREE_PARCEL_NOTE,
   URGENT_LABEL,
 } from '@/lib/urgentProduction';
 
@@ -65,6 +66,9 @@ export default function UrgentProductionChoice({
           </div>
           <span className="font-bold text-carbon whitespace-nowrap">+{formatPrice(nextFee)}</span>
         </div>
+        {enabled !== false && (
+          <p className="text-xs text-carbon-light mt-2">{URGENT_FREE_PARCEL_NOTE}</p>
+        )}
         {enabled === false && (
           <p className="text-xs text-carbon-light mt-2">
             Jelenleg nem választható — a műhely szabad kapacitása most betelt.

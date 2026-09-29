@@ -6,8 +6,9 @@
  *   idő; a kézbesítés ezen felül értendő.
  * - Felár rendelésenként: az első sürgős párna +4 000 Ft, minden további
  *   +2 000 Ft (bruttó). Nem szállítási díj, külön sorként szerepel.
- * - A kupon nem csökkenti a felárat, az ingyenes csomagautomata-határba
- *   (kedvezmény utáni termékérték + felár) viszont beszámít.
+ * - A kupon nem csökkenti a felárat. Sürgős párnával a belföldi
+ *   csomagautomatás szállítás mindig ingyenes, akkor is, ha a kedvezmény
+ *   25 000 Ft alá viszi a rendelést (házhozszállításra nem vonatkozik).
  * - Az admin ki-be kapcsolhatja a szabad kapacitás szerint; kikapcsolva a
  *   szerver elutasítja a sürgős tételt.
  * - Vegyes kosár engedett: ha normál párna vagy más, hosszabb gyártású termék
@@ -25,6 +26,15 @@ export const NORMAL_DURATION = 'kb. 1 hét';
 /** Az elkészítési idő kezdete — a visszaigazolásokon szó szerint ez szerepel. */
 export const PRODUCTION_START_NOTE =
   'Az elkészítési idő akkor indul, amikor a fizetés és minden személyre szabási adat beérkezett. A szállítás ideje ezen felül értendő.';
+
+/** Sürgős párnával a belföldi csomagautomatás szállítás mindig ingyenes. */
+export const URGENT_FREE_PARCEL_NOTE =
+  'Csomagautomatába ingyenes a szállítás, kedvezménnyel együtt is. Házhozszállításnál a szállítási díj felszámításra kerül.';
+
+/** Van-e sürgős tétel — ilyenkor a belföldi csomagautomata ingyenes, összeghatártól függetlenül. */
+export function urgentGrantsFreeParcel(urgentCount: number): boolean {
+  return urgentCount > 0;
+}
 
 /** Vegyes kosár figyelmeztetése (sürgős párna mellett lassabban készülő tétel). */
 export const URGENT_MIXED_NOTE =
