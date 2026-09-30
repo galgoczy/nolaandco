@@ -19,6 +19,7 @@ const navItems = [
   { label: 'Statisztikák', href: '/admin/statisztikak' },
   { label: 'Szalagcím', href: '/admin/szalagcim' },
   { label: 'Promó kártyák', href: '/admin/promo-kartyak' },
+  { label: 'Beállítások', href: '/admin/beallitasok' },
 ];
 
 /** Az aktuális oldal a leghosszabb illeszkedő útvonal (a /admin mindenre illeszkedne). */

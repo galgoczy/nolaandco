@@ -1014,7 +1014,15 @@ találhatók, például bevásárlóközpontokban, benzinkutakon, lakóházak
 közelében, vagy egyéb forgalmas helyeken.
 
 A csomagautomatás szállítás díja 1190 Ft, míg a házhozszállítás 3690
-Ft-ba kerül.
+Ft-ba kerül. 25 000 Ft-os rendelési értéktől a csomagautomatás szállítás
+ingyenes; a rendelési értéket a kedvezmények levonása után, a szállítási
+díj nélkül számítjuk, és abba a sürgősségi elkészítés felára is
+beleszámít. Sürgősségi elkészítést tartalmazó rendelésnél a
+csomagautomatás szállítás a rendelési értéktől függetlenül (kedvezmény
+esetén is) ingyenes; házhozszállításnál a szállítási díj ilyenkor is
+felszámításra kerül. A sürgősségi elkészítés felára nem szállítási díj, a
+rendelésben külön tételként szerepel, és a kuponkedvezmény nem
+csökkenti.
 
 A Szolgáltató nem felelős a szállítási határidők csúszásáért, amennyiben
 azokat elháríthatatlan külső ok, azaz vis maior esemény idézi elő. Vis
@@ -1036,10 +1044,28 @@ hiányában, az Eladó a szerződés megkötését követően késedelem nélkü
 legkésőbb harminc napon belül köteles a Vevő rendelkezésére bocsátani az
 Árut.
 
+A termékek elkészítési (gyártási) ideje, amelyről az Eladó a
+termékoldalon és a rendelés visszaigazolásában is tájékoztat:
+
+- emlékpárnák normál elkészítéssel: kb. 1 hét;
+- emlékpárnák sürgősségi elkészítéssel: 2–3 munkanap. A sürgősségi
+  elkészítés felár ellenében (az első párnára 4 000 Ft, minden további
+  párnára 2 000 Ft), a műhely szabad kapacitásának függvényében
+  választható; amikor nem választható, a weboldal ezt jelzi;
+- születési poszterek és az egyéb, megrendelésre készülő termékek: kb. 2 hét.
+
+Az elkészítési idő akkor kezdődik, amikor a vételár (banki átutalás
+esetén az összeg jóváírása) és a személyre szabáshoz szükséges összes
+adat az Eladóhoz beérkezett. A kézbesítés ideje az elkészítési időn
+felül értendő. Ha a rendelés több, eltérő elkészítési idejű terméket
+tartalmaz, az Eladó a rendelést egy csomagban, a leghosszabb elkészítési
+idejű termék elkészülte után adja át a szállítónak.
+
 A fentiek alapján a megrendelésre vonatkozóan az általános teljesítési
-határidő a rendelés visszaigazolásától számított legfeljebb 14 nap. Az
-ettől esetlegesen eltérő (de 30 napnál nem hosszabb) teljesítési
-határidőről az Eladó az egyes szállítási módoknál ad tájékoztatást.
+határidő a fizetés és a személyre szabási adatok beérkezésétől számított
+legfeljebb 14 nap. Az ettől esetlegesen eltérő (de 30 napnál nem
+hosszabb) teljesítési határidőről az Eladó a termékoldalon, illetve az
+egyes szállítási módoknál ad tájékoztatást.
 
 Szolgáltató nem vállal felelősséget a weboldalon harmadik fél (pl.
 nyomda) által okozott esetleges késedelmes teljesítésért, azonban

@@ -9,8 +9,16 @@ const HANDMADE = [
   'Biztonságos kártyás fizetés',
 ];
 
+/** Emlékpárna: normál elkészítés kb. 1 hét (sürgősen 2–3 munkanap, a termékoldalon választható). */
+const PILLOW = [
+  'OEKO-TEX alapanyagok',
+  'Kézzel készült magyar termék',
+  'Gyártási idő: kb. 1 hét',
+  'Biztonságos kártyás fizetés',
+];
+
 const BY_CATEGORY: Record<string, string[]> = {
-  pillow: HANDMADE,
+  pillow: PILLOW,
   cape: HANDMADE,
   crown: HANDMADE,
   bundle: HANDMADE,

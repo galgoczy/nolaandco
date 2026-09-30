@@ -8,6 +8,16 @@ import { formatPrice } from '@/lib/utils';
 import AnimatedCheck from './AnimatedCheck';
 import ClearCartOnSuccess from './ClearCartOnSuccess';
 import PurchaseTracker from './PurchaseTracker';
+import { cartItemRequiresShipping } from '@/lib/shippingRules';
+import {
+  NORMAL_DURATION,
+  PRODUCTION_START_NOTE,
+  URGENT_DURATION,
+  URGENT_LABEL,
+  URGENT_MIXED_NOTE,
+  hasSlowerItems,
+  isUrgentEligible,
+} from '@/lib/urgentProduction';
 
 interface Props {
   searchParams: Promise<{ order_id?: string; session_id?: string }>;
@@ -125,6 +135,11 @@ export default async function ThankYouPage({ searchParams }: Props) {
                       </p>
                     )}
                     <p className="text-xs text-[#4A4A4A]/60">{item.quantity} db</p>
+                    {item.urgent && (
+                      <p className="text-xs font-medium text-[#B5651D]">
+                        {URGENT_LABEL} ({URGENT_DURATION})
+                      </p>
+                    )}
                   </div>
                   <p className="font-medium text-sm">{formatPrice(item.price * item.quantity)}</p>
                 </div>
@@ -157,14 +172,20 @@ export default async function ThankYouPage({ searchParams }: Props) {
               <span>Részösszeg</span>
               <span>{formatPrice(order.subtotal)}</span>
             </div>
+            {order.urgentFee > 0 && (
+              <div className="flex justify-between text-[#4A4A4A]/70">
+                <span>{URGENT_LABEL}</span>
+                <span>+{formatPrice(order.urgentFee)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-[#4A4A4A]/70">
               <span>Szállítás</span>
               <span>{formatPrice(order.shippingCost)}</span>
             </div>
-            {order.total < order.subtotal + order.shippingCost && (
+            {order.total < order.subtotal + order.urgentFee + order.shippingCost && (
               <div className="flex justify-between text-green-600">
                 <span>Kedvezmény</span>
-                <span>-{formatPrice(order.subtotal + order.shippingCost - order.total)}</span>
+                <span>-{formatPrice(order.subtotal + order.urgentFee + order.shippingCost - order.total)}</span>
               </div>
             )}
             <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-100 text-[#4A4A4A]">
@@ -173,6 +194,33 @@ export default async function ThankYouPage({ searchParams }: Props) {
             </div>
           </div>
         </div>
+
+        {order.items.some((i) => isUrgentEligible(i.product.category)) && (
+          <div className="bg-[#F5F0E8] border border-[#E8E0D0] rounded-2xl p-6 shadow-sm mt-4">
+            <h2 className="font-bold text-[#4A4A4A] mb-3">
+              {order.urgentFee > 0 ? URGENT_LABEL : 'Elkészítési idő'}
+            </h2>
+            <p className="text-sm text-[#4A4A4A]/80 leading-relaxed">
+              {order.urgentFee > 0
+                ? `A sürgősségi elkészítést választott párnád ${URGENT_DURATION} alatt elkészül.`
+                : `Az emlékpárna elkészítési ideje ${NORMAL_DURATION}.`}{' '}
+              {PRODUCTION_START_NOTE}
+            </p>
+            {order.urgentFee > 0 &&
+              hasSlowerItems(
+                order.items.map((i) => ({
+                  category: i.product.category,
+                  urgent: i.urgent,
+                  quantity: i.quantity,
+                  ships: cartItemRequiresShipping({
+                    slug: i.product.slug,
+                    category: i.product.category,
+                    noShipping: i.product.noShipping,
+                  }),
+                })),
+              ) && <p className="text-sm text-[#4A4A4A]/80 leading-relaxed mt-2">{URGENT_MIXED_NOTE}</p>}
+          </div>
+        )}
 
         {order.paymentMethod === 'transfer' && (
           <div className="bg-[#F5F0E8] border border-[#E8E0D0] rounded-2xl p-6 shadow-sm mt-4">

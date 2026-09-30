@@ -1,4 +1,5 @@
 import { emailLayout } from './layout';
+import { URGENT_DURATION, URGENT_LABEL } from '@/lib/urgentProduction';
 
 interface OrderItem {
   name: string;
@@ -6,6 +7,7 @@ interface OrderItem {
   price: number;
   babyName?: string | null;
   posterLayoutLabel?: string | null;
+  urgent?: boolean;
 }
 
 interface OrderNotificationData {
@@ -29,6 +31,8 @@ interface OrderNotificationData {
   couponCode?: string | null;
   total: number;
   hasGiftCard: boolean;
+  urgentFee?: number;
+  mixedUrgent?: boolean;
 }
 
 function formatPrice(amount: number): string {
@@ -37,8 +41,8 @@ function formatPrice(amount: number): string {
 
 export const ADMIN_NOTIFICATION_RECIPIENT = 'rendeles@nolaandco.hu';
 
-export function orderNotificationSubject(orderId: string): string {
-  return `Hurrá, új rendelés! #${orderId.slice(-8).toUpperCase()}`;
+export function orderNotificationSubject(orderId: string, urgent = false): string {
+  return `${urgent ? '⚡ SÜRGŐS — ' : ''}Hurrá, új rendelés! #${orderId.slice(-8).toUpperCase()}`;
 }
 
 export function orderNotificationHtml(data: OrderNotificationData): string {
@@ -52,6 +56,7 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
           ${item.name}${item.quantity > 1 ? ` <span style="color:#999;">&times;${item.quantity}</span>` : ''}
           ${item.babyName ? `<br/><span style="font-size:12px;color:#999;">${item.babyName}</span>` : ''}
           ${item.posterLayoutLabel ? `<br/><span style="font-size:12px;color:#999;">Dizájn: ${item.posterLayoutLabel}</span>` : ''}
+          ${item.urgent ? `<br/><span style="font-size:12px;color:#B5651D;font-weight:600;">⚡ SÜRGŐS (${URGENT_DURATION})</span>` : ''}
         </td>
         <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;white-space:nowrap;">
           ${formatPrice(item.price * item.quantity)}
@@ -70,6 +75,14 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
   const itemsHtml = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-top:2px solid #E8E6E1;">
       ${rows}
+      ${
+        data.urgentFee && data.urgentFee > 0
+          ? `<tr>
+        <td style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;">${URGENT_LABEL}</td>
+        <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;white-space:nowrap;">+${formatPrice(data.urgentFee)}</td>
+      </tr>`
+          : ''
+      }
       ${
         shippingLabel
           ? `<tr>
@@ -138,6 +151,20 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
       </p>`
     : '';
 
+  const urgentNote =
+    data.urgentFee && data.urgentFee > 0
+      ? `<div style="margin:0 0 16px;padding:14px 16px;background-color:#FDF1E6;border-radius:10px;border:1px solid #F0C9A0;">
+        <p style="margin:0 0 6px;font-size:15px;color:#B5651D;font-weight:700;">⚡ SÜRGŐS RENDELÉS — ${URGENT_DURATION}</p>
+        <p style="margin:0;font-size:13px;line-height:1.6;color:#4A4A4A;">
+          A határidő a fizetés és minden személyre szabási adat beérkezésétől számít.${
+            data.mixedUrgent
+              ? ' A rendelésben normál elkészítésű termék is van — egy csomagban megy, amikor minden elkészült.'
+              : ''
+          }
+        </p>
+      </div>`
+      : '';
+
   const body = `
     <h1 style="margin:0 0 16px;font-size:22px;color:#4A4A4A;font-weight:500;">
       Hurrá, új rendelés! 🎉
@@ -145,6 +172,7 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4A4A4A;">
       Új rendelés érkezett (<strong>${orderRef}</strong>). Az alábbiakban találod a részleteket.
     </p>
+    ${urgentNote}
     ${giftCardNote}
     ${infoTable}
     ${itemsHtml}

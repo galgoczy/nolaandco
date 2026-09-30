@@ -179,6 +179,9 @@ export default async function CustomerOrderDetailPage({
                     <p className="text-xs text-[#4A4A4A]/50 mt-1">{item.customNote}</p>
                   )}
                   <p className="text-xs text-[#4A4A4A]/60 mt-1">{item.quantity} db</p>
+                  {item.urgent && (
+                    <p className="text-xs font-medium text-[#B5651D] mt-1">Sürgősségi elkészítés (2–3 munkanap)</p>
+                  )}
                 </div>
                 <p className="font-medium text-sm text-[#4A4A4A] whitespace-nowrap">
                   {formatPrice(item.price * item.quantity)}
@@ -193,6 +196,18 @@ export default async function CustomerOrderDetailPage({
               <span>Részösszeg</span>
               <span>{formatPrice(order.subtotal)}</span>
             </div>
+            {order.discount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Kedvezmény{order.couponCode ? ` (${order.couponCode})` : ''}</span>
+                <span>-{formatPrice(order.discount)}</span>
+              </div>
+            )}
+            {order.urgentFee > 0 && (
+              <div className="flex justify-between text-[#4A4A4A]/70">
+                <span>Sürgősségi elkészítés</span>
+                <span>+{formatPrice(order.urgentFee)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-[#4A4A4A]/70">
               <span>Szállítás</span>
               <span>{formatPrice(order.shippingCost)}</span>

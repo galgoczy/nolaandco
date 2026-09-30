@@ -13,6 +13,9 @@ type OrderWithItems = {
   billingCountry?: string | null;
   subtotal: number;
   shippingCost: number;
+  urgentFee?: number;
+  discount?: number;
+  couponCode?: string | null;
   total: number;
   items: {
     quantity: number;
@@ -81,6 +84,34 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
       })
   );
 
+  // Kuponkedvezmény negatív tételként — enélkül a számla végösszege a
+  // kedvezmény előtti ár lett, és nem egyezett a ténylegesen fizetett összeggel.
+  // A kupon csak a termékek árából von le (a felárból és a szállításból nem).
+  if (order.discount && order.discount > 0) {
+    items.push(
+      new Item({
+        label: order.couponCode ? `Kedvezmény (${order.couponCode})` : 'Kedvezmény',
+        quantity: 1,
+        unit: 'db',
+        vat: 'AAM',
+        grossUnitPrice: -order.discount,
+      })
+    );
+  }
+
+  // Sürgősségi elkészítés felára — külön tétel, nem a szállítási költség része.
+  if (order.urgentFee && order.urgentFee > 0) {
+    items.push(
+      new Item({
+        label: 'Sürgősségi elkészítés',
+        quantity: 1,
+        unit: 'db',
+        vat: 'AAM',
+        grossUnitPrice: order.urgentFee,
+      })
+    );
+  }
+
   // Add shipping as a line item if there's a shipping cost
   if (order.shippingCost > 0) {
     items.push(
@@ -92,6 +123,20 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
         grossUnitPrice: order.shippingCost,
       })
     );
+  }
+
+  // Biztonsági ellenőrzés: a számla tételeinek összege egyezzen a fizetett összeggel.
+  const invoiceTotal =
+    order.items.reduce((sum, i) => sum + i.price * i.quantity, 0) -
+    (order.discount ?? 0) +
+    (order.urgentFee ?? 0) +
+    order.shippingCost;
+  if (invoiceTotal !== order.total) {
+    console.error('Számla és rendelés végösszege eltér', {
+      orderId: order.id,
+      invoiceTotal,
+      orderTotal: order.total,
+    });
   }
 
   const now = new Date();

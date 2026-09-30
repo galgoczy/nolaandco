@@ -75,6 +75,7 @@ export function buildNewOrderMessage(order: OrderWithItems): string {
   const lines: string[] = [];
 
   lines.push(`🎉 <b>Új rendelés!</b> ${ref}`);
+  if (order.urgentFee > 0) lines.push('⚡ <b>SÜRGŐS — 2–3 munkanap</b> (fizetés + adatok beérkezésétől)');
   lines.push('');
   lines.push(`<b>Vevő:</b> ${esc(order.shippingName)}`);
   lines.push(`<b>E-mail:</b> ${esc(order.email)}`);
@@ -103,6 +104,7 @@ export function buildNewOrderMessage(order: OrderWithItems): string {
   for (const item of order.items) {
     const qty = item.quantity > 1 ? ` ×${item.quantity}` : '';
     lines.push(`• <b>${esc(item.product.name)}</b>${qty} — ${huf(item.price * item.quantity)}`);
+    if (item.urgent) lines.push('    ⚡ Sürgősségi elkészítés');
     if (item.babyName) lines.push(`    ${esc(item.babyName)}`);
     const birth = [
       item.birthDate ? `Születés: ${item.birthDate}` : null,
@@ -118,6 +120,7 @@ export function buildNewOrderMessage(order: OrderWithItems): string {
 
   lines.push('');
   lines.push(`<b>Részösszeg:</b> ${huf(order.subtotal)}`);
+  if (order.urgentFee > 0) lines.push(`<b>Sürgősségi elkészítés:</b> +${huf(order.urgentFee)}`);
   if (order.shippingCost > 0) lines.push(`<b>Szállítás:</b> ${huf(order.shippingCost)}`);
   if (order.discount > 0) {
     const couponPart = order.couponCode ? ` (${esc(order.couponCode)})` : '';

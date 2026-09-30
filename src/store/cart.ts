@@ -29,6 +29,10 @@ export interface CartItemData {
   category?: string | null;
   /** True for digital / no-ship products (admin flag). */
   noShipping?: boolean;
+  /** Sürgősségi (2–3 munkanapos) elkészítés — csak emlékpárnánál értelmezett.
+   *  A felárat a kosár egésze alapján számoljuk (lásd urgentProduction.ts),
+   *  a tétel ára nem változik. */
+  urgent?: boolean;
 }
 
 interface CartStore {
@@ -36,6 +40,7 @@ interface CartStore {
   addItem: (item: Omit<CartItemData, 'id'>) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  setUrgent: (id: string, urgent: boolean) => void;
   clearCart: () => void;
   total: () => number;
   count: () => number;
@@ -73,6 +78,12 @@ export const useCartStore = create<CartStore>()(
           items: state.items.map((i) =>
             i.id === id ? { ...i, quantity } : i
           ),
+        }));
+      },
+
+      setUrgent: (id, urgent) => {
+        set((state) => ({
+          items: state.items.map((i) => (i.id === id ? { ...i, urgent } : i)),
         }));
       },
 

@@ -13,6 +13,8 @@ import {
   orderNotificationSubject,
 } from '@/lib/emails/order-notification';
 import { findLayout } from '@/app/termekek/[slug]/posterData';
+import { cartItemRequiresShipping } from '@/lib/shippingRules';
+import { hasSlowerItems, isUrgentEligible } from '@/lib/urgentProduction';
 import Stripe from 'stripe';
 
 export const runtime = 'nodejs';
@@ -103,8 +105,26 @@ export async function POST(request: NextRequest) {
           price: item.price,
           babyName: item.babyName,
           posterLayoutLabel: item.posterLayout ? findLayout(item.posterLayout).label : null,
+          urgent: item.urgent,
         }));
         const hasGiftCard = order.items.some((item) => item.product.category === 'giftcard');
+        const hasPillow = order.items.some((item) => isUrgentEligible(item.product.category));
+        // A tétel variánsát nem tároljuk, így egy digitális poszter itt
+        // szállítandónak számít — ritka eset, legfeljebb egy fölösleges megjegyzés.
+        const mixedUrgent =
+          order.urgentFee > 0 &&
+          hasSlowerItems(
+            order.items.map((item) => ({
+              category: item.product.category,
+              urgent: item.urgent,
+              quantity: item.quantity,
+              ships: cartItemRequiresShipping({
+                slug: item.product.slug,
+                category: item.product.category,
+                noShipping: item.product.noShipping,
+              }),
+            })),
+          );
 
         const derivedShippingMethod = order.shippingCost > 0
           ? (order.shippingAddress.toLowerCase().includes('csomagautomata') ? 'parcel' : 'home')
@@ -123,6 +143,9 @@ export async function POST(request: NextRequest) {
               shippingCost: order.shippingCost,
               discount: order.discount,
               couponCode: order.couponCode,
+              urgentFee: order.urgentFee,
+              mixedUrgent,
+              hasPillow,
               total: order.total,
               shippingMethod: derivedShippingMethod,
               paymentMethod: 'card',
@@ -135,7 +158,7 @@ export async function POST(request: NextRequest) {
           }),
           sendEmail({
             to: ADMIN_NOTIFICATION_RECIPIENT,
-            subject: orderNotificationSubject(order.id),
+            subject: orderNotificationSubject(order.id, order.urgentFee > 0),
             html: orderNotificationHtml({
               orderId: order.id,
               adminOrderUrl: `${baseUrl}/admin/rendeles/${order.id}`,
@@ -155,6 +178,8 @@ export async function POST(request: NextRequest) {
               shippingCost: order.shippingCost,
               discount: order.discount,
               couponCode: order.couponCode,
+              urgentFee: order.urgentFee,
+              mixedUrgent,
               total: order.total,
               hasGiftCard,
             }),

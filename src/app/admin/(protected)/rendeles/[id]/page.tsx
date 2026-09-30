@@ -72,6 +72,16 @@ export default async function OrderDetailPage({
             <dd className="text-on-surface">{order.email}</dd>
             <dt className="text-on-surface/60">Telefon:</dt>
             <dd className="text-on-surface">{order.phone ?? '-'}</dd>
+            {order.urgentFee > 0 && (
+              <>
+                <dt className="text-on-surface/60">Elkészítés:</dt>
+                <dd className="text-on-surface">
+                  <span className="inline-block px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs font-bold">
+                    ⚡ SÜRGŐS — 2–3 munkanap
+                  </span>
+                </dd>
+              </>
+            )}
             <dt className="text-on-surface/60">Fizetés:</dt>
             <dd className="text-on-surface">
               {order.paymentMethod === 'transfer' ? (
@@ -156,6 +166,13 @@ export default async function OrderDetailPage({
                         Dizájn: {findLayout(item.posterLayout).label}
                       </div>
                     )}
+                    {item.urgent && (
+                      <div className="mt-1">
+                        <span className="inline-block px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs font-bold">
+                          ⚡ Sürgős
+                        </span>
+                      </div>
+                    )}
                   </td>
                   <td className="py-3 text-on-surface/70">
                     {item.babyName ?? '-'}
@@ -193,6 +210,12 @@ export default async function OrderDetailPage({
             <span className="text-on-surface/60">Részösszeg:</span>
             <span className="font-medium">{formatPrice(order.subtotal)}</span>
           </div>
+          {order.urgentFee > 0 && (
+            <div className="flex gap-8">
+              <span className="text-on-surface/60">Sürgősségi elkészítés:</span>
+              <span className="font-medium">+{formatPrice(order.urgentFee)}</span>
+            </div>
+          )}
           <div className="flex gap-8">
             <span className="text-on-surface/60">Szállítás:</span>
             <span className="font-medium">{formatPrice(order.shippingCost)}</span>
