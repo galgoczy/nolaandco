@@ -10,13 +10,15 @@ kérjük, vegye fel velünk a kapcsolatot a megadott elérhetőségeken!
 
 ## Impresszum: a Szolgáltató (Eladó, Vállalkozó) adatai
 
-**Név:** Galgóczy Krisztina, 60843867
+**Név:** {{ELADO_NEV}}
+
+**Nyilvántartási szám:** {{NYILVANTARTASI_SZAM}}
 
 **Székhely:** 1135 Budapest, Reitter Ferenc utca 35-37. 5/1.
 
 **Levelezési cím:** 1135 Budapest, Reitter Ferenc utca 35-37. 5/1.
 
-**Adószám:** 91306353-1-41
+**Adószám:** {{ADOSZAM}}
 
 **Telefonszám:** 06308685348
 
@@ -810,7 +812,8 @@ annak bármely része módosítható. A weboldalról és annak adatbázisából
 bármilyen anyagot átvenni a jogtulajdonos írásos hozzájárulása esetén is
 csak a weboldalra való hivatkozással, forrás feltüntetésével lehet.
 
-A jogtulajdonos: Galgóczy Krisztina EV
+A weboldalon és a termékeken megjelenő alkotások szerzője és
+jogtulajdonosa Galgóczy Krisztina. A webáruházat {{ELADO_NEV}} üzemelteti.
 
 ## Egyéb értékelések
 **Részleges érvénytelenség, magatartási kódex**

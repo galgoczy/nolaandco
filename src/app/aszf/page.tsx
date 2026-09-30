@@ -3,16 +3,21 @@ import path from 'path';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import RevealOnScroll from '@/components/ui/RevealOnScroll';
+import { fillSellerPlaceholders } from '@/lib/sellers';
+import { getActiveSeller } from '@/lib/sellers.server';
+
+// Az eladó adatai az aktív eladó-profilból jönnek (időpont / admin szerint).
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Általános Szerződési Feltételek – Nola & Co.',
   description: 'A Nola & Co. webshop Általános Szerződési Feltételei (ÁSZF).',
 };
 
-export default function AszfPage() {
-  const mdPath = path.join(process.cwd(), 'public', 'altalanos_szerzodesi_feltetelek.md');
+export default async function AszfPage() {
+  const mdPath = path.join(process.cwd(), 'content', 'altalanos_szerzodesi_feltetelek.md');
   const raw = readFileSync(mdPath, 'utf-8');
-  const content = raw.replace(/^#\s+.*\n?/, '');
+  const content = fillSellerPlaceholders(raw.replace(/^#\s+.*\n?/, ''), await getActiveSeller());
 
   return (
     <section className="min-h-screen bg-warm-beige py-24 px-4">

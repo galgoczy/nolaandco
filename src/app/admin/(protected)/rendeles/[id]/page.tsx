@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import { findLayout } from '@/app/termekek/[slug]/posterData';
 import OrderActions from './OrderActions';
+import { sellerForOrder } from '@/lib/sellers';
 
 const statusLabels: Record<string, string> = {
   pending: 'Függőben',
@@ -82,6 +83,13 @@ export default async function OrderDetailPage({
                 </dd>
               </>
             )}
+            <dt className="text-on-surface/60">Eladó:</dt>
+            <dd className="text-on-surface">
+              {sellerForOrder(order.sellerId).legalName}
+              {order.invoiceNumber && (
+                <span className="text-on-surface/60"> · számla: {order.invoiceNumber}</span>
+              )}
+            </dd>
             <dt className="text-on-surface/60">Fizetés:</dt>
             <dd className="text-on-surface">
               {order.paymentMethod === 'transfer' ? (

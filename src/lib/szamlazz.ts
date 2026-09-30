@@ -1,4 +1,5 @@
 import { Client, Invoice, Buyer, Item, Seller, Currencies, Languages, PaymentMethods } from 'szamlazz.js';
+import { sellerForOrder } from './sellers';
 
 type OrderWithItems = {
   id: string;
@@ -16,6 +17,8 @@ type OrderWithItems = {
   urgentFee?: number;
   discount?: number;
   couponCode?: string | null;
+  /** Az eladó a rendeléskor — ennek a Számlázz.hu fiókjából megy a számla. */
+  sellerId?: string | null;
   total: number;
   items: {
     quantity: number;
@@ -26,26 +29,30 @@ type OrderWithItems = {
   }[];
 };
 
-let clientInstance: InstanceType<typeof Client> | null = null;
+// Eladónként (Számla Agent kulcsonként) egy kliens.
+const clients = new Map<string, InstanceType<typeof Client>>();
 
-function getClient() {
-  if (!clientInstance) {
-    const agentKey = process.env.SZAMLAZZ_AGENT_KEY;
+function getClient(agentKeyEnv: string) {
+  let client = clients.get(agentKeyEnv);
+  if (!client) {
+    const agentKey = process.env[agentKeyEnv];
     if (!agentKey) {
-      throw new Error('SZAMLAZZ_AGENT_KEY environment variable is not set');
+      throw new Error(`${agentKeyEnv} environment variable is not set`);
     }
-    clientInstance = new Client({
+    client = new Client({
       authToken: agentKey,
       eInvoice: false,
       requestInvoiceDownload: true,
       responseVersion: 2,
     });
+    clients.set(agentKeyEnv, client);
   }
-  return clientInstance;
+  return client;
 }
 
 export async function createSzamlazzInvoice(order: OrderWithItems) {
-  const client = getClient();
+  // A számlát mindig az állítja ki, aki a rendeléskor az eladó volt.
+  const client = getClient(sellerForOrder(order.sellerId).agentKeyEnv);
 
   const seller = new Seller({
     bank: {

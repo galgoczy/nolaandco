@@ -126,6 +126,11 @@ model Order {
   /// mellett külön sor; a kupon nem csökkenti, az ingyenes csomagautomata-
   /// határba viszont beszámít. 0 = normál elkészítés.
   urgentFee       Int      @default(0)
+  /// Az eladó (szerződő és számlázó egyéni vállalkozó) a rendelés leadásakor:
+  /// "gergely" | "kriszti". null = a váltás előtti rendelés (Kriszti).
+  sellerId        String?
+  /// A kiállított számla száma — ismételt Stripe-értesítésnél nem állítunk ki újat.
+  invoiceNumber   String?
   paymentMethod   String   @default("card") // "card" | "transfer"
   stripePaymentId String?
   trackingNumber  String?
