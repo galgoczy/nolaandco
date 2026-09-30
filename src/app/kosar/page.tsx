@@ -211,7 +211,7 @@ export default function KosarPage() {
             <div className="mb-6">
               {urgentGrantsFreeParcel(urgentCount) ? (
                 <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
-                  A sürgős elkészítéssel a csomagautomatás szállítás ingyenes.
+                  A sürgős elkészítéssel a belföldi csomagautomatás szállítás ingyenes.
                 </div>
               ) : orderValue >= FREE_PARCEL_THRESHOLD ? (
                 <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">

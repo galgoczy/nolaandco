@@ -29,7 +29,7 @@ export const PRODUCTION_START_NOTE =
 
 /** Sürgős párnával a belföldi csomagautomatás szállítás mindig ingyenes. */
 export const URGENT_FREE_PARCEL_NOTE =
-  'Csomagautomatába ingyenes a szállítás, kedvezménnyel együtt is. Házhozszállításnál a szállítási díj felszámításra kerül.';
+  'Belföldön csomagautomatába ingyenes a szállítás, kedvezménnyel együtt is. Házhozszállításnál a szállítási díj felszámításra kerül.';
 
 /** Van-e sürgős tétel — ilyenkor a belföldi csomagautomata ingyenes, összeghatártól függetlenül. */
 export function urgentGrantsFreeParcel(urgentCount: number): boolean {
