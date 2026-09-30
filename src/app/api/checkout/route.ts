@@ -17,6 +17,7 @@ import { notifyNewOrderTelegram } from '@/lib/telegram';
 import { getShippingCost, carrierForCountry, getCountryConfig, qualifiesForFreeParcel } from '@/lib/shipping';
 import { applyStockForOrder } from '@/lib/stock';
 import { isUrgentEnabled } from '@/lib/urgentProduction.server';
+import { getActiveSeller } from '@/lib/sellers.server';
 import {
   URGENT_LABEL,
   hasSlowerItems,
@@ -421,6 +422,8 @@ export async function POST(request: NextRequest) {
         total,
         discount,
         urgentFee,
+        // Szerződő és számlázó eladó a rendelés leadásakor.
+        sellerId: (await getActiveSeller()).id,
         couponCode: discount > 0 || freeShippingApplied ? couponCode || null : null,
         items: {
           create: verifiedItems.map((item) => ({

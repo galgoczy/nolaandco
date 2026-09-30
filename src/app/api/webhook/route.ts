@@ -86,15 +86,26 @@ export async function POST(request: NextRequest) {
         // and attach it to our confirmation email). If anything goes wrong
         // we still send the confirmation email without the invoice.
         let invoicePdf: Buffer | undefined;
-        try {
-          const invoiceResult = await createSzamlazzInvoice(order);
-          // The szamlazz.js client returns { pdf: Buffer } when
-          // requestInvoiceDownload is enabled on the client.
-          if (invoiceResult.pdf && Buffer.isBuffer(invoiceResult.pdf) && invoiceResult.pdf.length > 0) {
-            invoicePdf = invoiceResult.pdf;
+        // Ismételt Stripe-értesítésnél (újraküldés) ne állítsunk ki második számlát.
+        if (order.invoiceNumber) {
+          console.warn('Számla már kiállítva, kihagyjuk:', { orderId: order.id, invoiceNumber: order.invoiceNumber });
+        } else {
+          try {
+            const invoiceResult = await createSzamlazzInvoice(order);
+            if (invoiceResult.invoiceId) {
+              await prisma.order.update({
+                where: { id: order.id },
+                data: { invoiceNumber: String(invoiceResult.invoiceId) },
+              });
+            }
+            // The szamlazz.js client returns { pdf: Buffer } when
+            // requestInvoiceDownload is enabled on the client.
+            if (invoiceResult.pdf && Buffer.isBuffer(invoiceResult.pdf) && invoiceResult.pdf.length > 0) {
+              invoicePdf = invoiceResult.pdf;
+            }
+          } catch (err) {
+            console.error('Számlázz.hu invoice error:', { orderId: order.id, sellerId: order.sellerId, err });
           }
-        } catch (err) {
-          console.error('Számlázz.hu invoice error:', err);
         }
 
         // Send confirmation email with order details (and invoice PDF

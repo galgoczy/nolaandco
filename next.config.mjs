@@ -1,7 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    // A jogi szövegek futásidőben töltődnek (az aktív eladó adataival), ezért
+    // a markdown fájloknak a szerverfüggvény csomagjában is ott kell lenniük.
+    outputFileTracingIncludes: {
+      '/aszf': ['./content/altalanos_szerzodesi_feltetelek.md'],
+      '/adatkezeles': ['./content/adatkezelesi_tajekoztato.md'],
+    },
+  },
   async redirects() {
     return [
+      // A jogi szövegek nyers markdown fájljai korábban a public mappában voltak.
+      { source: '/altalanos_szerzodesi_feltetelek.md', destination: '/aszf', permanent: true },
+      { source: '/adatkezelesi_tajekoztato.md', destination: '/adatkezeles', permanent: true },
       // A régi, csomagalapú ajándékkártya helyét az új fix összegű digitális
       // ajándékkártya vette át.
       {

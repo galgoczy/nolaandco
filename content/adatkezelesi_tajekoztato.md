@@ -1,6 +1,8 @@
 # Adatkezelési tájékoztató
 ## Adatkezelő
-- **Név:** Galgóczy Krisztina
+- **Név:** {{ELADO_NEV}}
+- **Nyilvántartási szám:** {{NYILVANTARTASI_SZAM}}
+- **Adószám:** {{ADOSZAM}}
 - **Székhely:** 1135 Budapest, Reitter Ferenc utca 35-37. 5/1.
 - **Levelezési cím, panaszkezelés:** 1135 Budapest, Reitter Ferenc utca 35-37. 5/1.
 - **E-mail:** [hello@nolaandco.hu](mailto:hello@nolaandco.hu)
@@ -168,7 +170,7 @@ Az adatok a nyereményjáték lezárását követően törlésre kerülnek, kiv�
 ### Az adatkezelés jogalapja
 Az Ön önkéntes hozzájárulása, amit a honlap használatával ad meg az Adatkezelő számára. [Rendelet 6. cikk (1) bekezdés a) pont szerinti adatkezelés]
 ## Stripe Technology Europe, Limited
-Tudomásul veszem, hogy Galgóczy Krisztina EV adatkezelő által a [nolaandco.hu](https://nolaandco.hu) weboldal felhasználói adatbázisában tárolt alábbi személyes adataim átadásra kerülnek a Stripe Technology Europe, Limited, mint adatfeldolgozó részére. Az adatkezelő által továbbított adatok köre az alábbi: email, név, telefonszám, számlázási adatok, szállítási adatok. Az adatfeldolgozó által végzett adatfeldolgozási tevékenység jellege és célja a Stripe Adatkezelési tájékoztatóban, az alábbi linken tekinthető meg, angol nyelven: [https://stripe.com/en-hu/privacy](https://stripe.com/en-hu/privacy)
+Tudomásul veszem, hogy {{ELADO_NEV}} adatkezelő által a [nolaandco.hu](https://nolaandco.hu) weboldal felhasználói adatbázisában tárolt alábbi személyes adataim átadásra kerülnek a Stripe Technology Europe, Limited, mint adatfeldolgozó részére. Az adatkezelő által továbbított adatok köre az alábbi: email, név, telefonszám, számlázási adatok, szállítási adatok. Az adatfeldolgozó által végzett adatfeldolgozási tevékenység jellege és célja a Stripe Adatkezelési tájékoztatóban, az alábbi linken tekinthető meg, angol nyelven: [https://stripe.com/en-hu/privacy](https://stripe.com/en-hu/privacy)
 ### Kezelt adatok
 email, név, telefonszám, számlázási adatok, szállítási adatok
 ### Az adatkezelés időtartama
