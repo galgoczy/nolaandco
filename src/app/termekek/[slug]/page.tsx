@@ -17,6 +17,8 @@ import ProductSpecs from '@/components/products/ProductSpecs';
 import BundleCompositeImage from '@/components/products/BundleCompositeImage';
 import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
 import { resolveCapeConfig } from '@/lib/capeOptions';
+import { offerFor } from '@/lib/weightedPillow';
+import { getWeightedConfig } from '@/lib/weightedPillow.server';
 
 const POSTER_DESIGNER_SLUG = 'poszter';
 
@@ -96,6 +98,9 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const isGiftCard = product.category === 'giftcard';
   const isPosterDesigner = product.slug === POSTER_DESIGNER_SLUG;
   const isPillow = product.category === 'pillow';
+  // Méret- és súlyarányos változat ajánlata (ár, maximum, státusz) — az oldal
+  // dinamikus, így az admin módosítása azonnal látszik.
+  const weightedOffer = isPillow ? offerFor(await getWeightedConfig(), product) : null;
   const isBigKidProduct =
     product.category === 'cape' || product.category === 'crown' || product.category === 'bundle';
   // DB-variánsos, nem személyre szabott termékek (swatch-választós oldal).
@@ -388,6 +393,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                     features: product.features ?? [],
                   }}
                   oneClickAdd
+                  weightedOffer={weightedOffer}
                 />
               )}
             </div>

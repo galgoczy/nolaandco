@@ -1,4 +1,5 @@
 import { emailLayout } from './layout';
+import { pillowDetailsHtml, type PillowLine } from './pillowDetails';
 import {
   NORMAL_DURATION,
   PRODUCTION_START_NOTE,
@@ -6,8 +7,9 @@ import {
   URGENT_LABEL,
   URGENT_MIXED_NOTE,
 } from '@/lib/urgentProduction';
+import { WEIGHTED_MIXED_NOTE } from '@/lib/weightedPillow';
 
-interface OrderItem {
+interface OrderItem extends PillowLine {
   name: string;
   quantity: number;
   price: number;
@@ -32,6 +34,9 @@ interface OrderConfirmationData {
   hasGiftCard?: boolean;
   urgentFee?: number;
   mixedUrgent?: boolean;
+  /** Előrendelt súlyarányos párna mellett más szállítandó tétel is van. */
+  mixedPreorder?: boolean;
+  /** Van könnyű (normál elkészítésű) emlékpárna a rendelésben. */
   hasPillow?: boolean;
 }
 
@@ -58,6 +63,7 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
           ${item.name}${item.quantity > 1 ? ` <span style="color:#999;">&times;${item.quantity}</span>` : ''}
           ${item.babyName ? `<br/><span style="font-size:12px;color:#999;">${item.babyName}</span>` : ''}
           ${item.posterLayoutLabel ? `<br/><span style="font-size:12px;color:#999;">Dizájn: ${item.posterLayoutLabel}</span>` : ''}
+          ${pillowDetailsHtml(item)}
           ${item.urgent ? `<br/><span style="font-size:12px;color:#B5651D;font-weight:600;">${URGENT_LABEL} (${URGENT_DURATION})</span>` : ''}
         </td>
         <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;white-space:nowrap;">
@@ -164,24 +170,43 @@ export function orderConfirmationHtml(data: OrderConfirmationData): string {
 
   // Elkészítési idő — párnás rendelésnél mindig tájékoztatunk, sürgősnél kiemelten.
   const isUrgent = !!(data.urgentFee && data.urgentFee > 0);
+  // Súlyarányos párnák saját, a rendeléskor vállalt tájékoztatója.
+  const weightedNotes = Array.from(
+    new Set((data.items ?? []).filter((i) => i.weighted && i.productionNote).map((i) => i.productionNote as string)),
+  );
+  const hasPreorder = (data.items ?? []).some((i) => i.weighted && i.weightedStatus === 'preorder');
   const productionBlock =
-    data.hasPillow || isUrgent
+    data.hasPillow || isUrgent || weightedNotes.length > 0
       ? `
     <div style="margin:24px 0;padding:18px 20px;background-color:#F5F0E8;border-radius:10px;border:1px solid #E8E0D0;">
       <p style="margin:0 0 10px;font-size:14px;font-weight:600;color:#4A4A4A;">
-        ${isUrgent ? URGENT_LABEL : 'Elkészítési idő'}
+        ${isUrgent ? URGENT_LABEL : hasPreorder ? 'Elkészítési idő és előrendelés' : 'Elkészítési idő'}
       </p>
+      ${weightedNotes
+        .map(
+          (note) => `<p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:#4A4A4A;">
+        <strong>Méret- és súlyarányos párna${hasPreorder ? ' (előrendelés)' : ''}:</strong> ${note.replace(/</g, '&lt;')}
+      </p>`,
+        )
+        .join('')}
       <p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:#4A4A4A;">
         ${
           isUrgent
             ? `A sürgősségi elkészítést választott párnád ${URGENT_DURATION} alatt elkészül.`
-            : `Az emlékpárna elkészítési ideje ${NORMAL_DURATION}.`
+            : data.hasPillow
+              ? `Az emlékpárna elkészítési ideje ${NORMAL_DURATION}.`
+              : ''
         }
         ${PRODUCTION_START_NOTE}
       </p>
       ${
         data.mixedUrgent
           ? `<p style="margin:0;font-size:13px;line-height:1.7;color:#4A4A4A;">${URGENT_MIXED_NOTE}</p>`
+          : ''
+      }
+      ${
+        data.mixedPreorder && !data.mixedUrgent
+          ? `<p style="margin:0;font-size:13px;line-height:1.7;color:#4A4A4A;">${WEIGHTED_MIXED_NOTE}</p>`
           : ''
       }
     </div>`

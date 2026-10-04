@@ -68,6 +68,8 @@ export default async function EditProductPage({
           hiddenFromListing: product.hiddenFromListing,
           withdrawalEligible: product.withdrawalEligible,
           noShipping: product.noShipping,
+          weightedEnabled: product.weightedEnabled,
+          weightedMaxGrams: product.weightedMaxGrams ?? '',
           onSale: product.onSale,
           salePrice: product.salePrice ?? '',
           stock: product.stock ?? '',

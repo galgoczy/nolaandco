@@ -43,6 +43,7 @@ export default async function OrdersPage({
   const orders = await prisma.order.findMany({
     where,
     orderBy: { createdAt: 'desc' },
+    include: { items: { select: { weighted: true, weightedStatus: true } } },
   });
 
   return (
@@ -92,6 +93,11 @@ export default async function OrdersPage({
                     >
                       #{order.id.slice(-8).toUpperCase()}
                     </Link>
+                    {order.items.some((i) => i.weighted && i.weightedStatus === 'preorder') && (
+                      <span className="ml-2 inline-block px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
+                        Előrendelés
+                      </span>
+                    )}
                     {order.urgentFee > 0 && (
                       <span className="ml-2 inline-block px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs font-bold">
                         ⚡ Sürgős

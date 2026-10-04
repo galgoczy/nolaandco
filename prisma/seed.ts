@@ -1,6 +1,7 @@
 import { prisma } from '../src/lib/prisma';
 import { hashPassword } from '../src/lib/auth';
 import { syncCatalog } from '../src/lib/catalogSync';
+import { ensureWeightedConfig } from '../src/lib/weightedPillow.server';
 
 async function main() {
   // Catalog (categories, products, aliases) — shared with the admin
@@ -62,6 +63,12 @@ async function main() {
     }
     console.log(`  ${batch}: ${tokens.length} kártya rendben`);
   }
+
+  // Súlyarányos párna: kezdő beállítás csak egyszer (utána az adminból
+  // szerkeszthető, a seed nem írja felül). Indulásig nem rendelhető.
+  console.log('Seeding weighted pillow settings...');
+  const created = await ensureWeightedConfig(4000);
+  console.log(created ? '  Létrehozva: 4 000 g maximum, nem rendelhető' : '  Már létezik, kihagyva');
 
   console.log('Seeding complete!');
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
+import { pillowVariantName } from '@/lib/weightedPillow';
 
 export const runtime = 'nodejs';
 
@@ -39,7 +40,10 @@ export async function GET(
     price_data: {
       currency: 'huf',
       product_data: {
-        name: item.product.name,
+        name:
+          item.product.category === 'pillow' && (item.weighted || item.product.weightedEnabled)
+            ? pillowVariantName(item.product.name, item.weighted)
+            : item.product.name,
         ...(item.babyName ? { description: item.babyName } : {}),
       },
       unit_amount: item.price * 100,

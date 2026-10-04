@@ -105,11 +105,16 @@ export function buildNewOrderMessage(order: OrderWithItems): string {
     const qty = item.quantity > 1 ? ` ×${item.quantity}` : '';
     lines.push(`• <b>${esc(item.product.name)}</b>${qty} — ${huf(item.price * item.quantity)}`);
     if (item.urgent) lines.push('    ⚡ Sürgősségi elkészítés');
+    if (item.product.category === 'pillow' && (item.weighted || item.product.weightedEnabled)) {
+      lines.push(`    ${item.weighted ? '⚖️ Méret- és súlyarányos változat' : 'Méretarányos, könnyű változat'}`);
+      if (item.weighted && item.weightedStatus === 'preorder') lines.push('    📅 ELŐRENDELÉS');
+      if (item.weighted && item.productionNote) lines.push(`    ${esc(item.productionNote.replace(/\n/g, ' '))}`);
+    }
     if (item.babyName) lines.push(`    ${esc(item.babyName)}`);
     const birth = [
       item.birthDate ? `Születés: ${item.birthDate}` : null,
       item.birthTime ? `Időpont: ${item.birthTime}` : null,
-      item.birthWeight ? `Súly: ${item.birthWeight}` : null,
+      item.birthWeight ? (item.weighted ? `Súly / kért kész súly: ${item.birthWeight} g` : `Súly: ${item.birthWeight}`) : null,
       item.birthHeight ? `Hossz: ${item.birthHeight}` : null,
     ]
       .filter(Boolean)

@@ -19,6 +19,16 @@ import {
   urgentFeeFor,
   urgentGrantsFreeParcel,
 } from '@/lib/urgentProduction';
+import { useWeightedOffers } from '@/lib/useWeightedOffers';
+import {
+  PREORDER_LABEL,
+  WEIGHTED_LABEL,
+  WEIGHTED_MIXED_NOTE,
+  hasMixedPreorder,
+  heightLine,
+  weightLine,
+  weightedLineProblem,
+} from '@/lib/weightedPillow';
 import { ALL_COUNTRIES, BILLING_COUNTRIES, getShippingCost, isPacketaCountry, FREE_PARCEL_THRESHOLD, qualifiesForFreeParcel } from '@/lib/shipping';
 import Input from '@/components/ui/Input';
 import FoxpostSelector from '@/components/checkout/FoxpostSelector';
@@ -154,6 +164,20 @@ export default function CheckoutPage() {
   // Sürgősségi elkészítés: választható-e még (az admin közben kikapcsolhatta).
   const urgentEnabled = useUrgentProductionEnabled(items.some((i) => isUrgentEligible(i.category)));
 
+  // Súlyarányos párnák újraellenőrzése az aktuális maximummal/rendelhetőséggel;
+  // eltérő ár vagy tájékoztató esetén a kosár frissül.
+  const weightedOffers = useWeightedOffers(items.filter((i) => i.weighted).map((i) => i.productId));
+  const syncWeighted = useCartStore((s) => s.syncWeighted);
+  useEffect(() => {
+    if (!weightedOffers) return;
+    for (const i of items) {
+      const o = i.weighted ? weightedOffers[i.productId] : null;
+      if (o && (o.price !== i.price || o.status !== i.weightedStatus || o.info !== i.productionNote)) {
+        syncWeighted(i.id, { price: o.price, weightedStatus: o.status, productionNote: o.info });
+      }
+    }
+  }, [weightedOffers, items, syncWeighted]);
+
   if (!mounted || (items.length === 0 && !redirecting)) return null;
 
   const subtotal = total();
@@ -165,6 +189,9 @@ export default function CheckoutPage() {
   const mixedUrgent =
     urgentCount > 0 &&
     hasSlowerItems(items.map((i) => ({ ...i, ships: cartItemRequiresShipping(i) })));
+
+  const weightedBlocked = items.some((i) => !!weightedLineProblem(i, weightedOffers));
+  const mixedPreorder = hasMixedPreorder(items.map((i) => ({ ...i, ships: cartItemRequiresShipping(i) })));
 
   const needsShipping = cartRequiresShipping(items);
   const isForeign = isPacketaCountry(shippingCountry);
@@ -750,7 +777,25 @@ export default function CheckoutPage() {
                           Dizájn: {item.posterLayoutLabel}
                         </p>
                       )}
-                      {isUrgentEligible(item.category) && (
+                      {isUrgentEligible(item.category) && item.weighted && (
+                        <div className="text-xs text-[#4A4A4A]/60">
+                          <p className="text-[#8A6A52] font-medium">
+                            {WEIGHTED_LABEL}
+                            {item.weightedStatus === 'preorder' && ` · ${PREORDER_LABEL}`}
+                          </p>
+                          <p>
+                            {heightLine(item.birthHeight)} · {weightLine(item.birthWeight, true)}
+                          </p>
+                          {item.productionNote && <p className="whitespace-pre-line">{item.productionNote}</p>}
+                          {weightedLineProblem(item, weightedOffers) && (
+                            <p role="alert" className="text-red-600">
+                              {weightedLineProblem(item, weightedOffers)}{' '}
+                              <a href="/kosar" className="underline">Módosítás a kosárban</a>
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      {isUrgentEligible(item.category) && !item.weighted && (
                         <p className={`text-xs ${item.urgent ? 'text-[#8A6A52] font-medium' : 'text-[#4A4A4A]/60'}`}>
                           {item.urgent ? `${URGENT_LABEL} · ${URGENT_DURATION}` : 'Normál elkészítés · kb. 1 hét'}
                         </p>
@@ -876,6 +921,17 @@ export default function CheckoutPage() {
                   {URGENT_MIXED_NOTE}
                 </div>
               )}
+              {mixedPreorder && !mixedUrgent && (
+                <div className="bg-[#faf6f1] text-[#4A4A4A] rounded-xl px-4 py-3 mt-3 text-xs leading-relaxed">
+                  {WEIGHTED_MIXED_NOTE}
+                </div>
+              )}
+              {weightedBlocked && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-xl mt-4 text-sm">
+                  Egy súlyarányos párna a jelenlegi feltételekkel nem rendelhető. Kérlek, a{' '}
+                  <a href="/kosar" className="underline">kosárban</a> válts a könnyű, méretarányos változatra.
+                </div>
+              )}
               {urgentBlocked && (
                 <div className="bg-red-50 text-red-600 p-3 rounded-xl mt-4 text-sm">
                   A sürgősségi elkészítés jelenleg nem választható, mert a műhely szabad kapacitása
@@ -913,7 +969,7 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={loading || !termsAccepted || urgentBlocked}
+                disabled={loading || !termsAccepted || urgentBlocked || weightedBlocked}
                 className="w-full mt-4 bg-[#D5E8F0] text-[#4A4A4A] py-3.5 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? (

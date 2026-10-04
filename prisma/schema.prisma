@@ -31,6 +31,10 @@ model Product {
   // True for digital / no-ship goods (e.g. digital gift card, digital poster):
   // checkout charges no shipping, and a cart of only such items ships free.
   noShipping      Boolean  @default(false)
+  /// Emlékpárnánál választható-e a méret- és súlyarányos változat.
+  weightedEnabled Boolean  @default(false)
+  /// Párnánkénti súlymaximum (g); üresen a központi beállítás érvényes.
+  weightedMaxGrams Int?
   // --- Admin-editable product sheet (all optional; hidden when empty) ---
   /// Stock on hand. null = untracked (always orderable), 0 = sold out.
   stock           Int?
@@ -171,6 +175,12 @@ model OrderItem {
   posterLayout  String?  // chosen poster design variant (e.g. "origin-1")
   /// Sürgősségi (2–3 munkanapos) elkészítést kért-e erre a tételre.
   urgent        Boolean  @default(false)
+  /// Méret- és súlyarányos változat (a könnyű, méretarányos helyett).
+  weighted      Boolean  @default(false)
+  /// A súlyarányos változat státusza a rendeléskor: "preorder" | "available".
+  weightedStatus String?
+  /// A rendeléskor vállalt elkészítési/feladási tájékoztató (később nem íródik át).
+  productionNote String?
 
   orderId   String
   order     Order   @relation(fields: [orderId], references: [id])

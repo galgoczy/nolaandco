@@ -49,6 +49,11 @@ export async function PATCH(
   if (data.hiddenFromListing !== undefined) update.hiddenFromListing = Boolean(data.hiddenFromListing);
   if (data.withdrawalEligible !== undefined) update.withdrawalEligible = Boolean(data.withdrawalEligible);
   if (data.noShipping !== undefined) update.noShipping = Boolean(data.noShipping);
+  if (data.weightedEnabled !== undefined) update.weightedEnabled = Boolean(data.weightedEnabled);
+  if (data.weightedMaxGrams !== undefined) {
+    const n = Number(data.weightedMaxGrams);
+    update.weightedMaxGrams = data.weightedMaxGrams === null || data.weightedMaxGrams === '' || !(Number.isInteger(n) && n > 0) ? null : n;
+  }
   if (data.onSale !== undefined) update.onSale = Boolean(data.onSale);
   if (data.salePrice !== undefined) {
     update.salePrice = data.salePrice === null || data.salePrice === '' ? null : num(data.salePrice);
