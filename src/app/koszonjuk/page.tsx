@@ -255,7 +255,10 @@ export default async function ThankYouPage({ searchParams }: Props) {
                 </p>
               ),
             )}
-            <p className="text-sm text-[#4A4A4A]/80 leading-relaxed">{PRODUCTION_START_NOTE}</p>
+            {/* Ha a könnyű párna blokkja fölötte már kiírta, itt nem ismételjük. */}
+            {!order.items.some((i) => isUrgentEligible(i.product.category) && !i.weighted) && (
+              <p className="text-sm text-[#4A4A4A]/80 leading-relaxed">{PRODUCTION_START_NOTE}</p>
+            )}
             {order.items.some((i) => i.weighted && i.weightedStatus === 'preorder') &&
               order.items.some(
                 (i) =>
