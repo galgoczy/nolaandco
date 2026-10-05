@@ -39,6 +39,14 @@ export const LIGHT_DESCRIPTION =
   'A baba születési méretét őrzi. A születési súly feliratként szerepel rajta, de a párna nem súlyarányos.';
 export const LIGHT_WEIGHT_HINT = 'Ez az adat a párna feliratán jelenik meg. A párna nem súlyarányos.';
 
+/** A súlyarányos párnával a belföldi csomagautomata mindig ingyenes. */
+export const WEIGHTED_FREE_PARCEL = 'Ingyenes belföldi csomagautomatás szállítással';
+
+/** Van-e súlyarányos párna — ilyenkor a belföldi csomagautomata ingyenes, összeghatártól és kupontól függetlenül. */
+export function weightedGrantsFreeParcel(items: { weighted?: boolean }[]): boolean {
+  return items.some((i) => !!i.weighted);
+}
+
 export const WEIGHTED_MIXED_NOTE =
   'A rendelésed egy csomagban indul, amikor az előrendelt súlyarányos párna is elkészült.';
 

@@ -30,6 +30,7 @@ import {
   hasMixedPreorder,
   heightLine,
   weightLine,
+  weightedGrantsFreeParcel,
   weightedLineProblem,
 } from '@/lib/weightedPillow';
 
@@ -267,7 +268,11 @@ export default function KosarPage() {
               pénztárban kerül még levonásra, ott pontosítjuk az összeget. */}
           {cartRequiresShipping(items) && (
             <div className="mb-6">
-              {urgentGrantsFreeParcel(urgentCount) ? (
+              {weightedGrantsFreeParcel(items) ? (
+                <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
+                  A méret- és súlyarányos párnával a belföldi csomagautomatás szállítás ingyenes.
+                </div>
+              ) : urgentGrantsFreeParcel(urgentCount) ? (
                 <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
                   A sürgős elkészítéssel a belföldi csomagautomatás szállítás ingyenes.
                 </div>

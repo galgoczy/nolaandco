@@ -19,7 +19,7 @@ import { applyStockForOrder } from '@/lib/stock';
 import { isUrgentEnabled } from '@/lib/urgentProduction.server';
 import { getActiveSeller } from '@/lib/sellers.server';
 import { getOffers } from '@/lib/weightedPillow.server';
-import { checkWeightedWeight, pillowVariantName } from '@/lib/weightedPillow';
+import { checkWeightedWeight, pillowVariantName, weightedGrantsFreeParcel } from '@/lib/weightedPillow';
 import {
   URGENT_LABEL,
   hasSlowerItems,
@@ -424,7 +424,9 @@ export async function POST(request: NextRequest) {
       country === 'HU' &&
       effectiveMethod === 'parcel' &&
       orderRequiresShipping &&
-      (urgentGrantsFreeParcel(urgentCount) || qualifiesForFreeParcel(subtotal - discount + urgentFee))
+      (urgentGrantsFreeParcel(urgentCount) ||
+        weightedGrantsFreeParcel(verifiedItems) ||
+        qualifiesForFreeParcel(subtotal - discount + urgentFee))
     ) {
       freeShippingApplied = true;
     }

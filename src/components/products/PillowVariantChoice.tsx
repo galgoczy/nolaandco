@@ -6,6 +6,7 @@ import {
   LIGHT_LABEL,
   PREORDER_LABEL,
   VARIANT_QUESTION,
+  WEIGHTED_FREE_PARCEL,
   WEIGHTED_LABEL,
   weightedDescription,
   type WeightedOffer,
@@ -68,6 +69,7 @@ export default function PillowVariantChoice({
           </span>
           <span className="font-bold text-carbon whitespace-nowrap">{formatPrice(offer.price)}</span>
         </div>
+        <p className="text-sm font-medium text-[#7A4A5A] mt-1">{WEIGHTED_FREE_PARCEL}</p>
         <p className="text-sm text-carbon-light mt-1">{weightedDescription(offer.maxGrams)}</p>
       </button>
 
