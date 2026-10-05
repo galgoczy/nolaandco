@@ -59,13 +59,15 @@ export function nextUrgentFee(currentCount: number): number {
 type Line = {
   category?: string | null;
   urgent?: boolean;
+  /** Súlyarányos (előrendelt) párnához sürgős elkészítés nem kérhető. */
+  weighted?: boolean;
   quantity: number;
 };
 
 /** Hány sürgős emlékpárna van a tételek között (darabszámban). */
 export function countUrgent(items: Line[]): number {
   return items.reduce(
-    (n, i) => n + (i.urgent && isUrgentEligible(i.category) ? i.quantity : 0),
+    (n, i) => n + (i.urgent && !i.weighted && isUrgentEligible(i.category) ? i.quantity : 0),
     0,
   );
 }
@@ -82,6 +84,6 @@ export function hasSlowerItems(items: (Line & { ships: boolean })[]): boolean {
   return items.some((i) => {
     if (!i.ships) return false;
     if (!i.category || !MADE_TO_ORDER.includes(i.category)) return false;
-    return !(isUrgentEligible(i.category) && i.urgent);
+    return !(isUrgentEligible(i.category) && i.urgent && !i.weighted);
   });
 }

@@ -15,6 +15,7 @@ import {
 import { findLayout } from '@/app/termekek/[slug]/posterData';
 import { cartItemRequiresShipping } from '@/lib/shippingRules';
 import { hasSlowerItems, isUrgentEligible } from '@/lib/urgentProduction';
+import { pillowVariantName } from '@/lib/weightedPillow';
 import Stripe from 'stripe';
 
 export const runtime = 'nodejs';
@@ -111,7 +112,16 @@ export async function POST(request: NextRequest) {
         // Send confirmation email with order details (and invoice PDF
         // attached if we got it back from Számlázz.hu).
         const emailItems = order.items.map((item) => ({
-          name: item.product.name,
+          name:
+            item.product.category === 'pillow' && (item.weighted || item.product.weightedEnabled)
+              ? pillowVariantName(item.product.name, item.weighted)
+              : item.product.name,
+          pillow: item.product.category === 'pillow',
+          weighted: item.weighted,
+          weightedStatus: item.weightedStatus,
+          productionNote: item.productionNote,
+          birthWeight: item.birthWeight,
+          birthHeight: item.birthHeight,
           quantity: item.quantity,
           price: item.price,
           babyName: item.babyName,
@@ -119,9 +129,22 @@ export async function POST(request: NextRequest) {
           urgent: item.urgent,
         }));
         const hasGiftCard = order.items.some((item) => item.product.category === 'giftcard');
-        const hasPillow = order.items.some((item) => isUrgentEligible(item.product.category));
+        const hasPillow = order.items.some((item) => isUrgentEligible(item.product.category) && !item.weighted);
         // A tétel variánsát nem tároljuk, így egy digitális poszter itt
         // szállítandónak számít — ritka eset, legfeljebb egy fölösleges megjegyzés.
+        const isPreorder = (i: { weighted: boolean; weightedStatus: string | null }) =>
+          i.weighted && i.weightedStatus === 'preorder';
+        const mixedPreorder =
+          order.items.some(isPreorder) &&
+          order.items.some(
+            (i) =>
+              !isPreorder(i) &&
+              cartItemRequiresShipping({
+                slug: i.product.slug,
+                category: i.product.category,
+                noShipping: i.product.noShipping,
+              }),
+          );
         const mixedUrgent =
           order.urgentFee > 0 &&
           hasSlowerItems(
@@ -156,6 +179,7 @@ export async function POST(request: NextRequest) {
               couponCode: order.couponCode,
               urgentFee: order.urgentFee,
               mixedUrgent,
+              mixedPreorder,
               hasPillow,
               total: order.total,
               shippingMethod: derivedShippingMethod,
@@ -191,6 +215,7 @@ export async function POST(request: NextRequest) {
               couponCode: order.couponCode,
               urgentFee: order.urgentFee,
               mixedUrgent,
+              mixedPreorder,
               total: order.total,
               hasGiftCard,
             }),

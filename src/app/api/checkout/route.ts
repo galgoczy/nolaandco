@@ -18,6 +18,8 @@ import { getShippingCost, carrierForCountry, getCountryConfig, qualifiesForFreeP
 import { applyStockForOrder } from '@/lib/stock';
 import { isUrgentEnabled } from '@/lib/urgentProduction.server';
 import { getActiveSeller } from '@/lib/sellers.server';
+import { getOffers } from '@/lib/weightedPillow.server';
+import { checkWeightedWeight, pillowVariantName, weightedGrantsFreeParcel } from '@/lib/weightedPillow';
 import {
   URGENT_LABEL,
   hasSlowerItems,
@@ -52,6 +54,11 @@ async function sendOrderEmails(args: {
     babyName?: string | null;
     posterLayoutLabel?: string | null;
     urgent?: boolean;
+    weighted?: boolean;
+    weightedStatus?: string | null;
+    productionNote?: string | null;
+    birthWeight?: string | null;
+    birthHeight?: string | null;
   }>;
   subtotal: number;
   shippingCost: number;
@@ -59,6 +66,7 @@ async function sendOrderEmails(args: {
   couponCode?: string | null;
   urgentFee?: number;
   mixedUrgent?: boolean;
+  mixedPreorder?: boolean;
   hasPillow?: boolean;
   total: number;
   hasGiftCard: boolean;
@@ -79,6 +87,7 @@ async function sendOrderEmails(args: {
       couponCode: args.couponCode,
       urgentFee: args.urgentFee,
       mixedUrgent: args.mixedUrgent,
+      mixedPreorder: args.mixedPreorder,
       hasPillow: args.hasPillow,
       total: args.total,
       shippingMethod: args.shippingMethod,
@@ -112,6 +121,7 @@ async function sendOrderEmails(args: {
       couponCode: args.couponCode,
       urgentFee: args.urgentFee,
       mixedUrgent: args.mixedUrgent,
+      mixedPreorder: args.mixedPreorder,
       total: args.total,
       hasGiftCard: args.hasGiftCard,
     }),
@@ -226,9 +236,16 @@ export async function POST(request: NextRequest) {
       posterLayout?: string;
       posterLayoutLabel?: string;
       urgent: boolean;
+      weighted: boolean;
+      weightedStatus?: 'preorder' | 'available';
+      productionNote?: string;
       category: string;
       ships: boolean;
     }[] = [];
+
+    // Méret- és súlyarányos párnák: az aktuális ajánlat (ár, maximum, státusz)
+    // mindig a szerveren dől el — a kosárban tárolt adatnak nem hiszünk.
+    const weightedOffers = await getOffers(items.filter((i) => i.weighted === true).map((i) => i.productId));
 
     for (const item of items) {
       const product = productMap.get(item.productId);
@@ -277,15 +294,38 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Súlyarányos változat: csak engedélyezett, rendelhető párnánál, az aktuális
+      // maximumig, a központi áron.
+      const weighted = item.weighted === true;
+      const offer = weighted ? weightedOffers[product.id] : null;
+      if (weighted) {
+        if (product.category !== 'pillow' || !offer) {
+          return NextResponse.json(
+            {
+              error: `A(z) "${product.name}" méret- és súlyarányos változata jelenleg nem rendelhető. Kérlek, a kosárban válts a könnyű, méretarányos változatra.`,
+            },
+            { status: 409 },
+          );
+        }
+        const weightError = checkWeightedWeight(item.birthWeight, offer.maxGrams);
+        if (weightError) {
+          return NextResponse.json({ error: `${product.name}: ${weightError}` }, { status: 400 });
+        }
+      }
+
       const basePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
-      const price = isVariant ? item.price : basePrice + (chosenVariant?.priceDiff ?? 0);
+      const price = offer ? offer.price : isVariant ? item.price : basePrice + (chosenVariant?.priceDiff ?? 0);
       subtotal += price * item.quantity;
 
       verifiedItems.push({
         productId: product.id,
         quantity: item.quantity,
         price,
-        name: item.name || product.name,
+        // Párnánál a választott változat is a névben (Stripe, e-mail).
+        name:
+          product.category === 'pillow' && (weighted || product.weightedEnabled)
+            ? pillowVariantName(product.name, weighted)
+            : item.name || product.name,
         babyName: item.babyName || undefined,
         birthDate: item.birthDate || undefined,
         birthWeight: item.birthWeight || undefined,
@@ -296,7 +336,10 @@ export async function POST(request: NextRequest) {
         posterLayoutLabel: item.posterLayoutLabel || undefined,
         // A sürgősséget csak jogosult terméknél vesszük figyelembe — a kliens
         // által küldött jelzőt más terméknél figyelmen kívül hagyjuk.
-        urgent: item.urgent === true && isUrgentEligible(product.category),
+        urgent: item.urgent === true && !weighted && isUrgentEligible(product.category),
+        weighted,
+        weightedStatus: offer?.status,
+        productionNote: offer?.info,
         category: product.category,
         ships: cartItemRequiresShipping({
           slug: item.slug,
@@ -322,7 +365,12 @@ export async function POST(request: NextRequest) {
     }
     const urgentFee = urgentFeeFor(urgentCount);
     const mixedUrgent = urgentCount > 0 && hasSlowerItems(verifiedItems);
-    const hasPillow = verifiedItems.some((i) => i.category === 'pillow');
+    // A könnyű párna normál elkészítési ideje csak akkor kerül a visszaigazolásba,
+    // ha van ilyen tétel; a súlyarányosnak saját tájékoztatója van.
+    const hasPillow = verifiedItems.some((i) => i.category === 'pillow' && !i.weighted);
+    const isPreorder = (i: { weighted: boolean; weightedStatus?: string }) => i.weighted && i.weightedStatus === 'preorder';
+    const mixedPreorder =
+      verifiedItems.some(isPreorder) && verifiedItems.some((i) => i.ships && !isPreorder(i));
 
     const baseShippingCost = orderRequiresShipping ? getShippingCost(country, effectiveMethod) : 0;
 
@@ -376,7 +424,9 @@ export async function POST(request: NextRequest) {
       country === 'HU' &&
       effectiveMethod === 'parcel' &&
       orderRequiresShipping &&
-      (urgentGrantsFreeParcel(urgentCount) || qualifiesForFreeParcel(subtotal - discount + urgentFee))
+      (urgentGrantsFreeParcel(urgentCount) ||
+        weightedGrantsFreeParcel(verifiedItems) ||
+        qualifiesForFreeParcel(subtotal - discount + urgentFee))
     ) {
       freeShippingApplied = true;
     }
@@ -438,6 +488,9 @@ export async function POST(request: NextRequest) {
             customNote: item.customNote || null,
             posterLayout: item.posterLayout || null,
             urgent: item.urgent,
+            weighted: item.weighted,
+            weightedStatus: item.weightedStatus ?? null,
+            productionNote: item.productionNote ?? null,
           })),
         },
       },
@@ -486,6 +539,12 @@ export async function POST(request: NextRequest) {
       babyName: item.babyName ?? null,
       posterLayoutLabel: item.posterLayoutLabel ?? null,
       urgent: item.urgent,
+      pillow: item.category === 'pillow',
+      weighted: item.weighted,
+      weightedStatus: item.weightedStatus ?? null,
+      productionNote: item.productionNote ?? null,
+      birthWeight: item.birthWeight ?? null,
+      birthHeight: item.birthHeight ?? null,
     }));
 
     // ── Zero-total flow (100% discount / free item): skip Stripe, mark paid. ──
@@ -528,6 +587,7 @@ export async function POST(request: NextRequest) {
         couponCode: discount > 0 || freeShippingApplied ? couponCode || null : null,
         urgentFee,
         mixedUrgent,
+        mixedPreorder,
         hasPillow,
         total,
         hasGiftCard,
@@ -566,6 +626,7 @@ export async function POST(request: NextRequest) {
         couponCode: discount > 0 || freeShippingApplied ? couponCode || null : null,
         urgentFee,
         mixedUrgent,
+        mixedPreorder,
         hasPillow,
         total,
         hasGiftCard,
@@ -589,7 +650,13 @@ export async function POST(request: NextRequest) {
           currency: 'huf',
           product_data: {
             name: item.name,
-            ...(item.babyName ? { description: `${item.babyName}${item.birthDate ? ` · ${item.birthDate}` : ''}` } : {}),
+            ...(item.babyName
+              ? {
+                  description: `${item.babyName}${item.birthDate ? ` · ${item.birthDate}` : ''}${
+                    item.weighted ? ` · ${item.birthWeight ?? ''} g${item.weightedStatus === 'preorder' ? ' · Előrendelés' : ''}` : ''
+                  }`,
+                }
+              : {}),
           },
           unit_amount: item.price * 100, // HUF is two-decimal in Stripe (1 Ft = 100)
         },

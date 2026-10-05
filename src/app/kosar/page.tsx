@@ -21,12 +21,26 @@ import {
   urgentFeeFor,
   urgentGrantsFreeParcel,
 } from '@/lib/urgentProduction';
+import { useWeightedOffers } from '@/lib/useWeightedOffers';
+import {
+  LIGHT_LABEL,
+  PREORDER_LABEL,
+  WEIGHTED_LABEL,
+  WEIGHTED_MIXED_NOTE,
+  hasMixedPreorder,
+  heightLine,
+  weightLine,
+  weightedGrantsFreeParcel,
+  weightedLineProblem,
+} from '@/lib/weightedPillow';
 
 export default function KosarPage() {
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const setUrgent = useCartStore((s) => s.setUrgent);
+  const switchToLight = useCartStore((s) => s.switchToLight);
+  const syncWeighted = useCartStore((s) => s.syncWeighted);
   const total = useCartStore((s) => s.total);
 
   // Hydration guard for persisted zustand store
@@ -42,6 +56,23 @@ export default function KosarPage() {
   const mixedUrgent =
     urgentCount > 0 &&
     hasSlowerItems(items.map((i) => ({ ...i, ships: cartItemRequiresShipping(i) })));
+  // Méret- és súlyarányos párnák: az aktuális ajánlat újraellenőrzése (maximum,
+  // rendelhetőség), és az ár/tájékoztató frissítése, ha az admin módosította.
+  const offers = useWeightedOffers(items.filter((i) => isUrgentEligible(i.category)).map((i) => i.productId));
+  useEffect(() => {
+    if (!offers) return;
+    for (const i of items) {
+      const o = i.weighted ? offers[i.productId] : null;
+      if (o && (o.price !== i.price || o.status !== i.weightedStatus || o.info !== i.productionNote)) {
+        syncWeighted(i.id, { price: o.price, weightedStatus: o.status, productionNote: o.info });
+      }
+    }
+  }, [offers, items, syncWeighted]);
+  const weightedProblems = new Map(
+    items.map((i) => [i.id, weightedLineProblem(i, offers)] as const).filter(([, p]) => !!p),
+  );
+  const mixedPreorder = hasMixedPreorder(items.map((i) => ({ ...i, ships: cartItemRequiresShipping(i) })));
+
   // Az ingyenes csomagautomata-határba a felár is beszámít (a kupon a pénztárban jön).
   const orderValue = total() + urgentFee;
 
@@ -114,7 +145,35 @@ export default function KosarPage() {
                     Dizájn: {item.posterLayoutLabel}
                   </p>
                 )}
-                {isUrgentEligible(item.category) && (
+                {isUrgentEligible(item.category) && (item.weighted || offers?.[item.productId]) && (
+                  <div className="mt-1 text-xs text-carbon-light space-y-0.5">
+                    <p className="font-medium text-carbon">
+                      {item.weighted ? WEIGHTED_LABEL : LIGHT_LABEL}
+                      {item.weighted && item.weightedStatus === 'preorder' && (
+                        <span className="ml-2 inline-block px-2 py-0.5 rounded-full bg-[#C4A591] text-white text-[10px] font-semibold uppercase tracking-wide">
+                          {PREORDER_LABEL}
+                        </span>
+                      )}
+                    </p>
+                    <p>
+                      {heightLine(item.birthHeight)} · {weightLine(item.birthWeight, item.weighted)}
+                    </p>
+                    {item.weighted && item.productionNote && <p className="whitespace-pre-line">{item.productionNote}</p>}
+                  </div>
+                )}
+                {weightedProblems.get(item.id) && (
+                  <div className="mt-2 space-y-1">
+                    <p role="alert" className="text-xs text-red-600">{weightedProblems.get(item.id)}</p>
+                    <button
+                      type="button"
+                      onClick={() => switchToLight(item.id)}
+                      className="text-xs font-medium text-primary underline underline-offset-2"
+                    >
+                      Váltás a könnyű, méretarányos változatra
+                    </button>
+                  </div>
+                )}
+                {isUrgentEligible(item.category) && !item.weighted && (
                   <div className="mt-2">
                     <label
                       className={`inline-flex items-center gap-2 text-xs ${
@@ -209,7 +268,11 @@ export default function KosarPage() {
               pénztárban kerül még levonásra, ott pontosítjuk az összeget. */}
           {cartRequiresShipping(items) && (
             <div className="mb-6">
-              {urgentGrantsFreeParcel(urgentCount) ? (
+              {weightedGrantsFreeParcel(items) ? (
+                <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
+                  A méret- és súlyarányos párnával a belföldi csomagautomatás szállítás ingyenes.
+                </div>
+              ) : urgentGrantsFreeParcel(urgentCount) ? (
                 <div className="bg-green-50 text-green-700 rounded-xl px-4 py-3 text-sm">
                   A sürgős elkészítéssel a belföldi csomagautomatás szállítás ingyenes.
                 </div>
@@ -233,6 +296,14 @@ export default function KosarPage() {
                   </div>
                 </>
               )}
+            </div>
+          )}
+          {mixedPreorder && !mixedUrgent && (
+            <div className="mb-6 bg-[#faf6f1] text-[#4A4A4A] rounded-xl px-4 py-3 text-sm">{WEIGHTED_MIXED_NOTE}</div>
+          )}
+          {weightedProblems.size > 0 && (
+            <div className="mb-6 bg-red-50 text-red-700 rounded-xl px-4 py-3 text-sm">
+              Egy súlyarányos párna a jelenlegi feltételekkel nem rendelhető — a tételnél látod, mit kell módosítani.
             </div>
           )}
           {mixedUrgent && (
@@ -275,7 +346,7 @@ export default function KosarPage() {
           </div>
 
           <div className="mt-6">
-            {urgentBlocked ? (
+            {urgentBlocked || weightedProblems.size > 0 ? (
               <Button variant="secondary" className="w-full" disabled>
                 Tovább a pénztárhoz
               </Button>

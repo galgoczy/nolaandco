@@ -33,6 +33,14 @@ export interface CartItemData {
    *  A felárat a kosár egésze alapján számoljuk (lásd urgentProduction.ts),
    *  a tétel ára nem változik. */
   urgent?: boolean;
+  /** Méret- és súlyarányos emlékpárna (a könnyű, méretarányos helyett). */
+  weighted?: boolean;
+  /** A súlyarányos változat státusza a kosárba tételkor. */
+  weightedStatus?: 'preorder' | 'available';
+  /** A könnyű változat ára — a súlyarányosról visszaváltáshoz. */
+  lightPrice?: number;
+  /** A súlyarányos változat elkészítési/feladási tájékoztatója a kosárba tételkor. */
+  productionNote?: string;
 }
 
 interface CartStore {
@@ -41,6 +49,10 @@ interface CartStore {
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   setUrgent: (id: string, urgent: boolean) => void;
+  /** Súlyarányos tétel visszaváltása a könnyű, méretarányos változatra. */
+  switchToLight: (id: string) => void;
+  /** Súlyarányos tétel frissítése az aktuális ajánlat szerint (ár, státusz, tájékoztató). */
+  syncWeighted: (id: string, data: { price: number; weightedStatus: 'preorder' | 'available'; productionNote: string }) => void;
   clearCart: () => void;
   total: () => number;
   count: () => number;
@@ -84,6 +96,28 @@ export const useCartStore = create<CartStore>()(
       setUrgent: (id, urgent) => {
         set((state) => ({
           items: state.items.map((i) => (i.id === id ? { ...i, urgent } : i)),
+        }));
+      },
+
+      switchToLight: (id) => {
+        set((state) => ({
+          items: state.items.map((i) =>
+            i.id === id && i.weighted
+              ? {
+                  ...i,
+                  weighted: false,
+                  weightedStatus: undefined,
+                  productionNote: undefined,
+                  price: i.lightPrice ?? i.price,
+                }
+              : i,
+          ),
+        }));
+      },
+
+      syncWeighted: (id, data) => {
+        set((state) => ({
+          items: state.items.map((i) => (i.id === id && i.weighted ? { ...i, ...data } : i)),
         }));
       },
 

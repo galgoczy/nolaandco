@@ -179,6 +179,17 @@ export default async function CustomerOrderDetailPage({
                     <p className="text-xs text-[#4A4A4A]/50 mt-1">{item.customNote}</p>
                   )}
                   <p className="text-xs text-[#4A4A4A]/60 mt-1">{item.quantity} db</p>
+                  {item.product.category === 'pillow' && (item.weighted || item.product.weightedEnabled) && (
+                    <p className="text-xs text-[#4A4A4A]/70 mt-1">
+                      {item.weighted ? 'Méret- és súlyarányos változat' : 'Méretarányos, könnyű változat'}
+                      {item.weighted && item.weightedStatus === 'preorder' && (
+                        <span className="ml-1 font-medium text-[#B5651D]">· Előrendelés</span>
+                      )}
+                      {item.weighted && item.productionNote && (
+                        <span className="block text-[#4A4A4A]/50 whitespace-pre-line">{item.productionNote}</span>
+                      )}
+                    </p>
+                  )}
                   {item.urgent && (
                     <p className="text-xs font-medium text-[#B5651D] mt-1">Sürgősségi elkészítés (2–3 munkanap)</p>
                   )}

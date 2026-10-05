@@ -174,6 +174,25 @@ export default async function OrderDetailPage({
                         Dizájn: {findLayout(item.posterLayout).label}
                       </div>
                     )}
+                    {item.product.category === 'pillow' && (item.weighted || item.product.weightedEnabled) && (
+                      <div className="mt-1 text-xs font-normal">
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded-full font-bold ${
+                            item.weighted ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-700'
+                          }`}
+                        >
+                          {item.weighted ? 'Méret- és súlyarányos' : 'Méretarányos, könnyű'}
+                        </span>
+                        {item.weighted && item.weightedStatus === 'preorder' && (
+                          <span className="ml-1 inline-block px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">
+                            Előrendelés
+                          </span>
+                        )}
+                        {item.weighted && item.productionNote && (
+                          <span className="block text-on-surface/60 mt-1 whitespace-pre-line">{item.productionNote}</span>
+                        )}
+                      </div>
+                    )}
                     {item.urgent && (
                       <div className="mt-1">
                         <span className="inline-block px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs font-bold">

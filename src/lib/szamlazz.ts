@@ -1,5 +1,6 @@
 import { Client, Invoice, Buyer, Item, Seller, Currencies, Languages, PaymentMethods } from 'szamlazz.js';
 import { sellerForOrder } from './sellers';
+import { pillowVariantName } from './weightedPillow';
 
 type OrderWithItems = {
   id: string;
@@ -23,8 +24,11 @@ type OrderWithItems = {
   items: {
     quantity: number;
     price: number;
+    weighted?: boolean;
     product: {
       name: string;
+      category?: string;
+      weightedEnabled?: boolean;
     };
   }[];
 };
@@ -83,7 +87,11 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
   const items = order.items.map(
     (item) =>
       new Item({
-        label: item.product.name,
+        // Párnánál a választott változat is a számlán (könnyű / súlyarányos).
+        label:
+          item.product.category === 'pillow' && (item.weighted || item.product.weightedEnabled)
+            ? pillowVariantName(item.product.name, item.weighted)
+            : item.product.name,
         quantity: item.quantity,
         unit: 'db',
         vat: 'AAM',

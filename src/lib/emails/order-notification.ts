@@ -1,7 +1,8 @@
 import { emailLayout } from './layout';
+import { pillowDetailsHtml, type PillowLine } from './pillowDetails';
 import { URGENT_DURATION, URGENT_LABEL } from '@/lib/urgentProduction';
 
-interface OrderItem {
+interface OrderItem extends PillowLine {
   name: string;
   quantity: number;
   price: number;
@@ -33,6 +34,7 @@ interface OrderNotificationData {
   hasGiftCard: boolean;
   urgentFee?: number;
   mixedUrgent?: boolean;
+  mixedPreorder?: boolean;
 }
 
 function formatPrice(amount: number): string {
@@ -56,6 +58,7 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
           ${item.name}${item.quantity > 1 ? ` <span style="color:#999;">&times;${item.quantity}</span>` : ''}
           ${item.babyName ? `<br/><span style="font-size:12px;color:#999;">${item.babyName}</span>` : ''}
           ${item.posterLayoutLabel ? `<br/><span style="font-size:12px;color:#999;">Dizájn: ${item.posterLayoutLabel}</span>` : ''}
+          ${pillowDetailsHtml(item)}
           ${item.urgent ? `<br/><span style="font-size:12px;color:#B5651D;font-weight:600;">⚡ SÜRGŐS (${URGENT_DURATION})</span>` : ''}
         </td>
         <td align="right" style="padding:8px 0;border-bottom:1px solid #F0EDE8;font-size:14px;color:#4A4A4A;white-space:nowrap;">
@@ -165,6 +168,17 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
       </div>`
       : '';
 
+  const preorderNote = (data.items ?? []).some((i) => i.weighted && i.weightedStatus === 'preorder')
+    ? `<div style="margin:0 0 16px;padding:14px 16px;background-color:#F5F0E8;border-radius:10px;border:1px solid #E8E0D0;">
+        <p style="margin:0 0 6px;font-size:15px;color:#4A4A4A;font-weight:700;">ELŐRENDELÉS — méret- és súlyarányos párna</p>
+        <p style="margin:0;font-size:13px;line-height:1.6;color:#4A4A4A;">
+          A vásárlónak vállalt tájékoztató a tételnél szerepel.${
+            data.mixedPreorder ? ' A rendelésben más szállítandó termék is van — egy csomagban megy, amikor a párna is elkészült.' : ''
+          }
+        </p>
+      </div>`
+    : '';
+
   const body = `
     <h1 style="margin:0 0 16px;font-size:22px;color:#4A4A4A;font-weight:500;">
       Hurrá, új rendelés! 🎉
@@ -173,6 +187,7 @@ export function orderNotificationHtml(data: OrderNotificationData): string {
       Új rendelés érkezett (<strong>${orderRef}</strong>). Az alábbiakban találod a részleteket.
     </p>
     ${urgentNote}
+    ${preorderNote}
     ${giftCardNote}
     ${infoTable}
     ${itemsHtml}

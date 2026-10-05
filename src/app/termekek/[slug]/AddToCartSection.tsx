@@ -1,10 +1,22 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import BirthDataForm from '@/components/products/BirthDataForm';
 import TrustBar from '@/components/products/TrustBar';
 import UrgentProductionChoice from '@/components/products/UrgentProductionChoice';
+import PillowVariantChoice from '@/components/products/PillowVariantChoice';
+import { usePillowVariantStore } from '@/store/pillowVariant';
+import {
+  LIGHT_WEIGHT_HINT,
+  WEIGHTED_URL_PARAM,
+  WEIGHTED_URL_VALUE,
+  checkWeightedWeight,
+  heightLine,
+  weightLine,
+  weightedWeightHint,
+  type WeightedOffer,
+} from '@/lib/weightedPillow';
 import { useUrgentProductionEnabled } from '@/lib/useUrgentProduction';
 import { countUrgent, isUrgentEligible, nextUrgentFee } from '@/lib/urgentProduction';
 import Button from '@/components/ui/Button';
@@ -56,6 +68,10 @@ interface Props {
    *  (single, clearly labelled "Kosárba teszem – [ár]" action). Used on the
    *  standard pillow page; the poster designer keeps its own two-step flow. */
   oneClickAdd?: boolean;
+  /** A súlyarányos változat aktuális ajánlata ehhez a párnához (null: nem választható). */
+  weightedOffer?: WeightedOffer | null;
+  /** Az oldal a súlyarányos változattal nyílik meg (?valtozat=sulyaranyos). */
+  initialWeighted?: boolean;
 }
 
 export default function AddToCartSection({
@@ -69,6 +85,8 @@ export default function AddToCartSection({
   posterLayout,
   posterLayoutLabel,
   oneClickAdd,
+  weightedOffer,
+  initialWeighted = false,
 }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const storedBirthData = useBirthDataStore((s) => s.data);
@@ -93,7 +111,47 @@ export default function AddToCartSection({
   useEffect(() => {
     if (urgentEnabled === false) setUrgent(false);
   }, [urgentEnabled]);
-  const pillowPrice = product.price + (isPillow && urgent ? urgentFeeNow : 0);
+
+  // Méret- és súlyarányos változat (ha ehhez a párnához választható). Nincs
+  // előre kiválasztva; váltáskor a beírt adatok megmaradnak.
+  const offer = isPillow && weightedOffer ? weightedOffer : null;
+  const [weightedSel, setWeightedSel] = useState(initialWeighted);
+  const weighted = !!offer && weightedSel;
+
+  // A leírások (rövid és „Miért fogod szeretni?”) a választott változat szerint
+  // váltanak; az URL is követi a választást, így újratöltéskor megmarad.
+  const setVariantStore = usePillowVariantStore((s) => s.setWeighted);
+  useEffect(() => {
+    if (!offer) return;
+    setVariantStore(weighted);
+    const url = new URL(window.location.href);
+    if (weighted) url.searchParams.set(WEIGHTED_URL_PARAM, WEIGHTED_URL_VALUE);
+    else url.searchParams.delete(WEIGHTED_URL_PARAM);
+    window.history.replaceState(window.history.state, '', url.toString());
+  }, [offer, weighted, setVariantStore]);
+  useEffect(() => () => setVariantStore(null), [setVariantStore]);
+  useEffect(() => {
+    if (weighted) setUrgent(false);
+  }, [weighted]);
+  const maxGrams = offer?.maxGrams;
+  const checkWeight = useCallback(
+    (w: string) => (weighted && maxGrams ? checkWeightedWeight(w, maxGrams) : null),
+    [weighted, maxGrams],
+  );
+  const switchToLightButton = (
+    <button
+      type="button"
+      onClick={() => setWeightedSel(false)}
+      className="text-sm font-medium text-primary underline underline-offset-2"
+    >
+      Váltás a könnyű, méretarányos változatra
+    </button>
+  );
+
+  const pillowPrice = weighted && offer
+    ? offer.price
+    : product.price + (isPillow && urgent ? urgentFeeNow : 0);
+  const addVerb = weighted && offer?.status === 'preorder' ? 'Előrendelem' : 'Kosárba teszem';
 
   // Hydrate from the persisted birth-data store so the form is pre-filled
   // when the user navigates between products. Fires once after the client
@@ -164,6 +222,8 @@ export default function AddToCartSection({
 
     const effective = bd ?? birthData;
     if (!effective) return;
+    // Súlyarányosnál a maximum feletti súly nem tehető kosárba.
+    if (weighted && checkWeight(effective.birthWeight)) return;
 
     const finalPrice = isPoster ? posterVariants[selectedVariant].price : product.price;
     const variantLabel = isPoster ? posterVariants[selectedVariant].label : undefined;
@@ -190,7 +250,16 @@ export default function AddToCartSection({
       noShipping: product.noShipping,
       ...(variantLabel ? { variant: variantLabel } : {}),
       ...(posterLayout ? { posterLayout, posterLayoutLabel } : {}),
-      ...(isPillow ? { urgent: urgent && urgentEnabled === true } : {}),
+      ...(isPillow ? { urgent: !weighted && urgent && urgentEnabled === true } : {}),
+      ...(weighted && offer
+        ? {
+            price: offer.price,
+            weighted: true,
+            weightedStatus: offer.status,
+            lightPrice: product.price,
+            productionNote: offer.info,
+          }
+        : {}),
     });
 
     setAdded(true);
@@ -295,7 +364,15 @@ export default function AddToCartSection({
           ))}
         </div>
       )}
-      {isPillow && !added && (
+      {offer && !added && (
+        <PillowVariantChoice
+          weighted={weighted}
+          onChange={setWeightedSel}
+          offer={offer}
+          lightPrice={product.price}
+        />
+      )}
+      {isPillow && !added && !weighted && (
         <UrgentProductionChoice
           value={urgent}
           onChange={setUrgent}
@@ -309,7 +386,10 @@ export default function AddToCartSection({
           <BirthDataForm
             initialValue={isEditing ? birthData : null}
             onSubmit={handleBirthDataSubmit}
-            submitLabel={oneClickAdd ? `Kosárba teszem – ${formatPrice(isPillow ? pillowPrice : product.price)}` : undefined}
+            submitLabel={oneClickAdd ? `${isPillow ? addVerb : 'Kosárba teszem'} – ${formatPrice(isPillow ? pillowPrice : product.price)}` : undefined}
+            weightHint={offer ? (weighted ? weightedWeightHint(offer.maxGrams) : LIGHT_WEIGHT_HINT) : undefined}
+            checkWeight={offer ? checkWeight : undefined}
+            weightErrorAction={switchToLightButton}
           />
           <TrustBar category={product.category} items={product.features} className="mt-4 justify-center" />
         </>
@@ -326,14 +406,8 @@ export default function AddToCartSection({
                 <span className="font-medium text-carbon">Születési dátum:</span>{' '}
                 {birthData.birthDate}
               </p>
-              <p>
-                <span className="font-medium text-carbon">Súly:</span>{' '}
-                {birthData.birthWeight}
-              </p>
-              <p>
-                <span className="font-medium text-carbon">Hossz:</span>{' '}
-                {birthData.birthHeight}
-              </p>
+              <p>{weightLine(birthData.birthWeight, weighted)}</p>
+              <p>{heightLine(birthData.birthHeight)}</p>
               {birthData.birthTime && (
                 <p>
                   <span className="font-medium text-carbon">Időpont:</span>{' '}
@@ -349,8 +423,19 @@ export default function AddToCartSection({
             </button>
           </div>
 
-          <Button variant="secondary" onClick={() => handleAddToCart()} className="w-full">
-            Kosárba teszem – {formatPrice(isPoster ? posterVariants[selectedVariant].price : isPillow ? pillowPrice : product.price)}
+          {weighted && checkWeight(birthData.birthWeight) && (
+            <div className="space-y-2">
+              <p role="alert" className="text-sm text-red-600">{checkWeight(birthData.birthWeight)}</p>
+              {switchToLightButton}
+            </div>
+          )}
+          <Button
+            variant="secondary"
+            onClick={() => handleAddToCart()}
+            className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={weighted && !!checkWeight(birthData.birthWeight)}
+          >
+            {isPillow ? addVerb : 'Kosárba teszem'} – {formatPrice(isPoster ? posterVariants[selectedVariant].price : isPillow ? pillowPrice : product.price)}
           </Button>
           <TrustBar category={product.category} items={product.features} className="justify-center" />
         </div>

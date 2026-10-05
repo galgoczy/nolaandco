@@ -18,6 +18,14 @@ import {
   hasSlowerItems,
   isUrgentEligible,
 } from '@/lib/urgentProduction';
+import {
+  LIGHT_LABEL,
+  PREORDER_LABEL,
+  WEIGHTED_LABEL,
+  WEIGHTED_MIXED_NOTE,
+  heightLine,
+  weightLine,
+} from '@/lib/weightedPillow';
 
 interface Props {
   searchParams: Promise<{ order_id?: string; session_id?: string }>;
@@ -135,6 +143,17 @@ export default async function ThankYouPage({ searchParams }: Props) {
                       </p>
                     )}
                     <p className="text-xs text-[#4A4A4A]/60">{item.quantity} db</p>
+                    {item.product.category === 'pillow' && (item.weighted || item.product.weightedEnabled) && (
+                      <div className="text-xs text-[#4A4A4A]/60">
+                        <p className="font-medium text-[#4A4A4A]">{item.weighted ? WEIGHTED_LABEL : LIGHT_LABEL}</p>
+                        {item.birthHeight && <p>{heightLine(item.birthHeight)}</p>}
+                        {item.birthWeight && <p>{weightLine(item.birthWeight, item.weighted)}</p>}
+                        {item.weighted && item.weightedStatus === 'preorder' && (
+                          <p className="font-medium text-[#B5651D]">{PREORDER_LABEL}</p>
+                        )}
+                        {item.weighted && item.productionNote && <p className="whitespace-pre-line">{item.productionNote}</p>}
+                      </div>
+                    )}
                     {item.urgent && (
                       <p className="text-xs font-medium text-[#B5651D]">
                         {URGENT_LABEL} ({URGENT_DURATION})
@@ -195,7 +214,7 @@ export default async function ThankYouPage({ searchParams }: Props) {
           </div>
         </div>
 
-        {order.items.some((i) => isUrgentEligible(i.product.category)) && (
+        {order.items.some((i) => isUrgentEligible(i.product.category) && !i.weighted) && (
           <div className="bg-[#F5F0E8] border border-[#E8E0D0] rounded-2xl p-6 shadow-sm mt-4">
             <h2 className="font-bold text-[#4A4A4A] mb-3">
               {order.urgentFee > 0 ? URGENT_LABEL : 'Elkészítési idő'}
@@ -219,6 +238,33 @@ export default async function ThankYouPage({ searchParams }: Props) {
                   }),
                 })),
               ) && <p className="text-sm text-[#4A4A4A]/80 leading-relaxed mt-2">{URGENT_MIXED_NOTE}</p>}
+          </div>
+        )}
+
+        {order.items.some((i) => i.weighted) && (
+          <div className="bg-[#F5F0E8] border border-[#E8E0D0] rounded-2xl p-6 shadow-sm mt-4">
+            <h2 className="font-bold text-[#4A4A4A] mb-3">
+              {order.items.some((i) => i.weighted && i.weightedStatus === 'preorder')
+                ? 'Előrendelés – méret- és súlyarányos párna'
+                : 'Méret- és súlyarányos párna'}
+            </h2>
+            {Array.from(new Set<string>(order.items.filter((i) => i.weighted && i.productionNote).map((i) => String(i.productionNote)))).map(
+              (note) => (
+                <p key={note} className="text-sm text-[#4A4A4A]/80 leading-relaxed whitespace-pre-line mb-2">
+                  {note}
+                </p>
+              ),
+            )}
+            {/* Ha a könnyű párna blokkja fölötte már kiírta, itt nem ismételjük. */}
+            {!order.items.some((i) => isUrgentEligible(i.product.category) && !i.weighted) && (
+              <p className="text-sm text-[#4A4A4A]/80 leading-relaxed">{PRODUCTION_START_NOTE}</p>
+            )}
+            {order.items.some((i) => i.weighted && i.weightedStatus === 'preorder') &&
+              order.items.some(
+                (i) =>
+                  !(i.weighted && i.weightedStatus === 'preorder') &&
+                  cartItemRequiresShipping({ slug: i.product.slug, category: i.product.category, noShipping: i.product.noShipping }),
+              ) && <p className="text-sm text-[#4A4A4A]/80 leading-relaxed mt-2">{WEIGHTED_MIXED_NOTE}</p>}
           </div>
         )}
 

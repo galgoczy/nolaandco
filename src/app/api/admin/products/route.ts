@@ -67,6 +67,8 @@ export async function POST(req: Request) {
         hiddenFromListing: bool(data.hiddenFromListing),
         withdrawalEligible: bool(data.withdrawalEligible),
         noShipping: bool(data.noShipping),
+        weightedEnabled: bool(data.weightedEnabled),
+        weightedMaxGrams: intOrNull(data.weightedMaxGrams),
         onSale: bool(data.onSale),
         salePrice: data.salePrice ? num(data.salePrice) : null,
         stock: intOrNull(data.stock),

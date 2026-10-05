@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, FormEvent } from 'react';
+import { useState, useRef, useEffect, FormEvent } from 'react';
 import Input from '@/components/ui/Input';
 import { birthDataSchema, BirthData } from '@/lib/validators';
 
@@ -8,6 +8,12 @@ interface BirthDataFormProps {
   onSubmit: (data: BirthData) => void;
   /** A beküldő gomb felirata (pl. "Kosárba teszem – 22 900 Ft"). */
   submitLabel?: string;
+  /** Magyarázat a súlymező alatt (a választott párnaváltozattól függ). */
+  weightHint?: string;
+  /** Változatfüggő súlyellenőrzés (pl. súlyarányos maximum); hibaüzenet vagy null. */
+  checkWeight?: (weight: string) => string | null;
+  /** A súlyhiba mellett megjelenő művelet (pl. váltás a könnyű változatra). */
+  weightErrorAction?: React.ReactNode;
 }
 
 function formatDateEU(iso: string): string {
@@ -53,7 +59,14 @@ function clampTime(value: string): string {
   return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
 }
 
-export default function BirthDataForm({ initialValue, onSubmit, submitLabel = 'Mentés' }: BirthDataFormProps) {
+export default function BirthDataForm({
+  initialValue,
+  onSubmit,
+  submitLabel = 'Mentés',
+  weightHint,
+  checkWeight,
+  weightErrorAction,
+}: BirthDataFormProps) {
   const dateInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     babyName: initialValue?.babyName ?? '',
@@ -68,6 +81,17 @@ export default function BirthDataForm({ initialValue, onSubmit, submitLabel = 'M
   );
 
   const [errors, setErrors] = useState<Partial<Record<keyof BirthData, string>>>({});
+
+  // Változatfüggő súlyhiba élőben is (pl. a súlyarányos maximum felett), hogy a
+  // vásárló már beírás közben lássa; a beírt adat megmarad.
+  const liveWeightError = formData.birthWeight ? (checkWeight?.(formData.birthWeight) ?? null) : null;
+  const weightError = errors.birthWeight ?? liveWeightError;
+
+  // Változatváltáskor a korábbi (más változatra vonatkozó) súlyhiba eltűnik,
+  // a beírt érték viszont megmarad.
+  useEffect(() => {
+    setErrors((prev) => (prev.birthWeight ? { ...prev, birthWeight: undefined } : prev));
+  }, [checkWeight]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -121,6 +145,12 @@ export default function BirthDataForm({ initialValue, onSubmit, submitLabel = 'M
         }
       });
       setErrors(fieldErrors);
+      return;
+    }
+
+    const weightProblem = checkWeight?.(result.data.birthWeight) ?? null;
+    if (weightProblem) {
+      setErrors({ birthWeight: weightProblem });
       return;
     }
 
@@ -199,7 +229,7 @@ export default function BirthDataForm({ initialValue, onSubmit, submitLabel = 'M
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
           <label htmlFor="birthWeight" className="text-carbon-light text-sm font-body">
-            Születési súly (gramm)
+            Születési súly (g)
           </label>
           <input
             id="birthWeight"
@@ -213,11 +243,8 @@ export default function BirthDataForm({ initialValue, onSubmit, submitLabel = 'M
               if (errors.birthWeight) setErrors((prev) => ({ ...prev, birthWeight: undefined }));
             }}
             placeholder="3450"
-            className={`bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 ${errors.birthWeight ? 'ring-2 ring-red-400' : ''}`}
+            className={`bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 ${weightError ? 'ring-2 ring-red-400' : ''}`}
           />
-          {errors.birthWeight && (
-            <span className="text-red-500 text-xs mt-0.5">{errors.birthWeight}</span>
-          )}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -243,6 +270,17 @@ export default function BirthDataForm({ initialValue, onSubmit, submitLabel = 'M
           )}
         </div>
       </div>
+
+      {(weightError || weightHint) && (
+        <div className="-mt-2 space-y-2">
+          {weightError ? (
+            <p role="alert" className="text-red-600 text-sm">{weightError}</p>
+          ) : (
+            <p className="text-xs text-carbon-light">{weightHint}</p>
+          )}
+          {liveWeightError && weightErrorAction}
+        </div>
+      )}
 
       <div className="flex flex-col gap-1">
         <label htmlFor="birthTime" className="text-carbon-light text-sm font-body">

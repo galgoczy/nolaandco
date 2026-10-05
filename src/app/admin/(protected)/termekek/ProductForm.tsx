@@ -26,6 +26,8 @@ export type ProductFormValues = {
   hiddenFromListing: boolean;
   withdrawalEligible: boolean;
   noShipping: boolean;
+  weightedEnabled: boolean;
+  weightedMaxGrams: number | '';
   onSale: boolean;
   salePrice: number | '';
   stock: number | '';
@@ -54,6 +56,8 @@ export const emptyProduct: ProductFormValues = {
   hiddenFromListing: false,
   withdrawalEligible: false,
   noShipping: false,
+  weightedEnabled: false,
+  weightedMaxGrams: '',
   onSale: false,
   salePrice: '',
   stock: '',
@@ -124,6 +128,7 @@ export default function ProductForm({
       price: Number(values.price) || 0,
       salePrice: values.salePrice === '' ? null : Number(values.salePrice),
       stock: values.stock === '' ? null : Number(values.stock),
+      weightedMaxGrams: values.weightedMaxGrams === '' ? null : Number(values.weightedMaxGrams),
       features: values.features.map((f) => f.trim()).filter(Boolean),
       bundleItems: values.bundleItems
         .split(',')
@@ -737,6 +742,37 @@ export default function ProductForm({
             </span>
           </span>
         </label>
+        {values.category === 'pillow' && (
+          <div className="rounded-xl bg-surface-container-low p-3 space-y-2">
+            <label className="flex items-start gap-2 text-sm font-body cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={values.weightedEnabled}
+                onChange={(e) => update('weightedEnabled', e.target.checked)}
+              />
+              <span>
+                Méret- és súlyarányos változat választható
+                <span className="block text-xs text-on-surface/60 mt-0.5">
+                  Az ár, a rendelhetőség és az előrendelési tájékoztató központi:
+                  Beállítások → Méret- és súlyarányos párna.
+                </span>
+              </span>
+            </label>
+            <label className="block text-sm font-body">
+              Súlymaximum ennél a párnánál (g) — üresen a központi érték érvényes
+              <input
+                inputMode="numeric"
+                value={values.weightedMaxGrams}
+                onChange={(e) => {
+                  const d = e.target.value.replace(/\D/g, '');
+                  update('weightedMaxGrams', d === '' ? '' : Number(d));
+                }}
+                className="mt-1 w-40 bg-surface-container rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </label>
+          </div>
+        )}
       </section>
 
       {error && (
