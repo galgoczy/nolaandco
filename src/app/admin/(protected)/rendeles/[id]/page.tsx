@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/utils';
 import { findLayout } from '@/app/termekek/[slug]/posterData';
 import OrderActions from './OrderActions';
+import InvoiceAction from './InvoiceAction';
 import { sellerForOrder } from '@/lib/sellers';
 
 const statusLabels: Record<string, string> = {
@@ -263,6 +264,11 @@ export default async function OrderDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Utólagos számla, ha a fizetett rendelésnek még nincs (vagy elakadt a kiállítás) */}
+      {order.status !== 'pending' && order.status !== 'cancelled' && !order.invoiceNumber && (
+        <InvoiceAction orderId={order.id} email={order.email} />
+      )}
 
       {/* Actions */}
       <OrderActions
