@@ -183,17 +183,20 @@ const WEIGHTED_LONG_TEXT =
 export function weightedDescriptionText(text: string | null | undefined, kind: 'short' | 'long'): string {
   if (!text) return '';
   const lines = text.split('\n');
-  const idx = lines.findIndex((l) => /^\s*•/.test(l) && /1:1|nem súlyarányos/.test(l));
+  // A pont lehet „• …”, „• **cím:** …” vagy „**•⇥cím:** …” (a félkövér a pont előtt kezdődik).
+  const idx = lines.findIndex((l) => /^\s*(\*\*)?•/.test(l) && /1:1|nem súlyarányos/.test(l));
   if (idx === -1) return text;
-  const line = lines[idx];
-  const lead = line.match(/^\s*•\s*/)?.[0] ?? '• ';
-  const bold = /^\s*•\s*\*\*/.test(line);
-  if (kind === 'short') {
-    const label = bold ? `**${WEIGHTED_SHORT_LABEL}**` : WEIGHTED_SHORT_LABEL;
-    lines[idx] = `${lead}${label} – ${WEIGHTED_SHORT_TEXT}`;
-  } else {
-    const label = bold ? `**${WEIGHTED_LONG_LABEL}**` : WEIGHTED_LONG_LABEL;
-    lines[idx] = `${lead}${label} ${WEIGHTED_LONG_TEXT}`;
-  }
+  const m = lines[idx].match(/^(\s*)(\*\*)?•(\s*)(\*\*)?/)!;
+  const indent = m[1];
+  const ws = m[3] || ' ';
+  const boldOuter = !!m[2];
+  const boldInner = !!m[4];
+  const [label, body] =
+    kind === 'short' ? [WEIGHTED_SHORT_LABEL, `– ${WEIGHTED_SHORT_TEXT}`] : [WEIGHTED_LONG_LABEL, WEIGHTED_LONG_TEXT];
+  lines[idx] = boldOuter
+    ? `${indent}**•${ws}${label}** ${body}`
+    : boldInner
+      ? `${indent}•${ws}**${label}** ${body}`
+      : `${indent}•${ws}${label} ${body}`;
   return lines.join('\n');
 }
