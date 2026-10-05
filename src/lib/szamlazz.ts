@@ -56,7 +56,8 @@ function getClient(agentKeyEnv: string) {
 
 export async function createSzamlazzInvoice(order: OrderWithItems) {
   // A számlát mindig az állítja ki, aki a rendeléskor az eladó volt.
-  const client = getClient(sellerForOrder(order.sellerId).agentKeyEnv);
+  const shopSeller = sellerForOrder(order.sellerId);
+  const client = getClient(shopSeller.agentKeyEnv);
 
   const seller = new Seller({
     bank: {
@@ -167,7 +168,8 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
     buyer,
     items,
     paid: true,
-    orderNumber,
+    // A külön rendelésszám-mező díjcsomagfüggő; a megjegyzésben mindig ott van.
+    ...(shopSeller.invoiceOrderNumberField ? { orderNumber } : {}),
     issueDate: now,
     fulfillmentDate: now,
     dueDate: now,
