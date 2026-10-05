@@ -20,6 +20,8 @@ type OrderWithItems = {
   couponCode?: string | null;
   /** Az eladó a rendeléskor — ennek a Számlázz.hu fiókjából megy a számla. */
   sellerId?: string | null;
+  /** "card" | "transfer" — a számla fizetési módja ehhez igazodik. */
+  paymentMethod?: string;
   total: number;
   items: {
     quantity: number;
@@ -161,7 +163,7 @@ export async function createSzamlazzInvoice(order: OrderWithItems) {
   const orderNumber = order.id.slice(-8).toUpperCase();
 
   const invoice = new Invoice({
-    paymentMethod: PaymentMethods.CreditCard,
+    paymentMethod: order.paymentMethod === 'transfer' ? PaymentMethods.BankTransfer : PaymentMethods.CreditCard,
     currency: Currencies.Ft,
     language: Languages.Hungarian,
     seller,
