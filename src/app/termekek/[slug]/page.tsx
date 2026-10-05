@@ -17,7 +17,8 @@ import ProductSpecs from '@/components/products/ProductSpecs';
 import BundleCompositeImage from '@/components/products/BundleCompositeImage';
 import { DEFAULT_LAYOUT_ID, POSTER_LAYOUTS } from './posterData';
 import { resolveCapeConfig } from '@/lib/capeOptions';
-import { offerFor } from '@/lib/weightedPillow';
+import { WEIGHTED_URL_PARAM, WEIGHTED_URL_VALUE, offerFor, weightedDescriptionText } from '@/lib/weightedPillow';
+import VariantText from '@/components/products/VariantText';
 import { getWeightedConfig } from '@/lib/weightedPillow.server';
 
 const POSTER_DESIGNER_SLUG = 'poszter';
@@ -101,6 +102,8 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   // Méret- és súlyarányos változat ajánlata (ár, maximum, státusz) — az oldal
   // dinamikus, így az admin módosítása azonnal látszik.
   const weightedOffer = isPillow ? offerFor(await getWeightedConfig(), product) : null;
+  // ?valtozat=sulyaranyos — az oldal a súlyarányos változattal nyílik meg.
+  const initialWeighted = !!weightedOffer && search[WEIGHTED_URL_PARAM] === WEIGHTED_URL_VALUE;
   const isBigKidProduct =
     product.category === 'cape' || product.category === 'crown' || product.category === 'bundle';
   // DB-variánsos, nem személyre szabott termékek (swatch-választós oldal).
@@ -244,10 +247,19 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
       <h2 className="text-2xl md:text-3xl text-[#4A4A4A] mb-6 tracking-[0.1em]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
         Bővebb leírás
       </h2>
-      <div
-        className="prose prose-neutral max-w-none text-[#4A4A4A] leading-relaxed"
-        dangerouslySetInnerHTML={{ __html: renderRichText(product.longDescription) }}
-      />
+      {weightedOffer ? (
+        <VariantText
+          className="prose prose-neutral max-w-none text-[#4A4A4A] leading-relaxed"
+          lightHtml={renderRichText(product.longDescription)}
+          weightedHtml={renderRichText(weightedDescriptionText(product.longDescription, 'long'))}
+          initialWeighted={initialWeighted}
+        />
+      ) : (
+        <div
+          className="prose prose-neutral max-w-none text-[#4A4A4A] leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: renderRichText(product.longDescription) }}
+        />
+      )}
     </>
   ) : null;
 
@@ -339,10 +351,19 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
             )}
 
             <div className="space-y-2">
-              <div
-                className="text-[#4A4A4A] leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: renderRichText(product.description) }}
-              />
+              {weightedOffer ? (
+                <VariantText
+                  className="text-[#4A4A4A] leading-relaxed"
+                  lightHtml={renderRichText(product.description)}
+                  weightedHtml={renderRichText(weightedDescriptionText(product.description, 'short'))}
+                  initialWeighted={initialWeighted}
+                />
+              ) : (
+                <div
+                  className="text-[#4A4A4A] leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: renderRichText(product.description) }}
+                />
+              )}
               {product.longDescription && (
                 <>
                   <a
@@ -394,6 +415,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
                   }}
                   oneClickAdd
                   weightedOffer={weightedOffer}
+                  initialWeighted={initialWeighted}
                 />
               )}
             </div>

@@ -163,3 +163,37 @@ export function hasMixedPreorder(items: { weighted?: boolean; weightedStatus?: s
   const isPre = (i: { weighted?: boolean; weightedStatus?: string | null }) => !!i.weighted && i.weightedStatus === 'preorder';
   return items.some(isPre) && items.some((i) => i.ships && !isPre(i));
 }
+
+/** URL-paraméter, amellyel az oldal a súlyarányos változattal nyílik meg. */
+export const WEIGHTED_URL_PARAM = 'valtozat';
+export const WEIGHTED_URL_VALUE = 'sulyaranyos';
+
+const WEIGHTED_SHORT_LABEL = '1:1 méret- és súlyarány';
+const WEIGHTED_SHORT_TEXT =
+  'a baba születési hosszához és súlyához igazítva készül, hogy kézbe véve ne csak a méretét, hanem a születési súlyát is megidézze';
+const WEIGHTED_LONG_LABEL = '1:1 méret- és súlyarány:';
+const WEIGHTED_LONG_TEXT =
+  'A baba születési hosszát és súlyát őrzi, puha, ölelhető formában. Külön súlyozott belső magja mellett is megtartja az eredeti babaformát, hogy újra felidézhesd, milyen érzés volt a karodban tartani';
+
+/**
+ * A termékleírás súlyarányos változata: csak a méretarányról szóló pont
+ * cserélődik (az első „•” sor, amely „1:1”-et vagy „nem súlyarányos”-t
+ * tartalmaz); a többi szöveg és a formázás (félkövér cím) változatlan.
+ */
+export function weightedDescriptionText(text: string | null | undefined, kind: 'short' | 'long'): string {
+  if (!text) return '';
+  const lines = text.split('\n');
+  const idx = lines.findIndex((l) => /^\s*•/.test(l) && /1:1|nem súlyarányos/.test(l));
+  if (idx === -1) return text;
+  const line = lines[idx];
+  const lead = line.match(/^\s*•\s*/)?.[0] ?? '• ';
+  const bold = /^\s*•\s*\*\*/.test(line);
+  if (kind === 'short') {
+    const label = bold ? `**${WEIGHTED_SHORT_LABEL}**` : WEIGHTED_SHORT_LABEL;
+    lines[idx] = `${lead}${label} – ${WEIGHTED_SHORT_TEXT}`;
+  } else {
+    const label = bold ? `**${WEIGHTED_LONG_LABEL}**` : WEIGHTED_LONG_LABEL;
+    lines[idx] = `${lead}${label} ${WEIGHTED_LONG_TEXT}`;
+  }
+  return lines.join('\n');
+}

@@ -6,8 +6,11 @@ import BirthDataForm from '@/components/products/BirthDataForm';
 import TrustBar from '@/components/products/TrustBar';
 import UrgentProductionChoice from '@/components/products/UrgentProductionChoice';
 import PillowVariantChoice from '@/components/products/PillowVariantChoice';
+import { usePillowVariantStore } from '@/store/pillowVariant';
 import {
   LIGHT_WEIGHT_HINT,
+  WEIGHTED_URL_PARAM,
+  WEIGHTED_URL_VALUE,
   checkWeightedWeight,
   heightLine,
   weightLine,
@@ -67,6 +70,8 @@ interface Props {
   oneClickAdd?: boolean;
   /** A súlyarányos változat aktuális ajánlata ehhez a párnához (null: nem választható). */
   weightedOffer?: WeightedOffer | null;
+  /** Az oldal a súlyarányos változattal nyílik meg (?valtozat=sulyaranyos). */
+  initialWeighted?: boolean;
 }
 
 export default function AddToCartSection({
@@ -81,6 +86,7 @@ export default function AddToCartSection({
   posterLayoutLabel,
   oneClickAdd,
   weightedOffer,
+  initialWeighted = false,
 }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const storedBirthData = useBirthDataStore((s) => s.data);
@@ -109,8 +115,21 @@ export default function AddToCartSection({
   // Méret- és súlyarányos változat (ha ehhez a párnához választható). Nincs
   // előre kiválasztva; váltáskor a beírt adatok megmaradnak.
   const offer = isPillow && weightedOffer ? weightedOffer : null;
-  const [weightedSel, setWeightedSel] = useState(false);
+  const [weightedSel, setWeightedSel] = useState(initialWeighted);
   const weighted = !!offer && weightedSel;
+
+  // A leírások (rövid és „Miért fogod szeretni?”) a választott változat szerint
+  // váltanak; az URL is követi a választást, így újratöltéskor megmarad.
+  const setVariantStore = usePillowVariantStore((s) => s.setWeighted);
+  useEffect(() => {
+    if (!offer) return;
+    setVariantStore(weighted);
+    const url = new URL(window.location.href);
+    if (weighted) url.searchParams.set(WEIGHTED_URL_PARAM, WEIGHTED_URL_VALUE);
+    else url.searchParams.delete(WEIGHTED_URL_PARAM);
+    window.history.replaceState(window.history.state, '', url.toString());
+  }, [offer, weighted, setVariantStore]);
+  useEffect(() => () => setVariantStore(null), [setVariantStore]);
   useEffect(() => {
     if (weighted) setUrgent(false);
   }, [weighted]);
