@@ -44,9 +44,21 @@ export default function PillowVariantChoice({
         <p className="text-sm text-carbon-light mt-1">{LIGHT_DESCRIPTION}</p>
       </button>
 
-      <button type="button" role="radio" aria-checked={weighted} onClick={() => onChange(true)} className={option(weighted)}>
+      <button
+        type="button"
+        role="radio"
+        aria-checked={weighted}
+        onClick={() => onChange(true)}
+        className={`${option(weighted)} ${weighted ? '' : 'ring-1 ring-[#7A4A5A]/25'}`}
+      >
+        <span
+          className="inline-block mb-2 px-2.5 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white shadow-sm"
+          style={{ backgroundColor: '#7A4A5A' }}
+        >
+          Újdonság
+        </span>
         <div className="flex items-start justify-between gap-4">
-          <span className="font-medium text-carbon">
+          <span className="font-bold text-carbon">
             {WEIGHTED_LABEL}
             {preorder && (
               <span className="ml-2 inline-block align-middle px-2 py-0.5 rounded-full bg-[#C4A591] text-white text-[11px] font-semibold uppercase tracking-wide">
