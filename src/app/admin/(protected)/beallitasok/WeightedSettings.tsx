@@ -18,7 +18,7 @@ export default function WeightedSettings({
 }: {
   initial: WeightedConfig;
   /** Párnánkénti állapot: engedélyezve-e, és milyen maximummal. */
-  pillows: { name: string; enabled: boolean; maxOverride: number | null; slug: string; id: string }[];
+  pillows: { name: string; enabled: boolean; maxOverride: number | null; slug: string; id: string; series: string }[];
   /** Miért nem rendelhető most (üres = rendben). */
   problems: string[];
 }) {
@@ -29,6 +29,27 @@ export default function WeightedSettings({
   const [info, setInfo] = useState(initial.info);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+
+  // Párnafajták (sorozatok) — egy kattintással az összes párnájukon.
+  const seriesList = Array.from(new Set(pillows.map((p) => p.series))).sort();
+  const [seriesSaving, setSeriesSaving] = useState<string | null>(null);
+  async function toggleSeries(series: string, enabled: boolean) {
+    setSeriesSaving(series);
+    setMessage('');
+    try {
+      const res = await fetch('/api/admin/settings/weighted/series', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ series, enabled }),
+      });
+      if (!res.ok) throw new Error();
+      router.refresh();
+    } catch {
+      setMessage('A fajta mentése nem sikerült, próbáld újra.');
+    } finally {
+      setSeriesSaving(null);
+    }
+  }
 
   async function save() {
     setSaving(true);
@@ -106,6 +127,43 @@ export default function WeightedSettings({
       ) : (
         <p className="mt-4 text-sm text-green-700">A vásárlók rendelhetik az engedélyezett párnáknál.</p>
       )}
+
+      <h3 className="mt-6 text-sm font-bold text-on-surface">Fajtánként</h3>
+      <p className="text-xs text-on-surface/60 mt-1">
+        A kapcsoló a fajta összes párnáján be- vagy kikapcsolja a súlyarányos változatot. Egyenként a
+        termék szerkesztőoldalán módosítható.
+      </p>
+      <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {seriesList.map((series) => {
+          const group = pillows.filter((p) => p.series === series);
+          const on = group.filter((p) => p.enabled).length;
+          const all = on === group.length;
+          return (
+            <label
+              key={series}
+              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm cursor-pointer ${
+                on > 0 ? 'bg-green-50 text-green-800' : 'bg-surface-container text-on-surface/70'
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={all}
+                ref={(el) => {
+                  if (el) el.indeterminate = on > 0 && !all;
+                }}
+                disabled={seriesSaving !== null}
+                onChange={() => toggleSeries(series, !all)}
+              />
+              <span>
+                <span className="font-bold uppercase tracking-wide">{series || '—'}</span>
+                <span className="block text-xs">
+                  {on}/{group.length} párna
+                </span>
+              </span>
+            </label>
+          );
+        })}
+      </div>
 
       <h3 className="mt-6 text-sm font-bold text-on-surface">Párnák</h3>
       <ul className="mt-2 text-sm text-on-surface/80 space-y-1">

@@ -18,7 +18,7 @@ export default async function AdminSettingsPage() {
     prisma.product.findMany({
       where: { category: 'pillow' },
       orderBy: { name: 'asc' },
-      select: { id: true, name: true, slug: true, active: true, weightedEnabled: true, weightedMaxGrams: true },
+      select: { id: true, name: true, slug: true, series: true, active: true, weightedEnabled: true, weightedMaxGrams: true },
     }),
   ]);
   // Miért nem rendelhető most a súlyarányos változat (az admin számára).
@@ -44,6 +44,7 @@ export default async function AdminSettingsPage() {
           name: `${p.name}${p.active ? '' : ' (inaktív)'}`,
           enabled: p.weightedEnabled,
           maxOverride: p.weightedMaxGrams,
+          series: p.series,
         }))}
       />
       <SellerSelect
