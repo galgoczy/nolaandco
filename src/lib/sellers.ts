@@ -20,6 +20,12 @@ export type Seller = {
   taxNumber: string;
   /** A Számlázz.hu Számla Agent kulcsát tartalmazó környezeti változó neve. */
   agentKeyEnv: string;
+  /**
+   * Küldhető-e a külön „rendelésszám” mező a számlán. A #free csomag nem
+   * engedi („Nincs jogosultságod … (rendelésszám)”) — ilyenkor a rendelésszám
+   * csak a megjegyzésben szerepel.
+   */
+  invoiceOrderNumberField: boolean;
 };
 
 export const SELLERS: Record<SellerId, Seller> = {
@@ -30,6 +36,7 @@ export const SELLERS: Record<SellerId, Seller> = {
     registrationNumber: '60197214',
     taxNumber: '76104020-1-41',
     agentKeyEnv: 'SZAMLAZZ_AGENT_KEY_GERGELY',
+    invoiceOrderNumberField: false,
   },
   kriszti: {
     id: 'kriszti',
@@ -38,6 +45,7 @@ export const SELLERS: Record<SellerId, Seller> = {
     registrationNumber: '60843867',
     taxNumber: '91306353-1-41',
     agentKeyEnv: 'SZAMLAZZ_AGENT_KEY',
+    invoiceOrderNumberField: true,
   },
 };
 
