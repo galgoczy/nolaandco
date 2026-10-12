@@ -131,7 +131,7 @@ export default function KosarPage() {
                 >
                   {item.name}
                 </Link>
-                {item.babyName ? (
+                {item.babyName && item.birthDate ? (
                   <p className="text-sm text-carbon-light mt-0.5">
                     {item.babyName} &middot; {item.birthDate}
                   </p>

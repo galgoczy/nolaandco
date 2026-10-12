@@ -22,6 +22,8 @@ import VariantText from '@/components/products/VariantText';
 import { getWeightedConfig } from '@/lib/weightedPillow.server';
 
 const POSTER_DESIGNER_SLUG = 'poszter';
+// Saját oldaltípussal rendelkező kategóriák — ezek sosem kapják a textil nézetet.
+const PERSONALIZED_OR_CUSTOM = new Set(['pillow', 'poster', 'giftcard', 'cape', 'crown', 'bundle']);
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -107,7 +109,16 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
   const isBigKidProduct =
     product.category === 'cape' || product.category === 'crown' || product.category === 'bundle';
   // DB-variánsos, nem személyre szabott termékek (swatch-választós oldal).
-  const isTextile = ['szundikendo', 'takaro', 'decor'].includes(product.category);
+  // Az adminban felvett új kategóriák is ide tartoznak, ha Textilek/Dekoráció
+  // alá kerültek, vagy ha a terméknek vannak változatai — a személyre szabó
+  // űrlap csak a párnákhoz/poszterekhez/ajándékkártyához tartozik.
+  const isTextile =
+    ['szundikendo', 'takaro', 'decor'].includes(product.category) ||
+    (!PERSONALIZED_OR_CUSTOM.has(product.category) &&
+      ((await prisma.category.count({
+        where: { slug: product.category, parent: { in: ['textilek', 'dekoracio'] } },
+      })) > 0 ||
+        (await prisma.productVariant.count({ where: { productId: product.id } })) > 0));
   const effectivePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
 
   // A csomagok választható színei/modelljei a katalógusból jönnek, hogy az
@@ -182,7 +193,9 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
     // A NOLA Cloud kétoldalas párosításokkal érkezik — ott "színpárosítás" a felirat.
     const variantLabel = variants.some((v) => v.colorHex2)
       ? 'Válassz színpárosítást'
-      : 'Válassz színt';
+      : variants.some((v) => v.colorHex)
+        ? 'Válassz színt'
+        : 'Válassz változatot';
 
     return (
       <section className="pt-4 pb-16 md:pt-8 md:pb-24 bg-surface min-h-screen">
@@ -217,6 +230,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
               stock: v.stock,
               images: v.images ?? [],
               priceDiff: v.priceDiff,
+              inputLabel: v.inputLabel,
             }))}
             variantLabel={variantLabel}
           />

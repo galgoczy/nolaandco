@@ -14,7 +14,12 @@ import StockAlertForm from '@/components/products/StockAlertForm';
 export type TextileVariant = PickerVariant & {
   images: string[];
   priceDiff: number;
+  /** Személyre szabott variáns: a kötelező beviteli mező felirata. */
+  inputLabel?: string | null;
 };
+
+/** A személyre szabott szöveg maximális hossza. */
+const PERSONAL_TEXT_MAX = 40;
 
 type Props = {
   product: {
@@ -56,6 +61,7 @@ export default function TextileClient({ product, variants, variantLabel }: Props
   );
   const [selectedId, setSelectedId] = useState<string | null>(selectable[0]?.id ?? null);
   const [error, setError] = useState('');
+  const [personalText, setPersonalText] = useState('');
   const [added, setAdded] = useState(false);
   const [fading, setFading] = useState(false);
 
@@ -86,6 +92,12 @@ export default function TextileClient({ product, variants, variantLabel }: Props
       setError('Kérlek válassz egy változatot!');
       return;
     }
+    const inputLabel = selected?.inputLabel?.trim();
+    const text = personalText.trim();
+    if (inputLabel && !text) {
+      setError(`Kérlek, add meg: ${inputLabel}`);
+      return;
+    }
     setError('');
     addItem({
       productId: product.id,
@@ -94,11 +106,15 @@ export default function TextileClient({ product, variants, variantLabel }: Props
       price,
       imageUrl: mainImage,
       quantity: 1,
-      babyName: '',
+      // A személyre szabott szöveg a babyName mezőben utazik, így a rendelés
+      // e-mailjeiben, az adminban és a Telegram-értesítőben is megjelenik.
+      babyName: inputLabel ? text : '',
       birthDate: '',
       birthWeight: '',
       birthHeight: '',
-      customNote: selected ? `${variantLabel}: ${selected.name}` : undefined,
+      customNote: selected
+        ? `Változat: ${selected.name}${inputLabel ? `\n${inputLabel}: ${text}` : ''}`
+        : undefined,
       variant: selected?.name,
       variantId: selected?.id,
       category: product.category,
@@ -200,6 +216,29 @@ export default function TextileClient({ product, variants, variantLabel }: Props
               setAdded(false);
             }}
           />
+        )}
+
+        {selected?.inputLabel && (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="variantPersonalText" className="text-carbon-light text-sm font-body">
+              {selected.inputLabel} *
+            </label>
+            <input
+              id="variantPersonalText"
+              type="text"
+              value={personalText}
+              maxLength={PERSONAL_TEXT_MAX}
+              onChange={(e) => {
+                setPersonalText(e.target.value);
+                setError('');
+                setAdded(false);
+              }}
+              placeholder="Ide írd"
+              className={`bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 ${
+                error && !personalText.trim() ? 'ring-2 ring-red-400' : ''
+              }`}
+            />
+          </div>
         )}
 
         {/* Készletinfó minden olyan terméknél, ahol be van állítva darabszám.

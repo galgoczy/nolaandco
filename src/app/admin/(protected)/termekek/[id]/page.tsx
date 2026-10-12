@@ -86,6 +86,7 @@ export default async function EditProductPage({
             colorHex2: v.colorHex2 ?? '',
             images: v.images ?? [],
             priceDiff: v.priceDiff,
+            inputLabel: v.inputLabel ?? '',
             stock: v.stock ?? '',
             active: v.active,
           })),

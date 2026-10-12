@@ -143,6 +143,7 @@ export default function ProductForm({
           colorHex2: v.colorHex2.trim() || null,
           images: v.images,
           priceDiff: v.priceDiff === '' ? 0 : Number(v.priceDiff),
+          inputLabel: v.inputLabel.trim() || null,
           stock: v.stock === '' ? null : Number(v.stock),
           sortOrder: i,
           active: v.active,

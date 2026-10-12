@@ -10,6 +10,8 @@ export type VariantFormValue = {
   colorHex2: string;
   images: string[];
   priceDiff: number | '';
+  /** Üres = nem személyre szabott variáns. */
+  inputLabel: string;
   stock: number | '';
   active: boolean;
 };
@@ -20,6 +22,7 @@ export const emptyVariant: VariantFormValue = {
   colorHex2: '',
   images: [],
   priceDiff: 0,
+  inputLabel: '',
   stock: '',
   active: true,
 };
@@ -205,6 +208,22 @@ export default function VariantEditor({
                       update(idx, { priceDiff: e.target.value === '' ? '' : Number(e.target.value) })
                     }
                   />
+                </div>
+                <div className="md:col-span-2">
+                  <label className={labelCls}>
+                    Személyre szabás — beviteli mező felirata (üres = nem személyre szabott)
+                  </label>
+                  <input
+                    type="text"
+                    className={inputCls}
+                    value={v.inputLabel}
+                    onChange={(e) => update(idx, { inputLabel: e.target.value })}
+                    placeholder="pl. Név a csizmára"
+                  />
+                  <p className="text-xs text-on-surface/50 mt-1">
+                    Ha kitöltöd, ennél a variánsnál a vásárlónak kötelező megadnia a szöveget; a
+                    rendeléssel együtt mentjük.
+                  </p>
                 </div>
               </div>
 
