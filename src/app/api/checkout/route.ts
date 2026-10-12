@@ -313,6 +313,18 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Személyre szabott variáns (pl. névre szóló): a szöveg kötelező.
+      const personalLabel = chosenVariant?.inputLabel?.trim() || null;
+      const personalText = item.babyName?.trim() ?? '';
+      if (personalLabel && (!personalText || personalText.length > 60)) {
+        return NextResponse.json(
+          {
+            error: `A(z) "${item.name}" tételnél hiányzik a személyre szabás (${personalLabel}). Kérlek, töröld a tételt a kosárból, és tedd be újra a termékoldalon a szöveggel együtt.`,
+          },
+          { status: 400 },
+        );
+      }
+
       const basePrice = product.onSale && product.salePrice ? product.salePrice : product.price;
       const price = offer ? offer.price : isVariant ? item.price : basePrice + (chosenVariant?.priceDiff ?? 0);
       subtotal += price * item.quantity;
@@ -325,7 +337,9 @@ export async function POST(request: NextRequest) {
         name:
           product.category === 'pillow' && (weighted || product.weightedEnabled)
             ? pillowVariantName(product.name, weighted)
-            : item.name || product.name,
+            : personalLabel && chosenVariant
+              ? `${product.name} – ${chosenVariant.name}`
+              : item.name || product.name,
         babyName: item.babyName || undefined,
         birthDate: item.birthDate || undefined,
         birthWeight: item.birthWeight || undefined,

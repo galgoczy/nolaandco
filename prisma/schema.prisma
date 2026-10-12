@@ -96,6 +96,9 @@ model ProductVariant {
   images    String[] @default([])
   /// Surcharge (or discount, if negative) on top of the product price.
   priceDiff Int      @default(0)
+  /// Személyre szabott variáns: ha ki van töltve, a termékoldalon egy kötelező
+  /// beviteli mező jelenik meg ezzel a felirattal (pl. "Név a csizmára").
+  inputLabel String?
   /// Stock on hand for this variant. null = untracked, 0 = sold out.
   stock     Int?
   sortOrder Int      @default(0)

@@ -230,6 +230,7 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
               stock: v.stock,
               images: v.images ?? [],
               priceDiff: v.priceDiff,
+              inputLabel: v.inputLabel,
             }))}
             variantLabel={variantLabel}
           />

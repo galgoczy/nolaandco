@@ -259,7 +259,7 @@ export default function BirthDataForm({
             className={`bg-surface-container rounded-[0.75rem] px-4 py-3 text-carbon font-body outline-none transition-colors focus:ring-2 focus:ring-primary/30 mt-3 md:mt-0 ${errors.birthHeight ? 'ring-2 ring-red-400' : ''}`}
           >
             <option value="">Válassz...</option>
-            {Array.from({ length: 61 - 44 + 1 }, (_, i) => 44 + i).map((cm) => (
+            {Array.from({ length: 61 - 35 + 1 }, (_, i) => 35 + i).map((cm) => (
               <option key={cm} value={String(cm)}>
                 {cm} cm
               </option>

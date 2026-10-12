@@ -8,6 +8,7 @@ export type VariantInput = {
   colorHex2: string | null;
   images: string[];
   priceDiff: number;
+  inputLabel: string | null;
   stock: number | null;
   sortOrder: number;
   active: boolean;
@@ -42,6 +43,7 @@ export function parseVariants(raw: unknown): VariantInput[] | undefined {
         ? v.images.filter((x): x is string => typeof x === 'string' && x.trim() !== '')
         : [],
       priceDiff: int(v.priceDiff, 0),
+      inputLabel: hex(v.inputLabel),
       stock:
         v.stock === null || v.stock === undefined || v.stock === '' ? null : int(v.stock, 0),
       sortOrder: int(v.sortOrder, idx),
@@ -79,6 +81,7 @@ export async function syncProductVariants(productId: string, variants: VariantIn
       colorHex2: v.colorHex2,
       images: v.images,
       priceDiff: v.priceDiff,
+      inputLabel: v.inputLabel,
       stock: v.stock,
       sortOrder: v.sortOrder,
       active: v.active,
