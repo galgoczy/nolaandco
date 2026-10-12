@@ -58,6 +58,9 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [banner, setBanner] = useState<BannerData | null>(null);
   const [bundleLinks, setBundleLinks] = useState<{ label: string; href: string }[]>([]);
+  const [extraCategories, setExtraCategories] = useState<
+    { slug: string; name: string; parent: string | null }[]
+  >([]);
   const [showBanner, setShowBanner] = useState(true);
   const [mounted, setMounted] = useState(false);
   const count = useCartStore((s) => s.count());
@@ -65,14 +68,23 @@ export default function Navbar() {
 
   // A Főoldal menüpont a főoldalon felesleges — csak aloldalakon jelenik meg.
   // A Válogatások lenyílóját a kategória látható termékei adják (adminból
-  // automatikusan követi a változást).
+  // automatikusan követi a változást). Az adminban főkategória alá sorolt új
+  // kategóriák a megfelelő lenyíló végére kerülnek.
   const visibleItems = navItems
     .filter((item) => !(item.href === '/' && pathname === '/'))
-    .map((item) =>
-      item.label === 'VÁLOGATÁSOK' && bundleLinks.length > 0
-        ? { ...item, children: bundleLinks }
-        : item
-    );
+    .map((item) => {
+      if (item.label === 'VÁLOGATÁSOK' && bundleLinks.length > 0) {
+        return { ...item, children: bundleLinks };
+      }
+      const umbrella = item.href?.match(/[?&]category=([^&]+)/)?.[1];
+      if (!item.children || !umbrella) return item;
+      const known = new Set(item.children.map((c) => c.href));
+      const extra = extraCategories
+        .filter((c) => c.parent === umbrella)
+        .map((c) => ({ label: c.name, href: `/termekek?category=${c.slug}` }))
+        .filter((c) => !known.has(c.href));
+      return extra.length > 0 ? { ...item, children: [...item.children, ...extra] } : item;
+    });
 
   useEffect(() => {
     setMounted(true);
@@ -93,6 +105,12 @@ export default function Navbar() {
             }))
           );
         }
+      })
+      .catch(() => {});
+    fetch('/api/menu/categories')
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.categories)) setExtraCategories(data.categories);
       })
       .catch(() => {});
   }, []);

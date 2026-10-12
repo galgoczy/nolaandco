@@ -50,13 +50,18 @@ export default function VariantPicker({
                   : 'border-outline-variant text-carbon-light hover:border-carbon-light'
               } ${soldOut ? 'opacity-40 cursor-not-allowed' : ''}`}
             >
-              <span
-                aria-hidden
-                className={`w-6 h-6 rounded-full flex-shrink-0 ring-1 ring-inset ring-black/10 ${
-                  selected ? 'outline outline-2 outline-offset-2 outline-cta' : ''
-                }`}
-                style={{ background }}
-              />
+              {/* Színkód nélküli változatnál (pl. méret) csak a felirat látszik. */}
+              {v.colorHex ? (
+                <span
+                  aria-hidden
+                  className={`w-6 h-6 rounded-full flex-shrink-0 ring-1 ring-inset ring-black/10 ${
+                    selected ? 'outline outline-2 outline-offset-2 outline-cta' : ''
+                  }`}
+                  style={{ background }}
+                />
+              ) : (
+                <span aria-hidden className="w-1" />
+              )}
               <span className="font-body whitespace-nowrap">
                 {v.name}
                 {soldOut && <span className="text-xs"> — elfogyott</span>}
