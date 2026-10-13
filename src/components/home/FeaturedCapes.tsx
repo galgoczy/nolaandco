@@ -37,7 +37,7 @@ export default async function FeaturedCapes({ t }: { t: Record<string, string> }
               <p className="text-[#4A4A4A] text-base md:text-lg leading-relaxed font-body">
                 {renderInline(t['ujdonsag-szoveg'])}
               </p>
-              <Button variant="secondary" href="/termekek?category=decor">
+              <Button variant="secondary" href="/termekek?category=socks">
                 {t['ujdonsag-gomb']}
               </Button>
             </div>
