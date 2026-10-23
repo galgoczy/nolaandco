@@ -2,13 +2,11 @@
 const nextConfig = {
   // Ne hirdessük a keretrendszert (X-Powered-By: Next.js) a válaszfejlécekben.
   poweredByHeader: false,
-  experimental: {
-    // A jogi szövegek futásidőben töltődnek (az aktív eladó adataival), ezért
-    // a markdown fájloknak a szerverfüggvény csomagjában is ott kell lenniük.
-    outputFileTracingIncludes: {
-      '/aszf': ['./content/altalanos_szerzodesi_feltetelek.md'],
-      '/adatkezeles': ['./content/adatkezelesi_tajekoztato.md'],
-    },
+  // A jogi szövegek futásidőben töltődnek (az aktív eladó adataival), ezért
+  // a markdown fájloknak a szerverfüggvény csomagjában is ott kell lenniük.
+  outputFileTracingIncludes: {
+    '/aszf': ['./content/altalanos_szerzodesi_feltetelek.md'],
+    '/adatkezeles': ['./content/adatkezelesi_tajekoztato.md'],
   },
   async redirects() {
     return [
