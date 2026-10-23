@@ -1,14 +1,10 @@
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import './globals.css';
 import Footer from '@/components/layout/Footer';
 import CookieConsent from '@/components/layout/CookieConsent';
 import Analytics from '@/components/layout/Analytics';
 import SessionProviderWrapper from '@/components/providers/SessionProviderWrapper';
-
-const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
-  ssr: false,
-});
+import Navbar from '@/components/layout/NavbarNoSSR';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nolaandco.hu'),

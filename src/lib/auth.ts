@@ -7,8 +7,15 @@ export function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password + ADMIN_SECRET).digest('hex');
 }
 
+/** Constant-time comparison, so response timing doesn't leak hash/HMAC prefixes. */
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  return ab.length === bb.length && crypto.timingSafeEqual(ab, bb);
+}
+
 export function verifyPassword(password: string, hash: string): boolean {
-  return hashPassword(password) === hash;
+  return safeEqual(hashPassword(password), hash);
 }
 
 export function createToken(email: string): string {
@@ -22,7 +29,7 @@ export function verifyToken(token: string): { email: string } | null {
     const [payloadB64, hmac] = token.split('.');
     const payload = Buffer.from(payloadB64, 'base64').toString();
     const expected = crypto.createHmac('sha256', ADMIN_SECRET).update(payload).digest('hex');
-    if (hmac !== expected) return null;
+    if (!hmac || !safeEqual(hmac, expected)) return null;
     const data = JSON.parse(payload);
     if (data.exp < Date.now()) return null;
     return { email: data.email };

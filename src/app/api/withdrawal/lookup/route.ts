@@ -6,7 +6,9 @@ import { isWithdrawalEligibleProduct, isWithdrawalOpen } from '@/lib/withdrawal'
 export const runtime = 'nodejs';
 
 const bodySchema = z.object({
-  orderNumber: z.string().min(4),
+  // The displayed order number is 8 chars; shorter input would let a guessed
+  // e-mail match orders by a trivially short id suffix.
+  orderNumber: z.string().refine((s) => s.trim().replace(/^#/, '').length >= 8),
   email: z.string().email(),
 });
 

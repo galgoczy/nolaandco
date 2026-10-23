@@ -1,12 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // A jogi szövegek futásidőben töltődnek (az aktív eladó adataival), ezért
-    // a markdown fájloknak a szerverfüggvény csomagjában is ott kell lenniük.
-    outputFileTracingIncludes: {
-      '/aszf': ['./content/altalanos_szerzodesi_feltetelek.md'],
-      '/adatkezeles': ['./content/adatkezelesi_tajekoztato.md'],
-    },
+  // Ne hirdessük a keretrendszert (X-Powered-By: Next.js) a válaszfejlécekben.
+  poweredByHeader: false,
+  // A jogi szövegek futásidőben töltődnek (az aktív eladó adataival), ezért
+  // a markdown fájloknak a szerverfüggvény csomagjában is ott kell lenniük.
+  outputFileTracingIncludes: {
+    '/aszf': ['./content/altalanos_szerzodesi_feltetelek.md'],
+    '/adatkezeles': ['./content/adatkezelesi_tajekoztato.md'],
   },
   async redirects() {
     return [
