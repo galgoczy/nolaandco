@@ -6,6 +6,7 @@ import { getActiveSeller, getSellerSetting } from '@/lib/sellers.server';
 import UrgentToggle from './UrgentToggle';
 import SellerSelect from './SellerSelect';
 import WeightedSettings from './WeightedSettings';
+import TestEmails from './TestEmails';
 import { prisma } from '@/lib/prisma';
 import { getWeightedConfig } from '@/lib/weightedPillow.server';
 
@@ -61,6 +62,7 @@ export default async function AdminSettingsPage() {
         ]}
         keyStatus={Object.values(SELLERS).map((s) => ({ name: s.legalName, ok: !!process.env[s.agentKeyEnv] }))}
       />
+      <TestEmails />
     </div>
   );
 }
