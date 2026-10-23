@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Ne hirdessük a keretrendszert (X-Powered-By: Next.js) a válaszfejlécekben.
+  poweredByHeader: false,
   experimental: {
     // A jogi szövegek futásidőben töltődnek (az aktív eladó adataival), ezért
     // a markdown fájloknak a szerverfüggvény csomagjában is ott kell lenniük.

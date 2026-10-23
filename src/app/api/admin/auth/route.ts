@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword, createToken } from '@/lib/auth';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request.headers);
+  const ipLimit = rateLimit(`admin-login:ip:${ip}`, 10, 15 * 60 * 1000);
+  if (!ipLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Túl sok próbálkozás. Kérjük, várj néhány percet.' },
+      { status: 429 },
+    );
+  }
+
   try {
     const contentType = request.headers.get('content-type') ?? '';
 
