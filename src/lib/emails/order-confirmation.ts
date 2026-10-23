@@ -18,7 +18,7 @@ interface OrderItem extends PillowLine {
   urgent?: boolean;
 }
 
-interface OrderConfirmationData {
+export interface OrderConfirmationData {
   customerName: string;
   orderId: string;
   orderUrl: string;
